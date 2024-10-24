@@ -12,6 +12,7 @@ public class MariaDBConfig extends RSConfiguration {
     private String username = "";
     private String password = "";
     private String tablePrefix = getPlugin().getName() + "_";
+    private boolean useArrowOperator = true;
 
     public MariaDBConfig(RSPlugin plugin) {
         super(plugin, "Configs/Storages", "MariaDB.yml", null);
@@ -25,6 +26,7 @@ public class MariaDBConfig extends RSConfiguration {
         username = getString("username", username);
         password = getString("password", password);
         tablePrefix = getString("tablePrefix", tablePrefix);
+        useArrowOperator = getBoolean("UseArrowOperator", useArrowOperator);
     }
 
 }

@@ -9,6 +9,7 @@ import lombok.Getter;
 import org.apache.commons.lang3.tuple.Pair;
 import org.bukkit.Bukkit;
 import org.bukkit.scheduler.BukkitTask;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.*;
@@ -40,7 +41,7 @@ public class Json implements Storage {
     }
 
     @Override
-    public boolean add(String name, JsonObject data) {
+    public boolean add(@NotNull String name, @NotNull JsonObject data) {
         if (!map.containsKey(name)) {
             plugin.console("<red>Can't load " + name + " data!</red>");
             plugin.console("<red>" + name + " 파일을 불러오는 도중 오류가 발생하였습니다!</red>");
@@ -50,7 +51,7 @@ public class Json implements Storage {
     }
 
     @Override
-    public boolean set(String name, Pair<String, Object> find, Pair<String, Object> data) {
+    public boolean set(@NotNull String name, Pair<String, Object> find, Pair<String, Object> data) {
         if (!map.containsKey(name)) {
             plugin.console("<red>Can't load " + name + " data!</red>");
             plugin.console("<red>" + name + " 파일을 불러오는 도중 오류가 발생하였습니다!</red>");
@@ -60,7 +61,7 @@ public class Json implements Storage {
     }
 
     @Override
-    public List<JsonObject> get(String name, Pair<String, Object> find) {
+    public List<JsonObject> get(@NotNull String name, Pair<String, Object> find) {
         if (!map.containsKey(name)) {
             plugin.console("<red>Can't load " + name + " data!</red>");
             plugin.console("<red>" + name + " 파일을 불러오는 도중 오류가 발생하였습니다!</red>");
@@ -155,7 +156,6 @@ public class Json implements Storage {
             return true;
         }
 
-        @Nullable
         protected List<JsonObject> get(Pair<String, Object> find) {
             Map<Integer, JsonObject> list = find(find);
             return new ArrayList<>(list.values());

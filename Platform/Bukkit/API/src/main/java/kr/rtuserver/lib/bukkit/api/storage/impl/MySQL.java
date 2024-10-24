@@ -78,7 +78,7 @@ public class MySQL implements Storage {
     }
 
     @Override
-    public boolean add(String table, JsonObject data) {
+    public boolean add(@NotNull String table, @NotNull JsonObject data) {
         String json = gson.toJson(data);
         try {
             //INSERT INTO `test` (`data`) VALUES ('{"A": B"}');
@@ -95,7 +95,7 @@ public class MySQL implements Storage {
     }
 
     @Override
-    public boolean set(String table, Pair<String, Object> find, Pair<String, Object> data) {
+    public boolean set(@NotNull String table, Pair<String, Object> find, Pair<String, Object> data) {
         String query;
         if (data != null) {
 
@@ -116,7 +116,8 @@ public class MySQL implements Storage {
         if (find != null) {
             Object value = find.getValue();
             if (value instanceof JsonObject jsonObject) value = jsonObject.toString();
-            query += " WHERE data ->> '$." + find.getKey() + "' LIKE '" + value + "'";
+            if (config.isUseArrowOperator()) query += " WHERE data ->> '$." + find.getKey() + "' LIKE '" + value + "'";
+            else query += " WHERE JSON_UNQUOTE( JSON_EXTRACT(data, '$." + find.getKey() + "')) LIKE '" + value + "'";
         }
         try {
             PreparedStatement ps = getConnection().prepareStatement(query + ";");
@@ -132,16 +133,18 @@ public class MySQL implements Storage {
     }
 
     @Override
-    public List<JsonObject> get(String table, Pair<String, Object> find) {
+    public List<JsonObject> get(@NotNull String table, Pair<String, Object> find) {
         List<JsonObject> result = new ArrayList<>();
         String query = "SELECT * FROM " + prefix + table;
         if (find != null) {
             Object value = find.getValue();
             if (value instanceof JsonObject jsonObject) value = jsonObject.toString();
-            query += " WHERE data ->> '$." + find.getKey() + "' LIKE '" + value + "';";
+
+            if (config.isUseArrowOperator()) query += " WHERE data ->> '$." + find.getKey() + "' LIKE '" + value + "'";
+            else query += " WHERE JSON_UNQUOTE( JSON_EXTRACT(data, '$." + find.getKey() + "')) LIKE '" + value + "'";
         }
         try {
-            PreparedStatement ps = getConnection().prepareStatement(query);
+            PreparedStatement ps = getConnection().prepareStatement(query + ";");
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
                 result.add(gson.fromJson(rs.getString("data"), JsonObject.class));

@@ -7,6 +7,9 @@ import kr.rtuserver.lib.bukkit.api.core.RSFramework;
 import kr.rtuserver.lib.common.api.cdi.LightDI;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
+import net.Indyuce.mmoitems.MMOItems;
+import net.Indyuce.mmoitems.api.item.mmoitem.LiveMMOItem;
+import net.Indyuce.mmoitems.api.item.mmoitem.MMOItem;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -50,6 +53,12 @@ public class ItemCompat {
                     return customStack != null ? customStack.getItemStack() : null;
                 } else return null;
             }
+            case "mmoitems" -> {
+                if (framework().isEnabledDependency("MMOItems")) {
+                    if (split.length != 3) return null;
+                    return MMOItems.plugin.getItem(split[1], split[2]);
+                } else return null;
+            }
             case "custom" -> {
                 if (split.length != 3) return null;
                 Material material = Material.getMaterial(split[1].toUpperCase());
@@ -78,6 +87,12 @@ public class ItemCompat {
         if (framework().isEnabledDependency("ItemsAdder")) {
             CustomStack itemsAdder = CustomStack.byItemStack(itemStack);
             if (itemsAdder != null) return "itemsadder:" + itemsAdder.getNamespacedID();
+        }
+        if (framework().isEnabledDependency("MMOItems")) {
+            try {
+                MMOItem mmoItem = new LiveMMOItem(itemStack);
+                return "mmoitems:" + mmoItem.getType().getName() + ":" + mmoItem.getId();
+            } catch (Exception ignored) {}
         }
         String result = "minecraft:" + itemStack.getType().toString().toLowerCase();
         ItemMeta itemMeta = itemStack.getItemMeta();

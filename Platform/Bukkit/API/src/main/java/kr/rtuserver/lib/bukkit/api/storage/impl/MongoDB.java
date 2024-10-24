@@ -20,6 +20,7 @@ import me.mrnavastar.protoweaver.api.protocol.internal.StorageSync;
 import org.apache.commons.lang3.tuple.Pair;
 import org.bson.Document;
 import org.bson.conversions.Bson;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -56,7 +57,7 @@ public class MongoDB implements Storage {
     }
 
     @Override
-    public boolean add(String collectionName, JsonObject data) {
+    public boolean add(@NotNull String collectionName, @NotNull JsonObject data) {
         MongoCollection<Document> collection = database.getCollection(prefix + collectionName);
         Document document = Document.parse(gson.toJson(data));
         if (!collection.insertOne(document).wasAcknowledged()) return false;
@@ -66,7 +67,7 @@ public class MongoDB implements Storage {
     }
 
     @Override
-    public boolean set(String collectionName, Pair<String, Object> find, Pair<String, Object> data) {
+    public boolean set(@NotNull String collectionName, Pair<String, Object> find, Pair<String, Object> data) {
         MongoCollection<Document> collection = database.getCollection(prefix + collectionName);
         if (find != null) {
             Bson filter;
@@ -102,7 +103,7 @@ public class MongoDB implements Storage {
 
 
     @Override
-    public List<JsonObject> get(String collectionName, Pair<String, Object> find) {
+    public List<JsonObject> get(@NotNull String collectionName, Pair<String, Object> find) {
         MongoCollection<Document> collection = database.getCollection(prefix + collectionName);
         FindIterable<Document> documents = find != null ? collection.find(Filters.eq(find.getKey(), find.getValue())) : collection.find();
         List<JsonObject> result = new ArrayList<>();

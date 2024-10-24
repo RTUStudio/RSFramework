@@ -74,7 +74,7 @@ public class SQLite implements Storage {
     }
 
     @Override
-    public boolean add(String table, JsonObject data) {
+    public boolean add(@NotNull String table, @NotNull JsonObject data) {
         String json = gson.toJson(data);
         try {
             //INSERT INTO `test` (`data`) VALUES ('{"A": B"}');
@@ -88,7 +88,7 @@ public class SQLite implements Storage {
     }
 
     @Override
-    public boolean set(String table, Pair<String, Object> find, Pair<String, Object> data) {
+    public boolean set(@NotNull String table, Pair<String, Object> find, Pair<String, Object> data) {
         String query;
         if (data != null) {
 
@@ -123,7 +123,7 @@ public class SQLite implements Storage {
     }
 
     @Override
-    public List<JsonObject> get(String table, Pair<String, Object> find) {
+    public List<JsonObject> get(@NotNull String table, Pair<String, Object> find) {
         List<JsonObject> result = new ArrayList<>();
         String query = "SELECT * FROM " + table;
         if (find != null) {
