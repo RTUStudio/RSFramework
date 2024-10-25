@@ -8,7 +8,7 @@ import kr.rtuserver.lib.common.api.cdi.LightDI;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import net.Indyuce.mmoitems.MMOItems;
-import net.Indyuce.mmoitems.api.item.mmoitem.LiveMMOItem;
+import net.Indyuce.mmoitems.api.Type;
 import net.Indyuce.mmoitems.api.item.mmoitem.MMOItem;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
@@ -89,10 +89,9 @@ public class ItemCompat {
             if (itemsAdder != null) return "itemsadder:" + itemsAdder.getNamespacedID();
         }
         if (framework().isEnabledDependency("MMOItems")) {
-            try {
-                MMOItem mmoItem = new LiveMMOItem(itemStack);
-                return "mmoitems:" + mmoItem.getType().getName() + ":" + mmoItem.getId();
-            } catch (Exception ignored) {}
+            String id = MMOItems.getID(itemStack);
+            String type = MMOItems.getTypeName(itemStack);
+            if (id != null && type != null) return id + ":" + type;
         }
         String result = "minecraft:" + itemStack.getType().toString().toLowerCase();
         ItemMeta itemMeta = itemStack.getItemMeta();
@@ -115,6 +114,23 @@ public class ItemCompat {
             if (var1 != null && var2 != null) return var1.getNamespacedID().equalsIgnoreCase(var2.getNamespacedID());
             else if (var1 != null) return var1.getItemStack().isSimilar(stack2);
             else if (var2 != null) return var2.getItemStack().isSimilar(stack1);
+        }
+        if (framework().isEnabledDependency("MMOItems")) {
+            Type type1 = MMOItems.getType(stack1);
+            String id1 = MMOItems.getID(stack1);
+            Type type2 = MMOItems.getType(stack2);
+            String id2 = MMOItems.getID(stack2);
+            MMOItem var1 = MMOItems.plugin.getMMOItem(type1, id1);
+            MMOItem var2 = MMOItems.plugin.getMMOItem(type2, id2);
+            if (var1 != null && var2 != null)
+                return (var1.getType().getName() + ":" + var1.getId()).equalsIgnoreCase(var2.getType().getName() + ":" + var2.getId());
+            else if (var1 != null) {
+                ItemStack itemStack = MMOItems.plugin.getItem(type1, id1);
+                if (itemStack != null) return itemStack.isSimilar(stack2);
+            } else if (var2 != null) {
+                ItemStack itemStack = MMOItems.plugin.getItem(type2, id2);
+                if (itemStack != null) return itemStack.isSimilar(stack1);
+            }
         }
         return stack1.isSimilar(stack2);
     }

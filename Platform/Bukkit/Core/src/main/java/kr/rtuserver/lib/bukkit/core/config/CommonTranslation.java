@@ -9,10 +9,10 @@ public class CommonTranslation implements kr.rtuserver.lib.bukkit.api.core.confi
     private final RSPlugin plugin;
 
     public String getCommand(String key) {
-        return plugin.getConfigurations().getCommand().get("custom." + key);
+        return plugin.getConfigurations().getCommand().get("common." + key);
     }
 
     public String getMessage(String key) {
-        return plugin.getConfigurations().getMessage().get("custom." + key);
+        return plugin.getConfigurations().getMessage().get("common." + key);
     }
 }
