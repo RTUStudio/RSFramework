@@ -88,6 +88,10 @@ dependencies {
 }
 
 shadowJar {
+    mustRunAfter(":Platform:Bukkit:jar")
+    mustRunAfter(":Platform:Bungee:jar")
+    mustRunAfter(":Platform:Velocity:jar")
+
     doLast {
         copy {
             from archiveFile.get().asFile into file("$projectDir/builds")
