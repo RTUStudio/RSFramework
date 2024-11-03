@@ -15,6 +15,7 @@ dependencies {
     compileOnly project(path: ':Platform:Bukkit:NMS:1_20_R3', configuration: 'reobf')
     compileOnly project(path: ':Platform:Bukkit:NMS:1_20_R4', configuration: 'reobf')
     compileOnly project(path: ':Platform:Bukkit:NMS:1_21_R1', configuration: 'reobf')
+    compileOnly project(path: ':Platform:Bukkit:NMS:1_21_R2', configuration: 'reobf')
 }
 
 compileJava {

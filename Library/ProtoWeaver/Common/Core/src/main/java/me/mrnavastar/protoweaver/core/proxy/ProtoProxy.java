@@ -1,14 +1,14 @@
 package me.mrnavastar.protoweaver.core.proxy;
 
+import kr.rtuserver.protoweaver.api.ProtoWeaver;
+import kr.rtuserver.protoweaver.api.protocol.Protocol;
+import kr.rtuserver.protoweaver.api.protocol.Side;
+import kr.rtuserver.protoweaver.api.proxy.ProtoServer;
+import kr.rtuserver.protoweaver.api.proxy.ServerSupplier;
+import kr.rtuserver.protoweaver.api.r.R;
 import lombok.NonNull;
 import lombok.Setter;
-import me.mrnavastar.protoweaver.api.ProtoWeaver;
-import me.mrnavastar.protoweaver.api.protocol.Protocol;
-import me.mrnavastar.protoweaver.api.protocol.Side;
-import me.mrnavastar.protoweaver.api.proxy.ProtoServer;
-import me.mrnavastar.protoweaver.api.proxy.ServerSupplier;
 import me.mrnavastar.protoweaver.core.client.ProtoClient;
-import me.mrnavastar.r.R;
 import org.jetbrains.annotations.ApiStatus;
 
 import java.net.InetSocketAddress;
@@ -36,46 +36,6 @@ public class ProtoProxy {
         serverSupplier.getServers().forEach(server -> servers.put(server, new ArrayList<>()));
         ProtoWeaver.PROTOCOL_LOADED.register(this::startProtocol);
         ProtoWeaver.getLoadedProtocols().forEach(this::startProtocol);
-    }
-
-    private void startProtocol(Protocol protocol) {
-        if (protocol.toString().equals("rslib:protoweaver")) return;
-        servers.forEach((server, clients) -> {
-            for (ProtoClient client : clients) {
-                // Don't start a new connection if one already exists for this protocol
-                if (client.getCurrentProtocol().toString().equals(protocol.toString())) return;
-            }
-            connectClient(protocol, server, clients);
-        });
-    }
-
-    private void connectClient(Protocol protocol, ProtoServer server, ArrayList<ProtoClient> clients) {
-        ProtoClient client = new ProtoClient((InetSocketAddress) server.getAddress(), hostsFile);
-        client.connect(protocol).onConnectionLost(connection -> {
-            clients.remove(client);
-
-            if (connection.getDisconnecter().equals(Side.CLIENT)) return;
-            Thread.sleep(serverPollRate);
-            connectClient(protocol, server, clients);
-        }).onConnectionEstablished(connection -> R.of(server).set("connection", connection));
-        clients.add(client);
-    }
-
-    @ApiStatus.Internal
-    public void shutdown() {
-        servers.values().forEach(clients -> clients.forEach(ProtoClient::disconnect));
-        servers.clear();
-    }
-
-    @ApiStatus.Internal
-    public void register(ProtoServer server) {
-        if (servers.putIfAbsent(server, new ArrayList<>()) == null)
-            ProtoWeaver.getLoadedProtocols().forEach(this::startProtocol);
-    }
-
-    @ApiStatus.Internal
-    public void unregister(ProtoServer server) {
-        Optional.ofNullable(servers.remove(server)).ifPresent(clients -> clients.forEach(ProtoClient::disconnect));
     }
 
     /**
@@ -130,5 +90,45 @@ public class ProtoProxy {
      */
     public static Optional<ProtoServer> getConnectedServer(@NonNull Protocol protocol, SocketAddress address) {
         return getConnectedServers(protocol).stream().filter(s -> s.getAddress().equals(address)).findFirst();
+    }
+
+    private void startProtocol(Protocol protocol) {
+        if (protocol.toString().equals("rslib:protoweaver")) return;
+        servers.forEach((server, clients) -> {
+            for (ProtoClient client : clients) {
+                // Don't start a new connection if one already exists for this protocol
+                if (client.getCurrentProtocol().toString().equals(protocol.toString())) return;
+            }
+            connectClient(protocol, server, clients);
+        });
+    }
+
+    private void connectClient(Protocol protocol, ProtoServer server, ArrayList<ProtoClient> clients) {
+        ProtoClient client = new ProtoClient((InetSocketAddress) server.getAddress(), hostsFile);
+        client.connect(protocol).onConnectionLost(connection -> {
+            clients.remove(client);
+
+            if (connection.getDisconnecter().equals(Side.CLIENT)) return;
+            Thread.sleep(serverPollRate);
+            connectClient(protocol, server, clients);
+        }).onConnectionEstablished(connection -> R.of(server).set("connection", connection));
+        clients.add(client);
+    }
+
+    @ApiStatus.Internal
+    public void shutdown() {
+        servers.values().forEach(clients -> clients.forEach(ProtoClient::disconnect));
+        servers.clear();
+    }
+
+    @ApiStatus.Internal
+    public void register(ProtoServer server) {
+        if (servers.putIfAbsent(server, new ArrayList<>()) == null)
+            ProtoWeaver.getLoadedProtocols().forEach(this::startProtocol);
+    }
+
+    @ApiStatus.Internal
+    public void unregister(ProtoServer server) {
+        Optional.ofNullable(servers.remove(server)).ifPresent(clients -> clients.forEach(ProtoClient::disconnect));
     }
 }

@@ -1,12 +1,12 @@
 package me.mrnavastar.protoweaver.core.protocol.protoweaver;
 
+import kr.rtuserver.protoweaver.api.netty.ProtoConnection;
+import kr.rtuserver.protoweaver.api.netty.Sender;
+import kr.rtuserver.protoweaver.api.protocol.Protocol;
+import kr.rtuserver.protoweaver.api.protocol.internal.CustomPacket;
+import kr.rtuserver.protoweaver.api.protocol.internal.ProtocolRegister;
+import kr.rtuserver.protoweaver.api.util.ProtoLogger;
 import lombok.Getter;
-import me.mrnavastar.protoweaver.api.netty.ProtoConnection;
-import me.mrnavastar.protoweaver.api.netty.Sender;
-import me.mrnavastar.protoweaver.api.protocol.Protocol;
-import me.mrnavastar.protoweaver.api.protocol.internal.CustomPacket;
-import me.mrnavastar.protoweaver.api.protocol.internal.ProtocolRegister;
-import me.mrnavastar.protoweaver.api.util.ProtoLogger;
 
 public class InternalConnectionHandler {
 

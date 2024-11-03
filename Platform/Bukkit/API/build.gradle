@@ -20,6 +20,8 @@ dependencies {
 
 
 shadowJar {
+    mustRunAfter(":Library:ProtoWeaver:Bukkit:API:shadowJar")
+
     relocate 'io.papermc.lib', 'kr.rtuserver.lib.bukkit.api.utility.paper'
     relocate 'net.kyori.adventure.platform.bukkit', 'kr.rtuserver.lib.bukkit.api.utility.kyori'
 

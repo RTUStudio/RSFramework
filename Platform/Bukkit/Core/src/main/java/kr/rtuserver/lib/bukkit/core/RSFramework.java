@@ -22,13 +22,13 @@ import kr.rtuserver.lib.bukkit.nms.v1_20_r2.NMS_1_20_R2;
 import kr.rtuserver.lib.bukkit.nms.v1_20_r3.NMS_1_20_R3;
 import kr.rtuserver.lib.bukkit.nms.v1_20_r4.NMS_1_20_R4;
 import kr.rtuserver.lib.bukkit.nms.v1_21_r1.NMS_1_21_R1;
+import kr.rtuserver.protoweaver.api.ProtoConnectionHandler;
+import kr.rtuserver.protoweaver.api.callback.HandlerCallback;
+import kr.rtuserver.protoweaver.api.protocol.Packet;
+import kr.rtuserver.protoweaver.api.protocol.internal.StorageSync;
+import kr.rtuserver.protoweaver.core.impl.bukkit.BukkitProtoWeaver;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
-import me.mrnavastar.protoweaver.api.ProtoConnectionHandler;
-import me.mrnavastar.protoweaver.api.callback.HandlerCallback;
-import me.mrnavastar.protoweaver.api.protocol.Packet;
-import me.mrnavastar.protoweaver.api.protocol.internal.StorageSync;
-import me.mrnavastar.protoweaver.impl.bukkit.core.BukkitProtoWeaver;
 import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
@@ -40,7 +40,7 @@ import java.util.List;
 import java.util.Map;
 
 @Slf4j(topic = "RSLib/Framework")
-@kr.rtuserver.lib.common.api.cdi.annotations.Component
+@kr.rtuserver.cdi.annotations.Component
 public class RSFramework implements kr.rtuserver.lib.bukkit.api.core.RSFramework {
 
     @Getter
@@ -78,6 +78,7 @@ public class RSFramework implements kr.rtuserver.lib.bukkit.api.core.RSFramework
     }
 
     private void onPacket(HandlerCallback.Packet packet) {
+        protoWeaver.onPacket(packet);
         if (packet.packet() instanceof StorageSync sync) {
             RSPlugin plugin = plugins.get(sync.plugin());
             if (plugin == null) return;

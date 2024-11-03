@@ -1,7 +1,7 @@
 package kr.rtuserver.lib.bukkit.api.utility.format;
 
+import kr.rtuserver.cdi.LightDI;
 import kr.rtuserver.lib.bukkit.api.core.RSFramework;
-import kr.rtuserver.lib.common.api.cdi.LightDI;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import me.clip.placeholderapi.PlaceholderAPI;

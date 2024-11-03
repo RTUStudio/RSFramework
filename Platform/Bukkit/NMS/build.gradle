@@ -1,11 +1,13 @@
 subprojects {
+
     java {
         toolchain.languageVersion.set(JavaLanguageVersion.of(17))
     }
-}
 
-compileJava {
-    mustRunAfter(":Library:ProtoWeaver:Common:API:shadowJar")
-    mustRunAfter(":Library:ProtoWeaver:Common:Core:shadowJar")
-    mustRunAfter(":Library:ProtoWeaver:Bukkit:API:shadowJar")
+    compileJava {
+        mustRunAfter(":Library:ProtoWeaver:Bukkit:API:shadowJar")
+        mustRunAfter(":Library:ProtoWeaver:Common:API:shadowJar")
+        mustRunAfter(":Library:ProtoWeaver:Common:Core:shadowJar")
+    }
+
 }

@@ -1,8 +1,8 @@
 package kr.rtuserver.lib.bukkit.plugin;
 
+import kr.rtuserver.cdi.LightDI;
 import kr.rtuserver.lib.bukkit.api.RSPlugin;
 import kr.rtuserver.lib.bukkit.plugin.commands.RSLibCommand;
-import kr.rtuserver.lib.common.api.cdi.LightDI;
 import lombok.Getter;
 import org.bukkit.Bukkit;
 import org.bukkit.permissions.PermissionDefault;

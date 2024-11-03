@@ -12,4 +12,5 @@ dependencies {
     compileOnly project(path: ':Library:ProtoWeaver:Bukkit:NMS:1_20_R3', configuration: 'reobf')
     compileOnly project(path: ':Library:ProtoWeaver:Bukkit:NMS:1_20_R4', configuration: 'reobf')
     compileOnly project(path: ':Library:ProtoWeaver:Bukkit:NMS:1_21_R1', configuration: 'reobf')
+    compileOnly project(path: ':Library:ProtoWeaver:Bukkit:NMS:1_21_R2', configuration: 'reobf')
 }

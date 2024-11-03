@@ -11,13 +11,13 @@ import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.handler.ssl.SslContext;
 import io.netty.handler.ssl.SslContextBuilder;
+import kr.rtuserver.protoweaver.api.ProtoWeaver;
+import kr.rtuserver.protoweaver.api.netty.ProtoConnection;
+import kr.rtuserver.protoweaver.api.netty.Sender;
+import kr.rtuserver.protoweaver.api.protocol.Protocol;
+import kr.rtuserver.protoweaver.api.protocol.Side;
 import lombok.Getter;
 import lombok.NonNull;
-import me.mrnavastar.protoweaver.api.ProtoWeaver;
-import me.mrnavastar.protoweaver.api.netty.ProtoConnection;
-import me.mrnavastar.protoweaver.api.netty.Sender;
-import me.mrnavastar.protoweaver.api.protocol.Protocol;
-import me.mrnavastar.protoweaver.api.protocol.Side;
 import me.mrnavastar.protoweaver.core.client.netty.ProtoTrustManager;
 import me.mrnavastar.protoweaver.core.protocol.protoweaver.ClientConnectionHandler;
 import me.mrnavastar.protoweaver.core.protocol.protoweaver.InternalConnectionHandler;
@@ -33,24 +33,14 @@ public class ProtoClient {
         Class<?> c = Finalizer.class;
     }
 
-    @FunctionalInterface
-    public interface ConnectionEstablishedHandler {
-        void handle(ProtoConnection connection) throws Exception;
-    }
-
-    @FunctionalInterface
-    public interface ConnectionLostHandler {
-        void handle(ProtoConnection connection) throws Exception;
-    }
-
     @Getter
     private final InetSocketAddress address;
-    private EventLoopGroup workerGroup = null;
-    @Getter
-    private ProtoConnection connection = null;
     private final SslContext sslContext;
     private final ArrayList<ConnectionEstablishedHandler> connectionEstablishedHandlers = new ArrayList<>();
     private final ArrayList<ConnectionLostHandler> connectionLostHandlers = new ArrayList<>();
+    private EventLoopGroup workerGroup = null;
+    @Getter
+    private ProtoConnection connection = null;
 
     public ProtoClient(@NonNull InetSocketAddress address, @NonNull String hostsFile) {
         try {
@@ -154,5 +144,15 @@ public class ProtoClient {
 
     public Protocol getCurrentProtocol() {
         return connection == null ? null : connection.getProtocol();
+    }
+
+    @FunctionalInterface
+    public interface ConnectionEstablishedHandler {
+        void handle(ProtoConnection connection) throws Exception;
+    }
+
+    @FunctionalInterface
+    public interface ConnectionLostHandler {
+        void handle(ProtoConnection connection) throws Exception;
     }
 }

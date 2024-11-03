@@ -53,6 +53,7 @@ dependencies {
     implementation project(path: ':Platform:Bukkit:NMS:1_20_R3', configuration: 'reobf')
     implementation project(path: ':Platform:Bukkit:NMS:1_20_R4', configuration: 'reobf')
     implementation project(path: ':Platform:Bukkit:NMS:1_21_R1', configuration: 'reobf')
+    implementation project(path: ':Platform:Bukkit:NMS:1_21_R2', configuration: 'reobf')
 
     implementation "io.papermc:paperlib:1.0.7"
     implementation "net.kyori:adventure-platform-bukkit:4.3.4"

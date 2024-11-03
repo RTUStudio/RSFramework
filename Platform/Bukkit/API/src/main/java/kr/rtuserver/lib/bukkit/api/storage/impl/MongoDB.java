@@ -16,7 +16,7 @@ import com.mongodb.client.result.UpdateResult;
 import kr.rtuserver.lib.bukkit.api.RSPlugin;
 import kr.rtuserver.lib.bukkit.api.storage.Storage;
 import kr.rtuserver.lib.bukkit.api.storage.config.MongoDBConfig;
-import me.mrnavastar.protoweaver.api.protocol.internal.StorageSync;
+import kr.rtuserver.protoweaver.api.protocol.internal.StorageSync;
 import org.apache.commons.lang3.tuple.Pair;
 import org.bson.Document;
 import org.bson.conversions.Bson;

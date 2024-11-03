@@ -10,6 +10,7 @@ subprojects {
     }
 
     compileJava {
+        mustRunAfter(":Library:ProtoWeaver:Bukkit:API:shadowJar")
         mustRunAfter(":Library:ProtoWeaver:Common:API:shadowJar")
         mustRunAfter(":Library:ProtoWeaver:Common:Core:shadowJar")
     }
@@ -27,4 +28,5 @@ dependencies {
     implementation project(path: '1_20_R3', configuration: 'reobf')
     implementation project(path: '1_20_R4', configuration: 'reobf')
     implementation project(path: '1_21_R1', configuration: 'reobf')
+    implementation project(path: '1_21_R2', configuration: 'reobf')
 }

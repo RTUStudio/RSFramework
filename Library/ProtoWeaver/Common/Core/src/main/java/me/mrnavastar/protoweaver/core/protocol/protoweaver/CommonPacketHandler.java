@@ -1,13 +1,12 @@
 package me.mrnavastar.protoweaver.core.protocol.protoweaver;
 
 import com.google.common.collect.ImmutableList;
+import kr.rtuserver.protoweaver.api.ProtoConnectionHandler;
+import kr.rtuserver.protoweaver.api.callback.HandlerCallback;
+import kr.rtuserver.protoweaver.api.netty.ProtoConnection;
+import kr.rtuserver.protoweaver.api.protocol.Protocol;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import me.mrnavastar.protoweaver.api.ProtoConnectionHandler;
-import me.mrnavastar.protoweaver.api.callback.HandlerCallback;
-import me.mrnavastar.protoweaver.api.netty.ProtoConnection;
-import me.mrnavastar.protoweaver.api.protocol.Protocol;
-import me.mrnavastar.protoweaver.core.proxy.ProtoProxy;
 
 import java.util.ArrayList;
 import java.util.List;

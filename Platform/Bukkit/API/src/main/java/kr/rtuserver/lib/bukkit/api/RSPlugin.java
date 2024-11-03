@@ -1,5 +1,6 @@
 package kr.rtuserver.lib.bukkit.api;
 
+import kr.rtuserver.cdi.LightDI;
 import kr.rtuserver.lib.bukkit.api.command.RSCommand;
 import kr.rtuserver.lib.bukkit.api.config.impl.Configurations;
 import kr.rtuserver.lib.bukkit.api.core.RSFramework;
@@ -8,13 +9,12 @@ import kr.rtuserver.lib.bukkit.api.listener.RSListener;
 import kr.rtuserver.lib.bukkit.api.storage.Storage;
 import kr.rtuserver.lib.bukkit.api.utility.format.ComponentFormatter;
 import kr.rtuserver.lib.bukkit.api.utility.platform.MinecraftVersion;
-import kr.rtuserver.lib.common.api.cdi.LightDI;
+import kr.rtuserver.protoweaver.api.ProtoConnectionHandler;
+import kr.rtuserver.protoweaver.api.callback.HandlerCallback;
+import kr.rtuserver.protoweaver.api.protocol.Packet;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
-import me.mrnavastar.protoweaver.api.ProtoConnectionHandler;
-import me.mrnavastar.protoweaver.api.callback.HandlerCallback;
-import me.mrnavastar.protoweaver.api.protocol.Packet;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;

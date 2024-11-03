@@ -1,11 +1,11 @@
 package kr.rtuserver.lib.bukkit.plugin.commands;
 
+import kr.rtuserver.cdi.LightDI;
 import kr.rtuserver.lib.bukkit.api.RSPlugin;
 import kr.rtuserver.lib.bukkit.api.command.RSCommand;
 import kr.rtuserver.lib.bukkit.api.command.RSCommandData;
 import kr.rtuserver.lib.bukkit.api.core.RSFramework;
 import kr.rtuserver.lib.bukkit.plugin.RSLib;
-import kr.rtuserver.lib.common.api.cdi.LightDI;
 
 import java.util.List;
 

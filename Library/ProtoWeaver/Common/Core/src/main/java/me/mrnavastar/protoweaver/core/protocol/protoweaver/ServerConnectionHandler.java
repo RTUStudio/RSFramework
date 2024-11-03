@@ -1,14 +1,14 @@
 package me.mrnavastar.protoweaver.core.protocol.protoweaver;
 
+import kr.rtuserver.protoweaver.api.ProtoConnectionHandler;
+import kr.rtuserver.protoweaver.api.ProtoWeaver;
+import kr.rtuserver.protoweaver.api.auth.ServerAuthHandler;
+import kr.rtuserver.protoweaver.api.netty.ProtoConnection;
+import kr.rtuserver.protoweaver.api.netty.Sender;
+import kr.rtuserver.protoweaver.api.protocol.Protocol;
+import kr.rtuserver.protoweaver.api.protocol.Side;
+import kr.rtuserver.protoweaver.api.util.ProtoConstants;
 import lombok.SneakyThrows;
-import me.mrnavastar.protoweaver.api.ProtoConnectionHandler;
-import me.mrnavastar.protoweaver.api.ProtoWeaver;
-import me.mrnavastar.protoweaver.api.auth.ServerAuthHandler;
-import me.mrnavastar.protoweaver.api.netty.ProtoConnection;
-import me.mrnavastar.protoweaver.api.netty.Sender;
-import me.mrnavastar.protoweaver.api.protocol.Protocol;
-import me.mrnavastar.protoweaver.api.protocol.Side;
-import me.mrnavastar.protoweaver.api.util.ProtoConstants;
 
 import java.util.Arrays;
 

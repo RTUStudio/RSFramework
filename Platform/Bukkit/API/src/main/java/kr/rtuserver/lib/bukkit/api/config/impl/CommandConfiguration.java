@@ -1,9 +1,9 @@
 package kr.rtuserver.lib.bukkit.api.config.impl;
 
+import kr.rtuserver.cdi.LightDI;
 import kr.rtuserver.lib.bukkit.api.RSPlugin;
 import kr.rtuserver.lib.bukkit.api.config.RSConfiguration;
 import kr.rtuserver.lib.bukkit.api.core.RSFramework;
-import kr.rtuserver.lib.common.api.cdi.LightDI;
 import lombok.Getter;
 
 import java.util.HashMap;
