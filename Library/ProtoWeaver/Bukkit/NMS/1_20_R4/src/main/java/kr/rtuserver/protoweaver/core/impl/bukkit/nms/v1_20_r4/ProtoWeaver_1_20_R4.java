@@ -7,15 +7,15 @@ import io.papermc.paper.network.ChannelInitializeListenerHolder;
 import kr.rtuserver.protoweaver.api.impl.bukkit.nms.IProtoWeaver;
 import kr.rtuserver.protoweaver.api.protocol.velocity.VelocityAuth;
 import kr.rtuserver.protoweaver.api.util.ProtoLogger;
+import kr.rtuserver.protoweaver.core.loader.netty.ProtoDeterminer;
+import kr.rtuserver.protoweaver.core.loader.netty.SSLContext;
 import lombok.extern.slf4j.Slf4j;
-import me.mrnavastar.protoweaver.core.loader.netty.ProtoDeterminer;
-import me.mrnavastar.protoweaver.core.loader.netty.SSLContext;
 import net.kyori.adventure.key.Key;
 import org.checkerframework.checker.nullness.qual.NonNull;
 
 import java.nio.charset.StandardCharsets;
 
-@Slf4j(topic = "RSLib/ProtoWeaver")
+@Slf4j(topic = "RSFramework/ProtoWeaver")
 public class ProtoWeaver_1_20_R4 implements IProtoWeaver {
 
     public ProtoWeaver_1_20_R4(String folder) {
@@ -25,7 +25,7 @@ public class ProtoWeaver_1_20_R4 implements IProtoWeaver {
         SSLContext.initContext();
         if (isModernProxy()) {
             info("Detected modern proxy");
-            ChannelInitializeListenerHolder.addListener(Key.key("rslib", "protoweaver"), new Paper());
+            ChannelInitializeListenerHolder.addListener(Key.key("rsframework", "protoweaver"), new Paper());
             VelocityAuth.setSecret(GlobalConfiguration.get().proxies.velocity.secret.getBytes(StandardCharsets.UTF_8));
         }
     }

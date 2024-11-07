@@ -7,16 +7,13 @@ import kr.rtuserver.protoweaver.api.impl.bungee.BungeeProtoHandler;
 import kr.rtuserver.protoweaver.api.protocol.CompressionType;
 import kr.rtuserver.protoweaver.api.protocol.Packet;
 import kr.rtuserver.protoweaver.api.protocol.Protocol;
-import kr.rtuserver.protoweaver.api.protocol.internal.CustomPacket;
-import kr.rtuserver.protoweaver.api.protocol.internal.PlayerList;
-import kr.rtuserver.protoweaver.api.protocol.internal.ProtocolRegister;
-import kr.rtuserver.protoweaver.api.protocol.internal.StorageSync;
+import kr.rtuserver.protoweaver.api.protocol.internal.*;
 import kr.rtuserver.protoweaver.api.proxy.ProtoServer;
 import kr.rtuserver.protoweaver.api.util.ProtoLogger;
+import kr.rtuserver.protoweaver.core.protocol.protoweaver.CommonPacketHandler;
+import kr.rtuserver.protoweaver.core.proxy.ProtoProxy;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
-import me.mrnavastar.protoweaver.core.protocol.protoweaver.CommonPacketHandler;
-import me.mrnavastar.protoweaver.core.proxy.ProtoProxy;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.event.PlayerDisconnectEvent;
@@ -28,7 +25,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-@Slf4j(topic = "RSLib/ProtoWeaver")
+@Slf4j(topic = "RSFramework/ProtoWeaver")
 @Getter
 public class BungeeProtoWeaver implements kr.rtuserver.protoweaver.api.impl.bungee.BungeeProtoWeaver {
 
@@ -45,12 +42,13 @@ public class BungeeProtoWeaver implements kr.rtuserver.protoweaver.api.impl.bung
         this.dir = dir;
         this.protoProxy = new ProtoProxy(this, dir);
         ProtoLogger.setLogger(this);
-        protocol = Protocol.create("rslib", "internal");
+        protocol = Protocol.create("rsframework", "internal");
         protocol.setCompression(CompressionType.SNAPPY);
         protocol.setMaxPacketSize(67108864); // 64mb
         protocol.addPacket(ProtocolRegister.class);
         protocol.addPacket(Packet.class);
         protocol.addPacket(PlayerList.class);
+        protocol.addPacket(Packet.of(BroadcastChat.class, true, true));
         protocol.addPacket(ProxyPlayer.class);
         protocol.addPacket(Packet.of(StorageSync.class, true, true));
         protocol.setClientHandler(BungeeProtoHandler.class, callable).load();

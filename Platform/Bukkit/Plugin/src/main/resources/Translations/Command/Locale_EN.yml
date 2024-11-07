@@ -1,2 +1,4 @@
 common:
   reload: "reload"
+
+broadcast: "broadcast"

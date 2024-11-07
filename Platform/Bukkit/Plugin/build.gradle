@@ -1,7 +1,7 @@
 dependencies {
-    compileOnly project(":Library:LightDI")
-    compileOnly project(':Platform:Bukkit:API')
-    compileOnly project(':Platform:Bukkit:Core')
+    implementation project(":Library:LightDI")
+    implementation project(':Platform:Bukkit:API')
+    implementation project(':Platform:Bukkit:Core')
 
     compileOnly 'me.clip:placeholderapi:2.11.6'
     compileOnly 'io.th0rgal:oraxen:1.168.0'

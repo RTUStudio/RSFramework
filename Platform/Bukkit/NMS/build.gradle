@@ -1,13 +1,10 @@
 subprojects {
 
-    java {
-        toolchain.languageVersion.set(JavaLanguageVersion.of(17))
+    apply {
+        plugin('io.papermc.paperweight.userdev')
     }
 
-    compileJava {
-        mustRunAfter(":Library:ProtoWeaver:Bukkit:API:shadowJar")
-        mustRunAfter(":Library:ProtoWeaver:Common:API:shadowJar")
-        mustRunAfter(":Library:ProtoWeaver:Common:Core:shadowJar")
+    dependencies {
+        pluginRemapper("net.fabricmc:tiny-remapper:0.10.4:fat")
     }
-
 }

@@ -5,9 +5,9 @@ import kr.rtuserver.protoweaver.api.callback.HandlerCallback;
 import kr.rtuserver.protoweaver.api.netty.ProtoConnection;
 import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-@Slf4j(topic = "RSLib/ProtoHandler")
 @NoArgsConstructor(force = true)
 @RequiredArgsConstructor
 public class BukkitProtoHandler implements ProtoConnectionHandler {
@@ -22,11 +22,12 @@ public class BukkitProtoHandler implements ProtoConnectionHandler {
 
     @Override
     public void onReady(ProtoConnection protoConnection) {
-        if (callable != null) callable.onReady(protoConnection);
-        proxy = protoConnection;
+        Logger log = LoggerFactory.getLogger("RSFramework/ProtoHandler");
         log.info("Connected to Proxy");
         log.info("┠ Address: {}", protoConnection.getRemoteAddress());
         log.info("┖ Protocol: {}", protoConnection.getProtocol().getNamespaceKey());
+        if (callable != null) callable.onReady(protoConnection);
+        proxy = protoConnection;
     }
 
     @Override

@@ -1,11 +1,11 @@
 {
-  "id": "rslib",
+  "id": "rsframework",
   "name": "${name}",
   "version": "${version}",
-  "description": "RSLib - Library Plugin for RSPlugins",
+  "description": "RSFramework - Library Plugin for RSPlugins",
   "authors": [
     "${author}"
   ],
   "dependencies": [],
-  "main": "kr.rtuserver.lib.velocity.RSLib"
+  "main": "kr.rtuserver.framework.velocity.RSFramework"
 }

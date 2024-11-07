@@ -15,7 +15,7 @@ public class ProtoWeaver {
      */
     public static final Event<PreLoadedProtocol> PRE_PROTOCOL_LOADED = new Event<>(callbacks -> (protocol, cancelable) -> {
         for (PreLoadedProtocol callback : callbacks) {
-            if (cancelable.isCanceled() && !protocol.getNamespaceKey().equals("rslib:protoweaver")) break;
+            if (cancelable.isCanceled() && !protocol.getNamespaceKey().equals("rsframework:protoweaver")) break;
             callback.trigger(protocol, cancelable);
         }
     });

@@ -11,13 +11,8 @@ import kr.rtuserver.protoweaver.api.netty.Sender;
 import kr.rtuserver.protoweaver.api.protocol.CompressionType;
 import kr.rtuserver.protoweaver.api.protocol.Packet;
 import kr.rtuserver.protoweaver.api.protocol.Protocol;
-import kr.rtuserver.protoweaver.api.protocol.internal.InternalPacket;
-import kr.rtuserver.protoweaver.api.protocol.internal.PlayerList;
-import kr.rtuserver.protoweaver.api.protocol.internal.ProtocolRegister;
-import kr.rtuserver.protoweaver.api.protocol.internal.StorageSync;
+import kr.rtuserver.protoweaver.api.protocol.internal.*;
 import kr.rtuserver.protoweaver.api.protocol.velocity.VelocityAuth;
-import lombok.Getter;
-import lombok.extern.slf4j.Slf4j;
 import kr.rtuserver.protoweaver.core.impl.bukkit.nms.v1_17_r1.ProtoWeaver_1_17_R1;
 import kr.rtuserver.protoweaver.core.impl.bukkit.nms.v1_18_r1.ProtoWeaver_1_18_R1;
 import kr.rtuserver.protoweaver.core.impl.bukkit.nms.v1_18_r2.ProtoWeaver_1_18_R2;
@@ -29,12 +24,15 @@ import kr.rtuserver.protoweaver.core.impl.bukkit.nms.v1_20_r2.ProtoWeaver_1_20_R
 import kr.rtuserver.protoweaver.core.impl.bukkit.nms.v1_20_r3.ProtoWeaver_1_20_R3;
 import kr.rtuserver.protoweaver.core.impl.bukkit.nms.v1_20_r4.ProtoWeaver_1_20_R4;
 import kr.rtuserver.protoweaver.core.impl.bukkit.nms.v1_21_r1.ProtoWeaver_1_21_R1;
+import kr.rtuserver.protoweaver.core.impl.bukkit.nms.v1_21_r2.ProtoWeaver_1_21_R2;
+import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 
-@Slf4j(topic = "RSLib/ProtoWeaver")
+@Slf4j(topic = "RSFramework/ProtoWeaver")
 @Getter
 public class BukkitProtoWeaver implements kr.rtuserver.protoweaver.api.impl.bukkit.BukkitProtoWeaver {
 
@@ -59,17 +57,19 @@ public class BukkitProtoWeaver implements kr.rtuserver.protoweaver.api.impl.bukk
             case "v1_20_R3" -> new ProtoWeaver_1_20_R3(sslFolder);
             case "v1_20_R4" -> new ProtoWeaver_1_20_R4(sslFolder);
             case "v1_21_R1" -> new ProtoWeaver_1_21_R1(sslFolder);
+            case "v1_21_R2" -> new ProtoWeaver_1_21_R2(sslFolder);
             default -> throw new IllegalStateException();
         };
         this.callback = callback;
         this.isModernProxy = protoWeaver.isModernProxy();
-        Protocol.Builder protocol = Protocol.create("rslib", "internal");
+        Protocol.Builder protocol = Protocol.create("rsframework", "internal");
         protocol.setCompression(CompressionType.SNAPPY);
         protocol.setMaxPacketSize(67108864); // 64mb
         protocol.addPacket(ProtocolRegister.class);
         protocol.addPacket(Packet.class);
-        protocol.addPacket(PlayerList.class);
         protocol.addPacket(ProxyPlayer.class);
+        protocol.addPacket(PlayerList.class);
+        protocol.addPacket(Packet.of(BroadcastChat.class, true, true));
         protocol.addPacket(Packet.of(StorageSync.class, true, true));
         if (isModernProxy) {
             protocol.setServerAuthHandler(VelocityAuth.class);
@@ -79,8 +79,8 @@ public class BukkitProtoWeaver implements kr.rtuserver.protoweaver.api.impl.bukk
         protocol.load();
     }
 
-    public void sendPacket(InternalPacket packet) {
-        connection.send(packet);
+    public boolean sendPacket(InternalPacket packet) {
+        return connection.send(packet).isSuccess();
     }
 
 

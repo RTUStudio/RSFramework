@@ -10,24 +10,21 @@ import com.velocitypowered.api.event.proxy.server.ServerUnregisteredEvent;
 import com.velocitypowered.api.proxy.Player;
 import com.velocitypowered.api.proxy.ProxyServer;
 import com.velocitypowered.api.proxy.server.ServerInfo;
-import kr.rtuserver.impl.velocity.VelocityProtoHandler;
 import kr.rtuserver.protoweaver.api.ProtoConnectionHandler;
 import kr.rtuserver.protoweaver.api.ProxyPlayer;
 import kr.rtuserver.protoweaver.api.callback.HandlerCallback;
+import kr.rtuserver.protoweaver.api.impl.velocity.VelocityProtoHandler;
 import kr.rtuserver.protoweaver.api.protocol.CompressionType;
 import kr.rtuserver.protoweaver.api.protocol.Packet;
 import kr.rtuserver.protoweaver.api.protocol.Protocol;
-import kr.rtuserver.protoweaver.api.protocol.internal.CustomPacket;
-import kr.rtuserver.protoweaver.api.protocol.internal.PlayerList;
-import kr.rtuserver.protoweaver.api.protocol.internal.ProtocolRegister;
-import kr.rtuserver.protoweaver.api.protocol.internal.StorageSync;
+import kr.rtuserver.protoweaver.api.protocol.internal.*;
 import kr.rtuserver.protoweaver.api.protocol.velocity.VelocityAuth;
 import kr.rtuserver.protoweaver.api.proxy.ProtoServer;
 import kr.rtuserver.protoweaver.api.util.ProtoLogger;
+import kr.rtuserver.protoweaver.core.protocol.protoweaver.CommonPacketHandler;
+import kr.rtuserver.protoweaver.core.proxy.ProtoProxy;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
-import me.mrnavastar.protoweaver.core.protocol.protoweaver.CommonPacketHandler;
-import me.mrnavastar.protoweaver.core.proxy.ProtoProxy;
 
 import java.io.File;
 import java.io.IOException;
@@ -37,9 +34,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-@Slf4j(topic = "RSLib/ProtoWeaver")
+@Slf4j(topic = "RSFramework/ProtoWeaver")
 @Getter
-public class VelocityProtoWeaver implements kr.rtuserver.impl.velocity.VelocityProtoWeaver {
+public class VelocityProtoWeaver implements kr.rtuserver.protoweaver.api.impl.velocity.VelocityProtoWeaver {
 
     private final ProxyServer server;
     private final Protocol.Builder protocol;
@@ -56,12 +53,13 @@ public class VelocityProtoWeaver implements kr.rtuserver.impl.velocity.VelocityP
         this.protoProxy = new ProtoProxy(this, dir);
         ProtoLogger.setLogger(this);
         velocityConfig = new Toml().read(new File(dir.toFile(), "velocity.toml"));
-        protocol = Protocol.create("rslib", "internal");
+        protocol = Protocol.create("rsframework", "internal");
         protocol.setCompression(CompressionType.SNAPPY);
         protocol.setMaxPacketSize(67108864); // 64mb
         protocol.addPacket(ProtocolRegister.class);
         protocol.addPacket(Packet.class);
         protocol.addPacket(PlayerList.class);
+        protocol.addPacket(Packet.of(BroadcastChat.class, true, true));
         protocol.addPacket(ProxyPlayer.class);
         protocol.addPacket(Packet.of(StorageSync.class, true, true));
         if (isModernProxy()) {

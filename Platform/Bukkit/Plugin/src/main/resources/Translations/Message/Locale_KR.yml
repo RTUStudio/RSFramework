@@ -13,7 +13,7 @@ common:
     offlinePlayer: "<red>존재하지 않는 유저입니다</red>"
 
 wrongUsage:
-  reload: "<gray> - </gray><white>/rslib 구성</white>"
+  reload: "<gray> - </gray><white>/rsframework 구성</white>"
 
 dataNameType:
   black: "<red>사용할 수 없는 이름입니다</red>"
@@ -24,6 +24,9 @@ dataNameType:
 
 error:
   inventory: "<red>인벤토리 클릭 이벤트를 사용하는 코드에서 결함이 발견되었습니다!</red>"
+  cooldown: "<red>너무 빠릅니다! 잠시 뒤에 시도해야합니다</red>"
 
 command:
-  cooldown: "<red>너무 빠릅니다! 잠시 뒤에 시도해야합니다</red>"
+  broadcast:
+    prefix: "<white>[<red>공지</red>] </white>"
+    empty: "<red>메세지가 비어있습니다</red>"

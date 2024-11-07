@@ -18,35 +18,36 @@ dependencies {
     implementation "net.kyori:adventure-platform-bukkit:4.3.4"
 }
 
+//build {
+//    finalizedBy shadowJar
+//}
 
 shadowJar {
-    mustRunAfter(":Library:ProtoWeaver:Bukkit:API:shadowJar")
 
-    relocate 'io.papermc.lib', 'kr.rtuserver.lib.bukkit.api.utility.paper'
-    relocate 'net.kyori.adventure.platform.bukkit', 'kr.rtuserver.lib.bukkit.api.utility.kyori'
+    doLast {
+        copy {
+            from archiveFile.get().asFile into file("$rootDir/builds/api")
+        }
+    }
+
+    setArchiveClassifier(null)
+    setArchiveBaseName("api")
+    setArchiveVersion(plugin_version)
+
+    relocate 'io.papermc.lib', 'kr.rtuserver.framework.bukkit.api.utility.paper'
+    relocate 'net.kyori.adventure.platform.bukkit', 'kr.rtuserver.framework.bukkit.api.utility.kyori'
 
     exclude "org/checkerframework/**"
+    exclude "org/bouncycastle/**"
     exclude "edu/umd/cs/findbugs/**"
     exclude "javax/**"
     exclude "javassist/**"
     exclude "net/jcip/**"
     exclude "net/kyori/**"
+    include "net/kyori/adventure/platform/bukkit"
     exclude "org/reflections/**"
     exclude "com/google/**"
     exclude "io/netty/**"
     exclude "META-INF/**"
     exclude "classpath.index"
-}
-
-java {
-    toolchain.languageVersion.set(JavaLanguageVersion.of(17))
-}
-tasks.withType(JavaCompile).configureEach {
-    //options.compilerArgs += ['-source', '17', '-target', '17']
-}
-
-compileJava {
-    mustRunAfter(":Library:MiniMessage:shadowJar")
-    mustRunAfter(":Library:LightDI:shadowJar")
-    mustRunAfter(":Library:ProtoWeaver:Common:API:shadowJar")
 }

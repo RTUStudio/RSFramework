@@ -1,4 +1,4 @@
 name: "${name}"
-main: kr.rtuserver.lib.bungee.RSLib
+main: kr.rtuserver.framework.bungee.RSFramework
 version: "${version}"
 author: "${author}"

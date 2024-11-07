@@ -19,5 +19,5 @@ public interface BukkitProtoWeaver {
 
     void registerProtocol(String namespace, String key, Packet packet, Class<? extends ProtoConnectionHandler> protocolHandler, HandlerCallback callback);
 
-    void sendPacket(InternalPacket packet);
+    boolean sendPacket(InternalPacket packet);
 }
