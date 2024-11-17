@@ -1,5 +1,10 @@
 subprojects {
-    java {
-        toolchain.languageVersion.set(JavaLanguageVersion.of(17))
+
+    apply {
+        plugin('io.papermc.paperweight.userdev')
+    }
+
+    dependencies {
+        pluginRemapper("net.fabricmc:tiny-remapper:0.10.4:fat")
     }
 }

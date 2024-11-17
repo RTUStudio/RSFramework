@@ -1,5 +1,5 @@
 dependencies {
-    compileOnly project(":Library:ProtoWeaver:Common:API")
+    implementation project(":Library:ProtoWeaver:Common:API")
 
     implementation "org.apache.fury:fury-core:0.7.0"
     implementation "io.netty:netty-buffer:4.1.97.Final"
@@ -8,12 +8,4 @@ dependencies {
     implementation "io.netty:netty-codec-http:4.1.97.Final"
     implementation "io.netty:netty-codec-http2:4.1.97.Final"
     implementation "org.bouncycastle:bcpkix-jdk18on:1.78.1"
-}
-
-java {
-    toolchain.languageVersion = JavaLanguageVersion.of(17)
-}
-
-compileJava {
-    mustRunAfter(":Library:ProtoWeaver:Common:API:shadowJar")
 }

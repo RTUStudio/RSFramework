@@ -30,10 +30,3 @@ processResources {
         expand props
     }
 }
-
-compileJava {
-    mustRunAfter(":Library:ProtoWeaver:Common:API:shadowJar")
-    mustRunAfter(":Library:ProtoWeaver:Common:Core:shadowJar")
-    mustRunAfter(":Library:ProtoWeaver:Bungee:API:shadowJar")
-    mustRunAfter(":Library:ProtoWeaver:Bungee:Core:shadowJar")
-}

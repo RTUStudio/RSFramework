@@ -1,7 +1,9 @@
 subprojects {
     dependencies {
-        compileOnly project(":Library:ProtoWeaver:Common:API")
-        compileOnly project(":Library:ProtoWeaver:Common:Core")
-        compileOnly 'org.spigotmc:spigot-api:1.17.1-R0.1-SNAPSHOT'
+        if (paper_plugin) compileOnly "io.papermc.paper:paper-api:${api_version}-R0.1-SNAPSHOT"
+        else compileOnly "org.spigotmc:spigot-api:${api_version}-R0.1-SNAPSHOT"
+
+        implementation project(":Library:ProtoWeaver:Common:API")
+        implementation project(":Library:ProtoWeaver:Common:Core")
     }
 }

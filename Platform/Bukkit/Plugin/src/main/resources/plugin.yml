@@ -1,10 +1,10 @@
 name: '${name}'
 version: '${version}'
-main: kr.rtuserver.lib.bukkit.plugin.RSLib
+main: kr.rtuserver.framework.bukkit.plugin.RSFramework
 description: Library Plugin for RSPlugins
 api-version: 1.17
 authors: [ '${author}' ]
-softdepend: [ PlaceholderAPI, Oraxen, ItemsAdder, ProtocolLib, LuckPerms, Vault ]
+softdepend: [ PlaceholderAPI, Oraxen, ItemsAdder, MMOItems, ProtocolLib, LuckPerms, Vault ]
 libraries:
   - net.kyori:adventure-text-minimessage:4.16.0
   - org.mongodb:bson:4.11.1
@@ -23,3 +23,5 @@ libraries:
   - io.netty:netty-codec-http:4.1.111.Final
   - io.netty:netty-codec-http2:4.1.111.Final
   - org.bouncycastle:bcpkix-jdk18on:1.78.1
+  - org.javassist:javassist:3.30.2-GA
+  - org.reflections:reflections:0.10.2

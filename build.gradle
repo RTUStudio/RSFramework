@@ -2,7 +2,7 @@ plugins {
     id 'java'
     id 'io.freefair.lombok' version '8.10'
     id "com.gradleup.shadow" version "8.3.1"
-    id 'io.papermc.paperweight.userdev' version "1.7.2" apply false
+    id 'io.papermc.paperweight.userdev' version '1.7.4' apply false
 }
 
 group = 'kr.rtuserver'
@@ -14,11 +14,16 @@ allprojects {
         plugin("io.freefair.lombok")
         plugin("com.gradleup.shadow")
     }
+
     repositories {
         mavenCentral()
         maven {
             name = 'spigotmc-repo'
             url = 'https://hub.spigotmc.org/nexus/content/repositories/snapshots/'
+        }
+        maven {
+            name = 'papermc'
+            url = 'https://repo.papermc.io/repository/maven-public/'
         }
         maven {
             name = 'sonatype'
@@ -37,13 +42,13 @@ allprojects {
             url = 'https://repo.oraxen.com/releases'
         }
         maven {
-            url = "https://repo.dmulloy2.net/repository/public/"
-        }
-        maven {
-            url = 'https://papermc.io/repo/repository/maven-public/'
+            url = 'https://repo.dmulloy2.net/repository/public/'
         }
         maven {
             url = 'https://maven.mrnavastar.rocks/releases'
+        }
+        maven {
+            url = 'https://nexus.phoenixdevt.fr/repository/maven-public/'
         }
     }
 
@@ -60,20 +65,21 @@ allprojects {
 
     }
 
-    build {
-        dependsOn(shadowJar)
-    }
-
-    shadowJar {
-        setArchiveClassifier(null)
-    }
 
     java {
-        toolchain.languageVersion.set(JavaLanguageVersion.of(21))
+        def javaVersion = JavaVersion.toVersion(java_version as Integer)
+        sourceCompatibility = javaVersion
+        targetCompatibility = javaVersion
+        if (JavaVersion.current() < javaVersion) toolchain.languageVersion = JavaLanguageVersion.of(java_version as Integer)
+    }
+
+    tasks.withType(JavaCompile).configureEach {
+        options.release = java_version as Integer
     }
 }
 
 dependencies {
+
     implementation project(':Platform:Bukkit')
     implementation project(':Platform:Bungee')
     implementation project(':Platform:Velocity')
@@ -85,37 +91,31 @@ dependencies {
 }
 
 shadowJar {
+
     doLast {
         copy {
-            from archiveFile.get().asFile into file("$projectDir/builds")
+            from archiveFile.get().asFile into file("$rootDir/builds/plugin")
         }
     }
 
+    setArchiveClassifier(null)
+    setArchiveBaseName(plugin_name)
+    setArchiveVersion(plugin_version)
+
+    relocate 'io.papermc.lib', 'kr.rtuserver.framework.bukkit.api.utility.paper'
+    relocate 'net.kyori.adventure.platform.bukkit', 'kr.rtuserver.framework.bukkit.api.utility.kyori'
+
     exclude "org/checkerframework/**"
+    exclude "org/bouncycastle/**"
+    exclude "edu/umd/cs/findbugs/**"
     exclude "javax/**"
+    exclude "javassist/**"
+    exclude "net/jcip/**"
+    exclude "net/kyori/**"
+    include "net/kyori/adventure/platform/bukkit"
+    exclude "org/reflections/**"
     exclude "com/google/**"
     exclude "io/netty/**"
-    exclude "META-INF/licenses/**"
-    exclude "META-INF/maven/**"
-    exclude "META-INF/native-image/**"
-    exclude "META-INF/proguard/**"
-    exclude "META-INF/DEPENDENCIES"
-    exclude "META-INF/DISCLAIMER"
-    exclude "META-INF/LICENSE"
-    exclude "META-INF/LICENSE.txt"
-    exclude "META-INF/NOTICE"
-}
-
-def targetJavaVersion = 17
-tasks.withType(JavaCompile).configureEach {
-    options.release = targetJavaVersion
-    //options.compilerArgs += ['-source', '17', '-target', '17']
-}
-java {
-    def javaVersion = JavaVersion.toVersion(targetJavaVersion)
-    sourceCompatibility = javaVersion
-    targetCompatibility = javaVersion
-    if (JavaVersion.current() < javaVersion) {
-        toolchain.languageVersion = JavaLanguageVersion.of(targetJavaVersion)
-    }
+    exclude "META-INF/**"
+    exclude "classpath.index"
 }

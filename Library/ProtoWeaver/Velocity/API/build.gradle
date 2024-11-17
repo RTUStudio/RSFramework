@@ -1,10 +1,6 @@
 dependencies {
-    compileOnly project(":Library:ProtoWeaver:Common:API")
+    implementation project(":Library:ProtoWeaver:Common:API")
     compileOnly("com.velocitypowered:velocity-api:3.3.0-SNAPSHOT")
 
     implementation 'com.moandjiezana.toml:toml4j:0.7.2'
-}
-
-compileJava {
-    mustRunAfter(":Library:ProtoWeaver:Common:API:shadowJar")
 }

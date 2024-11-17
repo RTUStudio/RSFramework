@@ -1,12 +1,4 @@
 dependencies {
-    compileOnly project(":Library:ProtoWeaver:Common:API")
+    implementation project(":Library:ProtoWeaver:Common:API")
     compileOnly 'io.github.waterfallmc:waterfall-api:1.20-R0.3-SNAPSHOT'
-}
-
-java {
-    toolchain.languageVersion = JavaLanguageVersion.of(17)
-}
-
-compileJava {
-    mustRunAfter(":Library:ProtoWeaver:Common:API:shadowJar")
 }
