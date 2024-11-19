@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="GradleMigrationSettings" migrationVersion="1" />
+  <component name="GradleSettings">
+    <option name="linkedExternalProjectsSettings">
+      <GradleProjectSettings>
+        <option name="externalProjectPath" value="$PROJECT_DIR$" />
+        <option name="modules">
+          <set>
+            <option value="$PROJECT_DIR$" />
+            <option value="$PROJECT_DIR$/Library" />
+            <option value="$PROJECT_DIR$/Library/KyoriAdventure" />
+            <option value="$PROJECT_DIR$/Library/LightDI" />
+            <option value="$PROJECT_DIR$/Library/MiniMessage" />
+            <option value="$PROJECT_DIR$/Library/ProtoWeaver" />
+            <option value="$PROJECT_DIR$/Library/ProtoWeaver/Bukkit" />
+            <option value="$PROJECT_DIR$/Library/ProtoWeaver/Bukkit/API" />
+            <option value="$PROJECT_DIR$/Library/ProtoWeaver/Bukkit/Core" />
+            <option value="$PROJECT_DIR$/Library/ProtoWeaver/Bukkit/NMS" />
+            <option value="$PROJECT_DIR$/Library/ProtoWeaver/Bukkit/NMS/1_17_R1" />
+            <option value="$PROJECT_DIR$/Library/ProtoWeaver/Bukkit/NMS/1_18_R1" />
+            <option value="$PROJECT_DIR$/Library/ProtoWeaver/Bukkit/NMS/1_18_R2" />
+            <option value="$PROJECT_DIR$/Library/ProtoWeaver/Bukkit/NMS/1_19_R1" />
+            <option value="$PROJECT_DIR$/Library/ProtoWeaver/Bukkit/NMS/1_19_R2" />
+            <option value="$PROJECT_DIR$/Library/ProtoWeaver/Bukkit/NMS/1_19_R3" />
+            <option value="$PROJECT_DIR$/Library/ProtoWeaver/Bukkit/NMS/1_20_R1" />
+            <option value="$PROJECT_DIR$/Library/ProtoWeaver/Bukkit/NMS/1_20_R2" />
+            <option value="$PROJECT_DIR$/Library/ProtoWeaver/Bukkit/NMS/1_20_R3" />
+            <option value="$PROJECT_DIR$/Library/ProtoWeaver/Bukkit/NMS/1_20_R4" />
+            <option value="$PROJECT_DIR$/Library/ProtoWeaver/Bukkit/NMS/1_21_R1" />
+            <option value="$PROJECT_DIR$/Library/ProtoWeaver/Bukkit/NMS/1_21_R2" />
+            <option value="$PROJECT_DIR$/Library/ProtoWeaver/Bungee" />
+            <option value="$PROJECT_DIR$/Library/ProtoWeaver/Bungee/API" />
+            <option value="$PROJECT_DIR$/Library/ProtoWeaver/Bungee/Core" />
+            <option value="$PROJECT_DIR$/Library/ProtoWeaver/Common" />
+            <option value="$PROJECT_DIR$/Library/ProtoWeaver/Common/API" />
+            <option value="$PROJECT_DIR$/Library/ProtoWeaver/Common/Core" />
+            <option value="$PROJECT_DIR$/Library/ProtoWeaver/Velocity" />
+            <option value="$PROJECT_DIR$/Library/ProtoWeaver/Velocity/API" />
+            <option value="$PROJECT_DIR$/Library/ProtoWeaver/Velocity/Core" />
+            <option value="$PROJECT_DIR$/Platform" />
+            <option value="$PROJECT_DIR$/Platform/Bukkit" />
+            <option value="$PROJECT_DIR$/Platform/Bukkit/API" />
+            <option value="$PROJECT_DIR$/Platform/Bukkit/Core" />
+            <option value="$PROJECT_DIR$/Platform/Bukkit/NMS" />
+            <option value="$PROJECT_DIR$/Platform/Bukkit/NMS/1_17_R1" />
+            <option value="$PROJECT_DIR$/Platform/Bukkit/NMS/1_18_R1" />
+            <option value="$PROJECT_DIR$/Platform/Bukkit/NMS/1_18_R2" />
+            <option value="$PROJECT_DIR$/Platform/Bukkit/NMS/1_19_R1" />
+            <option value="$PROJECT_DIR$/Platform/Bukkit/NMS/1_19_R2" />
+            <option value="$PROJECT_DIR$/Platform/Bukkit/NMS/1_19_R3" />
+            <option value="$PROJECT_DIR$/Platform/Bukkit/NMS/1_20_R1" />
+            <option value="$PROJECT_DIR$/Platform/Bukkit/NMS/1_20_R2" />
+            <option value="$PROJECT_DIR$/Platform/Bukkit/NMS/1_20_R3" />
+            <option value="$PROJECT_DIR$/Platform/Bukkit/NMS/1_20_R4" />
+            <option value="$PROJECT_DIR$/Platform/Bukkit/NMS/1_21_R1" />
+            <option value="$PROJECT_DIR$/Platform/Bukkit/NMS/1_21_R2" />
+            <option value="$PROJECT_DIR$/Platform/Bukkit/Plugin" />
+            <option value="$PROJECT_DIR$/Platform/Bungee" />
+            <option value="$PROJECT_DIR$/Platform/Velocity" />
+          </set>
+        </option>
+      </GradleProjectSettings>
+    </option>
+  </component>
+</project>

@@ -20,7 +20,7 @@ public class RSFramework {
     public RSFramework(ProxyServer server, @DataDirectory Path dir) {
         this.server = server;
         log.info("RSFramework Velocity loaded.");
-        protoWeaver = new kr.rtuserver.core.impl.velocity.VelocityProtoWeaver(server, dir.toAbsolutePath().getParent().getParent());
+        protoWeaver = new kr.rtuserver.protoweaver.core.impl.velocity.VelocityProtoWeaver(server, dir.toAbsolutePath().getParent().getParent());
     }
 
     @Subscribe

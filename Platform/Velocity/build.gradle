@@ -1,9 +1,11 @@
+import xyz.jpenilla.runtask.task.AbstractRun
+
 plugins {
-    id 'xyz.jpenilla.run-velocity' version '2.3.1'
+    id "xyz.jpenilla.run-velocity" version "2.3.1"
 }
 
 runVelocity {
-    velocityVersion("3.3.0-SNAPSHOT")
+    velocityVersion("3.4.0-SNAPSHOT")
 }
 
 dependencies {
@@ -12,7 +14,7 @@ dependencies {
     implementation project(":Library:ProtoWeaver:Velocity:API")
     implementation project(":Library:ProtoWeaver:Velocity:Core")
 
-    implementation 'com.github.Carleslc.Simple-YAML:Simple-Yaml:1.8.4'
+    implementation "com.github.Carleslc.Simple-YAML:Simple-Yaml:1.8.4"
 
     compileOnly("com.velocitypowered:velocity-api:3.3.0-SNAPSHOT")
     annotationProcessor("com.velocitypowered:velocity-api:3.3.0-SNAPSHOT")
@@ -25,8 +27,16 @@ processResources {
             author : plugin_author
     ]
     inputs.properties props
-    filteringCharset 'UTF-8'
-    filesMatching('velocity-plugin.json') {
+    filteringCharset "UTF-8"
+    filesMatching("velocity-plugin.json") {
         expand props
     }
+}
+
+tasks.withType(AbstractRun.class).configureEach {
+    javaLauncher = javaToolchains.launcherFor {
+        vendor = JvmVendorSpec.JETBRAINS
+        languageVersion = JavaLanguageVersion.of(21)
+    }
+    jvmArgs("-XX:+AllowEnhancedClassRedefinition")
 }

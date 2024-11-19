@@ -89,7 +89,12 @@ public abstract class RSPlugin extends JavaPlugin {
         initialize();
         if (this.prefix == null) {
             ThemeModule theme = this.framework.getModules().getThemeModule();
-            String text = String.format("<gradient:%s:%s>%s%s%s</gradient>", theme.getGradientStart(), theme.getGradientEnd(), theme.getPrefix(), getName(), theme.getSuffix());
+            String text = String.format("<gradient:%s:%s>%s%s%s</gradient>",
+                    theme.getGradientStart(),
+                    theme.getGradientEnd(),
+                    theme.getPrefix(),
+                    getName(),
+                    theme.getSuffix());
             this.prefix = ComponentFormatter.mini(text);
         }
         load();

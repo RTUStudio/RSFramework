@@ -1,8 +1,8 @@
 subprojects {
     dependencies {
-        implementation project(":Library:MiniMessage")
-        implementation project(":Library:ProtoWeaver:Common:API")
+        compileOnly project(":Library:MiniMessage")
+        compileOnly project(":Library:ProtoWeaver:Common:API")
 
-        compileOnly 'com.github.Carleslc.Simple-YAML:Simple-Yaml:1.8.4'
+        compileOnly "com.github.Carleslc.Simple-YAML:Simple-Yaml:1.8.4"
     }
 }

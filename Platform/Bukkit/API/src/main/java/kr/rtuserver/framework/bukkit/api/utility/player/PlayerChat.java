@@ -104,4 +104,9 @@ public class PlayerChat {
         audience.sendMessage(prefix.append(component));
     }
 
+    public void announce(Audience audience, Component component) {
+        Component prefix = plugin.getConfigurations().getMessage().getPrefix();
+        audience.sendMessage(prefix.append(component));
+    }
+
 }

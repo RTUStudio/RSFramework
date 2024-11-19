@@ -2,3 +2,4 @@ common:
   reload: "reload"
 
 broadcast: "broadcast"
+information: "information"

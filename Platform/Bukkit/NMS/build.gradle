@@ -1,10 +1,11 @@
 subprojects {
 
     apply {
-        plugin('io.papermc.paperweight.userdev')
+        plugin("io.papermc.paperweight.userdev")
     }
 
     dependencies {
+        compileOnly project(":Platform:Bukkit:API")
         pluginRemapper("net.fabricmc:tiny-remapper:0.10.4:fat")
     }
 }

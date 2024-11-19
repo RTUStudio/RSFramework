@@ -30,7 +30,7 @@ public class ClientConnectionHandler extends InternalConnectionHandler implement
                     disconnectIfNeverUpgraded(connection);
                 }
                 case MISMATCH -> {
-                    protocol.logErr("Mismatch with protocol version on the server!");
+                    protocol.logErr("Mismatch with protocol version on the server! (" + protocol.getNamespaceKey() + ")");
                     protocol.logErr("Double check that all packets are registered in the same order and all settings are the same.");
                     disconnectIfNeverUpgraded(connection);
                 }

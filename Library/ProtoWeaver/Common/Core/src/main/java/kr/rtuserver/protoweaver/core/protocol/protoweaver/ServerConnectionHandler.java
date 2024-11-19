@@ -42,7 +42,7 @@ public class ServerConnectionHandler extends InternalConnectionHandler implement
                     }
 
                     if (!Arrays.equals(nextProtocol.getSHA1(), status.getNextSHA1())) {
-                        nextProtocol.logErr("Mismatch with protocol version on the client!");
+                        nextProtocol.logErr("Mismatch with protocol version on the client! (" + nextProtocol.getNamespaceKey() + ")");
                         nextProtocol.logErr("Double check that all packets are registered in the same order and all settings are the same.");
 
                         status.setStatus(ProtocolStatus.Status.MISMATCH);

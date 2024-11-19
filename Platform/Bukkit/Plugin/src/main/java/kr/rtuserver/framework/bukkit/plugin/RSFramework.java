@@ -44,6 +44,8 @@ public class RSFramework extends RSPlugin {
         getFramework().enable(this);
 
         registerPermission(getName() + ".motd", PermissionDefault.OP);
+        registerPermission(getName() + ".broadcast", PermissionDefault.OP);
+        registerPermission(getName() + ".information", PermissionDefault.OP);
         registerCommand(new FrameworkCommand(this));
     }
 

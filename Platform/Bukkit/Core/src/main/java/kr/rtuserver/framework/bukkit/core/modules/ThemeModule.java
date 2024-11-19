@@ -10,7 +10,7 @@ public class ThemeModule extends RSConfiguration implements kr.rtuserver.framewo
     private String gradientStart = "#2979FF";
     private String gradientEnd = "#7C4DFF";
     private String prefix = "『";
-    private String suffix = "』 ";
+    private String suffix = "』";
     private String systemMessage = "<gradient:" + gradientStart + ":" + gradientEnd + ">시스템 메세지</gradient>\n<gray>%servertime_yyyy-MM-dd a h:mm%</gray>";
 
     public ThemeModule(RSPlugin plugin) {

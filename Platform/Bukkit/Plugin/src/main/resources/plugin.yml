@@ -6,6 +6,7 @@ api-version: 1.17
 authors: [ '${author}' ]
 softdepend: [ PlaceholderAPI, Oraxen, ItemsAdder, MMOItems, ProtocolLib, LuckPerms, Vault ]
 libraries:
+  - net.kyori:adventure-platform-bukkit:4.3.4
   - net.kyori:adventure-text-minimessage:4.16.0
   - org.mongodb:bson:4.11.1
   - com.google.code.gson:gson:2.10.1

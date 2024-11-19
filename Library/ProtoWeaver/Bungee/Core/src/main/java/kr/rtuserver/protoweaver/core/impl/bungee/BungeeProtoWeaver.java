@@ -25,7 +25,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-@Slf4j(topic = "RSFramework/ProtoWeaver")
+@Slf4j(topic = "RSF/ProtoWeaver")
 @Getter
 public class BungeeProtoWeaver implements kr.rtuserver.protoweaver.api.impl.bungee.BungeeProtoWeaver {
 
@@ -47,9 +47,9 @@ public class BungeeProtoWeaver implements kr.rtuserver.protoweaver.api.impl.bung
         protocol.setMaxPacketSize(67108864); // 64mb
         protocol.addPacket(ProtocolRegister.class);
         protocol.addPacket(Packet.class);
+        protocol.addPacket(ProxyPlayer.class);
         protocol.addPacket(PlayerList.class);
         protocol.addPacket(Packet.of(BroadcastChat.class, true, true));
-        protocol.addPacket(ProxyPlayer.class);
         protocol.addPacket(Packet.of(StorageSync.class, true, true));
         protocol.setClientHandler(BungeeProtoHandler.class, callable).load();
     }

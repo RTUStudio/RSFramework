@@ -12,6 +12,7 @@ import kr.rtuserver.framework.bukkit.core.internal.listeners.InventoryListener;
 import kr.rtuserver.framework.bukkit.core.internal.listeners.JoinListener;
 import kr.rtuserver.framework.bukkit.core.internal.runnable.CommandLimit;
 import kr.rtuserver.framework.bukkit.core.modules.Modules;
+import kr.rtuserver.framework.bukkit.core.modules.ThemeModule;
 import kr.rtuserver.framework.bukkit.nms.v1_17_r1.NMS_1_17_R1;
 import kr.rtuserver.framework.bukkit.nms.v1_18_r1.NMS_1_18_R1;
 import kr.rtuserver.framework.bukkit.nms.v1_18_r2.NMS_1_18_R2;
@@ -41,12 +42,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-@Slf4j(topic = "RSFramework/Framework")
+@Slf4j(topic = "RSFramework")
 @kr.rtuserver.cdi.annotations.Component
 public class Framework implements kr.rtuserver.framework.bukkit.api.core.Framework {
 
     @Getter
-    private final Component prefix = ComponentFormatter.mini("<gradient:#00f260:#057eff>RSFramework/Framework » </gradient>");
+    private final Component prefix = ComponentFormatter.mini("<gradient:#2979FF:#7C4DFF>RSFramework » </gradient>");
     @Getter
     private final Map<String, RSPlugin> plugins = new HashMap<>();
     @Getter

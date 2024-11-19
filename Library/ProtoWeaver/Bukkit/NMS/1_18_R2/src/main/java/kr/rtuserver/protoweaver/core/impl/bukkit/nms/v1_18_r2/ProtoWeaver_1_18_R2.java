@@ -13,7 +13,7 @@ import lombok.extern.slf4j.Slf4j;
 import net.kyori.adventure.key.Key;
 import org.checkerframework.checker.nullness.qual.NonNull;
 
-@Slf4j(topic = "RSFramework/ProtoWeaver")
+@Slf4j(topic = "RSF/ProtoWeaver")
 public class ProtoWeaver_1_18_R2 implements IProtoWeaver {
 
     public ProtoWeaver_1_18_R2(String folder) {

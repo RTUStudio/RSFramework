@@ -1,0 +1,15 @@
+def adventureVersion = "4.16.0"
+
+dependencies {
+    compileOnly "net.kyori:adventure-platform-api:4.3.4"
+    compileOnly "net.kyori:adventure-platform-facet:4.3.4"
+    compileOnly "net.kyori:adventure-platform-viaversion:4.3.4"
+    compileOnly "net.kyori:adventure-text-serializer-bungeecord:4.3.4"
+    compileOnly "net.kyori:adventure-nbt:${adventureVersion}"
+    compileOnly "net.kyori:adventure-text-serializer-legacy:${adventureVersion}"
+    compileOnly "net.kyori:adventure-text-serializer-gson:${adventureVersion}"
+    compileOnly "net.kyori:adventure-text-serializer-gson-legacy-impl:${adventureVersion}"
+    compileOnly 'io.netty:netty-all:4.0.23.Final'
+    compileOnly 'com.viaversion:viaversion-api:4.3.0'
+    compileOnly "io.papermc.paper:paper-api:${api_version}-R0.1-SNAPSHOT"
+}

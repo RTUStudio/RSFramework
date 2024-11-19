@@ -16,6 +16,7 @@ import com.mongodb.client.result.UpdateResult;
 import kr.rtuserver.framework.bukkit.api.RSPlugin;
 import kr.rtuserver.framework.bukkit.api.storage.Storage;
 import kr.rtuserver.framework.bukkit.api.storage.config.MongoDBConfig;
+import kr.rtuserver.framework.bukkit.api.utility.platform.JSON;
 import kr.rtuserver.protoweaver.api.protocol.internal.StorageSync;
 import org.apache.commons.lang3.tuple.Pair;
 import org.bson.Document;
@@ -83,7 +84,9 @@ public class MongoDB implements Storage {
             } else {
                 UpdateOptions options = new UpdateOptions().upsert(true);
                 Bson update;
-                if (data.getValue() instanceof JsonObject jsonObject) {
+                Object object = data.getValue();
+                if (object instanceof JSON obj) object = obj.get();
+                if (object instanceof JsonObject jsonObject) {
                     update = Updates.set(data.getKey(), Document.parse(jsonObject.toString()));
                 } else update = Updates.set(data.getKey(), data.getValue());
                 UpdateResult result = collection.updateOne(filter, update, options);

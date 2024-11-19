@@ -10,4 +10,5 @@ public interface ThemeModule {
     String getSuffix();
 
     String getSystemMessage();
+
 }

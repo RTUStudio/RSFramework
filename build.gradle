@@ -1,11 +1,11 @@
 plugins {
-    id 'java'
-    id 'io.freefair.lombok' version '8.10'
+    id "java"
+    id "io.freefair.lombok" version "8.10"
     id "com.gradleup.shadow" version "8.3.1"
-    id 'io.papermc.paperweight.userdev' version '1.7.4' apply false
+    id "io.papermc.paperweight.userdev" version "1.7.4" apply false
 }
 
-group = 'kr.rtuserver'
+group = "kr.rtuserver"
 version = plugin_version
 
 allprojects {
@@ -18,53 +18,56 @@ allprojects {
     repositories {
         mavenCentral()
         maven {
-            name = 'spigotmc-repo'
-            url = 'https://hub.spigotmc.org/nexus/content/repositories/snapshots/'
+            name = "spigotmc-repo"
+            url = "https://hub.spigotmc.org/nexus/content/repositories/snapshots/"
         }
         maven {
-            name = 'papermc'
-            url = 'https://repo.papermc.io/repository/maven-public/'
+            name = "papermc"
+            url = "https://repo.papermc.io/repository/maven-public/"
         }
         maven {
-            name = 'sonatype'
-            url = 'https://oss.sonatype.org/content/groups/public/'
+            name = "sonatype"
+            url = "https://oss.sonatype.org/content/groups/public/"
         }
         maven {
-            url = 'https://repo.extendedclip.com/content/repositories/placeholderapi/'
+            url = "https://repo.extendedclip.com/content/repositories/placeholderapi/"
         }
         maven {
-            url = 'https://mvnrepository.com/artifact/org.projectlombok/lombok'
+            url = "https://mvnrepository.com/artifact/org.projectlombok/lombok"
         }
         maven {
-            url = 'https://jitpack.io'
+            url = "https://jitpack.io"
         }
         maven {
-            url = 'https://repo.oraxen.com/releases'
+            url = "https://repo.oraxen.com/releases"
         }
         maven {
-            url = 'https://repo.dmulloy2.net/repository/public/'
+            url = "https://repo.dmulloy2.net/repository/public/"
         }
         maven {
-            url = 'https://maven.mrnavastar.rocks/releases'
+            url = "https://repo.viaversion.com"
         }
         maven {
-            url = 'https://nexus.phoenixdevt.fr/repository/maven-public/'
+            url = "https://nexus.phoenixdevt.fr/repository/maven-public/"
         }
     }
 
     dependencies {
-        compileOnly 'org.quartz-scheduler:quartz:2.5.0-rc1'
+        compileOnly "org.quartz-scheduler:quartz:2.5.0-rc1"
 
         compileOnly "net.kyori:adventure-text-minimessage:4.16.0"
-        compileOnly 'com.google.code.gson:gson:2.10.1'
-        compileOnly 'com.google.guava:guava:32.1.2-jre'
-        compileOnly 'org.apache.commons:commons-lang3:3.14.0'
-        compileOnly 'org.xerial.snappy:snappy-java:1.1.10.5'
-        compileOnly 'org.projectlombok:lombok:1.18.32'
-        compileOnly 'org.slf4j:slf4j-api:2.0.16'
+        compileOnly "com.google.code.gson:gson:2.10.1"
+        compileOnly "com.google.guava:guava:32.1.2-jre"
+        compileOnly "org.apache.commons:commons-lang3:3.14.0"
+        compileOnly "org.xerial.snappy:snappy-java:1.1.10.5"
+        compileOnly "org.projectlombok:lombok:1.18.32"
+        compileOnly "org.slf4j:slf4j-api:2.0.16"
 
     }
 
+    shadowJar {
+        setArchiveClassifier(null)
+    }
 
     java {
         def javaVersion = JavaVersion.toVersion(java_version as Integer)
@@ -78,16 +81,20 @@ allprojects {
     }
 }
 
+jar {
+    finalizedBy shadowJar
+}
+
 dependencies {
 
-    implementation project(':Platform:Bukkit')
-    implementation project(':Platform:Bungee')
-    implementation project(':Platform:Velocity')
+    implementation project(path: ":Platform:Bukkit")
+    implementation project(path: ":Platform:Bungee")
+    implementation project(path: ":Platform:Velocity")
 
-    implementation 'com.github.Carleslc.Simple-YAML:Simple-Yaml:1.8.4'
+    implementation "com.github.Carleslc.Simple-YAML:Simple-Yaml:1.8.4"
 
-    compileOnly 'org.projectlombok:lombok:1.18.32'
-    annotationProcessor 'org.projectlombok:lombok:1.18.32'
+    compileOnly "org.projectlombok:lombok:1.18.32"
+    annotationProcessor "org.projectlombok:lombok:1.18.32"
 }
 
 shadowJar {
@@ -102,20 +109,18 @@ shadowJar {
     setArchiveBaseName(plugin_name)
     setArchiveVersion(plugin_version)
 
-    relocate 'io.papermc.lib', 'kr.rtuserver.framework.bukkit.api.utility.paper'
-    relocate 'net.kyori.adventure.platform.bukkit', 'kr.rtuserver.framework.bukkit.api.utility.kyori'
-
     exclude "org/checkerframework/**"
     exclude "org/bouncycastle/**"
     exclude "edu/umd/cs/findbugs/**"
     exclude "javax/**"
     exclude "javassist/**"
     exclude "net/jcip/**"
-    exclude "net/kyori/**"
-    include "net/kyori/adventure/platform/bukkit"
     exclude "org/reflections/**"
     exclude "com/google/**"
     exclude "io/netty/**"
     exclude "META-INF/**"
     exclude "classpath.index"
+
+    relocate "io.papermc.lib", "kr.rtuserver.framework.bukkit.api.utility.paper"
+    relocate "net.kyori.adventure.platform.bukkit", "kr.rtuserver.framework.bukkit.api.utility.kyori"
 }

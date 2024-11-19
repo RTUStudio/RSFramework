@@ -81,7 +81,7 @@ public class ProtoTrustManager {
     };
 
     public ProtoTrustManager(String host, int port, String file) {
-        hostsFile = new File(file + File.separator + "protoweaver.hosts");
+        hostsFile = new File(file + File.separator + "plugins/RSFramework/protoweaver.hosts");
         this.hostId = host + ":" + port;
         if (!hostsFile.exists()) return;
 

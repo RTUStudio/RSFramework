@@ -5,6 +5,7 @@ import com.google.gson.*;
 import kr.rtuserver.framework.bukkit.api.RSPlugin;
 import kr.rtuserver.framework.bukkit.api.storage.Storage;
 import kr.rtuserver.framework.bukkit.api.storage.config.JsonConfig;
+import kr.rtuserver.framework.bukkit.api.utility.platform.JSON;
 import lombok.Getter;
 import org.apache.commons.lang3.tuple.Pair;
 import org.bukkit.Bukkit;
@@ -127,19 +128,18 @@ public class Json implements Storage {
                     toRemove.add(key);
                 } else {
                     Object object = value.getValue();
-                    if (object instanceof JsonElement element) {
-                        valObj.add(value.getKey(), element);
-                    } else if (object instanceof Number number) {
-                        valObj.addProperty(value.getKey(), number);
-                    } else if (object instanceof Boolean bool) {
-                        valObj.addProperty(value.getKey(), bool);
-                    } else if (object instanceof String str) {
-                        valObj.addProperty(value.getKey(), str);
-                    } else {
-                        plugin.console("<red>Unsupported type of data tried to be saved! Only supports JsonElement, Number, Boolean, and String</red>");
-                        plugin.console("<red>지원하지 않는 타입의 데이터가 저장되려고 했습니다! JsonElement, Number, Boolean, String만 지원합니다</red>");
-                        data = backup;
-                        return false;
+                    if (object instanceof JSON obj) object = obj.get();
+                    switch (object) {
+                        case JsonElement element -> valObj.add(value.getKey(), element);
+                        case Number number -> valObj.addProperty(value.getKey(), number);
+                        case Boolean bool -> valObj.addProperty(value.getKey(), bool);
+                        case String str -> valObj.addProperty(value.getKey(), str);
+                        case null, default -> {
+                            plugin.console("<red>Unsupported type of data tried to be saved! Only supports JsonElement, Number, Boolean, and String</red>");
+                            plugin.console("<red>지원하지 않는 타입의 데이터가 저장되려고 했습니다! JsonElement, Number, Boolean, String만 지원합니다</red>");
+                            data = backup;
+                            return false;
+                        }
                     }
                     if (data.contains(valObj)) {
                         data.set(key, valObj);

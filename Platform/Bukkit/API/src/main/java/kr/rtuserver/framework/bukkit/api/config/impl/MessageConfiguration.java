@@ -4,6 +4,7 @@ import kr.rtuserver.cdi.LightDI;
 import kr.rtuserver.framework.bukkit.api.RSPlugin;
 import kr.rtuserver.framework.bukkit.api.config.RSConfiguration;
 import kr.rtuserver.framework.bukkit.api.core.Framework;
+import kr.rtuserver.framework.bukkit.api.core.modules.ThemeModule;
 import kr.rtuserver.framework.bukkit.api.utility.format.ComponentFormatter;
 import lombok.Getter;
 import net.kyori.adventure.text.Component;
@@ -23,7 +24,7 @@ public class MessageConfiguration extends RSConfiguration {
     }
 
     private void init() {
-        getString("prefix", "<gradient:#00f260:#057eff>Festival » </gradient>");
+        getString("prefix", "");
         for (String key : getConfig().getKeys(true)) {
             if (getConfig().isString(key)) {
                 map.put(key, getString(key, ""));
@@ -32,9 +33,16 @@ public class MessageConfiguration extends RSConfiguration {
     }
 
     public Component getPrefix() {
-        String prefix = get("prefix");
-        if (prefix.isEmpty()) return getPlugin().getPrefix();
-        else return ComponentFormatter.mini(prefix);
+        String name = get("prefix");
+        if (name.isEmpty()) name = getPlugin().getName();
+        ThemeModule theme = framework.getModules().getThemeModule();
+        String text = String.format("<gradient:%s:%s>%s%s%s</gradient>",
+                theme.getGradientStart(),
+                theme.getGradientEnd(),
+                theme.getPrefix(),
+                name,
+                theme.getSuffix());
+        return ComponentFormatter.mini(text);
     }
 
     public String get(String key) {

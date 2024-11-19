@@ -8,6 +8,7 @@ import com.zaxxer.hikari.HikariDataSource;
 import kr.rtuserver.framework.bukkit.api.RSPlugin;
 import kr.rtuserver.framework.bukkit.api.storage.Storage;
 import kr.rtuserver.framework.bukkit.api.storage.config.MySQLConfig;
+import kr.rtuserver.framework.bukkit.api.utility.platform.JSON;
 import org.apache.commons.lang3.tuple.Pair;
 import org.jetbrains.annotations.NotNull;
 
@@ -94,14 +95,17 @@ public class SQLite implements Storage {
 
             String value;
             Object object = data.getValue();
-            if (object instanceof JsonElement element) value = "CAST('" + element + "' as JSON)";
-            else if (object instanceof Number number) value = String.valueOf(number);
-            else if (object instanceof Boolean bool) value = String.valueOf(bool);
-            else if (object instanceof String str) value = "'" + str + "'";
-            else {
-                plugin.console("<red>Unsupported type of data tried to be saved! Only supports JsonElement, Number, Boolean, and String</red>");
-                plugin.console("<red>지원하지 않는 타입의 데이터가 저장되려고 했습니다! JsonElement, Number, Boolean, String만 지원합니다</red>");
-                return false;
+            if (object instanceof JSON obj) object = obj.get();
+            switch (object) {
+                case JsonElement element -> value = "CAST('" + element + "' as JSON)";
+                case Number number -> value = String.valueOf(number);
+                case Boolean bool -> value = String.valueOf(bool);
+                case String str -> value = "'" + str + "'";
+                case null, default -> {
+                    plugin.console("<red>Unsupported type of data tried to be saved! Only supports JsonElement, Number, Boolean, and String</red>");
+                    plugin.console("<red>지원하지 않는 타입의 데이터가 저장되려고 했습니다! JsonElement, Number, Boolean, String만 지원합니다</red>");
+                    return false;
+                }
             }
 
             query = "UPDATE " + table + " SET data = JSON_SET(data, '$." + data.getKey() + "', " + value + ")";

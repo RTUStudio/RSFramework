@@ -1,29 +1,30 @@
+import java.nio.file.FileSystems
+
 dependencies {
     // API Build
     implementation project(":Library:LightDI")
+    implementation project(":Library:KyoriAdventure")
     implementation project(":Library:ProtoWeaver:Common:API")
     implementation project(":Library:ProtoWeaver:Bukkit:API")
 
-    compileOnly 'me.clip:placeholderapi:2.11.6'
-    compileOnly 'io.th0rgal:oraxen:1.168.0'
-    compileOnly 'com.github.LoneDev6:API-ItemsAdder:3.6.2-beta-r3-b'
-    compileOnly 'net.Indyuce:MMOItems-API:6.9.5-SNAPSHOT'
-    compileOnly 'io.lumine:MythicLib-dist:1.5.2-SNAPSHOT'
+    compileOnly "me.clip:placeholderapi:2.11.6"
+    compileOnly "io.th0rgal:oraxen:1.168.0"
+    compileOnly "com.github.LoneDev6:API-ItemsAdder:3.6.2-beta-r3-b"
+    compileOnly "net.Indyuce:MMOItems-API:6.9.5-SNAPSHOT"
+    compileOnly "io.lumine:MythicLib-dist:1.5.2-SNAPSHOT"
 
     compileOnly "com.github.MilkBowl:VaultAPI:1.7.1"
-    compileOnly 'com.comphenix.protocol:ProtocolLib:5.1.0'
-    compileOnly 'net.luckperms:api:5.4'
+    compileOnly "com.comphenix.protocol:ProtocolLib:5.1.0"
+    compileOnly "net.luckperms:api:5.4"
 
     implementation "io.papermc:paperlib:1.0.7"
-    implementation "net.kyori:adventure-platform-bukkit:4.3.4"
 }
 
-//build {
-//    finalizedBy shadowJar
-//}
+jar {
+    finalizedBy shadowJar
+}
 
 shadowJar {
-
     doLast {
         copy {
             from archiveFile.get().asFile into file("$rootDir/builds/api")
@@ -34,20 +35,18 @@ shadowJar {
     setArchiveBaseName("api")
     setArchiveVersion(plugin_version)
 
-    relocate 'io.papermc.lib', 'kr.rtuserver.framework.bukkit.api.utility.paper'
-    relocate 'net.kyori.adventure.platform.bukkit', 'kr.rtuserver.framework.bukkit.api.utility.kyori'
-
     exclude "org/checkerframework/**"
     exclude "org/bouncycastle/**"
     exclude "edu/umd/cs/findbugs/**"
     exclude "javax/**"
     exclude "javassist/**"
     exclude "net/jcip/**"
-    exclude "net/kyori/**"
-    include "net/kyori/adventure/platform/bukkit"
     exclude "org/reflections/**"
     exclude "com/google/**"
     exclude "io/netty/**"
     exclude "META-INF/**"
     exclude "classpath.index"
+    relocate "io.papermc.lib", "kr.rtuserver.framework.bukkit.api.utility.paper"
+    relocate "net.kyori.adventure.platform.bukkit", "kr.rtuserver.framework.bukkit.api.utility.kyori"
+
 }

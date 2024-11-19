@@ -22,7 +22,7 @@ public class BukkitProtoHandler implements ProtoConnectionHandler {
 
     @Override
     public void onReady(ProtoConnection protoConnection) {
-        Logger log = LoggerFactory.getLogger("RSFramework/ProtoHandler");
+        Logger log = LoggerFactory.getLogger("RSF/ProtoHandler");
         log.info("Connected to Proxy");
         log.info("┠ Address: {}", protoConnection.getRemoteAddress());
         log.info("┖ Protocol: {}", protoConnection.getProtocol().getNamespaceKey());

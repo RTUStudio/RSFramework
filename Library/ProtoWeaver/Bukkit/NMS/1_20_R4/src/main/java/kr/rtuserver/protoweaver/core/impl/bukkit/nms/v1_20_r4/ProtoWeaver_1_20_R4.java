@@ -15,7 +15,7 @@ import org.checkerframework.checker.nullness.qual.NonNull;
 
 import java.nio.charset.StandardCharsets;
 
-@Slf4j(topic = "RSFramework/ProtoWeaver")
+@Slf4j(topic = "RSF/ProtoWeaver")
 public class ProtoWeaver_1_20_R4 implements IProtoWeaver {
 
     public ProtoWeaver_1_20_R4(String folder) {

@@ -1,5 +1,7 @@
+import xyz.jpenilla.runtask.task.AbstractRun
+
 plugins {
-    id 'xyz.jpenilla.run-waterfall' version '2.3.1'
+    id "xyz.jpenilla.run-waterfall" version "2.3.1"
 }
 
 runWaterfall {
@@ -13,7 +15,7 @@ dependencies {
     implementation project(":Library:ProtoWeaver:Bungee:API")
     implementation project(":Library:ProtoWeaver:Bungee:Core")
 
-    implementation 'com.github.Carleslc.Simple-YAML:Simple-Yaml:1.8.4'
+    implementation "com.github.Carleslc.Simple-YAML:Simple-Yaml:1.8.4"
 
     compileOnly("net.md-5:bungeecord-api:1.20-R0.2")
 }
@@ -25,8 +27,17 @@ processResources {
             author : plugin_author
     ]
     inputs.properties props
-    filteringCharset 'UTF-8'
-    filesMatching('bungee.yml') {
+    filteringCharset "UTF-8"
+    filesMatching("bungee.yml") {
         expand props
     }
 }
+
+tasks.withType(AbstractRun.class).configureEach {
+    javaLauncher = javaToolchains.launcherFor {
+        vendor = JvmVendorSpec.JETBRAINS
+        languageVersion = JavaLanguageVersion.of(21)
+    }
+    jvmArgs("-XX:+AllowEnhancedClassRedefinition")
+}
+

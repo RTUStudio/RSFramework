@@ -32,7 +32,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 
-@Slf4j(topic = "RSFramework/ProtoWeaver")
+@Slf4j(topic = "RSF/ProtoWeaver")
 @Getter
 public class BukkitProtoWeaver implements kr.rtuserver.protoweaver.api.impl.bukkit.BukkitProtoWeaver {
 

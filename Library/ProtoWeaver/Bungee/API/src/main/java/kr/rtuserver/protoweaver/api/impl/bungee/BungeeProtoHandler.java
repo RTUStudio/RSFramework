@@ -11,7 +11,7 @@ import lombok.extern.slf4j.Slf4j;
 import java.util.ArrayList;
 import java.util.List;
 
-@Slf4j(topic = "RSFramework/ProtoHandler")
+@Slf4j(topic = "RSF/ProtoHandler")
 @NoArgsConstructor(force = true)
 @RequiredArgsConstructor
 public class BungeeProtoHandler implements ProtoConnectionHandler {
