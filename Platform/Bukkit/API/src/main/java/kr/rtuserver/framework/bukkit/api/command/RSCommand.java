@@ -86,7 +86,7 @@ public abstract class RSCommand extends Command {
         if (!execute(data)) {
             chat.announce(sender, message.getCommon("wrongUsage"));
             if (hasPermission(plugin.getName() + ".reload"))
-                chat.announce(sender, String.format("<gray> - </gray>/%s %s", getName(), command.getCommon("reload")));
+                chat.send(sender, String.format("<gray> - </gray>/%s %s", getName(), command.getCommon("reload")));
             wrongUsage(data);
         }
         return true;
@@ -98,8 +98,8 @@ public abstract class RSCommand extends Command {
         this.audience = plugin.getAdventure().sender(sender);
         RSCommandData data = new RSCommandData(args);
         List<String> list = new ArrayList<>(tabComplete(data));
-        if (useReload && data.length(1)) {
-            list.add(command.getCommon("reload"));
+        if (data.length(1)) {
+            if (useReload && hasPermission(plugin.getName() + ".reload")) list.add(command.getCommon("reload"));
         }
         return list;
     }
