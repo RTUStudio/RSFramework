@@ -1,7 +1,11 @@
-## How to Build?
+# RSFramework
+Framework for Bukkit RSPlugin (Bukkit/Velocity/Bungeecord)
+- Send packet to proxy and other server without developing proxy plugin
+- Data Storage based by json/nosql structure with MySQL, MongoDB, JsonFile
+- Simple utility for custom item and block (ItemsAdder, Oraxen, MMOItems, CustomModelData)
 
-1. `./gradlew reobfJar`
-2. `./gradlew build`
+## How to Build?
+1. `./gradlew build`
 
 ## How to Run Server and Proxy?
 
