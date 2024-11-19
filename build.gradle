@@ -115,7 +115,6 @@ shadowJar {
     exclude "javax/**"
     exclude "javassist/**"
     exclude "net/jcip/**"
-    exclude "org/reflections/**"
     exclude "com/google/**"
     exclude "io/netty/**"
     exclude "META-INF/**"
