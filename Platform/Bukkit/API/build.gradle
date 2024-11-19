@@ -18,6 +18,7 @@ dependencies {
     compileOnly "net.luckperms:api:5.4"
 
     implementation "io.papermc:paperlib:1.0.7"
+    implementation "com.github.Carleslc.Simple-YAML:Simple-Yaml:1.8.4"
 }
 
 jar {
