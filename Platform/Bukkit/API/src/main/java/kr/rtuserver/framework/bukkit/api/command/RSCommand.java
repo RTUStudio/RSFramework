@@ -104,9 +104,13 @@ public abstract class RSCommand extends Command {
         return list;
     }
 
-    protected abstract boolean execute(RSCommandData data);
+    protected boolean execute(RSCommandData data) {
+        return false;
+    }
 
-    protected abstract List<String> tabComplete(RSCommandData data);
+    protected List<String> tabComplete(RSCommandData data){
+        return List.of();
+    }
 
     protected void reload(RSCommandData data) {
     }
