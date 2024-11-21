@@ -147,6 +147,10 @@ public class RSConfiguration {
         return getInt(path, def, new String[]{});
     }
 
+    protected long getLong(String path, long def) {
+        return getLong(path, def, new String[]{});
+    }
+
     protected <T> List<T> getList(String path, List<T> def) {
         return getList(path, def, new String[]{});
     }
@@ -159,12 +163,20 @@ public class RSConfiguration {
         return getBooleanList(path, def, new String[]{});
     }
 
+    protected List<Float> getFloatList(String path, List<Float> def) {
+        return getFloatList(path, def, new String[]{});
+    }
+
     protected List<Double> getDoubleList(String path, List<Double> def) {
         return getDoubleList(path, def, new String[]{});
     }
 
     protected List<Integer> getIntegerList(String path, List<Integer> def) {
         return getIntegerList(path, def, new String[]{});
+    }
+
+    protected List<Long> getLongList(String path, List<Long> def) {
+        return getLongList(path, def, new String[]{});
     }
 
     protected Map<String, Object> getMap(String path, Map<String, Object> def) {
@@ -205,6 +217,12 @@ public class RSConfiguration {
         return config.getInt(path, config.getInt(path));
     }
 
+    protected long getLong(String path, long def, String... comment) {
+        config.addDefault(path, def);
+        if (comment.length != 0) setComment(path, comment);
+        return config.getLong(path, config.getLong(path));
+    }
+
     protected <T> List<T> getList(String path, List<T> def, String... comment) {
         config.addDefault(path, def);
         if (comment.length != 0) setComment(path, comment);
@@ -225,6 +243,13 @@ public class RSConfiguration {
         return result != null ? result : def;
     }
 
+    protected List<Float> getFloatList(String path, List<Float> def, String... comment) {
+        config.addDefault(path, def);
+        if (comment.length != 0) setComment(path, comment);
+        List<Float> result = config.getFloatList(path);
+        return result != null ? result : def;
+    }
+
     protected List<Double> getDoubleList(String path, List<Double> def, String... comment) {
         config.addDefault(path, def);
         if (comment.length != 0) setComment(path, comment);
@@ -236,6 +261,13 @@ public class RSConfiguration {
         config.addDefault(path, def);
         if (comment.length != 0) setComment(path, comment);
         List<Integer> result = config.getIntegerList(path);
+        return result != null ? result : def;
+    }
+
+    protected List<Long> getLongList(String path, List<Long> def, String... comment) {
+        config.addDefault(path, def);
+        if (comment.length != 0) setComment(path, comment);
+        List<Long> result = config.getLongList(path);
         return result != null ? result : def;
     }
 
