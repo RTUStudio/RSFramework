@@ -34,6 +34,7 @@ shadowJar {
     setArchiveBaseName("api")
     setArchiveVersion(plugin_version)
 
+    exclude "com/moandjiezana/**"
     exclude "org/checkerframework/**"
     exclude "org/bouncycastle/**"
     exclude "edu/umd/cs/findbugs/**"
