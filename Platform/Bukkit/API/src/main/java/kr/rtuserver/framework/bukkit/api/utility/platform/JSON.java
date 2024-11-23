@@ -37,18 +37,22 @@ public class JSON {
         json.add(key, value);
         return this;
     }
+
     public JSON append(String key, Number value) {
         json.addProperty(key, value);
         return this;
     }
+
     public JSON append(String key, String value) {
         json.addProperty(key, value);
         return this;
     }
+
     public JSON append(String key, Boolean value) {
         json.addProperty(key, value);
         return this;
     }
+
     public JSON append(String key, Character value) {
         json.addProperty(key, value);
         return this;

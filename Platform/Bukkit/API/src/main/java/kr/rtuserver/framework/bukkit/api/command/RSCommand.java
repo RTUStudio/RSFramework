@@ -108,7 +108,7 @@ public abstract class RSCommand extends Command {
         return false;
     }
 
-    protected List<String> tabComplete(RSCommandData data){
+    protected List<String> tabComplete(RSCommandData data) {
         return List.of();
     }
 

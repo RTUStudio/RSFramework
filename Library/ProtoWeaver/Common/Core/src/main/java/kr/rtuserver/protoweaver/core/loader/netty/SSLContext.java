@@ -40,8 +40,8 @@ public class SSLContext {
     public static void initKeystore(String dir) {
         Security.addProvider(new BouncyCastleProvider());
 
-        privateKey = new File(dir + "/keys/private.pem");
-        cert = new File(dir + "/keys/cert.pem");
+        privateKey = new File(dir + "/ProtoWeaver/private.pem");
+        cert = new File(dir + "/ProtoWeaver/cert.pem");
     }
 
     @SneakyThrows

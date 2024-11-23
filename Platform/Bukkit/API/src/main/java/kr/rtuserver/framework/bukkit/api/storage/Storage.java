@@ -1,6 +1,5 @@
 package kr.rtuserver.framework.bukkit.api.storage;
 
-import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import kr.rtuserver.framework.bukkit.api.utility.platform.JSON;
 import org.apache.commons.lang3.tuple.Pair;

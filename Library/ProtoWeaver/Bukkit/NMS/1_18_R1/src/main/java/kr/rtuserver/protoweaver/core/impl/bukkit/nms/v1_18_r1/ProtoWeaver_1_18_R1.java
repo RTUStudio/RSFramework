@@ -1,17 +1,10 @@
 package kr.rtuserver.protoweaver.core.impl.bukkit.nms.v1_18_r1;
 
 import com.destroystokyo.paper.PaperConfig;
-import io.netty.channel.Channel;
-import io.papermc.paper.network.ChannelInitializeListener;
-import io.papermc.paper.network.ChannelInitializeListenerHolder;
 import kr.rtuserver.protoweaver.api.impl.bukkit.nms.IProtoWeaver;
-import kr.rtuserver.protoweaver.api.protocol.velocity.VelocityAuth;
 import kr.rtuserver.protoweaver.api.util.ProtoLogger;
-import kr.rtuserver.protoweaver.core.loader.netty.ProtoDeterminer;
 import kr.rtuserver.protoweaver.core.loader.netty.SSLContext;
 import lombok.extern.slf4j.Slf4j;
-import net.kyori.adventure.key.Key;
-import org.checkerframework.checker.nullness.qual.NonNull;
 
 @Slf4j(topic = "RSF/ProtoWeaver")
 public class ProtoWeaver_1_18_R1 implements IProtoWeaver {
@@ -21,11 +14,7 @@ public class ProtoWeaver_1_18_R1 implements IProtoWeaver {
         SSLContext.initKeystore(folder);
         SSLContext.genKeys();
         SSLContext.initContext();
-        if (isModernProxy()) {
-            info("Detected modern proxy");
-            ChannelInitializeListenerHolder.addListener(Key.key("rsframework", "protoweaver"), new Paper());
-            VelocityAuth.setSecret(PaperConfig.velocitySecretKey);
-        }
+        if (isModernProxy()) ModernProxy.initialize();
     }
 
     @Override
@@ -51,12 +40,5 @@ public class ProtoWeaver_1_18_R1 implements IProtoWeaver {
     @Override
     public void err(String message) {
         log.error(message);
-    }
-
-    static class Paper implements ChannelInitializeListener {
-        @Override
-        public void afterInitChannel(@NonNull Channel channel) {
-            ProtoDeterminer.registerToPipeline(channel);
-        }
     }
 }

@@ -12,7 +12,6 @@ import kr.rtuserver.framework.bukkit.core.internal.listeners.InventoryListener;
 import kr.rtuserver.framework.bukkit.core.internal.listeners.JoinListener;
 import kr.rtuserver.framework.bukkit.core.internal.runnable.CommandLimit;
 import kr.rtuserver.framework.bukkit.core.modules.Modules;
-import kr.rtuserver.framework.bukkit.core.modules.ThemeModule;
 import kr.rtuserver.framework.bukkit.nms.v1_17_r1.NMS_1_17_R1;
 import kr.rtuserver.framework.bukkit.nms.v1_18_r1.NMS_1_18_R1;
 import kr.rtuserver.framework.bukkit.nms.v1_18_r2.NMS_1_18_R2;
