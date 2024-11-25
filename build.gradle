@@ -50,6 +50,9 @@ allprojects {
         maven {
             url = "https://nexus.phoenixdevt.fr/repository/maven-public/"
         }
+        maven {
+            url = "https://repo.nexomc.com/snapshots/"
+        }
     }
 
     dependencies {

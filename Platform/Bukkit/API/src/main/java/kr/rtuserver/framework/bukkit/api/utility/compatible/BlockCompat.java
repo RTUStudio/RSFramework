@@ -1,5 +1,6 @@
 package kr.rtuserver.framework.bukkit.api.utility.compatible;
 
+import com.nexomc.nexo.api.NexoBlocks;
 import dev.lone.itemsadder.api.CustomBlock;
 import io.th0rgal.oraxen.api.OraxenBlocks;
 import io.th0rgal.oraxen.mechanics.Mechanic;
@@ -31,6 +32,11 @@ public class BlockCompat {
         String[] split = data.split(":");
         String platform = split[0].toLowerCase();
         switch (platform) {
+            case "nexo" -> {
+                if (framework().isEnabledDependency("Nexo")) {
+                    return NexoBlocks.blockData(split[1]);
+                } else return null;
+            }
             case "oraxen" -> {
                 if (framework().isEnabledDependency("Oraxen")) {
                     return OraxenBlocks.getOraxenBlockData(split[1]);
@@ -52,6 +58,9 @@ public class BlockCompat {
 
     @NotNull
     public static String to(Block block) {
+        if (framework().isEnabledDependency("Nexo")) {
+            if (NexoBlocks.isCustomBlock(block)) return "nexo:" + NexoBlocks.customBlockMechanic(block.getBlockData()).getItemID();
+        }
         if (framework().isEnabledDependency("Oraxen")) {
             Mechanic oraxen = OraxenBlocks.getOraxenBlock(block.getBlockData());
             if (oraxen != null)
@@ -69,6 +78,13 @@ public class BlockCompat {
         String[] split = namespacedID.split(":");
         String platform = split[0].toLowerCase();
         switch (platform) {
+            case "nexo" -> {
+                if (framework().isEnabledDependency("Nexo")) {
+                    if (NexoBlocks.isCustomBlock(namespacedID)) NexoBlocks.place(split[1], location);
+                    else return false;
+                } else return false;
+                return true;
+            }
             case "oraxen" -> {
                 if (framework().isEnabledDependency("Oraxen")) {
                     if (OraxenBlocks.isOraxenBlock(namespacedID)) OraxenBlocks.place(split[1], location);

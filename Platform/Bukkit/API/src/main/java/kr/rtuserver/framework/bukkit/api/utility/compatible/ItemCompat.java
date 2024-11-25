@@ -1,8 +1,8 @@
 package kr.rtuserver.framework.bukkit.api.utility.compatible;
 
+import com.nexomc.nexo.api.NexoItems;
 import dev.lone.itemsadder.api.CustomStack;
 import io.th0rgal.oraxen.api.OraxenItems;
-import io.th0rgal.oraxen.items.ItemBuilder;
 import kr.rtuserver.cdi.LightDI;
 import kr.rtuserver.framework.bukkit.api.core.Framework;
 import lombok.AccessLevel;
@@ -39,10 +39,17 @@ public class ItemCompat {
         String[] split = namespacedID.split(":");
         String platform = split[0].toLowerCase();
         switch (platform) {
+            case "nexo" -> {
+                if (split.length != 2) return null;
+                if (framework().isEnabledDependency("Nexo")) {
+                    com.nexomc.nexo.items.ItemBuilder itemBuilder = NexoItems.itemFromId(split[1]);
+                    return itemBuilder != null ? itemBuilder.build() : null;
+                } else return null;
+            }
             case "oraxen" -> {
                 if (split.length != 2) return null;
                 if (framework().isEnabledDependency("Oraxen")) {
-                    ItemBuilder itemBuilder = OraxenItems.getItemById(split[1]);
+                    io.th0rgal.oraxen.items.ItemBuilder itemBuilder = OraxenItems.getItemById(split[1]);
                     return itemBuilder != null ? itemBuilder.build() : null;
                 } else return null;
             }
@@ -80,6 +87,10 @@ public class ItemCompat {
 
     @NotNull
     public static String to(@NotNull ItemStack itemStack) {
+        if (framework().isEnabledDependency("Nexo")) {
+            String nexo = NexoItems.idFromItem(itemStack);
+            if (nexo != null) return "nexo:" + nexo;
+        }
         if (framework().isEnabledDependency("Oraxen")) {
             String oraxen = OraxenItems.getIdByItem(itemStack);
             if (oraxen != null) return "oraxen:" + oraxen;
@@ -101,6 +112,13 @@ public class ItemCompat {
     }
 
     public static boolean isSimilar(ItemStack stack1, ItemStack stack2) {
+        if (framework().isEnabledDependency("Nexo")) {
+            String var1 =  NexoItems.idFromItem(stack1);
+            String var2 = NexoItems.idFromItem(stack2);
+            if (var1 != null && var2 != null) return var1.equalsIgnoreCase(var2);
+            else if (var1 != null) return NexoItems.itemFromId(var1).build().isSimilar(stack2);
+            else if (var2 != null) return NexoItems.itemFromId(var2).build().isSimilar(stack1);
+        }
         if (framework().isEnabledDependency("Oraxen")) {
             String var1 = OraxenItems.getIdByItem(stack1);
             String var2 = OraxenItems.getIdByItem(stack2);

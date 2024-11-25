@@ -2,14 +2,6 @@ dependencies {
     implementation project(":Library:LightDI")
     implementation project(":Platform:Bukkit:API")
     implementation project(":Platform:Bukkit:Core")
-
-    compileOnly "me.clip:placeholderapi:2.11.6"
-    compileOnly "io.th0rgal:oraxen:1.168.0"
-    compileOnly "com.github.LoneDev6:API-ItemsAdder:3.6.2-beta-r3-b"
-
-    compileOnly "com.github.MilkBowl:VaultAPI:1.7.1"
-    compileOnly "com.comphenix.protocol:ProtocolLib:5.1.0"
-    compileOnly "net.luckperms:api:5.4"
 }
 
 processResources {
