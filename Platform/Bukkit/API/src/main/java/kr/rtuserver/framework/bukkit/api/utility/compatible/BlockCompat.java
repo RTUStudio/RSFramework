@@ -82,8 +82,14 @@ public class BlockCompat {
             case "nexo" -> {
                 if (framework().isEnabledDependency("Nexo")) {
                     if (NexoBlocks.isCustomBlock(namespacedID)) NexoBlocks.place(split[1], location);
-                    else return false;
-                } else return false;
+                    else {
+                        System.out.println("A");
+                        return false;
+                    }
+                } else {
+                    System.out.println("B");
+                    return false;
+                }
                 return true;
             }
             case "oraxen" -> {

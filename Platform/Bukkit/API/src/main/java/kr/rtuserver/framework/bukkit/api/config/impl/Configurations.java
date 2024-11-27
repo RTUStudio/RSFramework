@@ -19,8 +19,8 @@ public class Configurations {
 
     private final SettingConfiguration setting;
     private final List<String> list = new ArrayList<>();
-    private MessageConfiguration message;
-    private CommandConfiguration command;
+    private TranslationConfiguration message;
+    private TranslationConfiguration command;
     private JsonConfig json;
     private MariaDBConfig mariadb;
     private MongoDBConfig mongodb;
@@ -33,8 +33,8 @@ public class Configurations {
     public Configurations(RSPlugin plugin) {
         this.plugin = plugin;
         setting = new SettingConfiguration(plugin);
-        message = new MessageConfiguration(plugin, setting.getLocale());
-        command = new CommandConfiguration(plugin, setting.getLocale());
+        message = new TranslationConfiguration(plugin, "Message", setting.getLocale());
+        command = new TranslationConfiguration(plugin, "Command", setting.getLocale());
     }
 
     public void initStorage(String... list) {
@@ -71,8 +71,8 @@ public class Configurations {
             message.reload();
             command.reload();
         } else {
-            message = new MessageConfiguration(plugin, setting.getLocale());
-            command = new CommandConfiguration(plugin, setting.getLocale());
+            message = new TranslationConfiguration(plugin, "Message", setting.getLocale());
+            command = new TranslationConfiguration(plugin, "Command", setting.getLocale());
         }
 
         if (json != null) json.reload();

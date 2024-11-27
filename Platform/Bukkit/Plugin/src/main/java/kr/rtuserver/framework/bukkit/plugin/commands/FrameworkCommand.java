@@ -3,9 +3,9 @@ package kr.rtuserver.framework.bukkit.plugin.commands;
 import kr.rtuserver.cdi.LightDI;
 import kr.rtuserver.framework.bukkit.api.RSPlugin;
 import kr.rtuserver.framework.bukkit.api.command.RSCommandData;
-import kr.rtuserver.framework.bukkit.api.config.impl.CommandConfiguration;
-import kr.rtuserver.framework.bukkit.api.config.impl.MessageConfiguration;
+import kr.rtuserver.framework.bukkit.api.config.impl.TranslationConfiguration;
 import kr.rtuserver.framework.bukkit.api.core.Framework;
+import kr.rtuserver.framework.bukkit.api.core.config.CommonTranslation;
 import kr.rtuserver.framework.bukkit.api.utility.format.ComponentFormatter;
 import kr.rtuserver.framework.bukkit.api.utility.platform.MinecraftVersion;
 import kr.rtuserver.framework.bukkit.api.utility.platform.SystemEnvironment;
@@ -19,8 +19,8 @@ import java.util.List;
 public class FrameworkCommand extends kr.rtuserver.framework.bukkit.api.command.RSCommand {
 
     private final RSFramework rsf = RSFramework.getInstance();
-    private final MessageConfiguration message = rsf.getConfigurations().getMessage();
-    private final CommandConfiguration command = rsf.getConfigurations().getCommand();
+    private final TranslationConfiguration message = rsf.getConfigurations().getMessage();
+    private final TranslationConfiguration command = rsf.getConfigurations().getCommand();
     private final Framework framework = LightDI.getBean(Framework.class);
 
     public FrameworkCommand(RSPlugin plugin) {
@@ -36,7 +36,7 @@ public class FrameworkCommand extends kr.rtuserver.framework.bukkit.api.command.
                 if (data.args(1).isEmpty()) {
                     chat.announce(getSender(), message.get("command.broadcast.empty"));
                 } else chat.broadcastAll(message.get("command.broadcast.prefix") + data.args(1));
-            } else chat.announce(getSender(), message.getCommon("noPermission"));
+            } else chat.announce(getSender(), message.get("common.noPermission"));
             return true;
         }
         if (data.equals(0, command.get("information"))) {
@@ -49,7 +49,7 @@ public class FrameworkCommand extends kr.rtuserver.framework.bukkit.api.command.
                                         , getFramework().getNMSVersion()
                                         , SystemEnvironment.getOS()
                                         , SystemEnvironment.getJDKVersion())));
-            } else chat.announce(getSender(), message.getCommon("noPermission"));
+            } else chat.announce(getSender(), message.get("common.noPermission"));
             return true;
         }
         return false;

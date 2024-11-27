@@ -1,3 +1,10 @@
 dependencies {
     paperweight.paperDevBundle("1.21.3-R0.1-SNAPSHOT")
 }
+
+java {
+    def javaVersion = JavaVersion.toVersion(17)
+    sourceCompatibility = javaVersion
+    targetCompatibility = javaVersion
+    toolchain.languageVersion = JavaLanguageVersion.of(17)
+}

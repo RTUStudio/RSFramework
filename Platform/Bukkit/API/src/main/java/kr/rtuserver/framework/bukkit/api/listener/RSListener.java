@@ -1,8 +1,7 @@
 package kr.rtuserver.framework.bukkit.api.listener;
 
 import kr.rtuserver.framework.bukkit.api.RSPlugin;
-import kr.rtuserver.framework.bukkit.api.config.impl.CommandConfiguration;
-import kr.rtuserver.framework.bukkit.api.config.impl.MessageConfiguration;
+import kr.rtuserver.framework.bukkit.api.config.impl.TranslationConfiguration;
 import kr.rtuserver.framework.bukkit.api.config.impl.SettingConfiguration;
 import lombok.Getter;
 import org.bukkit.event.Listener;
@@ -13,8 +12,8 @@ public abstract class RSListener implements Listener {
 
     private final RSPlugin plugin;
     private final SettingConfiguration setting;
-    private final MessageConfiguration message;
-    private final CommandConfiguration command;
+    private final TranslationConfiguration message;
+    private final TranslationConfiguration command;
 
     public RSListener(RSPlugin plugin) {
         this.plugin = plugin;

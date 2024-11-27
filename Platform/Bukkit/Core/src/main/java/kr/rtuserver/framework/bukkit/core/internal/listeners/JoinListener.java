@@ -27,7 +27,7 @@ public class JoinListener extends RSListener {
         Map<String, RSPlugin> plugins = framework.getPlugins();
         Audience audience = getPlugin().getAdventure().player(player);
         for (RSPlugin plugin : plugins.values()) {
-            if (!plugin.getConfigurations().getSetting().isMotd()) continue;
+            if (!plugin.getConfigurations().getSetting().isWelcome()) continue;
             String str = "%s developed by %s".formatted(player.getName(), String.join(" & ", plugin.getDescription().getAuthors()));
             Component component = plugin.getPrefix().append(ComponentFormatter.mini(str));
             audience.sendMessage(component);

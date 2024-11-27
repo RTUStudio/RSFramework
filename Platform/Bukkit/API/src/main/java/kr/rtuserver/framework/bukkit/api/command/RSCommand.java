@@ -2,9 +2,9 @@ package kr.rtuserver.framework.bukkit.api.command;
 
 import kr.rtuserver.cdi.LightDI;
 import kr.rtuserver.framework.bukkit.api.RSPlugin;
-import kr.rtuserver.framework.bukkit.api.config.impl.CommandConfiguration;
-import kr.rtuserver.framework.bukkit.api.config.impl.MessageConfiguration;
+import kr.rtuserver.framework.bukkit.api.config.impl.TranslationConfiguration;
 import kr.rtuserver.framework.bukkit.api.core.Framework;
+import kr.rtuserver.framework.bukkit.api.core.config.CommonTranslation;
 import kr.rtuserver.framework.bukkit.api.utility.player.PlayerChat;
 import lombok.Getter;
 import net.kyori.adventure.audience.Audience;
@@ -22,11 +22,12 @@ import java.util.UUID;
 public abstract class RSCommand extends Command {
 
     private final RSPlugin plugin;
-    private final MessageConfiguration message;
-    private final CommandConfiguration command;
+    private final TranslationConfiguration message;
+    private final TranslationConfiguration command;
     private final String name;
     private final boolean useReload;
     private final Framework framework = LightDI.getBean(Framework.class);
+    private final CommonTranslation common = framework.getCommonTranslation();
     private CommandSender sender;
     private Audience audience;
 
@@ -74,19 +75,19 @@ public abstract class RSCommand extends Command {
         this.audience = plugin.getAdventure().sender(sender);
         RSCommandData data = new RSCommandData(args);
         if (useReload) {
-            if (data.equals(0, command.getCommon("reload"))) {
+            if (data.equals(0, common.getCommand(sender, "reload"))) {
                 if (hasPermission(plugin.getName() + ".reload")) {
                     plugin.getConfigurations().reload();
                     reload(data);
-                    chat.announce(sender, message.getCommon("reload"));
-                } else chat.announce(sender, message.getCommon("noPermission"));
+                    chat.announce(sender, common.getMessage(sender, "reload"));
+                } else chat.announce(sender, common.getMessage(sender, "noPermission"));
                 return true;
             }
         }
         if (!execute(data)) {
-            chat.announce(sender, message.getCommon("wrongUsage"));
+            chat.announce(sender, common.getMessage(sender, "wrongUsage"));
             if (hasPermission(plugin.getName() + ".reload"))
-                chat.send(sender, String.format("<gray> - </gray>/%s %s", getName(), command.getCommon("reload")));
+                chat.send(sender, String.format("<gray> - </gray>/%s %s", getName(), common.getCommand(sender, "reload")));
             wrongUsage(data);
         }
         return true;
@@ -99,7 +100,7 @@ public abstract class RSCommand extends Command {
         RSCommandData data = new RSCommandData(args);
         List<String> list = new ArrayList<>(tabComplete(data));
         if (data.length(1)) {
-            if (useReload && hasPermission(plugin.getName() + ".reload")) list.add(command.getCommon("reload"));
+            if (useReload && hasPermission(plugin.getName() + ".reload")) list.add(common.getCommand(sender, "reload"));
         }
         return list;
     }

@@ -32,7 +32,6 @@ public abstract class RSPlugin extends JavaPlugin {
     private final Set<Listener> registeredListeners = new HashSet<>();
     @Getter
     private Framework framework;
-    @Getter
     private Component prefix;
     @Getter
     private RSPlugin plugin;
@@ -50,6 +49,12 @@ public abstract class RSPlugin extends JavaPlugin {
 
     public RSPlugin(Component prefix) {
         this.prefix = prefix;
+    }
+
+    public Component getPrefix() {
+        String str = configurations.getSetting().getPrefix();
+        if (str.isEmpty()) return prefix;
+        return ComponentFormatter.mini(str);
     }
 
     @Override

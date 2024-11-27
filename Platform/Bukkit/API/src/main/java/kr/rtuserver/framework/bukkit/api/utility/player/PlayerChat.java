@@ -77,35 +77,35 @@ public class PlayerChat {
 
     public void announce(CommandSender sender, String minimessage) {
         Audience audience = plugin.getAdventure().sender(sender);
-        Component prefix = plugin.getConfigurations().getMessage().getPrefix();
+        Component prefix = plugin.getPrefix();
         audience.sendMessage(prefix.append(ComponentFormatter.mini(minimessage)));
     }
 
     public void announce(Player player, String minimessage) {
         Audience audience = plugin.getAdventure().player(player);
-        Component prefix = plugin.getConfigurations().getMessage().getPrefix();
+        Component prefix = plugin.getPrefix();
         audience.sendMessage(prefix.append(ComponentFormatter.mini(minimessage)));
     }
 
     public void announce(Audience audience, String minimessage) {
-        Component prefix = plugin.getConfigurations().getMessage().getPrefix();
+        Component prefix = plugin.getPrefix();
         audience.sendMessage(prefix.append(ComponentFormatter.mini(minimessage)));
     }
 
     public void announce(CommandSender sender, Component component) {
         Audience audience = plugin.getAdventure().sender(sender);
-        Component prefix = plugin.getConfigurations().getMessage().getPrefix();
+        Component prefix = plugin.getPrefix();
         audience.sendMessage(prefix.append(component));
     }
 
     public void announce(Player player, Component component) {
         Audience audience = plugin.getAdventure().player(player);
-        Component prefix = plugin.getConfigurations().getMessage().getPrefix();
+        Component prefix = plugin.getPrefix();
         audience.sendMessage(prefix.append(component));
     }
 
     public void announce(Audience audience, Component component) {
-        Component prefix = plugin.getConfigurations().getMessage().getPrefix();
+        Component prefix = plugin.getPrefix();
         audience.sendMessage(prefix.append(component));
     }
 

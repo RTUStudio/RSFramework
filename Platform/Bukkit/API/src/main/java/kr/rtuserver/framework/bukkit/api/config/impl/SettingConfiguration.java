@@ -11,9 +11,10 @@ import lombok.Setter;
 public class SettingConfiguration extends RSConfiguration {
 
     private boolean verbose = false;
-    private boolean enablePlugin = true;
-    private boolean motd = true;
-    private String locale = "KR";
+    private boolean listeners = true;
+    private boolean welcome = true;
+    private String prefix = "";
+    private String locale = "en_us";
     private StorageType storage = StorageType.JSON;
 
     public SettingConfiguration(RSPlugin plugin) {
@@ -23,36 +24,35 @@ public class SettingConfiguration extends RSConfiguration {
 
     private void init() {
         verbose = getBoolean("verbose", verbose, """
-                This is an option for developers
-                Don't enable this option
-                이 옵션은 개발자용입니다
-                활성화하면 안됩니다""");
-        enablePlugin = getBoolean("enablePlugin", enablePlugin, """
-                Control Whether Enable This Plugin Functions
-                If disabled, Event listener and Scheduler will be disabled
-                플러그인의 기능을 활성화할지 설정합니다
-                비활성화할시 이벤트 리스너와 스케듈러가 비활성화됩니다""");
-        motd = getBoolean("motd", motd, """
-                Control whether send MOTD to players
-                If disabled, send MOTD to only operators
-                MOTD를 플레이어에게 보낼지 조정합니다
-                비활성화할시 MOTD를 OP에게만 보냅니다""");
+                Debug option
+                디버그 옵션입니다""");
+        listeners = getBoolean("listeners", listeners, """
+                When disabled, event listeners will be deactivated
+                비활성화할시 이벤트 리스너가 비활성화됩니다""");
+        welcome = getBoolean("welcome", welcome, """
+                Controls whether to send MOTD to all players
+                If disabled, MOTD will only be sent to operators
+                MOTD 메세지를 플레이어에게 전송할지 조정합니다
+                비활성화할시 관리자에게만 전송합니다""");
+        prefix = getString("prefix", prefix, """
+                Plugin message prefix. If left empty, the default prefix will be used.
+                시스템 메세지의 접두사입니다. 비워두면 내장 접두사를 사용합니다.""");
         locale = getString("locale", locale, """
-                Message Locale, You can make new Locale File, Locale_KR.yml = KR
-                Internal Locale: KR, EN (Locale file is automatically created when the configuration is loaded)
-                메세지 언어, 새로운 언어 파일을 만들 수 있습니다, Locale_KR.yml = KR
-                내장된 언어: KR, EN (구성을 불러올때 자동으로 파일이 생성됩니다)""");
+                Default locale for messages and commands. Custom locale files can be created.
+                Built-in locales: en_us, ko_kr
+                메세지 및 명령어 기본 언어, 새로운 언어 파일을 만들 수 있습니다
+                내장된 언어: en_us, ko_kr""");
         storage = StorageType.getType(getString("storage", storage.name(), """
-                Data save format, Available format: JSON, MONGODB, MYSQL, MARIADB
+                Data storage format. Available options: JSON, MONGODB, MYSQL, MARIADB
                 데이터 저장 포멧: 사용 가능한 포멧: JSON, MONGODB, MYSQL, MARIADB"""));
     }
 
     @Override
     public void reload() {
-        final boolean previous = enablePlugin;
+        final boolean previous = listeners;
         super.reload();
-        if (previous != enablePlugin) {
-            if (enablePlugin) getPlugin().registerEvents();
+        if (previous != listeners) {
+            if (listeners) getPlugin().registerEvents();
             else getPlugin().unregisterEvents();
         }
     }
