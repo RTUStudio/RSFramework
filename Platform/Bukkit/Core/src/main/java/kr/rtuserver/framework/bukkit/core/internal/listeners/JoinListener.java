@@ -24,7 +24,6 @@ public class JoinListener extends RSListener {
     @EventHandler
     public void motdMessage(PlayerJoinEvent e) {
         Player player = e.getPlayer();
-        if (!player.hasPermission(getPlugin().getName() + ".motd")) return;
         Map<String, RSPlugin> plugins = framework.getPlugins();
         Audience audience = getPlugin().getAdventure().player(player);
         for (RSPlugin plugin : plugins.values()) {

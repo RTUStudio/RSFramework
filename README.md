@@ -1,8 +1,8 @@
 # RSFramework
 Framework for Bukkit RSPlugin (Bukkit/Velocity/Bungeecord)
-- Send packet to proxy and other server without developing proxy plugin
-- Data Storage based by json/nosql structure with MySQL, MongoDB, JsonFile
-- Simple utility for custom item and block (ItemsAdder, Oraxen, MMOItems, CustomModelData)
+- Send packets to a proxy and another server without developing a plugin for the proxy.
+- Store data in a JSON-based structure with support for MySQL, MongoDB, and JSON files.
+- A simple utility for managing custom items and blocks, compatible with tools like ItemsAdder, Oraxen, Nexo and MMOItems​
 
 ## How to Build?
 1. `./gradlew build`
@@ -16,7 +16,14 @@ Framework for Bukkit RSPlugin (Bukkit/Velocity/Bungeecord)
 3. `./gradlew runServer -p ./Platform/Bukkit`
 4. Don't forget. You should setup config of Bukkit:`config/paper-global.yml` and Velocity:`velocity.toml`
 
-## Supported MC Version
+## Supported Bukkit
+Spigot, Paper, Pufferfish, Purpur, Plazma, Arclight, Mohist
+and Paper forks
+
+## Supported Proxy
+Velocity, Bungeecord, Waterfall and Bungeecord forks
+
+## Supported Version
 1.17.1 ~ 1.21.3
 
 ## JDK Version

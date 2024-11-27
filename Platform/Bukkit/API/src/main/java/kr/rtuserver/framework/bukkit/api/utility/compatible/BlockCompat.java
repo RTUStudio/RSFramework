@@ -59,7 +59,8 @@ public class BlockCompat {
     @NotNull
     public static String to(Block block) {
         if (framework().isEnabledDependency("Nexo")) {
-            if (NexoBlocks.isCustomBlock(block)) return "nexo:" + NexoBlocks.customBlockMechanic(block.getBlockData()).getItemID();
+            if (NexoBlocks.isCustomBlock(block))
+                return "nexo:" + NexoBlocks.customBlockMechanic(block.getBlockData()).getItemID();
         }
         if (framework().isEnabledDependency("Oraxen")) {
             Mechanic oraxen = OraxenBlocks.getOraxenBlock(block.getBlockData());

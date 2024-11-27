@@ -113,7 +113,7 @@ public class ItemCompat {
 
     public static boolean isSimilar(ItemStack stack1, ItemStack stack2) {
         if (framework().isEnabledDependency("Nexo")) {
-            String var1 =  NexoItems.idFromItem(stack1);
+            String var1 = NexoItems.idFromItem(stack1);
             String var2 = NexoItems.idFromItem(stack2);
             if (var1 != null && var2 != null) return var1.equalsIgnoreCase(var2);
             else if (var1 != null) return NexoItems.itemFromId(var1).build().isSimilar(stack2);
