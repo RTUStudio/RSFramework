@@ -1,5 +1,5 @@
 dependencies {
-    implementation project(":Library:ProtoWeaver:Common:API")
+    implementation project(path: ":Library:ProtoWeaver:Common:API", configuration: "shadow")
 
     implementation "org.apache.fury:fury-core:0.7.0"
     implementation "io.netty:netty-buffer:4.1.97.Final"
@@ -8,4 +8,8 @@ dependencies {
     implementation "io.netty:netty-codec-http:4.1.97.Final"
     implementation "io.netty:netty-codec-http2:4.1.97.Final"
     implementation "org.bouncycastle:bcpkix-jdk18on:1.78.1"
+}
+
+compileJava {
+    dependsOn(":Library:ProtoWeaver:Common:API:jar")
 }

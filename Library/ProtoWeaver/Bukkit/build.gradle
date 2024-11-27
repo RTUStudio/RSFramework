@@ -4,6 +4,5 @@ subprojects {
         else compileOnly "org.spigotmc:spigot-api:${api_version}-R0.1-SNAPSHOT"
 
         implementation project(":Library:ProtoWeaver:Common:API")
-        implementation project(":Library:ProtoWeaver:Common:Core")
     }
 }

@@ -13,6 +13,7 @@ subprojects {
 }
 
 dependencies {
+    implementation project(":Library:ProtoWeaver:Common:Core")
     implementation project(path: "1_17_R1", configuration: "reobf")
     implementation project(path: "1_18_R1", configuration: "reobf")
     implementation project(path: "1_18_R2", configuration: "reobf")
