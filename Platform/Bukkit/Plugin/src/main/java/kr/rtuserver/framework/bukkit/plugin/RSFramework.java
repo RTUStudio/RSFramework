@@ -15,7 +15,6 @@ import java.util.List;
 
 public class RSFramework extends RSPlugin {
 
-    private static final Logger log = LoggerFactory.getLogger(RSFramework.class);
     @Getter
     private static RSFramework instance;
     @Getter

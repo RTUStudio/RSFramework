@@ -73,7 +73,6 @@ allprojects {
         compileOnly "org.xerial.snappy:snappy-java:1.1.10.5"
         compileOnly "org.projectlombok:lombok:1.18.32"
         compileOnly "org.slf4j:slf4j-api:2.0.16"
-
     }
 
     shadowJar {
@@ -103,6 +102,9 @@ dependencies {
     implementation project(path: ":Platform:Bukkit")
     implementation project(path: ":Platform:Bungee")
     implementation project(path: ":Platform:Velocity")
+    implementation "com.alessiodp.libby:libby-bukkit:2.0.0-SNAPSHOT"
+    implementation "com.alessiodp.libby:libby-bungee:2.0.0-SNAPSHOT"
+    implementation "com.alessiodp.libby:libby-velocity:2.0.0-SNAPSHOT"
 
     compileOnly "org.projectlombok:lombok:1.18.32"
     annotationProcessor "org.projectlombok:lombok:1.18.32"
