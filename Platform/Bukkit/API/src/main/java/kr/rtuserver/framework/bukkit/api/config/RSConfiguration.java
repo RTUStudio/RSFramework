@@ -27,8 +27,14 @@ public class RSConfiguration {
             ║ ░█▀▄░█░█░░█░░█░█░█▀▀░█░█░░░░█░░█▀▀░█░░░█▀█░█░█░█░█░█░░░█░█░█░█░░█░░░░█░█░█░█░░█░░█▀▀░░█░ ║
             ║ ░▀░▀░▀▀▀░▀▀▀░▀░▀░▀▀▀░▀▀░░░░░▀░░▀▀▀░▀▀▀░▀░▀░▀░▀░▀▀▀░▀▀▀░▀▀▀░▀▀▀░░▀░░░░▀▀▀░▀░▀░▀▀▀░▀░░░░▀░ ║
             ╚══════════════════════════════════════════════════════════════════════════════════════════╝
-            RS 플러그인의 콘피그 파일입니다
-            문의는 개발자 %s 에게 부탁드립니다""";
+            
+            This is the configuration for %s.
+            If you have any questions or need assistance, 
+            please join our Discord server and ask for help from %s!
+            
+            이것은 %s의 구성입니다.
+            질문이 있거나 도움이 필요하시면,
+            저희 Discord 서버에 가입하셔서 %s에게 도움을 요청해 주세요!""";
     @Getter
     private final RSPlugin plugin;
     private final File file;
@@ -51,7 +57,9 @@ public class RSConfiguration {
         load();
         if (version != null) set("version", version);
         this.version = version != null ? version : 1;
-        config.options().header(String.format(HEADER, String.join(" & ", plugin.getDescription().getAuthors())));
+        String id = plugin.getName();
+        String author = String.join(" & ", plugin.getDescription().getAuthors());
+        config.options().header(String.format(HEADER, id, author, id, author));
         config.options().copyDefaults(true);
     }
 

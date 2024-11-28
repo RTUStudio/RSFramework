@@ -9,40 +9,44 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 import java.io.File;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 @Getter
 public class TranslationConfiguration {
 
-    private final Translation defaultLocale;
+    private final RSPlugin plugin;
+    private final String folder;
+    private final String defaultLocale;
     private final Map<String, Translation> map = new HashMap<>();
     private final Framework framework = LightDI.getBean(Framework.class);
 
-    public TranslationConfiguration(RSPlugin plugin, String folder, String lang) {
-        defaultLocale = new Translation(plugin, folder, lang);
-        File[] list = FileResource.createFolder("Translations").listFiles();
-        if (list == null) return;
-        for (File file : list) {
-            System.out.println("Load Translation: " + file.getName());
-            map.put(file.getName(), new Translation(plugin, folder, file.getName()));
-        }
+    public TranslationConfiguration(RSPlugin plugin, String folder, String defaultLocale) {
+        this.plugin = plugin;
+        this.folder = folder;
+        this.defaultLocale = defaultLocale;
+        reload();
     }
 
     public String get(String key) {
-        return defaultLocale.get(key);
+        return map.get(defaultLocale).get(key);
     }
 
     public String get(CommandSender sender, String key) {
         if (sender instanceof Player player) {
-            System.out.println("Player Translation: " + player.getLocale());
-            return map.getOrDefault(player.getLocale(), defaultLocale).get(key);
+            return map.getOrDefault(player.getLocale(), map.get(defaultLocale)).get(key);
         }
-        return defaultLocale.get(key);
+        return get(key);
     }
 
     public void reload() {
-        defaultLocale.reload();
-        map.values().forEach(Translation::reload);
+        File[] files = FileResource.createFolder("Translations").listFiles();
+        if (files == null) return;
+        Set<String> list = plugin.getLanguages();
+        list.addAll(Arrays.stream(files).map(File::getName).toList());
+        list.add(defaultLocale);
+        for (String file : list) map.put(file, new Translation(plugin, folder, file));
     }
 }

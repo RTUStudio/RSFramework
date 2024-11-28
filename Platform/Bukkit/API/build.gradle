@@ -16,6 +16,7 @@ dependencies {
     compileOnly "com.comphenix.protocol:ProtocolLib:5.1.0"
     compileOnly "net.luckperms:api:5.4"
 
+    compileOnly "org.reflections:reflections:0.10.2"
     compileOnly "com.github.Carleslc.Simple-YAML:Simple-Yaml:1.8.4"
     implementation "io.papermc:paperlib:1.0.7"
 }

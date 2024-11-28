@@ -12,6 +12,7 @@ public class Translation extends RSConfiguration {
 
     public Translation(RSPlugin plugin, String folder, String lang) {
         super(plugin, "Translations/" + folder, lang + ".yml", null);
+        System.out.println("Translation: " + folder + "/" + lang + ".yml");
         setup(this);
     }
 

@@ -1,5 +1,6 @@
 package kr.rtuserver.framework.bukkit.api;
 
+import com.google.common.io.ByteStreams;
 import kr.rtuserver.cdi.LightDI;
 import kr.rtuserver.framework.bukkit.api.command.RSCommand;
 import kr.rtuserver.framework.bukkit.api.config.impl.Configurations;
@@ -8,12 +9,12 @@ import kr.rtuserver.framework.bukkit.api.core.modules.ThemeModule;
 import kr.rtuserver.framework.bukkit.api.listener.RSListener;
 import kr.rtuserver.framework.bukkit.api.storage.Storage;
 import kr.rtuserver.framework.bukkit.api.utility.format.ComponentFormatter;
+import kr.rtuserver.framework.bukkit.api.utility.platform.FileResource;
 import kr.rtuserver.framework.bukkit.api.utility.platform.MinecraftVersion;
 import kr.rtuserver.protoweaver.api.ProtoConnectionHandler;
 import kr.rtuserver.protoweaver.api.callback.HandlerCallback;
 import kr.rtuserver.protoweaver.api.protocol.Packet;
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import net.kyori.adventure.text.Component;
@@ -23,10 +24,16 @@ import org.bukkit.event.Listener;
 import org.bukkit.permissions.PermissionDefault;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
+import java.util.logging.Level;
 
-@RequiredArgsConstructor
 public abstract class RSPlugin extends JavaPlugin {
 
     private final Set<Listener> registeredListeners = new HashSet<>();
@@ -38,17 +45,19 @@ public abstract class RSPlugin extends JavaPlugin {
     @Getter
     private BukkitAudiences adventure;
     @Getter
+    private final Set<String> languages = new HashSet<>();
+    @Getter
     private Configurations configurations;
     @Getter
     @Setter
     private Storage storage;
 
-    public RSPlugin(String prefix) {
-        this.prefix = ComponentFormatter.mini(prefix);
+    public RSPlugin() {
+        this("ko_kr", "en_us");
     }
 
-    public RSPlugin(Component prefix) {
-        this.prefix = prefix;
+    public RSPlugin(String... languages) {
+        this.languages.addAll(Set.of(languages));
     }
 
     public Component getPrefix() {
@@ -92,16 +101,14 @@ public abstract class RSPlugin extends JavaPlugin {
     public void onLoad() {
         this.framework = LightDI.getBean(Framework.class);
         initialize();
-        if (this.prefix == null) {
-            ThemeModule theme = this.framework.getModules().getThemeModule();
-            String text = String.format("<gradient:%s:%s>%s%s%s</gradient>",
-                    theme.getGradientStart(),
-                    theme.getGradientEnd(),
-                    theme.getPrefix(),
-                    getName(),
-                    theme.getSuffix());
-            this.prefix = ComponentFormatter.mini(text);
-        }
+        ThemeModule theme = this.framework.getModules().getThemeModule();
+        String text = String.format("<gradient:%s:%s>%s%s%s</gradient>",
+                theme.getGradientStart(),
+                theme.getGradientEnd(),
+                theme.getPrefix(),
+                getName(),
+                theme.getSuffix());
+        this.prefix = ComponentFormatter.mini(text);
         load();
     }
 

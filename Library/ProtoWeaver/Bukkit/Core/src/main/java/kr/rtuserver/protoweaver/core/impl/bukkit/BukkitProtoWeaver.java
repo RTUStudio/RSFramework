@@ -27,6 +27,7 @@ import kr.rtuserver.protoweaver.core.impl.bukkit.nms.v1_21_r1.ProtoWeaver_1_21_R
 import kr.rtuserver.protoweaver.core.impl.bukkit.nms.v1_21_r2.ProtoWeaver_1_21_R2;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
+import org.checkerframework.checker.i18nformatter.qual.I18nFormat;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -80,6 +81,7 @@ public class BukkitProtoWeaver implements kr.rtuserver.protoweaver.api.impl.bukk
     }
 
     public boolean sendPacket(InternalPacket packet) {
+        if (connection == null) return false;
         return connection.send(packet).isSuccess();
     }
 

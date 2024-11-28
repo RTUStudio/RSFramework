@@ -30,15 +30,15 @@ public class FrameworkCommand extends kr.rtuserver.framework.bukkit.api.command.
     @Override
     public boolean execute(RSCommandData data) {
         PlayerChat chat = PlayerChat.of(getPlugin());
-        if (data.equals(0, command.get("broadcast"))) {
+        if (data.equals(0, command.get(getSender(), "broadcast"))) {
             if (hasPermission(getName() + ".broadcast")) {
                 if (data.args(1).isEmpty()) {
-                    chat.announce(getSender(), message.get("command.broadcast.empty"));
-                } else chat.broadcastAll(message.get("command.broadcast.prefix") + data.args(1));
-            } else chat.announce(getSender(), message.get("common.noPermission"));
+                    chat.announce(getSender(), message.get(getSender(), "command.broadcast.empty"));
+                } else chat.broadcastAll(message.get(getSender(), "command.broadcast.prefix") + data.args(1));
+            } else chat.announce(getSender(), message.get(getSender(), "common.noPermission"));
             return true;
         }
-        if (data.equals(0, command.get("information"))) {
+        if (data.equals(0, command.get(getSender(), "information"))) {
             if (hasPermission(getName() + ".information")) {
                 chat.announce(getAudience(), ComponentFormatter.mini(
                         "Info\n<gradient:#2979FF:#7C4DFF> ┠ Name<white>: %s</white>\n ┠ Version<white>: %s</white>\n ┠ Bukkit<white>: %s</white>\n ┠ NMS<white>: %s</white>\n ┠ OS<white>: %s</white>\n ┖ JDK<white>: %s</white></gradient>"
@@ -48,7 +48,7 @@ public class FrameworkCommand extends kr.rtuserver.framework.bukkit.api.command.
                                         , getFramework().getNMSVersion()
                                         , SystemEnvironment.getOS()
                                         , SystemEnvironment.getJDKVersion())));
-            } else chat.announce(getSender(), message.get("common.noPermission"));
+            } else chat.announce(getSender(), message.get(getSender(), "common.noPermission"));
             return true;
         }
         return false;
@@ -58,9 +58,9 @@ public class FrameworkCommand extends kr.rtuserver.framework.bukkit.api.command.
     public void wrongUsage(RSCommandData data) {
         PlayerChat chat = PlayerChat.of(getPlugin());
         if (hasPermission(getPlugin().getName() + ".broadcast"))
-            chat.announce(getSender(), String.format("<gray> - </gray>/%s %s", getName(), command.get("broadcast")));
+            chat.announce(getSender(), String.format("<gray> - </gray>/%s %s", getName(), command.get(getSender(), "broadcast")));
         if (hasPermission(getPlugin().getName() + ".information"))
-            chat.announce(getSender(), String.format("<gray> - </gray>/%s %s", getName(), command.get("information")));
+            chat.announce(getSender(), String.format("<gray> - </gray>/%s %s", getName(), command.get(getSender(), "information")));
     }
 
     @Override
@@ -72,8 +72,8 @@ public class FrameworkCommand extends kr.rtuserver.framework.bukkit.api.command.
     public List<String> tabComplete(RSCommandData data) {
         if (data.length(1)) {
             List<String> list = new ArrayList<>();
-            if (hasPermission(getName() + ".broadcast")) list.add(command.get("broadcast"));
-            if (hasPermission(getName() + ".information")) list.add(command.get("information"));
+            if (hasPermission(getName() + ".broadcast")) list.add(command.get(getSender(), "broadcast"));
+            if (hasPermission(getName() + ".information")) list.add(command.get(getSender(), "information"));
             return list;
         }
         return List.of();

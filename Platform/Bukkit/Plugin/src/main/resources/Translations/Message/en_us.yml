@@ -1,7 +1,3 @@
-# if Empty, Plugin uses default prefix
-# MiniMessage format: https://webui.advntr.dev/
-prefix: ""
-
 common:
   reload: "<green>Completed reloading config</green>"
   noPermission: "<red>You don't have permission</red>"
