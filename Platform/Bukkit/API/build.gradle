@@ -1,7 +1,6 @@
 dependencies {
     // API Build
     implementation project(":Library:LightDI")
-    //implementation project(":Library:KyoriAdventure")
     implementation project(":Library:ProtoWeaver:Common:API")
     implementation project(":Library:ProtoWeaver:Bukkit:API")
 
