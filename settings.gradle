@@ -4,12 +4,6 @@ plugins {
 
 rootProject.name = "RSFramework"
 
-// Library
-
-include("Library:KyoriAdventure")
-
-include("Library:MiniMessage")
-
 include("Library:LightDI")
 
 include(
@@ -18,9 +12,10 @@ include(
 )
 
 include(
-        "Library:ProtoWeaver:Velocity:API",
-        "Library:ProtoWeaver:Velocity:Core"
+        "Library:ProtoWeaver:Bukkit:API",
+        "Library:ProtoWeaver:Bukkit:Core"
 )
+
 
 include(
         "Library:ProtoWeaver:Bungee:API",
@@ -28,8 +23,8 @@ include(
 )
 
 include(
-        "Library:ProtoWeaver:Bukkit:API",
-        "Library:ProtoWeaver:Bukkit:Core"
+        "Library:ProtoWeaver:Velocity:API",
+        "Library:ProtoWeaver:Velocity:Core"
 )
 
 include(

@@ -2,6 +2,7 @@ dependencies {
     implementation project(":Library:LightDI")
     implementation project(":Platform:Bukkit:API")
     implementation project(":Platform:Bukkit:Core")
+    implementation "com.alessiodp.libby:libby-bukkit:2.0.0-SNAPSHOT"
 }
 
 processResources {

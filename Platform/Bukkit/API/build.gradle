@@ -1,7 +1,7 @@
 dependencies {
     // API Build
     implementation project(":Library:LightDI")
-    implementation project(":Library:KyoriAdventure")
+    //implementation project(":Library:KyoriAdventure")
     implementation project(":Library:ProtoWeaver:Common:API")
     implementation project(":Library:ProtoWeaver:Bukkit:API")
 
@@ -47,7 +47,9 @@ shadowJar {
     exclude "io/netty/**"
     exclude "META-INF/**"
     exclude "classpath.index"
+
+    relocate "com.alessiodp.libby", "kr.rtuserver.libby"
     relocate "io.papermc.lib", "kr.rtuserver.framework.bukkit.api.utility.paper"
-    relocate "net.kyori.adventure.platform.bukkit", "kr.rtuserver.framework.bukkit.api.utility.kyori"
+    //relocate "net.kyori.adventure.platform.bukkit", "kr.rtuserver.framework.bukkit.api.utility.kyori"
 
 }

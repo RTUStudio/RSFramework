@@ -15,9 +15,11 @@ public class RSFramework extends RSPlugin {
 
     @Getter
     private static RSFramework instance;
+    @Getter
+    private final Libraries libraries;
 
     public RSFramework() {
-        super();
+        libraries = new Libraries(this);
         List<String> list = new ArrayList<>();
         list.add("kr.rtuserver.framework.bukkit");
         for (Plugin plugin : Bukkit.getPluginManager().getPlugins()) {

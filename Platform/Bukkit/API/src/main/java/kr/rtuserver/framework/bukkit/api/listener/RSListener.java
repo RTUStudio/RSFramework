@@ -1,8 +1,8 @@
 package kr.rtuserver.framework.bukkit.api.listener;
 
 import kr.rtuserver.framework.bukkit.api.RSPlugin;
-import kr.rtuserver.framework.bukkit.api.config.impl.TranslationConfiguration;
 import kr.rtuserver.framework.bukkit.api.config.impl.SettingConfiguration;
+import kr.rtuserver.framework.bukkit.api.config.impl.TranslationConfiguration;
 import lombok.Getter;
 import org.bukkit.event.Listener;
 

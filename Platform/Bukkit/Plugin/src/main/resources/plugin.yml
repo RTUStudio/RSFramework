@@ -5,24 +5,3 @@ description: Library Plugin for RSPlugins
 api-version: 1.17
 authors: [ '${author}' ]
 softdepend: [ PlaceholderAPI, Nexo, Oraxen, ItemsAdder, MMOItems, ProtocolLib, LuckPerms, Vault ]
-libraries:
-  - net.kyori:adventure-platform-bukkit:4.3.4
-  - net.kyori:adventure-text-minimessage:4.16.0
-  - org.mongodb:bson:4.11.1
-  - com.google.code.gson:gson:2.10.1
-  - com.google.guava:guava:32.1.2-jre
-  - org.apache.commons:commons-lang3:3.14.0
-  - org.xerial.snappy:snappy-java:1.1.10.5
-  - org.quartz-scheduler:quartz:2.5.0-rc1
-  - com.zaxxer:HikariCP:5.1.0
-  - org.mongodb:mongodb-driver-sync:4.11.1
-  - mysql:mysql-connector-java:8.0.33
-  - org.xerial:sqlite-jdbc:3.45.3.0
-  - org.mariadb.jdbc:mariadb-java-client:3.3.3
-  - org.postgresql:postgresql:42.7.3
-  - org.apache.fury:fury-core:0.7.0
-  - io.netty:netty-codec-http:4.1.111.Final
-  - io.netty:netty-codec-http2:4.1.111.Final
-  - org.bouncycastle:bcpkix-jdk18on:1.78.1
-  - org.javassist:javassist:3.30.2-GA
-  - org.reflections:reflections:0.10.2

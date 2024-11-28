@@ -81,20 +81,14 @@ public class BlockCompat {
         switch (platform) {
             case "nexo" -> {
                 if (framework().isEnabledDependency("Nexo")) {
-                    if (NexoBlocks.isCustomBlock(namespacedID)) NexoBlocks.place(split[1], location);
-                    else {
-                        System.out.println("A");
-                        return false;
-                    }
-                } else {
-                    System.out.println("B");
-                    return false;
-                }
+                    if (NexoBlocks.isCustomBlock(split[1])) NexoBlocks.place(split[1], location);
+                    else return false;
+                } else return false;
                 return true;
             }
             case "oraxen" -> {
                 if (framework().isEnabledDependency("Oraxen")) {
-                    if (OraxenBlocks.isOraxenBlock(namespacedID)) OraxenBlocks.place(split[1], location);
+                    if (OraxenBlocks.isOraxenBlock(split[1])) OraxenBlocks.place(split[1], location);
                     else return false;
                 } else return false;
                 return true;

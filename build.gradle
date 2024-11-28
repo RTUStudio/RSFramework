@@ -18,6 +18,14 @@ allprojects {
     repositories {
         mavenCentral()
         maven {
+            name = "maven-snapshots"
+            url = "https://s01.oss.sonatype.org/content/repositories/snapshots/"
+        }
+        maven {
+            name = "AlessioDP"
+            url = "https://repo.alessiodp.com/releases/"
+        }
+        maven {
             name = "spigotmc-repo"
             url = "https://hub.spigotmc.org/nexus/content/repositories/snapshots/"
         }
@@ -125,5 +133,5 @@ shadowJar {
     exclude "classpath.index"
 
     relocate "io.papermc.lib", "kr.rtuserver.framework.bukkit.api.utility.paper"
-    relocate "net.kyori.adventure.platform.bukkit", "kr.rtuserver.framework.bukkit.api.utility.kyori"
+    //relocate "net.kyori.adventure.platform.bukkit", "kr.rtuserver.framework.bukkit.api.utility.kyori"
 }

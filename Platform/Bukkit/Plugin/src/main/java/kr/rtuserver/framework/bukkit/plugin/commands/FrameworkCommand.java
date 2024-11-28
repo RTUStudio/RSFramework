@@ -5,7 +5,6 @@ import kr.rtuserver.framework.bukkit.api.RSPlugin;
 import kr.rtuserver.framework.bukkit.api.command.RSCommandData;
 import kr.rtuserver.framework.bukkit.api.config.impl.TranslationConfiguration;
 import kr.rtuserver.framework.bukkit.api.core.Framework;
-import kr.rtuserver.framework.bukkit.api.core.config.CommonTranslation;
 import kr.rtuserver.framework.bukkit.api.utility.format.ComponentFormatter;
 import kr.rtuserver.framework.bukkit.api.utility.platform.MinecraftVersion;
 import kr.rtuserver.framework.bukkit.api.utility.platform.SystemEnvironment;
