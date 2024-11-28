@@ -15,9 +15,9 @@ subprojects {
 
         implementation project(":Library:ProtoWeaver:Bukkit:API")
 
-        compileOnly "com.alessiodp.libby:libby-bukkit:2.0.0-SNAPSHOT"
+        implementation "io.papermc:paperlib:1.0.7"
 
-        compileOnly "io.papermc:paperlib:1.0.7"
+        compileOnly "com.alessiodp.libby:libby-bukkit:2.0.0-SNAPSHOT"
         compileOnly "net.kyori:adventure-platform-bukkit:4.3.4"
 
         compileOnly "org.mongodb:mongodb-driver-sync:4.11.1"
@@ -34,9 +34,7 @@ dependencies {
     implementation project("API")
     implementation project("Core")
     implementation project("Plugin")
-
-    implementation "com.alessiodp.libby:libby-bukkit:2.0.0-SNAPSHOT"
-    implementation "com.github.Carleslc.Simple-YAML:Simple-Yaml:1.8.4"
+    compileOnly "com.github.Carleslc.Simple-YAML:Simple-Yaml:1.8.4"
 }
 
 jar {
@@ -55,19 +53,7 @@ shadowJar {
     setArchiveBaseName(plugin_name)
     setArchiveVersion(plugin_version)
 
-    exclude "org/checkerframework/**"
-    exclude "org/bouncycastle/**"
-    exclude "edu/umd/cs/findbugs/**"
-    exclude "javax/**"
-    exclude "javassist/**"
-    exclude "net/jcip/**"
-    exclude "com/google/**"
-    exclude "io/netty/**"
-    exclude "META-INF/**"
-    exclude "classpath.index"
-
     relocate "io.papermc.lib", "kr.rtuserver.framework.bukkit.api.utility.paper"
-    //relocate "net.kyori.adventure.platform.bukkit", "kr.rtuserver.framework.bukkit.api.utility.kyori"
 }
 
 tasks.withType(AbstractRun.class).configureEach {

@@ -78,6 +78,9 @@ allprojects {
 
     shadowJar {
         setArchiveClassifier(null)
+
+        exclude "META-INF/**"
+        relocate "com.alessiodp.libby", "kr.rtuserver.libby"
     }
 
     java {
@@ -97,12 +100,9 @@ jar {
 }
 
 dependencies {
-
     implementation project(path: ":Platform:Bukkit")
     implementation project(path: ":Platform:Bungee")
     implementation project(path: ":Platform:Velocity")
-
-    implementation "com.github.Carleslc.Simple-YAML:Simple-Yaml:1.8.4"
 
     compileOnly "org.projectlombok:lombok:1.18.32"
     annotationProcessor "org.projectlombok:lombok:1.18.32"
@@ -120,18 +120,5 @@ shadowJar {
     setArchiveBaseName(plugin_name)
     setArchiveVersion(plugin_version)
 
-    exclude "com/moandjiezana/**"
-    exclude "org/checkerframework/**"
-    exclude "org/bouncycastle/**"
-    exclude "edu/umd/cs/findbugs/**"
-    exclude "javax/**"
-    exclude "javassist/**"
-    exclude "net/jcip/**"
-    exclude "com/google/**"
-    exclude "io/netty/**"
-    exclude "META-INF/**"
-    exclude "classpath.index"
-
     relocate "io.papermc.lib", "kr.rtuserver.framework.bukkit.api.utility.paper"
-    //relocate "net.kyori.adventure.platform.bukkit", "kr.rtuserver.framework.bukkit.api.utility.kyori"
 }

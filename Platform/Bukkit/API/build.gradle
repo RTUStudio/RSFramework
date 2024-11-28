@@ -3,6 +3,7 @@ dependencies {
     implementation project(":Library:LightDI")
     implementation project(":Library:ProtoWeaver:Common:API")
     implementation project(":Library:ProtoWeaver:Bukkit:API")
+    implementation "com.alessiodp.libby:libby-bukkit:2.0.0-SNAPSHOT"
 
     compileOnly "me.clip:placeholderapi:2.11.6"
     compileOnly "io.th0rgal:oraxen:1.168.0"
@@ -15,8 +16,8 @@ dependencies {
     compileOnly "com.comphenix.protocol:ProtocolLib:5.1.0"
     compileOnly "net.luckperms:api:5.4"
 
+    compileOnly "com.github.Carleslc.Simple-YAML:Simple-Yaml:1.8.4"
     implementation "io.papermc:paperlib:1.0.7"
-    implementation "com.github.Carleslc.Simple-YAML:Simple-Yaml:1.8.4"
 }
 
 jar {
@@ -34,21 +35,5 @@ shadowJar {
     setArchiveBaseName("api")
     setArchiveVersion(plugin_version)
 
-    exclude "com/moandjiezana/**"
-    exclude "org/checkerframework/**"
-    exclude "org/bouncycastle/**"
-    exclude "edu/umd/cs/findbugs/**"
-    exclude "javax/**"
-    exclude "javassist/**"
-    exclude "net/jcip/**"
-    exclude "org/reflections/**"
-    exclude "com/google/**"
-    exclude "io/netty/**"
-    exclude "META-INF/**"
-    exclude "classpath.index"
-
-    relocate "com.alessiodp.libby", "kr.rtuserver.libby"
     relocate "io.papermc.lib", "kr.rtuserver.framework.bukkit.api.utility.paper"
-    //relocate "net.kyori.adventure.platform.bukkit", "kr.rtuserver.framework.bukkit.api.utility.kyori"
-
 }

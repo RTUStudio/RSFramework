@@ -13,8 +13,8 @@ dependencies {
     implementation project(":Library:ProtoWeaver:Common:Core")
     implementation project(":Library:ProtoWeaver:Velocity:API")
     implementation project(":Library:ProtoWeaver:Velocity:Core")
-
-    implementation "com.github.Carleslc.Simple-YAML:Simple-Yaml:1.8.4"
+    implementation "com.alessiodp.libby:libby-velocity:2.0.0-SNAPSHOT"
+    compileOnly "com.github.Carleslc.Simple-YAML:Simple-Yaml:1.8.4"
 
     compileOnly("com.velocitypowered:velocity-api:3.3.0-SNAPSHOT")
     annotationProcessor("com.velocitypowered:velocity-api:3.3.0-SNAPSHOT")
