@@ -3,6 +3,7 @@ package kr.rtuserver.framework.bukkit.api.listener;
 import kr.rtuserver.framework.bukkit.api.RSPlugin;
 import kr.rtuserver.framework.bukkit.api.config.impl.SettingConfiguration;
 import kr.rtuserver.framework.bukkit.api.config.impl.TranslationConfiguration;
+import kr.rtuserver.framework.bukkit.api.core.config.CommonTranslation;
 import lombok.Getter;
 import org.bukkit.event.Listener;
 
@@ -14,11 +15,13 @@ public abstract class RSListener implements Listener {
     private final SettingConfiguration setting;
     private final TranslationConfiguration message;
     private final TranslationConfiguration command;
+    private final CommonTranslation common;
 
     public RSListener(RSPlugin plugin) {
         this.plugin = plugin;
         this.setting = plugin.getConfigurations().getSetting();
         this.message = plugin.getConfigurations().getMessage();
         this.command = plugin.getConfigurations().getCommand();
+        this.common = plugin.getFramework().getCommonTranslation();
     }
 }
