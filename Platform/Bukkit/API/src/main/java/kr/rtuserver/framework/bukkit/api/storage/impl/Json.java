@@ -17,6 +17,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class Json implements Storage {
@@ -41,33 +42,39 @@ public class Json implements Storage {
     }
 
     @Override
-    public boolean add(@NotNull String name, @NotNull JsonObject data) {
-        if (!map.containsKey(name)) {
-            plugin.console("<red>Can't load " + name + " data!</red>");
-            plugin.console("<red>" + name + " 파일을 불러오는 도중 오류가 발생하였습니다!</red>");
-            return false;
-        }
-        return map.get(name).add(data);
+    public CompletableFuture<Boolean> add(@NotNull String name, @NotNull JsonObject data) {
+        return CompletableFuture.supplyAsync(() -> {
+            if (!map.containsKey(name)) {
+                plugin.console("<red>Can't load " + name + " data!</red>");
+                plugin.console("<red>" + name + " 파일을 불러오는 도중 오류가 발생하였습니다!</red>");
+                return false;
+            }
+            return map.get(name).add(data);
+        });
     }
 
     @Override
-    public boolean set(@NotNull String name, Pair<String, Object> find, Pair<String, Object> data) {
-        if (!map.containsKey(name)) {
-            plugin.console("<red>Can't load " + name + " data!</red>");
-            plugin.console("<red>" + name + " 파일을 불러오는 도중 오류가 발생하였습니다!</red>");
-            return false;
-        }
-        return map.get(name).set(find, data);
+    public CompletableFuture<Boolean> set(@NotNull String name, Pair<String, Object> find, Pair<String, Object> data) {
+        return CompletableFuture.supplyAsync(() -> {
+            if (!map.containsKey(name)) {
+                plugin.console("<red>Can't load " + name + " data!</red>");
+                plugin.console("<red>" + name + " 파일을 불러오는 도중 오류가 발생하였습니다!</red>");
+                return false;
+            }
+            return map.get(name).set(find, data);
+        });
     }
 
     @Override
-    public List<JsonObject> get(@NotNull String name, Pair<String, Object> find) {
-        if (!map.containsKey(name)) {
-            plugin.console("<red>Can't load " + name + " data!</red>");
-            plugin.console("<red>" + name + " 파일을 불러오는 도중 오류가 발생하였습니다!</red>");
-            return null;
-        }
-        return map.get(name).get(find);
+    public CompletableFuture<List<JsonObject>> get(@NotNull String name, Pair<String, Object> find) {
+        return CompletableFuture.supplyAsync(() -> {
+            if (!map.containsKey(name)) {
+                plugin.console("<red>Can't load " + name + " data!</red>");
+                plugin.console("<red>" + name + " 파일을 불러오는 도중 오류가 발생하였습니다!</red>");
+                return null;
+            }
+            return map.get(name).get(find);
+        });
     }
 
     public boolean sync(String name) {

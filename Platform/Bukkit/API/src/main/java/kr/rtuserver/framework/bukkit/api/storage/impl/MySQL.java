@@ -19,6 +19,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 public class MySQL implements Storage {
 
@@ -79,85 +80,95 @@ public class MySQL implements Storage {
     }
 
     @Override
-    public boolean add(@NotNull String table, @NotNull JsonObject data) {
-        String json = gson.toJson(data);
-        try {
-            //INSERT INTO `test` (`data`) VALUES ('{"A": B"}');
-            PreparedStatement ps = getConnection().prepareStatement("INSERT INTO " + prefix + table + " (data) VALUES ('" + json + "');");
-            if (!ps.execute()) return false;
-            StorageSync sync = new StorageSync(plugin.getName(), table);
-            plugin.getFramework().getProtoWeaver().sendPacket(sync);
-            return true;
-        } catch (SQLException e) {
-            //if (verbose) throw new RuntimeException(e);
-            e.printStackTrace();
-            return false;
-        }
+    public CompletableFuture<Boolean> add(@NotNull String table, @NotNull JsonObject data) {
+        return CompletableFuture.supplyAsync(() -> {
+            String json = gson.toJson(data);
+            try {
+                //INSERT INTO `test` (`data`) VALUES ('{"A": B"}');
+                PreparedStatement ps = getConnection().prepareStatement("INSERT INTO " + prefix + table + " (data) VALUES ('" + json + "');");
+                if (!ps.execute()) return false;
+                StorageSync sync = new StorageSync(plugin.getName(), table);
+                plugin.getFramework().getProtoWeaver().sendPacket(sync);
+                return true;
+            } catch (SQLException e) {
+                //if (verbose) throw new RuntimeException(e);
+                e.printStackTrace();
+                return false;
+            }
+        });
     }
 
     @Override
-    public boolean set(@NotNull String table, Pair<String, Object> find, Pair<String, Object> data) {
-        String query;
-        if (data != null) {
+    public CompletableFuture<Boolean> set(@NotNull String table, Pair<String, Object> find, Pair<String, Object> data) {
+        return CompletableFuture.supplyAsync(() -> {
+            String query;
+            if (data != null) {
 
-            String value;
-            Object object = data.getValue();
-            if (object instanceof JSON obj) object = obj.get();
-            switch (object) {
-                case JsonElement element -> value = "CAST('" + element + "' as JSON)";
-                case Number number -> value = String.valueOf(number);
-                case Boolean bool -> value = String.valueOf(bool);
-                case String str -> value = "'" + str + "'";
-                case null, default -> {
-                    plugin.console("<red>Unsupported type of data tried to be saved! Only supports JsonElement, Number, Boolean, and String</red>");
-                    plugin.console("<red>지원하지 않는 타입의 데이터가 저장되려고 했습니다! JsonElement, Number, Boolean, String만 지원합니다</red>");
-                    return false;
+                String value;
+                Object object = data.getValue();
+                if (object instanceof JSON obj) object = obj.get();
+                switch (object) {
+                    case JsonElement element -> value = "CAST('" + element + "' as JSON)";
+                    case Number number -> value = String.valueOf(number);
+                    case Boolean bool -> value = String.valueOf(bool);
+                    case String str -> value = "'" + str + "'";
+                    case null, default -> {
+                        plugin.console("<red>Unsupported type of data tried to be saved! Only supports JsonElement, Number, Boolean, and String</red>");
+                        plugin.console("<red>지원하지 않는 타입의 데이터가 저장되려고 했습니다! JsonElement, Number, Boolean, String만 지원합니다</red>");
+                        return false;
+                    }
                 }
-            }
 
-            query = "UPDATE " + prefix + table + " SET data = JSON_SET(data, '$." + data.getKey() + "', " + value + ")";
-        } else query = "DELETE FROM " + prefix + table;
-        if (find != null) {
-            Object value = find.getValue();
-            if (value instanceof JsonObject jsonObject) value = jsonObject.toString();
-            if (config.isUseArrowOperator()) query += " WHERE data ->> '$." + find.getKey() + "' LIKE '" + value + "'";
-            else query += " WHERE JSON_UNQUOTE( JSON_EXTRACT(data, '$." + find.getKey() + "')) LIKE '" + value + "'";
-        }
-        try {
-            PreparedStatement ps = getConnection().prepareStatement(query + ";");
-            if (!ps.execute()) return false;
-            StorageSync sync = new StorageSync(plugin.getName(), table);
-            plugin.getFramework().getProtoWeaver().sendPacket(sync);
-            return true;
-        } catch (SQLException e) {
-            //if (verbose) throw new RuntimeException(e);
-            e.printStackTrace();
-        }
-        return false;
+                query = "UPDATE " + prefix + table + " SET data = JSON_SET(data, '$." + data.getKey() + "', " + value + ")";
+            } else query = "DELETE FROM " + prefix + table;
+            if (find != null) {
+                Object value = find.getValue();
+                if (value instanceof JsonObject jsonObject) value = jsonObject.toString();
+                if (config.isUseArrowOperator())
+                    query += " WHERE data ->> '$." + find.getKey() + "' LIKE '" + value + "'";
+                else
+                    query += " WHERE JSON_UNQUOTE( JSON_EXTRACT(data, '$." + find.getKey() + "')) LIKE '" + value + "'";
+            }
+            try {
+                PreparedStatement ps = getConnection().prepareStatement(query + ";");
+                if (!ps.execute()) return false;
+                StorageSync sync = new StorageSync(plugin.getName(), table);
+                plugin.getFramework().getProtoWeaver().sendPacket(sync);
+                return true;
+            } catch (SQLException e) {
+                //if (verbose) throw new RuntimeException(e);
+                e.printStackTrace();
+            }
+            return false;
+        });
     }
 
     @Override
-    public List<JsonObject> get(@NotNull String table, Pair<String, Object> find) {
-        List<JsonObject> result = new ArrayList<>();
-        String query = "SELECT * FROM " + prefix + table;
-        if (find != null) {
-            Object value = find.getValue();
-            if (value instanceof JsonObject jsonObject) value = jsonObject.toString();
+    public CompletableFuture<List<JsonObject>> get(@NotNull String table, Pair<String, Object> find) {
+        return CompletableFuture.supplyAsync(() -> {
+            List<JsonObject> result = new ArrayList<>();
+            String query = "SELECT * FROM " + prefix + table;
+            if (find != null) {
+                Object value = find.getValue();
+                if (value instanceof JsonObject jsonObject) value = jsonObject.toString();
 
-            if (config.isUseArrowOperator()) query += " WHERE data ->> '$." + find.getKey() + "' LIKE '" + value + "'";
-            else query += " WHERE JSON_UNQUOTE( JSON_EXTRACT(data, '$." + find.getKey() + "')) LIKE '" + value + "'";
-        }
-        try {
-            PreparedStatement ps = getConnection().prepareStatement(query + ";");
-            ResultSet rs = ps.executeQuery();
-            while (rs.next()) {
-                result.add(gson.fromJson(rs.getString("data"), JsonObject.class));
+                if (config.isUseArrowOperator())
+                    query += " WHERE data ->> '$." + find.getKey() + "' LIKE '" + value + "'";
+                else
+                    query += " WHERE JSON_UNQUOTE( JSON_EXTRACT(data, '$." + find.getKey() + "')) LIKE '" + value + "'";
             }
-        } catch (SQLException e) {
-            //if (verbose) throw new RuntimeException(e);
-            e.printStackTrace();
-        }
-        return result;
+            try {
+                PreparedStatement ps = getConnection().prepareStatement(query + ";");
+                ResultSet rs = ps.executeQuery();
+                while (rs.next()) {
+                    result.add(gson.fromJson(rs.getString("data"), JsonObject.class));
+                }
+            } catch (SQLException e) {
+                //if (verbose) throw new RuntimeException(e);
+                e.printStackTrace();
+            }
+            return result;
+        });
     }
 
     @Override

@@ -7,18 +7,19 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 public interface Storage {
 
-    boolean add(@NotNull String name, @NotNull JsonObject data);
+    CompletableFuture<Boolean> add(@NotNull String name, @NotNull JsonObject data);
 
-    default boolean add(@NotNull String name, @NotNull JSON data) {
+    default CompletableFuture<Boolean> add(@NotNull String name, @NotNull JSON data) {
         return add(name, data.get());
     }
 
-    boolean set(@NotNull String name, @Nullable Pair<String, Object> find, @Nullable Pair<String, Object> data);
+    CompletableFuture<Boolean> set(@NotNull String name, @Nullable Pair<String, Object> find, @Nullable Pair<String, Object> data);
 
-    List<JsonObject> get(@NotNull String name, @Nullable Pair<String, Object> find);
+    CompletableFuture<List<JsonObject>> get(@NotNull String name, @Nullable Pair<String, Object> find);
 
     void close();
 }

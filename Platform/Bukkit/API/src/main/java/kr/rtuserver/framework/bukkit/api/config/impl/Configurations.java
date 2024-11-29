@@ -119,20 +119,6 @@ public class Configurations {
                     plugin.console("Storage: MySQL");
                 }
             }
-            case POSTGRESQL -> {
-                if (!(storage instanceof PostgreSQL) || postgresql.isChanged() || isUpdated) {
-                    if (storage != null) storage.close();
-                    plugin.setStorage(new PostgreSQL(plugin));
-                    plugin.console("Storage: PostgreSQL");
-                }
-            }
-            case SQLITE -> {
-                if (!(storage instanceof SQLite) || sqlite.isChanged() || isUpdated) {
-                    if (storage != null) storage.close();
-                    plugin.setStorage(new SQLite(plugin, list));
-                    plugin.console("Storage: SQLite");
-                }
-            }
         }
         isUpdated = false;
     }
