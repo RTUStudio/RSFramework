@@ -36,5 +36,8 @@ shadowJar {
     setArchiveBaseName("api")
     setArchiveVersion(plugin_version)
 
+    exclude "META-INF/**"
+    exclude "classpath.index"
+    relocate "net.kyori.adventure.platform.bukkit", "kr.rtuserver.framework.bukkit.api.utility.kyori"
     relocate "io.papermc.lib", "kr.rtuserver.framework.bukkit.api.utility.paper"
 }

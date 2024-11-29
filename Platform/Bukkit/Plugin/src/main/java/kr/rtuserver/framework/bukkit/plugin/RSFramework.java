@@ -44,7 +44,9 @@ public class RSFramework extends RSPlugin {
         libraries.load("io.netty:netty-codec-http:4.1.111.Final");
         libraries.load("io.netty:netty-codec-http2:4.1.111.Final");
         libraries.load("org.apache.fury:fury-core:0.9.0");
+        libraries.load("org.bouncycastle:bcpkix-jdk18on:1.79");
         libraries.load("org.bouncycastle:bcprov-jdk18on:1.79");
+        libraries.load("org.bouncycastle:bcutil-jdk18on:1.79");
         libraries.load("org.javassist:javassist:3.30.2-GA");
         libraries.load("org.reflections:reflections:0.10.2");
 

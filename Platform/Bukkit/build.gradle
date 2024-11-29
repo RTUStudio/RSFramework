@@ -15,10 +15,10 @@ subprojects {
 
         implementation project(":Library:ProtoWeaver:Bukkit:API")
 
+        implementation "net.kyori:adventure-platform-bukkit:4.3.4"
         implementation "io.papermc:paperlib:1.0.7"
 
         compileOnly "com.alessiodp.libby:libby-bukkit:2.0.0-SNAPSHOT"
-        compileOnly "net.kyori:adventure-platform-bukkit:4.3.4"
 
         compileOnly "org.mongodb:mongodb-driver-sync:4.11.1"
         compileOnly "com.mysql:mysql-connector-j:9.1.0"
@@ -53,6 +53,9 @@ shadowJar {
     setArchiveBaseName(plugin_name)
     setArchiveVersion(plugin_version)
 
+    exclude "META-INF/**"
+    exclude "classpath.index"
+    relocate "net.kyori.adventure.platform.bukkit", "kr.rtuserver.framework.bukkit.api.utility.kyori"
     relocate "io.papermc.lib", "kr.rtuserver.framework.bukkit.api.utility.paper"
 }
 

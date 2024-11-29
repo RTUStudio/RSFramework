@@ -5,5 +5,5 @@ dependencies {
     compileOnly "io.netty:netty-handler:4.1.97.Final"
     compileOnly "io.netty:netty-codec-http:4.1.97.Final"
     compileOnly "io.netty:netty-codec-http2:4.1.97.Final"
-    compileOnly "org.bouncycastle:bcpkix-jdk18on:1.78.1"
+    compileOnly "org.bouncycastle:bcpkix-jdk18on:1.79"
 }
