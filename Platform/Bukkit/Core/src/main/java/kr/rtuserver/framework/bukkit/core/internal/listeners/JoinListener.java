@@ -28,9 +28,16 @@ public class JoinListener extends RSListener {
         Audience audience = getPlugin().getAdventure().player(player);
         for (RSPlugin plugin : plugins.values()) {
             if (!plugin.getConfigurations().getSetting().isWelcome()) continue;
-            String str = "%s developed by %s".formatted(player.getName(), String.join(" & ", plugin.getDescription().getAuthors()));
-            Component component = plugin.getPrefix().append(ComponentFormatter.mini(str));
-            audience.sendMessage(component);
+            String name = gradient(plugin.getName());
+            String author = String.join(" & ", plugin.getDescription().getAuthors());
+            String str = "%s developed by %s".formatted(name, author);
+            audience.sendMessage(ComponentFormatter.mini(str));
         }
+    }
+
+    private String gradient(String name) {
+        String start = framework.getModules().getThemeModule().getGradientStart();
+        String end = framework.getModules().getThemeModule().getGradientEnd();
+        return "<gradient:" + start + ":" + end + ">" + name + "</gradient>";
     }
 }
