@@ -7,8 +7,6 @@ import lombok.Getter;
 import org.bukkit.Bukkit;
 import org.bukkit.permissions.PermissionDefault;
 import org.bukkit.plugin.Plugin;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -24,7 +22,6 @@ public class RSFramework extends RSPlugin {
         libraries = new Libraries(this);
 
         libraries.load("com.github.Carleslc.Simple-YAML:Simple-Yaml:1.8.4");
-        libraries.load("net.kyori:adventure-platform-bukkit:4.3.4", "net.kyori.adventure.platform.bukkit", "kr.rtuserver.framework.bukkit.api.utility.kyori");
         libraries.load("net.kyori:adventure-text-minimessage:4.16.0");
 
         libraries.load("org.apache.commons:commons-lang3:3.14.0");

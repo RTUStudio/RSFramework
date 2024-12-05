@@ -1,6 +1,5 @@
 package kr.rtuserver.framework.bukkit.api;
 
-import com.google.common.io.ByteStreams;
 import kr.rtuserver.cdi.LightDI;
 import kr.rtuserver.framework.bukkit.api.command.RSCommand;
 import kr.rtuserver.framework.bukkit.api.config.impl.Configurations;
@@ -9,7 +8,6 @@ import kr.rtuserver.framework.bukkit.api.core.modules.ThemeModule;
 import kr.rtuserver.framework.bukkit.api.listener.RSListener;
 import kr.rtuserver.framework.bukkit.api.storage.Storage;
 import kr.rtuserver.framework.bukkit.api.utility.format.ComponentFormatter;
-import kr.rtuserver.framework.bukkit.api.utility.platform.FileResource;
 import kr.rtuserver.framework.bukkit.api.utility.platform.MinecraftVersion;
 import kr.rtuserver.protoweaver.api.ProtoConnectionHandler;
 import kr.rtuserver.protoweaver.api.callback.HandlerCallback;
@@ -24,19 +22,14 @@ import org.bukkit.event.Listener;
 import org.bukkit.permissions.PermissionDefault;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
-import java.util.logging.Level;
 
 public abstract class RSPlugin extends JavaPlugin {
 
     private final Set<Listener> registeredListeners = new HashSet<>();
+    @Getter
+    private final Set<String> languages = new HashSet<>();
     @Getter
     private Framework framework;
     private Component prefix;
@@ -44,8 +37,6 @@ public abstract class RSPlugin extends JavaPlugin {
     private RSPlugin plugin;
     @Getter
     private BukkitAudiences adventure;
-    @Getter
-    private final Set<String> languages = new HashSet<>();
     @Getter
     private Configurations configurations;
     @Getter

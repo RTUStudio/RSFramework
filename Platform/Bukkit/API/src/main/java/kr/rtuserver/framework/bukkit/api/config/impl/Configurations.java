@@ -4,7 +4,10 @@ import kr.rtuserver.framework.bukkit.api.RSPlugin;
 import kr.rtuserver.framework.bukkit.api.storage.Storage;
 import kr.rtuserver.framework.bukkit.api.storage.StorageType;
 import kr.rtuserver.framework.bukkit.api.storage.config.*;
-import kr.rtuserver.framework.bukkit.api.storage.impl.*;
+import kr.rtuserver.framework.bukkit.api.storage.impl.Json;
+import kr.rtuserver.framework.bukkit.api.storage.impl.MariaDB;
+import kr.rtuserver.framework.bukkit.api.storage.impl.MongoDB;
+import kr.rtuserver.framework.bukkit.api.storage.impl.MySQL;
 import kr.rtuserver.framework.bukkit.api.utility.platform.FileResource;
 import lombok.Getter;
 

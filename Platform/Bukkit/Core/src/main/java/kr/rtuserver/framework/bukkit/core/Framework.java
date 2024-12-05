@@ -1,5 +1,6 @@
 package kr.rtuserver.framework.bukkit.core;
 
+import de.tr7zw.nbtapi.NBT;
 import kr.rtuserver.framework.bukkit.api.RSPlugin;
 import kr.rtuserver.framework.bukkit.api.command.RSCommand;
 import kr.rtuserver.framework.bukkit.api.listener.RSListener;
@@ -103,6 +104,10 @@ public class Framework implements kr.rtuserver.framework.bukkit.api.core.Framewo
 
     public void load(RSPlugin plugin) {
         this.rsf = plugin;
+        if (!NBT.preloadApi()) {
+            log.warn("NBT-API wasn't initialized properly, disabling the plugin");
+            Bukkit.getPluginManager().disablePlugin(plugin);
+        }
         loadNMS(plugin);
         modules = new Modules(plugin);
     }

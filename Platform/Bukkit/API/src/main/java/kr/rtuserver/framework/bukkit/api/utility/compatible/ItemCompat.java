@@ -1,6 +1,8 @@
 package kr.rtuserver.framework.bukkit.api.utility.compatible;
 
 import com.nexomc.nexo.api.NexoItems;
+import de.tr7zw.nbtapi.NBT;
+import de.tr7zw.nbtapi.iface.ReadableNBT;
 import dev.lone.itemsadder.api.CustomStack;
 import io.th0rgal.oraxen.api.OraxenItems;
 import kr.rtuserver.cdi.LightDI;
@@ -102,9 +104,9 @@ public class ItemCompat {
         if (framework().isEnabledDependency("MMOItems")) {
             String id = MMOItems.getID(itemStack);
             String type = MMOItems.getTypeName(itemStack);
-            if (id != null && type != null) return id + ":" + type;
+            if (id != null && type != null) return "mmoitems:" + id + ":" + type;
         }
-        String result = "minecraft:" + itemStack.getType().toString().toLowerCase();
+        String result = itemStack.getType().getKey().asString();
         ItemMeta itemMeta = itemStack.getItemMeta();
         if (itemMeta == null) return result;
         if (!itemMeta.hasCustomModelData()) return result;
@@ -187,7 +189,7 @@ public class ItemCompat {
             final ByteArrayOutputStream str = new ByteArrayOutputStream();
             final BukkitObjectOutputStream data = new BukkitObjectOutputStream(str);
             data.writeInt(array.length);
-            for (int i = 0; i < array.length; i++) data.writeObject(array[i]);
+            for (ItemStack itemStack : array) data.writeObject(itemStack);
             data.close();
             String result = Base64.getEncoder().encodeToString(Snappy.compress(str.toByteArray()));
             return result == null || result.isEmpty() ? null : result;
@@ -210,5 +212,28 @@ public class ItemCompat {
         } catch (final IOException | ClassNotFoundException e) {
             return null;
         }
+    }
+
+    @Nullable
+    public static String serialize(ItemStack itemStack) {
+        if (itemStack == null || itemStack.getType().isAir()) return null;
+        ReadableNBT nbt = NBT.itemStackToNBT(itemStack);
+        return nbt.toString();
+    }
+
+    @Nullable
+    public static ItemStack deserialize(String nbt) {
+        return NBT.itemStackFromNBT(NBT.parseNBT(nbt));
+    }
+
+    @Nullable
+    public static String serializeArray(ItemStack[] itemStack) {
+        ReadableNBT nbt = NBT.itemStackArrayToNBT(itemStack);
+        return nbt.toString();
+    }
+
+    @Nullable
+    public static ItemStack[] deserializeArray(String json) {
+        return NBT.itemStackArrayFromNBT(NBT.parseNBT(json));
     }
 }

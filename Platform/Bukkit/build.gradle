@@ -17,6 +17,7 @@ subprojects {
 
         implementation "net.kyori:adventure-platform-bukkit:4.3.4"
         implementation "io.papermc:paperlib:1.0.7"
+        implementation "de.tr7zw:item-nbt-api-plugin:2.14.0"
 
         compileOnly "com.alessiodp.libby:libby-bukkit:2.0.0-SNAPSHOT"
 
@@ -57,6 +58,7 @@ shadowJar {
     exclude "classpath.index"
     relocate "net.kyori.adventure.platform.bukkit", "kr.rtuserver.framework.bukkit.api.utility.kyori"
     relocate "io.papermc.lib", "kr.rtuserver.framework.bukkit.api.utility.paper"
+    relocate "de.tr7zw.changeme.nbtapi", "kr.rtuserver.framework.bukkit.api.utility.nbtapi"
 }
 
 tasks.withType(AbstractRun.class).configureEach {

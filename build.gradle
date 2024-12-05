@@ -38,6 +38,10 @@ allprojects {
             url = "https://oss.sonatype.org/content/groups/public/"
         }
         maven {
+            name = "CodeMC"
+            url = "https://repo.codemc.io/repository/maven-public/"
+        }
+        maven {
             url = "https://repo.extendedclip.com/content/repositories/placeholderapi/"
         }
         maven {
@@ -95,10 +99,6 @@ allprojects {
     }
 }
 
-//jar {
-//    finalizedBy shadowJar
-//}
-
 build {
     dependsOn("shadowJar")
 }
@@ -130,6 +130,7 @@ shadowJar {
 
     exclude "META-INF/**"
     exclude "classpath.index"
-    relocate "net.kyori.adventure.platform.bukkit", "kr.rtuserver.framework.bukkit.api.utility.kyori"    relocate "net.kyori.adventure.platform.bukkit", "kr.rtuserver.framework.bukkit.api.utility.kyori"
+    relocate "net.kyori.adventure.platform.bukkit", "kr.rtuserver.framework.bukkit.api.utility.kyori"
     relocate "io.papermc.lib", "kr.rtuserver.framework.bukkit.api.utility.paper"
+    relocate "de.tr7zw.changeme.nbtapi", "kr.rtuserver.framework.bukkit.api.utility.nbtapi"
 }
