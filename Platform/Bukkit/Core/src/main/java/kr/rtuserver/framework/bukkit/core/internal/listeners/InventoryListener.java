@@ -22,35 +22,15 @@ public class InventoryListener extends RSListener {
     private void onRSInventoryClick(InventoryClickEvent e) {
         Inventory inv = e.getClickedInventory();
         Player player = (Player) e.getWhoClicked();
-        if (e.getView().getTopInventory().getHolder() instanceof RSInventory rsInventory) {
+        if (e.getView().getTopInventory().getHolder() instanceof RSInventory rsInv) {
             boolean isPlayerInventory = inv != null && !(inv.getHolder() instanceof RSInventory);
             RSInventory.Event<InventoryClickEvent> event = new RSInventory.Event<>(e, inv, player, isPlayerInventory);
             RSInventory.Click click = new RSInventory.Click(e.getSlot(), e.getSlotType(), e.getClick());
             try {
-                e.setCancelled(!rsInventory.onClick(event, click));
-            } catch (Exception exception) {
-                e.setCancelled(true);
-                Component errorMessage = ComponentFormatter.mini(getMessage().get("error.inventory"));
-                getPlugin().console(errorMessage);
-                getPlugin().getAdventure().player(player).sendMessage(errorMessage);
-                exception.printStackTrace();
-            }
-        }
-    }
-
-    @EventHandler
-    private void onRSInventoryDrag(InventoryDragEvent event) {
-        Inventory inv = event.getInventory();
-        Player player = (Player) event.getWhoClicked();
-        if (event.getView().getTopInventory().getHolder() instanceof RSInventory rsInventory) {
-            boolean isPlayerInventory = inv != null && !(inv.getHolder() instanceof RSInventory);
-            RSInventory.Event<InventoryDragEvent> holderEvent = new RSInventory.Event<>(event, inv, player, isPlayerInventory);
-            RSInventory.Drag click = new RSInventory.Drag(event.getNewItems(), event.getCursor(), event.getOldCursor(), event.getType());
-            try {
-                event.setCancelled(!rsInventory.onDrag(holderEvent, click));
+                e.setCancelled(!rsInv.onClick(event, click));
             } catch (Exception ex) {
-                event.setCancelled(true);
-                Component errorMessage = ComponentFormatter.mini(getMessage().get("error.inventory"));
+                e.setCancelled(true);
+                Component errorMessage = ComponentFormatter.mini(getMessage().get(player, "error.inventory"));
                 getPlugin().console(errorMessage);
                 getPlugin().getAdventure().player(player).sendMessage(errorMessage);
                 ex.printStackTrace();
@@ -59,14 +39,41 @@ public class InventoryListener extends RSListener {
     }
 
     @EventHandler
-    private void onRSInventoryClose(InventoryCloseEvent event) {
-        Inventory inv = event.getInventory();
-        Player player = (Player) event.getPlayer();
-        if (inv.getHolder() instanceof RSInventory rsInventory) {
+    private void onRSInventoryDrag(InventoryDragEvent e) {
+        Inventory inv = e.getInventory();
+        Player player = (Player) e.getWhoClicked();
+        if (e.getView().getTopInventory().getHolder() instanceof RSInventory rsInv) {
+            boolean isPlayerInventory = inv != null && !(inv.getHolder() instanceof RSInventory);
+            RSInventory.Event<InventoryDragEvent> holderEvent = new RSInventory.Event<>(e, inv, player, isPlayerInventory);
+            RSInventory.Drag drag = new RSInventory.Drag(e.getNewItems(), e.getCursor(), e.getOldCursor(), e.getType());
+            try {
+                e.setCancelled(!rsInv.onDrag(holderEvent, drag));
+            } catch (Exception ex) {
+                e.setCancelled(true);
+                Component errorMessage = ComponentFormatter.mini(getMessage().get(player, "error.inventory"));
+                getPlugin().console(errorMessage);
+                getPlugin().getAdventure().player(player).sendMessage(errorMessage);
+                ex.printStackTrace();
+            }
+        }
+    }
+
+    @EventHandler
+    private void onRSInventoryClose(InventoryCloseEvent e) {
+        Inventory inv = e.getInventory();
+        Player player = (Player) e.getPlayer();
+        if (inv.getHolder() instanceof RSInventory rsInv) {
             boolean isPlayerInventory = !(inv.getHolder() instanceof RSInventory);
-            RSInventory.Event<InventoryCloseEvent> holderEvent = new RSInventory.Event<>(event, inv, player, isPlayerInventory);
-            RSInventory.Close close = new RSInventory.Close(event.getReason());
-            rsInventory.onClose(holderEvent, close);
+            RSInventory.Event<InventoryCloseEvent> holderEvent = new RSInventory.Event<>(e, inv, player, isPlayerInventory);
+            RSInventory.Close close = new RSInventory.Close(e.getReason());
+            try {
+                rsInv.onClose(holderEvent, close);
+            } catch (Exception ex) {
+                Component errorMessage = ComponentFormatter.mini(getMessage().get(player, "error.inventory"));
+                getPlugin().console(errorMessage);
+                getPlugin().getAdventure().player(player).sendMessage(errorMessage);
+                ex.printStackTrace();
+            }
         }
     }
 
