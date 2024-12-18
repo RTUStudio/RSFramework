@@ -5,3 +5,9 @@ dependencies {
 java {
     toolchain.languageVersion = JavaLanguageVersion.of(17)
 }
+
+compileJava {
+    java {
+        toolchain.languageVersion = JavaLanguageVersion.of(21)
+    }
+}
