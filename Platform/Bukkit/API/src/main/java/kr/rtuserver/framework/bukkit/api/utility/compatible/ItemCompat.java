@@ -38,6 +38,7 @@ public class ItemCompat {
 
     @Nullable
     public static ItemStack from(@NotNull String namespacedID) {
+        if (namespacedID.isEmpty()) return null;
         String[] split = namespacedID.split(":");
         String platform = split[0].toLowerCase();
         switch (platform) {
@@ -80,8 +81,7 @@ public class ItemCompat {
                 return itemStack;
             }
             default -> {
-                String id = split.length > 1 ? split[1] : split[0];
-                Material material = Material.getMaterial(id.toUpperCase());
+                Material material = Material.matchMaterial(namespacedID.toLowerCase());
                 return material != null ? new ItemStack(material) : null;
             }
         }

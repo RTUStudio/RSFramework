@@ -12,6 +12,7 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.data.BlockData;
+import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nullable;
@@ -28,8 +29,9 @@ public class BlockCompat {
     }
 
     @Nullable
-    public static BlockData from(String data) {
-        String[] split = data.split(":");
+    public static BlockData from(@NotNull String namespacedID) {
+        if (namespacedID.isEmpty()) return null;
+        String[] split = namespacedID.split(":");
         String platform = split[0].toLowerCase();
         switch (platform) {
             case "nexo" -> {
@@ -49,15 +51,15 @@ public class BlockCompat {
                 } else return null;
             }
             default -> {
-                String id = split.length > 1 ? split[1] : split[0];
-                Material material = Material.getMaterial(id.toUpperCase());
+                if (namespacedID.isEmpty()) return null;
+                Material material = Material.matchMaterial(namespacedID.toLowerCase());
                 return material != null ? material.createBlockData() : null;
             }
         }
     }
 
     @NotNull
-    public static String to(Block block) {
+    public static String to(@NotNull Block block) {
         if (framework().isEnabledDependency("Nexo")) {
             if (NexoBlocks.isCustomBlock(block))
                 return "nexo:" + NexoBlocks.customBlockMechanic(block.getBlockData()).getItemID();
@@ -72,10 +74,11 @@ public class BlockCompat {
             if (itemsAdder != null)
                 return "itemsadder:" + itemsAdder.getNamespacedID();
         }
-        return "minecraft:" + block.getBlockData().getMaterial().toString().toLowerCase();
+        return block.getBlockData().getMaterial().getKey().asString();
     }
 
-    public static boolean place(Location location, String namespacedID) {
+    public static boolean place(@NotNull Location location, @NotNull String namespacedID) {
+        if (namespacedID.isEmpty()) return false;
         String[] split = namespacedID.split(":");
         String platform = split[0].toLowerCase();
         switch (platform) {
@@ -102,8 +105,7 @@ public class BlockCompat {
                 return true;
             }
             default -> {
-                String id = split.length > 1 ? split[1] : split[0];
-                Material material = Material.getMaterial(id.toUpperCase());
+                Material material = Material.matchMaterial(namespacedID.toLowerCase());
                 if (material != null) location.getWorld().setBlockData(location, material.createBlockData());
                 else return false;
                 return true;
