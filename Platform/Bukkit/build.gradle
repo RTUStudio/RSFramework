@@ -58,7 +58,7 @@ shadowJar {
     exclude "classpath.index"
     relocate "net.kyori.adventure.platform.bukkit", "kr.rtuserver.framework.bukkit.api.utility.kyori"
     relocate "io.papermc.lib", "kr.rtuserver.framework.bukkit.api.utility.paper"
-    relocate "de.tr7zw.changeme.nbtapi", "kr.rtuserver.framework.bukkit.api.utility.nbtapi"
+    relocate "de.tr7zw.nbtapi", "kr.rtuserver.framework.bukkit.api.utility.nbtapi"
 }
 
 tasks.withType(AbstractRun.class).configureEach {
