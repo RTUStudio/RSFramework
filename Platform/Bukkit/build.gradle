@@ -35,7 +35,7 @@ dependencies {
     implementation project("API")
     implementation project("Core")
     implementation project("Plugin")
-    compileOnly "com.github.Carleslc.Simple-YAML:Simple-Yaml:1.8.4"
+    implementation "com.github.Carleslc.Simple-YAML:Simple-Yaml:1.8.4"
 }
 
 jar {

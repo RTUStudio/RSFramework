@@ -21,7 +21,6 @@ public class RSFramework extends RSPlugin {
     public RSFramework() {
         libraries = new Libraries(this);
 
-        libraries.load("com.github.Carleslc.Simple-YAML:Simple-Yaml:1.8.4");
         libraries.load("net.kyori:adventure-text-minimessage:4.16.0");
 
         libraries.load("org.apache.commons:commons-lang3:3.14.0");
