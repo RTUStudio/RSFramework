@@ -20,7 +20,7 @@ import java.util.Map;
 import java.util.logging.Level;
 
 @SuppressWarnings("unused")
-public class RSConfiguration {
+public class RSConfiguration<T extends RSPlugin> {
     private final String HEADER = """
             ╔ Developed by ════════════════════════════════════════════════════════════════════════════╗
             ║ ░█▀▄░█░█░▀█▀░█▀█░█▀▀░█▀▄░░░▀█▀░█▀▀░█▀▀░█░█░█▀█░█▀█░█░░░█▀█░█▀▀░█░█░░░█░█░█▀█░▀█▀░█▀▀░█░█ ║
@@ -29,14 +29,14 @@ public class RSConfiguration {
             ╚══════════════════════════════════════════════════════════════════════════════════════════╝
             
             This is the configuration for %s.
-            If you have any questions or need assistance, 
+            If you have any questions or need assistance,
             please join our Discord server and ask for help from %s!
             
             이것은 %s의 구성입니다.
             질문이 있거나 도움이 필요하시면,
             저희 Discord 서버에 가입하셔서 %s에게 도움을 요청해 주세요!""";
     @Getter
-    private final RSPlugin plugin;
+    private final T plugin;
     private final File file;
     @Getter
     private final YamlFile config;
@@ -44,13 +44,13 @@ public class RSConfiguration {
     private final int version;
     @Getter
     private boolean changed;
-    private RSConfiguration instance;
+    private RSConfiguration<T> instance;
 
-    public RSConfiguration(RSPlugin plugin, String name, Integer version) {
+    public RSConfiguration(T plugin, String name, Integer version) {
         this(plugin, "Configs", name, version);
     }
 
-    public RSConfiguration(RSPlugin plugin, String folder, String name, Integer version) {
+    public RSConfiguration(T plugin, String folder, String name, Integer version) {
         this.plugin = plugin;
         this.file = FileResource.createFileCopy(plugin, folder, name);
         this.config = new YamlFile(file);
@@ -76,7 +76,7 @@ public class RSConfiguration {
         return builder.build();
     }
 
-    public void setup(RSConfiguration instance) {
+    public void setup(RSConfiguration<T> instance) {
         this.instance = instance;
         init();
         save();
@@ -159,7 +159,7 @@ public class RSConfiguration {
         return getLong(path, def, new String[]{});
     }
 
-    protected <T> List<T> getList(String path, List<T> def) {
+    protected <E> List<E> getList(String path, List<E> def) {
         return getList(path, def, new String[]{});
     }
 
@@ -231,10 +231,10 @@ public class RSConfiguration {
         return config.getLong(path, config.getLong(path));
     }
 
-    protected <T> List<T> getList(String path, List<T> def, String... comment) {
+    protected <E> List<E> getList(String path, List<E> def, String... comment) {
         config.addDefault(path, def);
         if (comment.length != 0) setComment(path, comment);
-        return (List<T>) config.getList(path, config.getList(path));
+        return (List<E>) config.getList(path, config.getList(path));
     }
 
     protected List<String> getStringList(String path, List<String> def, String... comment) {

@@ -12,7 +12,7 @@ import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.inventory.InventoryDragEvent;
 import org.bukkit.inventory.Inventory;
 
-public class InventoryListener extends RSListener {
+public class InventoryListener extends RSListener<RSPlugin> {
 
     public InventoryListener(RSPlugin plugin) {
         super(plugin);
@@ -22,7 +22,7 @@ public class InventoryListener extends RSListener {
     private void onRSInventoryClick(InventoryClickEvent e) {
         Inventory inv = e.getClickedInventory();
         Player player = (Player) e.getWhoClicked();
-        if (e.getView().getTopInventory().getHolder() instanceof RSInventory rsInv) {
+        if (e.getView().getTopInventory().getHolder() instanceof RSInventory<? extends RSPlugin> rsInv) {
             boolean isPlayerInventory = inv != null && !(inv.getHolder() instanceof RSInventory);
             RSInventory.Event<InventoryClickEvent> event = new RSInventory.Event<>(e, inv, player, isPlayerInventory);
             RSInventory.Click click = new RSInventory.Click(e.getSlot(), e.getSlotType(), e.getClick());
@@ -42,7 +42,7 @@ public class InventoryListener extends RSListener {
     private void onRSInventoryDrag(InventoryDragEvent e) {
         Inventory inv = e.getInventory();
         Player player = (Player) e.getWhoClicked();
-        if (e.getView().getTopInventory().getHolder() instanceof RSInventory rsInv) {
+        if (e.getView().getTopInventory().getHolder() instanceof RSInventory<? extends RSPlugin> rsInv) {
             boolean isPlayerInventory = inv != null && !(inv.getHolder() instanceof RSInventory);
             RSInventory.Event<InventoryDragEvent> holderEvent = new RSInventory.Event<>(e, inv, player, isPlayerInventory);
             RSInventory.Drag drag = new RSInventory.Drag(e.getNewItems(), e.getCursor(), e.getOldCursor(), e.getType());
@@ -62,7 +62,7 @@ public class InventoryListener extends RSListener {
     private void onRSInventoryClose(InventoryCloseEvent e) {
         Inventory inv = e.getInventory();
         Player player = (Player) e.getPlayer();
-        if (inv.getHolder() instanceof RSInventory rsInv) {
+        if (inv.getHolder() instanceof RSInventory<? extends RSPlugin> rsInv) {
             boolean isPlayerInventory = !(inv.getHolder() instanceof RSInventory);
             RSInventory.Event<InventoryCloseEvent> holderEvent = new RSInventory.Event<>(e, inv, player, isPlayerInventory);
             RSInventory.Close close = new RSInventory.Close(e.getReason());

@@ -11,7 +11,7 @@ import org.bukkit.event.player.PlayerJoinEvent;
 
 import java.util.Map;
 
-public class JoinListener extends RSListener {
+public class JoinListener extends RSListener<RSPlugin> {
 
     private final Framework framework;
 

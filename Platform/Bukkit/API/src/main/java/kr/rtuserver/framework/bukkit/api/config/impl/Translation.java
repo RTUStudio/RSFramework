@@ -6,7 +6,7 @@ import kr.rtuserver.framework.bukkit.api.config.RSConfiguration;
 import java.util.HashMap;
 import java.util.Map;
 
-public class Translation extends RSConfiguration {
+public class Translation extends RSConfiguration<RSPlugin> {
 
     private final Map<String, String> map = new HashMap<>();
 

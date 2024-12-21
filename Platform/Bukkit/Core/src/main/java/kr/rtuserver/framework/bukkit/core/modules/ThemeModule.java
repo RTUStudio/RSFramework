@@ -5,7 +5,7 @@ import kr.rtuserver.framework.bukkit.api.config.RSConfiguration;
 import lombok.Getter;
 
 @Getter
-public class ThemeModule extends RSConfiguration implements kr.rtuserver.framework.bukkit.api.core.modules.ThemeModule {
+public class ThemeModule extends RSConfiguration<RSPlugin> implements kr.rtuserver.framework.bukkit.api.core.modules.ThemeModule {
 
     private String gradientStart = "#2979FF";
     private String gradientEnd = "#7C4DFF";

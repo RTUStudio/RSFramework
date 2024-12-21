@@ -8,7 +8,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class SettingConfiguration extends RSConfiguration {
+public class SettingConfiguration extends RSConfiguration<RSPlugin> {
 
     private boolean verbose = false;
     private boolean listeners = true;

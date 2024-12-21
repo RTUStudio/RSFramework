@@ -7,9 +7,9 @@ import org.bukkit.OfflinePlayer;
 import org.jetbrains.annotations.NotNull;
 
 @RequiredArgsConstructor
-public abstract class RSPlaceholder extends PlaceholderExpansion {
+public abstract class RSPlaceholder<T extends RSPlugin> extends PlaceholderExpansion {
 
-    private final RSPlugin plugin;
+    private final T plugin;
 
     public boolean persist() {
         return true;

@@ -1,10 +1,7 @@
 package kr.rtuserver.framework.bukkit.plugin.commands;
 
-import kr.rtuserver.cdi.LightDI;
-import kr.rtuserver.framework.bukkit.api.RSPlugin;
 import kr.rtuserver.framework.bukkit.api.command.RSCommandData;
 import kr.rtuserver.framework.bukkit.api.config.impl.TranslationConfiguration;
-import kr.rtuserver.framework.bukkit.api.core.Framework;
 import kr.rtuserver.framework.bukkit.api.utility.format.ComponentFormatter;
 import kr.rtuserver.framework.bukkit.api.utility.platform.MinecraftVersion;
 import kr.rtuserver.framework.bukkit.api.utility.platform.SystemEnvironment;
@@ -15,16 +12,15 @@ import org.bukkit.Bukkit;
 import java.util.ArrayList;
 import java.util.List;
 
-public class FrameworkCommand extends kr.rtuserver.framework.bukkit.api.command.RSCommand {
+public class FrameworkCommand extends kr.rtuserver.framework.bukkit.api.command.RSCommand<RSFramework> {
 
-    private final RSFramework rsf = RSFramework.getInstance();
-    private final TranslationConfiguration message = rsf.getConfigurations().getMessage();
-    private final TranslationConfiguration command = rsf.getConfigurations().getCommand();
-    private final Framework framework = LightDI.getBean(Framework.class);
+    private final TranslationConfiguration message;
+    private final TranslationConfiguration command;
 
-    public FrameworkCommand(RSPlugin plugin) {
+    public FrameworkCommand(RSFramework plugin) {
         super(plugin, "rsf", true);
-
+        this.message = plugin.getConfigurations().getMessage();
+        this.command = plugin.getConfigurations().getCommand();
     }
 
     @Override

@@ -5,7 +5,7 @@ import kr.rtuserver.framework.bukkit.api.config.RSConfiguration;
 import lombok.Getter;
 
 @Getter
-public class CommandModule extends RSConfiguration implements kr.rtuserver.framework.bukkit.api.core.modules.CommandModule {
+public class CommandModule extends RSConfiguration<RSPlugin> implements kr.rtuserver.framework.bukkit.api.core.modules.CommandModule {
     private int executeLimit = 30;
 
     public CommandModule(RSPlugin plugin) {

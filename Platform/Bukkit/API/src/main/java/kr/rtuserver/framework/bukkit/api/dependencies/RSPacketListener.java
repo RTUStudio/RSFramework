@@ -6,12 +6,12 @@ import kr.rtuserver.framework.bukkit.api.RSPlugin;
 import lombok.Getter;
 
 @Getter
-public abstract class RSPacketListener extends PacketAdapter {
+public abstract class RSPacketListener<T extends RSPlugin> extends PacketAdapter {
 
-    private final RSPlugin plugin;
+    private final T plugin;
 
-    public RSPacketListener(RSPlugin plugin, AdapterParameteters parameteters) {
-        super(parameteters.plugin(plugin));
+    public RSPacketListener(T plugin, AdapterParameteters parameters) {
+        super(parameters.plugin(plugin));
         this.plugin = plugin;
     }
 

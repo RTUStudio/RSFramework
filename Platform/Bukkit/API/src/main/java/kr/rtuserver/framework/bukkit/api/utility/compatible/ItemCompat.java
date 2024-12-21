@@ -1,8 +1,8 @@
 package kr.rtuserver.framework.bukkit.api.utility.compatible;
 
 import com.nexomc.nexo.api.NexoItems;
-import de.tr7zw.nbtapi.NBT;
-import de.tr7zw.nbtapi.iface.ReadableNBT;
+import de.tr7zw.changeme.nbtapi.NBT;
+import de.tr7zw.changeme.nbtapi.iface.ReadableNBT;
 import dev.lone.itemsadder.api.CustomStack;
 import io.th0rgal.oraxen.api.OraxenItems;
 import kr.rtuserver.cdi.LightDI;

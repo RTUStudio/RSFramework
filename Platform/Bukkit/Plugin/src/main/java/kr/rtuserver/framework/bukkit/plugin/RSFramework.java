@@ -2,6 +2,7 @@ package kr.rtuserver.framework.bukkit.plugin;
 
 import kr.rtuserver.cdi.LightDI;
 import kr.rtuserver.framework.bukkit.api.RSPlugin;
+import kr.rtuserver.framework.bukkit.core.listeners.*;
 import kr.rtuserver.framework.bukkit.plugin.commands.FrameworkCommand;
 import lombok.Getter;
 import org.bukkit.Bukkit;
@@ -71,7 +72,22 @@ public class RSFramework extends RSPlugin {
         registerPermission(getName() + ".motd", PermissionDefault.OP);
         registerPermission(getName() + ".broadcast", PermissionDefault.OP);
         registerPermission(getName() + ".information", PermissionDefault.OP);
+
+        pluginItemListener();
+
         registerCommand(new FrameworkCommand(this));
+    }
+
+    private void pluginItemListener() {
+        boolean ItemsAdder = getFramework().isEnabledDependency("ItemsAdder");
+        boolean MMOItems = getFramework().isEnabledDependency("MMOItems");
+        boolean Oraxen = getFramework().isEnabledDependency("Oraxen");
+        boolean Nexo = getFramework().isEnabledDependency("Nexo");
+        if (ItemsAdder) registerEvent(new ItemsAdderLoaded(this));
+        if (MMOItems) registerEvent(new MMOItemsLoaded(this));
+        if (Oraxen) registerEvent(new NexoLoaded(this));
+        if (Nexo) registerEvent(new OraxenLoaded(this));
+        if (!(ItemsAdder || MMOItems || Oraxen || Nexo)) registerEvent(new VanillaServerLoaded(this));
     }
 
     @Override

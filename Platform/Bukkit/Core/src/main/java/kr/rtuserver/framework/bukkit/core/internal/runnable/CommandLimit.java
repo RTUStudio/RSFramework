@@ -8,9 +8,9 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
+@Getter
 public class CommandLimit implements kr.rtuserver.framework.bukkit.api.core.internal.runnable.CommandLimit {
 
-    @Getter
     private final Map<UUID, Integer> executeLimit = new ConcurrentHashMap<>();
 
     public CommandLimit(RSPlugin plugin) {

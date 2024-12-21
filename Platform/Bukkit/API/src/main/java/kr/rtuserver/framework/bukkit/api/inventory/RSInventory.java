@@ -13,15 +13,15 @@ import org.bukkit.inventory.ItemStack;
 import java.util.Map;
 
 @Getter
-public abstract class RSInventory implements InventoryHolder {
+public abstract class RSInventory<T extends RSPlugin> implements InventoryHolder {
 
 
-    private final RSPlugin plugin;
+    private final T plugin;
     private final SettingConfiguration setting;
     private final TranslationConfiguration message;
     private final TranslationConfiguration command;
 
-    public RSInventory(RSPlugin plugin) {
+    public RSInventory(T plugin) {
         this.plugin = plugin;
         this.setting = plugin.getConfigurations().getSetting();
         this.message = plugin.getConfigurations().getMessage();

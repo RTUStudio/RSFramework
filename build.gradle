@@ -1,7 +1,7 @@
 plugins {
     id "java"
-    id "io.freefair.lombok" version "8.10"
-    id "com.gradleup.shadow" version "8.3.1"
+    id "io.freefair.lombok" version "8.11"
+    id "com.gradleup.shadow" version "9.0.0-beta4"
     id "io.papermc.paperweight.userdev" version "1.7.7" apply false
 }
 
@@ -132,5 +132,5 @@ shadowJar {
     exclude "classpath.index"
     relocate "net.kyori.adventure.platform.bukkit", "kr.rtuserver.framework.bukkit.api.utility.kyori"
     relocate "io.papermc.lib", "kr.rtuserver.framework.bukkit.api.utility.paper"
-    relocate "de.tr7zw.nbtapi", "kr.rtuserver.framework.bukkit.api.utility.nbtapi"
+    relocate "de.tr7zw.changeme.nbtapi", "kr.rtuserver.framework.bukkit.api.utility.nbtapi"
 }

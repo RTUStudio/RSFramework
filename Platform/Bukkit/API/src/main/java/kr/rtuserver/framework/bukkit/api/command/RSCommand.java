@@ -19,9 +19,9 @@ import java.util.Map;
 import java.util.UUID;
 
 @Getter
-public abstract class RSCommand extends Command {
+public abstract class RSCommand<T extends RSPlugin> extends Command {
 
-    private final RSPlugin plugin;
+    private final T plugin;
     private final TranslationConfiguration message;
     private final TranslationConfiguration command;
     private final String name;
@@ -31,15 +31,15 @@ public abstract class RSCommand extends Command {
     private CommandSender sender;
     private Audience audience;
 
-    public RSCommand(RSPlugin plugin, @NotNull List<String> name) {
+    public RSCommand(T plugin, @NotNull List<String> name) {
         this(plugin, name, false);
     }
 
-    public RSCommand(RSPlugin plugin, @NotNull String name, boolean useReload) {
+    public RSCommand(T plugin, @NotNull String name, boolean useReload) {
         this(plugin, List.of(name), useReload);
     }
 
-    public RSCommand(RSPlugin plugin, List<String> names, boolean useReload) {
+    public RSCommand(T plugin, List<String> names, boolean useReload) {
         super(names.get(0));
         this.plugin = plugin;
         this.message = plugin.getConfigurations().getMessage();
