@@ -2,12 +2,18 @@ dependencies {
     paperweight.paperDevBundle("1.18.2-R0.1-SNAPSHOT")
 }
 
-java {
-    toolchain.languageVersion = JavaLanguageVersion.of(17)
+tasks.withType(JavaCompile).configureEach {
+    options.release = 17
 }
 
-compileJava {
+java {
+    toolchain.languageVersion = JavaLanguageVersion.of(21)
+}
+
+paperweightUserdevSetup {
     java {
-        toolchain.languageVersion = JavaLanguageVersion.of(21)
+        try {
+            toolchain.languageVersion = JavaLanguageVersion.of(17)
+        } catch (IllegalStateException ignore) {}
     }
 }

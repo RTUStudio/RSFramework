@@ -2,13 +2,14 @@ plugins {
     id "java"
     id "io.freefair.lombok" version "8.11"
     id "com.gradleup.shadow" version "9.0.0-beta4"
-    id "io.papermc.paperweight.userdev" version "1.7.7" apply false
+    id "io.papermc.paperweight.userdev" version "2.0.0-beta.8" apply false
 }
 
 group = "kr.rtuserver"
 version = plugin_version
 
 allprojects {
+
     apply {
         plugin("java")
         plugin("io.freefair.lombok")
@@ -99,14 +100,14 @@ allprojects {
     }
 }
 
-build {
-    dependsOn("shadowJar")
+jar {
+    finalizedBy("shadowJar")
 }
 
-dependencies {
-    implementation project(":Platform:Bukkit")
+dependencies {implementation project(":Platform:Bukkit")
     implementation project(":Platform:Bungee")
     implementation project(":Platform:Velocity")
+
     implementation "com.alessiodp.libby:libby-bukkit:2.0.0-SNAPSHOT"
     implementation "com.alessiodp.libby:libby-bungee:2.0.0-SNAPSHOT"
     implementation "com.alessiodp.libby:libby-velocity:2.0.0-SNAPSHOT"
