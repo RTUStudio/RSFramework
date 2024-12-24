@@ -1,3 +1,7 @@
 dependencies {
     paperweight.paperDevBundle("1.21.3-R0.1-SNAPSHOT")
 }
+
+paperweightUserdevSetup {
+    dependsOn(":Library:ProtoWeaver:Bukkit:NMS:1_21_R2:paperweightUserdevSetup")
+}
