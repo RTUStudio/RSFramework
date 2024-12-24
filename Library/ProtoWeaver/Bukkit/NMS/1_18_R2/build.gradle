@@ -4,10 +4,9 @@ dependencies {
 
 tasks.withType(JavaCompile).configureEach {
     options.release = 17
-}
-
-java {
-    toolchain.languageVersion = JavaLanguageVersion.of(21)
+    java {
+        toolchain.languageVersion = JavaLanguageVersion.of(21)
+    }
 }
 
 paperweightUserdevSetup {
