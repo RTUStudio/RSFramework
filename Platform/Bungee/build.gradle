@@ -9,8 +9,6 @@ runWaterfall {
 }
 
 dependencies {
-    implementation project(":Library:ProtoWeaver:Common:API")
-    implementation project(":Library:ProtoWeaver:Common:Core")
     implementation project(":Library:ProtoWeaver:Bungee:API")
     implementation project(":Library:ProtoWeaver:Bungee:Core")
     implementation "com.alessiodp.libby:libby-bungee:2.0.0-SNAPSHOT"

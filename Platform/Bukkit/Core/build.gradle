@@ -6,7 +6,6 @@ dependencies {
     compileOnly "com.nexomc:nexo:0.1.0-dev.0"
 
     implementation project(":Library:LightDI")
-    implementation project(":Library:ProtoWeaver:Common:Core")
     implementation project(":Library:ProtoWeaver:Bukkit:Core")
 
     implementation project(":Platform:Bukkit:API")

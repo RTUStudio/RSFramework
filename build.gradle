@@ -104,7 +104,8 @@ jar {
     finalizedBy("shadowJar")
 }
 
-dependencies {implementation project(":Platform:Bukkit")
+dependencies {
+    implementation project(":Platform:Bukkit")
     implementation project(":Platform:Bungee")
     implementation project(":Platform:Velocity")
 

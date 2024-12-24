@@ -9,8 +9,6 @@ runVelocity {
 }
 
 dependencies {
-    implementation project(":Library:ProtoWeaver:Common:API")
-    implementation project(":Library:ProtoWeaver:Common:Core")
     implementation project(":Library:ProtoWeaver:Velocity:API")
     implementation project(":Library:ProtoWeaver:Velocity:Core")
     implementation "com.alessiodp.libby:libby-velocity:2.0.0-SNAPSHOT"
