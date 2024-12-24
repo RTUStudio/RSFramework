@@ -11,9 +11,7 @@ import kr.rtuserver.protoweaver.api.netty.Sender;
 import kr.rtuserver.protoweaver.api.protocol.CompressionType;
 import kr.rtuserver.protoweaver.api.protocol.Packet;
 import kr.rtuserver.protoweaver.api.protocol.Protocol;
-import kr.rtuserver.protoweaver.api.protocol.internal.*;
 import kr.rtuserver.protoweaver.api.protocol.velocity.VelocityAuth;
-import kr.rtuserver.protoweaver.core.impl.bukkit.nms.v1_19_r2.ProtoWeaver_1_19_R2;
 import kr.rtuserver.protoweaver.core.impl.bukkit.nms.v1_19_r3.ProtoWeaver_1_19_R3;
 import kr.rtuserver.protoweaver.core.impl.bukkit.nms.v1_20_r1.ProtoWeaver_1_20_R1;
 import kr.rtuserver.protoweaver.core.impl.bukkit.nms.v1_20_r2.ProtoWeaver_1_20_R2;
@@ -24,7 +22,6 @@ import kr.rtuserver.protoweaver.core.impl.bukkit.nms.v1_21_r2.ProtoWeaver_1_21_R
 import kr.rtuserver.protoweaver.core.impl.bukkit.nms.v1_21_r3.ProtoWeaver_1_21_R3;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
-import org.checkerframework.checker.i18nformatter.qual.I18nFormat;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -44,7 +41,6 @@ public class BukkitProtoWeaver implements kr.rtuserver.protoweaver.api.impl.bukk
 
     public BukkitProtoWeaver(String sslFolder, String nmsVersion, HandlerCallback callback) {
         this.protoWeaver = switch (nmsVersion) {
-            case "v1_19_R2" -> new ProtoWeaver_1_19_R2(sslFolder);
             case "v1_19_R3" -> new ProtoWeaver_1_19_R3(sslFolder);
             case "v1_20_R1" -> new ProtoWeaver_1_20_R1(sslFolder);
             case "v1_20_R2" -> new ProtoWeaver_1_20_R2(sslFolder);
