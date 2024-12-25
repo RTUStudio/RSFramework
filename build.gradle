@@ -146,7 +146,7 @@ publishing {
     publications {
         mavenJava(MavenPublication) {
             groupId = project.group
-            artifactId = "rsframework"
+            artifactId = "framework"
             version = plugin_version
 
             from components.java
@@ -174,4 +174,4 @@ publishing {
             }
         }
     }
-    }
+}
