@@ -1,4 +1,5 @@
 dependencies {
+    implementation project(":Library:ProtoWeaver:Common:API")
     implementation project(":Library:ProtoWeaver:Common:Core")
     implementation project(":Library:ProtoWeaver:Bukkit:API")
     implementation project(":Library:ProtoWeaver:Bukkit:NMS")
