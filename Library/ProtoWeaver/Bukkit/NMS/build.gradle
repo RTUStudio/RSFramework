@@ -10,4 +10,8 @@ subprojects {
 
         pluginRemapper("net.fabricmc:tiny-remapper:0.10.4:fat")
     }
+
+    reobfJar {
+        dependsOn(jar)
+    }
 }
