@@ -26,7 +26,7 @@ dependencies {
 }
 
 jar {
-    finalizedBy shadowJar
+    dependsOn(shadowJar)
 }
 
 shadowJar {
