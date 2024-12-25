@@ -131,14 +131,16 @@ shadowJar {
     }
 }
 
-publishing.repositories {
-    maven {
-        name = "codemc"
-        url = "https://repo.codemc.io/repository/maven-snapshots/"
+publishing {
+    repositories {
+        maven {
+            name = "codemc"
+            url = "https://repo.codemc.io/repository/maven-snapshots/"
 
-        credentials {
-            username = System.getenv("GRADLE_PROPERTY_MAVEN_USERNAME") ?: System.getenv("MAVEN_USERNAME")
-            password = System.getenv("GRADLE_PROPERTY_MAVEN_PASSWORD") ?: System.getenv("MAVEN_PASSWORD")
+            credentials {
+                username = System.getenv("GRADLE_PROPERTY_MAVEN_USERNAME") ?: System.getenv("MAVEN_USERNAME")
+                password = System.getenv("GRADLE_PROPERTY_MAVEN_PASSWORD") ?: System.getenv("MAVEN_PASSWORD")
+            }
         }
     }
 }
