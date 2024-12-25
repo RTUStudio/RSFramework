@@ -120,6 +120,8 @@ dependencies {
 
 shadowJar {
 
+    file("$rootDir/builds").delete()
+
     doLast {
         copy {
             from archiveFile.get().asFile into file("$rootDir/builds/plugin")
