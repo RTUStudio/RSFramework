@@ -132,6 +132,17 @@ shadowJar {
 }
 
 publishing {
+    repositories {
+        maven {
+            url = "https://repo.codemc.io/repository/rtuserver/"
+
+            credentials {
+                username = System.getenv("MAVEN_USERNAME")
+                password = System.getenv("MAVEN_PASSWORD")
+            }
+        }
+    }
+
     publication {
         mavenJava(MavenPublication) {
             groupId = "kr.rtuserver"
@@ -160,17 +171,6 @@ publishing {
                         name.set("IPECTER")
                         email.set("ipectert@gmail.com")
                     }
-                }
-            }
-        }
-
-        repositories {
-            maven {
-                url = "https://repo.codemc.io/repository/rtuserver/"
-
-                credentials {
-                    username = System.getenv("MAVEN_USERNAME")
-                    password = System.getenv("MAVEN_PASSWORD")
                 }
             }
         }
