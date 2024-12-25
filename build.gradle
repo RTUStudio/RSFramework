@@ -100,8 +100,8 @@ allprojects {
     }
 }
 
-jar {
-    finalizedBy("shadowJar")
+build {
+    dependsOn(shadowJar)
 }
 
 dependencies {

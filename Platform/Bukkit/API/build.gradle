@@ -30,6 +30,7 @@ jar {
 }
 
 shadowJar {
+
     doLast {
         copy {
             from archiveFile.get().asFile into file("$rootDir/builds/api")
