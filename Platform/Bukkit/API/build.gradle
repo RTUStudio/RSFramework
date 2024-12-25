@@ -26,17 +26,10 @@ dependencies {
 }
 
 jar {
-    dependsOn(shadowJar)
+    finalizedBy(shadowJar)
 }
 
 shadowJar {
-
-    doLast {
-        copy {
-            from archiveFile.get().asFile into file("$rootDir/builds/api")
-        }
-    }
-
     setArchiveClassifier(null)
     setArchiveBaseName("api")
     setArchiveVersion(plugin_version)
@@ -46,4 +39,11 @@ shadowJar {
     relocate "net.kyori.adventure.platform.bukkit", "kr.rtuserver.framework.bukkit.api.utility.kyori"
     relocate "io.papermc.lib", "kr.rtuserver.framework.bukkit.api.utility.paper"
     relocate "de.tr7zw.changeme.nbtapi", "kr.rtuserver.framework.bukkit.api.utility.nbtapi"
+
+
+    doLast {
+        copy {
+            from archiveFile.get().asFile into file("$rootDir/builds/api")
+        }
+    }
 }

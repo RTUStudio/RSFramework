@@ -39,17 +39,10 @@ dependencies {
 }
 
 jar {
-    finalizedBy shadowJar
+    finalizedBy(shadowJar)
 }
 
 shadowJar {
-
-    doLast {
-        copy {
-            from archiveFile.get().asFile into file("$rootDir/builds/plugin")
-        }
-    }
-
     setArchiveClassifier(null)
     setArchiveBaseName(plugin_name)
     setArchiveVersion(plugin_version)

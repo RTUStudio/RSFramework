@@ -80,14 +80,6 @@ allprojects {
         compileOnly "org.slf4j:slf4j-api:2.0.16"
     }
 
-    shadowJar {
-        setArchiveClassifier(null)
-
-        exclude "META-INF/**"
-        exclude "classpath.index"
-        relocate "com.alessiodp.libby", "kr.rtuserver.libby"
-    }
-
     java {
         def javaVersion = JavaVersion.toVersion(java_version as Integer)
         sourceCompatibility = javaVersion
@@ -119,14 +111,7 @@ dependencies {
 }
 
 shadowJar {
-
     file("$rootDir/builds").delete()
-
-    doLast {
-        copy {
-            from archiveFile.get().asFile into file("$rootDir/builds/plugin")
-        }
-    }
 
     setArchiveClassifier(null)
     setArchiveBaseName(plugin_name)
@@ -137,4 +122,22 @@ shadowJar {
     relocate "net.kyori.adventure.platform.bukkit", "kr.rtuserver.framework.bukkit.api.utility.kyori"
     relocate "io.papermc.lib", "kr.rtuserver.framework.bukkit.api.utility.paper"
     relocate "de.tr7zw.changeme.nbtapi", "kr.rtuserver.framework.bukkit.api.utility.nbtapi"
+
+    doLast {
+        copy {
+            from archiveFile.get().asFile into file("$rootDir/builds/plugin")
+        }
+    }
+}
+
+def mavenUsername = project.mavenUsername
+def mavenPassword = project.mavenPassword
+
+publishing.repositories.maven("https://repo.codemc.io/repository/maven-snapshots/") {
+    name = "codemc"
+
+    credentials {
+        username = mavenUsername ?: System.getenv("GRADLE_PROPERTY_MAVEN_USERNAME") ?: System.getenv("MAVEN_USERNAME")
+        password = mavenPassword ?: System.getenv("GRADLE_PROPERTY_MAVEN_PASSWORD") ?: System.getenv("MAVEN_PASSWORD")
+    }
 }
