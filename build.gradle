@@ -132,26 +132,17 @@ shadowJar {
 }
 
 publishing {
-    repositories {
-        maven {
-            url = "https://repo.codemc.io/repository/rtuserver/"
-
-            credentials {
-                username = System.getenv("MAVEN_USERNAME")
-                password = System.getenv("MAVEN_PASSWORD")
-            }
-        }
-    }
-
-    publications {
+    publication {
         mavenJava(MavenPublication) {
-            groupId = project.group
+            groupId = "kr.rtuserver"
             artifactId = "framework"
             version = plugin_version
 
             from components.java
 
             pom {
+                archivesBaseName = "rsframework-" + version
+
                 name.set("RSFramework")
                 description.set("Framework for RSPlugin")
                 url.set("https://github.com/RTUServer/RSFramework")
@@ -170,7 +161,17 @@ publishing {
                         email.set("ipectert@gmail.com")
                     }
                 }
+            }
+        }
 
+        repositories {
+            maven {
+                url = "https://repo.codemc.io/repository/rtuserver/"
+
+                credentials {
+                    username = System.getenv("MAVEN_USERNAME")
+                    password = System.getenv("MAVEN_PASSWORD")
+                }
             }
         }
     }
