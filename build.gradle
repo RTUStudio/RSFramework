@@ -152,7 +152,7 @@ publishing {
             from components.java
 
             pom {
-                archivesBaseName = "rsframework-" + version
+                archivesBaseName = "rsframework-" + version + ".jar"
 
                 name.set("RSFramework")
                 description.set("Framework for RSPlugin")
