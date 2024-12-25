@@ -13,6 +13,7 @@ import kr.rtuserver.framework.bukkit.core.internal.listeners.InventoryListener;
 import kr.rtuserver.framework.bukkit.core.internal.listeners.JoinListener;
 import kr.rtuserver.framework.bukkit.core.internal.runnable.CommandLimit;
 import kr.rtuserver.framework.bukkit.core.modules.Modules;
+import kr.rtuserver.framework.bukkit.nms.v1_19_r2.NMS_1_19_R2;
 import kr.rtuserver.framework.bukkit.nms.v1_19_r3.NMS_1_19_R3;
 import kr.rtuserver.framework.bukkit.nms.v1_20_r1.NMS_1_20_R1;
 import kr.rtuserver.framework.bukkit.nms.v1_20_r2.NMS_1_20_R2;
@@ -111,6 +112,7 @@ public class Framework implements kr.rtuserver.framework.bukkit.api.core.Framewo
     private void loadNMS(RSPlugin plugin) {
         NMSVersion = MinecraftVersion.getNMS(MinecraftVersion.getAsText());
         switch (NMSVersion) {
+            case "v1_19_R2" -> NMS = new NMS_1_19_R2();
             case "v1_19_R3" -> NMS = new NMS_1_19_R3();
             case "v1_20_R1" -> NMS = new NMS_1_20_R1();
             case "v1_20_R2" -> NMS = new NMS_1_20_R2();
