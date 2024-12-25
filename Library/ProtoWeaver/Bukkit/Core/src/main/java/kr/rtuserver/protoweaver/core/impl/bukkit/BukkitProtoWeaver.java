@@ -11,6 +11,7 @@ import kr.rtuserver.protoweaver.api.netty.Sender;
 import kr.rtuserver.protoweaver.api.protocol.CompressionType;
 import kr.rtuserver.protoweaver.api.protocol.Packet;
 import kr.rtuserver.protoweaver.api.protocol.Protocol;
+import kr.rtuserver.protoweaver.api.protocol.internal.*;
 import kr.rtuserver.protoweaver.api.protocol.velocity.VelocityAuth;
 import kr.rtuserver.protoweaver.core.impl.bukkit.nms.v1_19_r3.ProtoWeaver_1_19_R3;
 import kr.rtuserver.protoweaver.core.impl.bukkit.nms.v1_20_r1.ProtoWeaver_1_20_R1;
