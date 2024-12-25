@@ -134,8 +134,7 @@ shadowJar {
 publishing {
     repositories {
         maven {
-            name = "codemc"
-            url = "https://repo.codemc.io/repository/maven-snapshots/"
+            url = "https://repo.codemc.io/repository/rtuserver/"
 
             credentials {
                 username = System.getenv("MAVEN_USERNAME")
