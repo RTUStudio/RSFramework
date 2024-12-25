@@ -138,9 +138,41 @@ publishing {
             url = "https://repo.codemc.io/repository/maven-snapshots/"
 
             credentials {
-                username = System.getenv("GRADLE_PROPERTY_MAVEN_USERNAME") ?: System.getenv("MAVEN_USERNAME")
-                password = System.getenv("GRADLE_PROPERTY_MAVEN_PASSWORD") ?: System.getenv("MAVEN_PASSWORD")
+                username = System.getenv("MAVEN_USERNAME")
+                password = System.getenv("MAVEN_PASSWORD")
             }
         }
     }
-}
+
+    publications {
+        mavenJava(MavenPublication) {
+            groupId = project.group
+            artifactId = "rsframework"
+            version = plugin_version
+
+            from components.java
+
+            pom {
+                name.set("RSFramework")
+                description.set("Framework for RSPlugin")
+                url.set("https://github.com/RTUServer/RSFramework")
+
+                licenses {
+                    license {
+                        name.set("GNU GENERAL PUBLIC LICENSE")
+                        url.set("https://www.gnu.org/licenses/gpl-3.0.de.html")
+                    }
+                }
+
+                developers {
+                    developer {
+                        id.set("ipecter")
+                        name.set("IPECTER")
+                        email.set("ipectert@gmail.com")
+                    }
+                }
+
+            }
+        }
+    }
+    }
