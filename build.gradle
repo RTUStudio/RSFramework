@@ -150,6 +150,7 @@ publishing {
             version = plugin_version
 
             from components.java
+            artifact shadowJar
         }
     }
 }
