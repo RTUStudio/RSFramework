@@ -52,47 +52,25 @@ shadowJar {
     }
 }
 
-//publishing {
-//    repositories {
-//        maven {
-//            url = "https://repo.codemc.io/repository/rtuserver/"
-//
-//            credentials {
-//                username = System.getenv("MAVEN_USERNAME")
-//                password = System.getenv("MAVEN_PASSWORD")
-//            }
-//        }
-//    }
-//
-//    publications {
-//        mavenJava(MavenPublication) {
-//            groupId = "kr.rtuserver"
-//            artifactId = "rsf-api"
-//            version = plugin_version
-//
-//            from components.java
-//
-//            pom {
-//                name.set("RSFramework")
-//                description.set("Framework for RSPlugin")
-//                url.set("https://github.com/RTUServer/RSFramework")
-//
-//                licenses {
-//                    license {
-//                        name.set("GNU GENERAL PUBLIC LICENSE")
-//                        url.set("https://www.gnu.org/licenses/gpl-3.0.de.html")
-//                    }
-//                }
-//
-//                developers {
-//                    developer {
-//                        id.set("ipecter")
-//                        name.set("IPECTER")
-//                        email.set("ipectert@gmail.com")
-//                    }
-//                }
-//            }
-//        }
-//    }
-//}
-//
+publishing {
+    repositories {
+        maven {
+            url = "https://repo.codemc.io/repository/rtuserver/"
+
+            credentials {
+                username = System.getenv("MAVEN_USERNAME")
+                password = System.getenv("MAVEN_PASSWORD")
+            }
+        }
+    }
+
+    publications {
+        mavenJava(MavenPublication) {
+            groupId = "kr.rtuserver"
+            artifactId = "framework-plugin"
+            version = plugin_version
+
+            from components.java
+        }
+    }
+}

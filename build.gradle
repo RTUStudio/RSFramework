@@ -146,31 +146,10 @@ publishing {
     publications {
         mavenJava(MavenPublication) {
             groupId = "kr.rtuserver"
-            artifactId = "rsframework"
+            artifactId = "framework-api"
             version = plugin_version
 
             from components.java
-
-            pom {
-                name.set("RSFramework")
-                description.set("Framework for RSPlugin")
-                url.set("https://github.com/RTUServer/RSFramework")
-
-                licenses {
-                    license {
-                        name.set("GNU GENERAL PUBLIC LICENSE")
-                        url.set("https://www.gnu.org/licenses/gpl-3.0.de.html")
-                    }
-                }
-
-                developers {
-                    developer {
-                        id.set("ipecter")
-                        name.set("IPECTER")
-                        email.set("ipectert@gmail.com")
-                    }
-                }
-            }
         }
     }
 }
