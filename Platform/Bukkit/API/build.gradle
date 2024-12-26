@@ -67,7 +67,7 @@ publishing {
     publications {
         api(MavenPublication) { publication ->
             groupId = "kr.rtuserver"
-            artifactId = "framework-plugin"
+            artifactId = "framework-api"
             version = plugin_version
 
             project.shadow.component(publication)
