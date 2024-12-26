@@ -152,6 +152,8 @@ publishing {
             from components.java
 
             pom {
+                archivesBaseName = "rsframework-" + version
+
                 name.set("RSFramework")
                 description.set("Framework for RSPlugin")
                 url.set("https://github.com/RTUServer/RSFramework")
