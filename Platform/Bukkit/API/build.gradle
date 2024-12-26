@@ -65,13 +65,12 @@ publishing {
     }
 
     publications {
-        mavenJava(MavenPublication) {
+        api(MavenPublication) { publication ->
             groupId = "kr.rtuserver"
             artifactId = "framework-plugin"
             version = plugin_version
 
-            from components.java
-            artifact shadowJar
+            project.shadow.component(publication)
         }
     }
 }
