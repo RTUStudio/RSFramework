@@ -67,14 +67,12 @@ publishing {
     publications {
         mavenJava(MavenPublication) {
             groupId = "kr.rtuserver"
-            artifactId = "framework"
+            artifactId = "rsf-api"
             version = plugin_version
 
             from components.java
 
             pom {
-                archivesBaseName = "rsf-api-" + version
-
                 name.set("RSFramework")
                 description.set("Framework for RSPlugin")
                 url.set("https://github.com/RTUServer/RSFramework")
