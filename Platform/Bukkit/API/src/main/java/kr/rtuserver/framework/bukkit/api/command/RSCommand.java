@@ -49,6 +49,11 @@ public abstract class RSCommand<T extends RSPlugin> extends Command {
         this.useReload = useReload;
     }
 
+    public Player getPlayer() {
+        if (sender instanceof Player player) return player;
+        return null;
+    }
+
     public boolean isOp() {
         return sender.isOp();
     }
