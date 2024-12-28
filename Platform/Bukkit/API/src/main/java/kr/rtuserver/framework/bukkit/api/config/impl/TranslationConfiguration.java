@@ -35,6 +35,7 @@ public class TranslationConfiguration {
     }
 
     public String get(CommandSender sender, String key) {
+        if (sender == null) return get(key);
         if (sender instanceof Player player) {
             return map.getOrDefault(player.getLocale(), map.get(defaultLocale)).get(key);
         }
