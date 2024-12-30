@@ -43,7 +43,7 @@ public class TranslationConfiguration {
     }
 
     public void reload() {
-        File[] files = FileResource.createFolder("Translations").listFiles();
+        File[] files = FileResource.createFolder(getPlugin().getDataFolder() + "/Translations").listFiles();
         if (files == null) return;
         Set<String> list = plugin.getLanguages();
         list.addAll(Arrays.stream(files).map(File::getName).toList());
