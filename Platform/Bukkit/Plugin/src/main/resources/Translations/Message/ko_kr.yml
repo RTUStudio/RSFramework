@@ -7,9 +7,10 @@ common:
   notFound:
     onlinePlayer: "<red>존재하지 않는 유저이거나 오프라인입니다</red>"
     offlinePlayer: "<red>존재하지 않는 유저입니다</red>"
-
-wrongUsage:
-  reload: "<gray> - </gray><white>/rsframework 구성</white>"
+  command:
+    reload:
+      description: "<gray>플러그인 구성을 다시 불러옵니다</gray>"
+      usage: "/rsf 구성"
 
 dataNameType:
   black: "<red>사용할 수 없는 이름입니다</red>"
@@ -24,5 +25,9 @@ error:
 
 command:
   broadcast:
-    prefix: "<white>[<red>공지</red>] </white>"
+    description: "<gray>공지 메세지를 전송합니다</gray>"
+    usage: "/rsf 공지"
     empty: "<red>메세지가 비어있습니다</red>"
+  information:
+    description: "<gray>서버의 소프트웨어 정보를 확인합니다</gray>"
+    usage: "/rsf 정보"

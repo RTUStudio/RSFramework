@@ -8,6 +8,7 @@ import kr.rtuserver.framework.bukkit.api.utility.format.ComponentFormatter;
 import kr.rtuserver.framework.bukkit.api.utility.platform.MinecraftVersion;
 import kr.rtuserver.framework.bukkit.api.utility.platform.SystemEnvironment;
 import kr.rtuserver.framework.bukkit.api.utility.player.PlayerChat;
+import kr.rtuserver.framework.bukkit.core.command.ReloadCommand;
 import kr.rtuserver.framework.bukkit.core.config.CommonTranslation;
 import kr.rtuserver.framework.bukkit.core.internal.listeners.InventoryListener;
 import kr.rtuserver.framework.bukkit.core.internal.listeners.JoinListener;
@@ -171,11 +172,12 @@ public class Framework implements kr.rtuserver.framework.bukkit.api.core.Framewo
             plugin.getAdventure().console().sendMessage(ComponentFormatter.mini("<gradient:#2979FF:#7C4DFF>" + message + "</gradient>"));
     }
 
-    public void registerEvent(RSListener listener) {
+    public void registerEvent(RSListener<? extends RSPlugin> listener) {
         Bukkit.getPluginManager().registerEvents(listener, listener.getPlugin());
     }
 
-    public void registerCommand(RSCommand command) {
+    public void registerCommand(RSCommand<? extends RSPlugin> command, boolean reload) {
+        if (reload) command.registerCommand(new ReloadCommand(command.getPlugin()));
         NMS.commandMap().register(command.getName(), command);
     }
 

@@ -50,9 +50,9 @@ public interface Framework {
 
     void disable(RSPlugin plugin);
 
-    void registerEvent(RSListener listener);
+    void registerEvent(RSListener<? extends RSPlugin> listener);
 
-    void registerCommand(RSCommand command);
+    void registerCommand(RSCommand<? extends RSPlugin> command, boolean reload);
 
     void registerPermission(String name, PermissionDefault permissionDefault);
 

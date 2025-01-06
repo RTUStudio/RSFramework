@@ -6,7 +6,6 @@ import kr.rtuserver.framework.bukkit.core.listeners.*;
 import kr.rtuserver.framework.bukkit.plugin.commands.FrameworkCommand;
 import lombok.Getter;
 import org.bukkit.Bukkit;
-import org.bukkit.permissions.PermissionDefault;
 import org.bukkit.plugin.Plugin;
 
 import java.util.ArrayList;
@@ -69,13 +68,9 @@ public class RSFramework extends RSPlugin {
     protected void enable() {
         getFramework().enable(this);
 
-        registerPermission(getName() + ".motd", PermissionDefault.OP);
-        registerPermission(getName() + ".broadcast", PermissionDefault.OP);
-        registerPermission(getName() + ".information", PermissionDefault.OP);
-
         pluginItemListener();
 
-        registerCommand(new FrameworkCommand(this));
+        registerCommand(new FrameworkCommand(this), true);
     }
 
     private void pluginItemListener() {

@@ -1,5 +1,6 @@
 package kr.rtuserver.framework.bukkit.api.config.impl;
 
+import com.google.common.io.Files;
 import kr.rtuserver.cdi.LightDI;
 import kr.rtuserver.framework.bukkit.api.RSPlugin;
 import kr.rtuserver.framework.bukkit.api.core.Framework;
@@ -7,6 +8,7 @@ import kr.rtuserver.framework.bukkit.api.utility.platform.FileResource;
 import lombok.Getter;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.util.Arrays;
@@ -34,6 +36,7 @@ public class TranslationConfiguration {
         return map.get(defaultLocale).get(key);
     }
 
+    @NotNull
     public String get(CommandSender sender, String key) {
         if (sender == null) return get(key);
         if (sender instanceof Player player) {
@@ -43,11 +46,11 @@ public class TranslationConfiguration {
     }
 
     public void reload() {
-        File[] files = FileResource.createFolder(getPlugin().getDataFolder() + "/Translations").listFiles();
+        File[] files = FileResource.createFolder(getPlugin().getDataFolder() + "/Translations/" + folder).listFiles();
         if (files == null) return;
         Set<String> list = plugin.getLanguages();
         list.addAll(Arrays.stream(files).map(File::getName).toList());
         list.add(defaultLocale);
-        for (String file : list) map.put(file, new Translation(plugin, folder, file));
+        for (String file : list) map.put(file, new Translation(plugin, folder, Files.getNameWithoutExtension(file)));
     }
 }

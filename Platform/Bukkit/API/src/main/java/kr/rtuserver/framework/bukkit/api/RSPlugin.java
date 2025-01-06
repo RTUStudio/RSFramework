@@ -72,7 +72,7 @@ public abstract class RSPlugin extends JavaPlugin {
         for (String plugin : this.getDescription().getSoftDepend()) framework.hookDependency(plugin);
         configurations = new Configurations(this);
         enable();
-        console("<green>활성화!</green>");
+        console("<green>Enable!</green>");
         framework.loadPlugin(this);
     }
 
@@ -81,7 +81,7 @@ public abstract class RSPlugin extends JavaPlugin {
         disable();
         if (storage != null) storage.close();
         framework.unloadPlugin(this);
-        console("<red>비활성화!</red>");
+        console("<red>Disable!</red>");
         if (adventure != null) {
             adventure.close();
             adventure = null;
@@ -111,7 +111,7 @@ public abstract class RSPlugin extends JavaPlugin {
         getAdventure().console().sendMessage(getPrefix().append(ComponentFormatter.mini(minimessage)));
     }
 
-    public void registerEvent(RSListener listener) {
+    public void registerEvent(RSListener<? extends RSPlugin> listener) {
         this.registeredListeners.add(listener);
         Bukkit.getPluginManager().registerEvents(listener, this);
     }
@@ -129,8 +129,12 @@ public abstract class RSPlugin extends JavaPlugin {
         }
     }
 
-    public void registerCommand(RSCommand command) {
-        framework.registerCommand(command);
+    public void registerCommand(RSCommand<? extends RSPlugin> command) {
+        registerCommand(command, false);
+    }
+
+    public void registerCommand(RSCommand<? extends RSPlugin> command, boolean reload) {
+        framework.registerCommand(command, reload);
     }
 
     public void registerPermission(String name, PermissionDefault permissionDefault) {
