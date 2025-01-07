@@ -7,10 +7,6 @@ common:
   notFound:
     onlinePlayer: "<red>존재하지 않는 유저이거나 오프라인입니다</red>"
     offlinePlayer: "<red>존재하지 않는 유저입니다</red>"
-  command:
-    reload:
-      description: "<gray>플러그인 구성을 다시 불러옵니다</gray>"
-      usage: "/rsf 구성"
 
 dataNameType:
   black: "<red>사용할 수 없는 이름입니다</red>"
@@ -23,11 +19,5 @@ error:
   inventory: "<red>인벤토리 클릭 이벤트를 사용하는 코드에서 결함이 발견되었습니다!</red>"
   cooldown: "<red>너무 빠릅니다! 잠시 뒤에 시도해야합니다</red>"
 
-command:
-  broadcast:
-    description: "<gray>공지 메세지를 전송합니다</gray>"
-    usage: "/rsf 공지"
-    empty: "<red>메세지가 비어있습니다</red>"
-  information:
-    description: "<gray>서버의 소프트웨어 정보를 확인합니다</gray>"
-    usage: "/rsf 정보"
+broadcast:
+  empty: "<red>메세지가 비어있습니다</red>"

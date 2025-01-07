@@ -7,7 +7,9 @@ import kr.rtuserver.framework.bukkit.api.core.Framework;
 import kr.rtuserver.framework.bukkit.api.core.config.CommonTranslation;
 import kr.rtuserver.framework.bukkit.api.core.modules.ThemeModule;
 import kr.rtuserver.framework.bukkit.api.utility.player.PlayerChat;
+import lombok.AccessLevel;
 import lombok.Getter;
+import lombok.Setter;
 import lombok.ToString;
 import net.kyori.adventure.audience.Audience;
 import org.bukkit.Bukkit;
@@ -34,6 +36,9 @@ public abstract class RSCommand<T extends RSPlugin> extends Command {
     private final Map<String, RSCommand<? extends RSPlugin>> commands = new HashMap<>();
     private CommandSender sender;
     private Audience audience;
+
+    @Setter(AccessLevel.PRIVATE)
+    private RSCommand<? extends RSPlugin> parent = null;
 
     public RSCommand(T plugin, @NotNull String name) {
         this(plugin, List.of(name), PermissionDefault.TRUE);
@@ -113,7 +118,7 @@ public abstract class RSCommand<T extends RSPlugin> extends Command {
             RSCommand<? extends RSPlugin> cmd = list.get(i);
             if (!hasPermission(cmd.getPermission())) continue;
             String usage = cmd.getLocalizedUsage(getPlayer());
-            if (usage.isEmpty()) continue;
+            if (usage.isEmpty()) usage = "/" + cmd.getLocalizedCommand(getPlayer());
             if (i > 0) builder.append("\n");
             String description = cmd.getLocalizedDescription(getPlayer());
 
@@ -126,6 +131,7 @@ public abstract class RSCommand<T extends RSPlugin> extends Command {
     }
 
     public void registerCommand(RSCommand<? extends RSPlugin> command) {
+        command.setParent(this);
         commands.put(command.getName(), command);
     }
 
@@ -138,27 +144,32 @@ public abstract class RSCommand<T extends RSPlugin> extends Command {
     }
 
     protected String getLocalizedName(Player player) {
-        return getCommand().get(player, getName());
+        return getCommand().get(player, getName() + ".name");
     }
 
     protected String getLocalizedDescription(Player player) {
-        return getMessage().get(player, getDescription());
+        return getCommand().get(player, getDescription());
     }
 
     protected String getLocalizedUsage(Player player) {
-        return getMessage().get(player, getUsage());
+        return getCommand().get(player, getUsage());
+    }
+
+    private String getLocalizedCommand(Player player) {
+        if (parent == null) return getName();
+        else return parent.getLocalizedCommand(player) + " " + getLocalizedName(player);
     }
 
     @NotNull
     @Override
     public String getDescription() {
-        return "command." + getName() + ".description";
+        return getName() + ".description";
     }
 
     @NotNull
     @Override
     public String getUsage() {
-        return "command." + getName() + ".usage";
+        return getName() + ".usage";
     }
 
     @Override

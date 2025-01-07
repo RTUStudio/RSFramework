@@ -7,10 +7,6 @@ common:
   notFound:
     onlinePLayer: "<red>This player does not exist or offline</red>"
     offlinePlayer: "<red>This player does not exist</red>"
-  command:
-    reload:
-      description: "<gray>Reloading plugin configuration</gray>"
-      usage: "/rsf reload"
 
 dataNameType:
   black: "<red>You can't use this name</red>"
@@ -23,11 +19,5 @@ error:
   inventory: "<red>Flaw was found in code using inventory click event!</red>"
   cooldown: "<red>Too Quickly! You must try again later</red>"
 
-command:
-  broadcast:
-    description: "<gray>Send broadcast message</gray>"
-    usage: "/rsf broadcast"
-    empty: "<red>Message is empty</red>"
-  information:
-    description: "<gray>Check software information of server</gray>"
-    usage: "/rsf info"
+broadcast:
+  empty: "<red>Message is empty</red>"
