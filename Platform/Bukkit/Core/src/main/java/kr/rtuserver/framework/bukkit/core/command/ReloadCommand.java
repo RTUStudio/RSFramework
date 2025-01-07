@@ -20,16 +20,14 @@ public class ReloadCommand extends RSCommand<RSPlugin> {
         return true;
     }
 
-    @NotNull
     @Override
-    public String getDescription() {
-        return "common." + getName() + ".description";
+    protected String getLocalizedDescription(Player player) {
+        return getCommon().getCommand(player, getDescription());
     }
 
-    @NotNull
     @Override
-    public String getUsage() {
-        return "common." + getName() + ".usage";
+    protected String getLocalizedUsage(Player player) {
+        return getCommon().getCommand(player, getUsage());
     }
 
     @Override
