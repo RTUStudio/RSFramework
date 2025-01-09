@@ -40,7 +40,7 @@ shadowJar {
 
     exclude "META-INF/**"
     exclude "classpath.index"
-    relocate "org.simpleyaml", "kr.rtuserver.framework.bukkit.api.utility.simpleyaml"
+    relocate "org.simpleyaml", "kr.rtuserver.yaml"
     relocate "net.kyori.adventure.platform.bukkit", "kr.rtuserver.framework.bukkit.api.utility.kyori"
     relocate "io.papermc.lib", "kr.rtuserver.framework.bukkit.api.utility.paper"
     relocate "de.tr7zw.changeme.nbtapi", "kr.rtuserver.framework.bukkit.api.utility.nbtapi"
