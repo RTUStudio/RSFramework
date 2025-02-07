@@ -1,14 +1,19 @@
-package kr.rtuserver.framework.bukkit.api.utility.scheduler;
+package kr.rtuserver.framework.bukkit.api.scheduler;
 
 import lombok.AccessLevel;
-import lombok.NoArgsConstructor;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.scheduler.BukkitTask;
 import org.jetbrains.annotations.NotNull;
 
-@NoArgsConstructor(access = AccessLevel.PRIVATE)
-public class CraftScheduler {
+@Getter
+@RequiredArgsConstructor(access = AccessLevel.PRIVATE)
+public class BukkitScheduler implements RSScheduler {
+
+    private final BukkitTask task;
+
     /**
      * Returns a task that will run on the next server tick.
      *
@@ -19,8 +24,8 @@ public class CraftScheduler {
      * @throws IllegalArgumentException if task is null
      */
     @NotNull
-    public static BukkitTask run(@NotNull Plugin plugin, @NotNull Runnable task) {
-        return Bukkit.getScheduler().runTask(plugin, task);
+    public static BukkitScheduler run(@NotNull Plugin plugin, @NotNull Runnable task) {
+        return new BukkitScheduler(Bukkit.getScheduler().runTask(plugin, task));
     }
 
     /**
@@ -36,8 +41,8 @@ public class CraftScheduler {
      * @throws IllegalArgumentException if task is null
      */
     @NotNull
-    public static BukkitTask runAsync(@NotNull Plugin plugin, @NotNull Runnable task) {
-        return Bukkit.getScheduler().runTaskAsynchronously(plugin, task);
+    public static BukkitScheduler runAsync(@NotNull Plugin plugin, @NotNull Runnable task) {
+        return new BukkitScheduler(Bukkit.getScheduler().runTaskAsynchronously(plugin, task));
     }
 
     /**
@@ -52,8 +57,8 @@ public class CraftScheduler {
      * @throws IllegalArgumentException if task is null
      */
     @NotNull
-    public static BukkitTask runLater(@NotNull Plugin plugin, @NotNull Runnable task, long delay) {
-        return Bukkit.getScheduler().runTaskLater(plugin, task, delay);
+    public static BukkitScheduler runLater(@NotNull Plugin plugin, @NotNull Runnable task, long delay) {
+        return new BukkitScheduler(Bukkit.getScheduler().runTaskLater(plugin, task, delay));
     }
 
     /**
@@ -71,8 +76,8 @@ public class CraftScheduler {
      * @throws IllegalArgumentException if task is null
      */
     @NotNull
-    public static BukkitTask runLaterAsync(@NotNull Plugin plugin, @NotNull Runnable task, long delay) {
-        return Bukkit.getScheduler().runTaskLaterAsynchronously(plugin, task, delay);
+    public static BukkitScheduler runLaterAsync(@NotNull Plugin plugin, @NotNull Runnable task, long delay) {
+        return new BukkitScheduler(Bukkit.getScheduler().runTaskLaterAsynchronously(plugin, task, delay));
     }
 
     /**
@@ -88,8 +93,8 @@ public class CraftScheduler {
      * @throws IllegalArgumentException if task is null
      */
     @NotNull
-    public static BukkitTask runTimer(@NotNull Plugin plugin, @NotNull Runnable task, long delay, long period) {
-        return Bukkit.getScheduler().runTaskTimer(plugin, task, delay, period);
+    public static BukkitScheduler runTimer(@NotNull Plugin plugin, @NotNull Runnable task, long delay, long period) {
+        return new BukkitScheduler(Bukkit.getScheduler().runTaskTimer(plugin, task, delay, period));
     }
 
     /**
@@ -109,7 +114,18 @@ public class CraftScheduler {
      * @throws IllegalArgumentException if task is null
      */
     @NotNull
-    public static BukkitTask runTimerAsync(@NotNull Plugin plugin, @NotNull Runnable task, long delay, long period) {
-        return Bukkit.getScheduler().runTaskTimerAsynchronously(plugin, task, delay, period);
+    public static BukkitScheduler runTimerAsync(@NotNull Plugin plugin, @NotNull Runnable task, long delay, long period) {
+        return new BukkitScheduler(Bukkit.getScheduler().runTaskTimerAsynchronously(plugin, task, delay, period));
+    }
+
+    @Override
+    public boolean cancel() {
+        this.task.cancel();
+        return true;
+    }
+
+    @Override
+    public boolean isCancelled() {
+        return this.task.isCancelled();
     }
 }

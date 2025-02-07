@@ -155,16 +155,17 @@ public class Framework implements kr.rtuserver.framework.bukkit.api.core.Framewo
 
     private void printStartUp(RSPlugin plugin) {
         List<String> list = List.of(
-                "╔ <gray>Developed by</gray> ════════════════════════════════════════════════════════════════════════════╗",
-                "║ ░█▀▄░█░█░▀█▀░█▀█░█▀▀░█▀▄░░░▀█▀░█▀▀░█▀▀░█░█░█▀█░█▀█░█░░░█▀█░█▀▀░█░█░░░█░█░█▀█░▀█▀░█▀▀░█░█ ║",
-                "║ ░█▀▄░█░█░░█░░█░█░█▀▀░█░█░░░░█░░█▀▀░█░░░█▀█░█░█░█░█░█░░░█░█░█░█░░█░░░░█░█░█░█░░█░░█▀▀░░█░ ║",
-                "║ ░▀░▀░▀▀▀░▀▀▀░▀░▀░▀▀▀░▀▀░░░░░▀░░▀▀▀░▀▀▀░▀░▀░▀░▀░▀▀▀░▀▀▀░▀▀▀░▀▀▀░░▀░░░░▀▀▀░▀░▀░▀▀▀░▀░░░░▀░ ║",
-                "╚══════════════════════════════════════════════════════════════════════════════════════════╝"
+                "╔ <gray>Developed by</gray> ════════════════════════════════════╗",
+                "║ ░█▀▄░░▀█▀░░█░█░░░░░█▀▀░░▀█▀░░█░█░░█▀▄░░▀█▀░░█▀█░ ║",
+                "║ ░█▀▄░░░█░░░█░█░░░░░▀▀█░░░█░░░█░█░░█░█░░░█░░░█░█░ ║",
+                "║ ░▀░▀░░░▀░░░▀▀▀░░░░░▀▀▀░░░▀░░░▀▀▀░░▀▀░░░▀▀▀░░▀▀▀░ ║",
+                "╚══════════════════════════════════════════════════╝"
         );
         plugin.getAdventure().console().sendMessage(ComponentFormatter.mini(
-                "RSFramework | Version: %s | Bukkit: %s | NMS: %s | OS: %s | JDK: %s"
-                        .formatted(plugin.getDescription().getVersion()
-                                , Bukkit.getName() + "-" + MinecraftVersion.getAsText()
+                "RSFramework | Version: %s".formatted(plugin.getDescription().getVersion())));
+        plugin.getAdventure().console().sendMessage(ComponentFormatter.mini(
+                "Bukkit: %s | NMS: %s | OS: %s | JDK: %s"
+                        .formatted(Bukkit.getName() + "-" + MinecraftVersion.getAsText()
                                 , NMSVersion
                                 , SystemEnvironment.getOS()
                                 , SystemEnvironment.getJDKVersion())));

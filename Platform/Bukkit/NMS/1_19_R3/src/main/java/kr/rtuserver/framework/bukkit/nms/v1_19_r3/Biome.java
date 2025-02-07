@@ -25,17 +25,17 @@ public class Biome implements NMSBiome {
     private final Registry<net.minecraft.world.level.biome.Biome> registry = dedicatedServer.registries().compositeAccess().registryOrThrow(resourceKey);
 
     @Override
-    public String getBiomeKey(Location location) {
+    public String getName(Location location) {
         return getResourceLocation(getNMSBiome(location)).toString();
     }
 
     @Override
-    public List<String> getBiomesAsString() {
+    public List<String> getList() {
         return registry.keySet().stream().map(ResourceLocation::toString).collect(Collectors.toList());
     }
 
     @Override
-    public List<String> getBiomeTag(String tag) {
+    public List<String> getTag(String tag) {
         Optional<HolderSet.Named<net.minecraft.world.level.biome.Biome>> holders = registry.getTag(TagKey.create(resourceKey, new ResourceLocation(tag)));
         return holders.map(biomeNamed -> biomeNamed.stream().map(biomeBaseHolder -> getResourceLocation(biomeBaseHolder.value()).toString()).collect(Collectors.toList())).orElseGet(List::of);
     }

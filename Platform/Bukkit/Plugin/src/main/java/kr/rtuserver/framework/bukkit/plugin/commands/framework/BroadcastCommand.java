@@ -4,7 +4,6 @@ import kr.rtuserver.framework.bukkit.api.command.RSCommand;
 import kr.rtuserver.framework.bukkit.api.command.RSCommandData;
 import kr.rtuserver.framework.bukkit.api.utility.format.ComponentFormatter;
 import kr.rtuserver.framework.bukkit.plugin.RSFramework;
-import org.bukkit.Bukkit;
 import org.bukkit.permissions.PermissionDefault;
 
 public class BroadcastCommand extends RSCommand<RSFramework> {

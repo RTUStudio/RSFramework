@@ -5,7 +5,6 @@ import kr.rtuserver.framework.bukkit.api.command.RSCommand;
 import kr.rtuserver.framework.bukkit.api.command.RSCommandData;
 import org.bukkit.entity.Player;
 import org.bukkit.permissions.PermissionDefault;
-import org.jetbrains.annotations.NotNull;
 
 public class ReloadCommand extends RSCommand<RSPlugin> {
 
