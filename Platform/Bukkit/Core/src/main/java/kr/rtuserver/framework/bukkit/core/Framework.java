@@ -162,9 +162,7 @@ public class Framework implements kr.rtuserver.framework.bukkit.api.core.Framewo
                 "╚══════════════════════════════════════════════════╝"
         );
         plugin.getAdventure().console().sendMessage(ComponentFormatter.mini(
-                "RSFramework | Version: %s".formatted(plugin.getDescription().getVersion())));
-        plugin.getAdventure().console().sendMessage(ComponentFormatter.mini(
-                "Bukkit: %s | NMS: %s | OS: %s | JDK: %s"
+                "%s | NMS %s | %s | JDK %s"
                         .formatted(Bukkit.getName() + "-" + MinecraftVersion.getAsText()
                                 , NMSVersion
                                 , SystemEnvironment.getOS()
