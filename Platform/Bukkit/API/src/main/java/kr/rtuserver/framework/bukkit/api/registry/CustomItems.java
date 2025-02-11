@@ -1,4 +1,4 @@
-package kr.rtuserver.framework.bukkit.api.utility.compatible;
+package kr.rtuserver.framework.bukkit.api.registry;
 
 import com.nexomc.nexo.api.NexoItems;
 import de.tr7zw.changeme.nbtapi.NBT;
@@ -27,7 +27,7 @@ import java.io.IOException;
 import java.util.Base64;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
-public class ItemCompat {
+public class CustomItems {
 
     static Framework framework;
 
@@ -40,8 +40,7 @@ public class ItemCompat {
     public static ItemStack from(@NotNull String namespacedID) {
         if (namespacedID.isEmpty()) return null;
         String[] split = namespacedID.split(":");
-        String platform = split[0].toLowerCase();
-        switch (platform) {
+        switch (split[0].toLowerCase()) {
             case "nexo" -> {
                 if (split.length != 2) return null;
                 if (framework().isEnabledDependency("Nexo")) {
@@ -102,15 +101,16 @@ public class ItemCompat {
             if (itemsAdder != null) return "itemsadder:" + itemsAdder.getNamespacedID();
         }
         if (framework().isEnabledDependency("MMOItems")) {
-            String id = MMOItems.getID(itemStack);
             String type = MMOItems.getTypeName(itemStack);
-            if (id != null && type != null) return "mmoitems:" + id + ":" + type;
+            String id = MMOItems.getID(itemStack);
+            if (id != null && type != null) return "mmoitems:" + type + ":" + id;
         }
-        String result = itemStack.getType().getKey().asString();
+        String result = itemStack.getType().getKey().toString();
         ItemMeta itemMeta = itemStack.getItemMeta();
         if (itemMeta == null) return result;
-        if (!itemMeta.hasCustomModelData()) return result;
-        return "custom:" + itemStack.getType().toString().toLowerCase() + itemMeta.getCustomModelData();
+        if (itemMeta.hasCustomModelData()) {
+            return "custom:" + itemStack.getType().toString().toLowerCase() + itemMeta.getCustomModelData();
+        } else return result;
     }
 
     public static boolean isSimilar(ItemStack stack1, ItemStack stack2) {

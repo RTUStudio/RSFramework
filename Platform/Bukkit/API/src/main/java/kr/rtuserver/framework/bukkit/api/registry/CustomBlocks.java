@@ -1,9 +1,8 @@
-package kr.rtuserver.framework.bukkit.api.utility.compatible;
+package kr.rtuserver.framework.bukkit.api.registry;
 
 import com.nexomc.nexo.api.NexoBlocks;
 import dev.lone.itemsadder.api.CustomBlock;
 import io.th0rgal.oraxen.api.OraxenBlocks;
-import io.th0rgal.oraxen.mechanics.Mechanic;
 import kr.rtuserver.cdi.LightDI;
 import kr.rtuserver.framework.bukkit.api.core.Framework;
 import lombok.AccessLevel;
@@ -16,9 +15,8 @@ import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nullable;
 
-// Supported Plugins: ItemsAdder, Oraxen
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
-public class BlockCompat {
+public class CustomBlocks {
 
     static Framework framework;
 
@@ -31,8 +29,7 @@ public class BlockCompat {
     public static BlockData from(@NotNull String namespacedID) {
         if (namespacedID.isEmpty()) return null;
         String[] split = namespacedID.split(":");
-        String platform = split[0].toLowerCase();
-        switch (platform) {
+        switch (split[0].toLowerCase()) {
             case "nexo" -> {
                 if (framework().isEnabledDependency("Nexo")) {
                     return NexoBlocks.blockData(split[1]);
@@ -50,7 +47,6 @@ public class BlockCompat {
                 } else return null;
             }
             default -> {
-                if (namespacedID.isEmpty()) return null;
                 Material material = Material.matchMaterial(namespacedID.toLowerCase());
                 return material != null ? material.createBlockData() : null;
             }
@@ -60,27 +56,24 @@ public class BlockCompat {
     @NotNull
     public static String to(@NotNull Block block) {
         if (framework().isEnabledDependency("Nexo")) {
-            if (NexoBlocks.isCustomBlock(block))
-                return "nexo:" + NexoBlocks.customBlockMechanic(block.getBlockData()).getItemID();
+            com.nexomc.nexo.mechanics.Mechanic mechanic = NexoBlocks.customBlockMechanic(block.getBlockData());
+            if (mechanic != null) return "nexo:" + mechanic.getItemID();
         }
         if (framework().isEnabledDependency("Oraxen")) {
-            Mechanic oraxen = OraxenBlocks.getOraxenBlock(block.getBlockData());
-            if (oraxen != null)
-                return "oraxen:" + oraxen.getItemID();
+            io.th0rgal.oraxen.mechanics.Mechanic mechanic = OraxenBlocks.getOraxenBlock(block.getBlockData());
+            if (mechanic != null) return "oraxen:" + mechanic.getItemID();
         }
         if (framework().isEnabledDependency("ItemsAdder")) {
             CustomBlock itemsAdder = CustomBlock.byAlreadyPlaced(block);
-            if (itemsAdder != null)
-                return "itemsadder:" + itemsAdder.getNamespacedID();
+            if (itemsAdder != null) return "itemsadder:" + itemsAdder.getNamespacedID();
         }
-        return block.getBlockData().getMaterial().getKey().asString();
+        return block.getBlockData().getMaterial().getKey().toString();
     }
 
     public static boolean place(@NotNull Location location, @NotNull String namespacedID) {
         if (namespacedID.isEmpty()) return false;
         String[] split = namespacedID.split(":");
-        String platform = split[0].toLowerCase();
-        switch (platform) {
+        switch (split[0].toLowerCase()) {
             case "nexo" -> {
                 if (framework().isEnabledDependency("Nexo")) {
                     if (NexoBlocks.isCustomBlock(split[1])) NexoBlocks.place(split[1], location);

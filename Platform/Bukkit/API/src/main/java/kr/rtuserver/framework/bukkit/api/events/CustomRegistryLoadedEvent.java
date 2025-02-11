@@ -6,13 +6,13 @@ import org.bukkit.event.HandlerList;
 import org.jetbrains.annotations.NotNull;
 
 @Getter
-public class PluginItemsLoadedEvent extends Event {
+public class CustomRegistryLoadedEvent extends Event {
 
     private static final HandlerList HANDLERS = new HandlerList();
-    private final Plugin plugin;
+    private final Type type;
 
-    public PluginItemsLoadedEvent(Plugin plugin) {
-        this.plugin = plugin;
+    public CustomRegistryLoadedEvent(Type type) {
+        this.type = type;
     }
 
     public static HandlerList getHandlerList() {
@@ -24,12 +24,12 @@ public class PluginItemsLoadedEvent extends Event {
         return getHandlerList();
     }
 
-    public enum Plugin {
-        ITEMSADDER,
-        ORAXEN,
-        NEXO,
-        MMOITEMS,
-        VANILLA
+    public enum Type {
+        ItemsAdder,
+        Oraxen,
+        Nexo,
+        MMOItems,
+        Vanilla
     }
 
 

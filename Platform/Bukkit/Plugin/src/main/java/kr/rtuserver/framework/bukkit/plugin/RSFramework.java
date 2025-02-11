@@ -80,9 +80,9 @@ public class RSFramework extends RSPlugin {
         boolean Nexo = getFramework().isEnabledDependency("Nexo");
         if (ItemsAdder) registerEvent(new ItemsAdderLoaded(this));
         if (MMOItems) registerEvent(new MMOItemsLoaded(this));
-        if (Oraxen) registerEvent(new NexoLoaded(this));
-        if (Nexo) registerEvent(new OraxenLoaded(this));
-        if (!(ItemsAdder || MMOItems || Oraxen || Nexo)) registerEvent(new VanillaServerLoaded(this));
+        if (Oraxen) registerEvent(new OraxenLoaded(this));
+        if (Nexo) registerEvent(new NexoLoaded(this));
+        if (!(ItemsAdder || MMOItems || Oraxen || Nexo)) registerEvent(new ServerLoaded(this));
     }
 
     @Override
