@@ -1,1 +1,5 @@
-// 1.19.4+
+package org.bukkit.entity;
+
+public class ItemDisplay {
+    // 1.19.4+
+}
