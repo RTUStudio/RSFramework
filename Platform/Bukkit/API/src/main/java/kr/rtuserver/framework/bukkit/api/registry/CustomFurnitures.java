@@ -1,6 +1,7 @@
 package kr.rtuserver.framework.bukkit.api.registry;
 
 import com.nexomc.nexo.api.NexoFurniture;
+import com.nexomc.nexo.mechanics.Mechanic;
 import dev.lone.itemsadder.api.CustomFurniture;
 import io.th0rgal.oraxen.api.OraxenFurniture;
 import kr.rtuserver.cdi.LightDI;
@@ -29,12 +30,10 @@ public class CustomFurnitures {
     @Nullable
     public static String to(@NotNull Entity entity) {
         if (framework().isEnabledDependency("Nexo")) {
-            com.nexomc.nexo.mechanics.Mechanic mechanic = NexoFurniture.furnitureMechanic(entity);
-            if (mechanic != null) return "nexo:" + mechanic.getItemID();
+            if (NexoFurniture.isFurniture(entity)) return "nexo:" + NexoFurniture.furnitureMechanic(entity).getItemID();
         }
         if (framework().isEnabledDependency("Oraxen")) {
-            io.th0rgal.oraxen.mechanics.Mechanic mechanic = OraxenFurniture.getFurnitureMechanic(entity);
-            if (mechanic != null) return "oraxen:" + mechanic.getItemID();
+            if (OraxenFurniture.isFurniture(entity)) return "oraxen:" + OraxenFurniture.getFurnitureMechanic(entity).getItemID();
         }
         if (framework().isEnabledDependency("ItemsAdder")) {
             CustomFurniture furniture = CustomFurniture.byAlreadySpawned(entity);
@@ -46,12 +45,10 @@ public class CustomFurnitures {
     @Nullable
     public static String to(@NotNull Block block) {
         if (framework().isEnabledDependency("Nexo")) {
-            com.nexomc.nexo.mechanics.Mechanic mechanic = NexoFurniture.furnitureMechanic(block);
-            if (mechanic != null) return "nexo:" + mechanic.getItemID();
+            if (NexoFurniture.isFurniture(block.getLocation())) return "nexo:" + NexoFurniture.furnitureMechanic(block.getLocation()).getItemID();
         }
         if (framework().isEnabledDependency("Oraxen")) {
-            io.th0rgal.oraxen.mechanics.Mechanic mechanic = OraxenFurniture.getFurnitureMechanic(block);
-            if (mechanic != null) return "oraxen:" + mechanic.getItemID();
+            if (OraxenFurniture.isFurniture(block)) return "oraxen:" + OraxenFurniture.getFurnitureMechanic(block).getItemID();
         }
         if (framework().isEnabledDependency("ItemsAdder")) {
             CustomFurniture furniture = CustomFurniture.byAlreadySpawned(block);
@@ -63,12 +60,10 @@ public class CustomFurnitures {
     @Nullable
     public static String to(@NotNull Location location) {
         if (framework().isEnabledDependency("Nexo")) {
-            com.nexomc.nexo.mechanics.Mechanic mechanic = NexoFurniture.furnitureMechanic(location);
-            if (mechanic != null) return "nexo:" + mechanic.getItemID();
+            if (NexoFurniture.isFurniture(location)) return "nexo:" + NexoFurniture.furnitureMechanic(location).getItemID();
         }
         if (framework().isEnabledDependency("Oraxen")) {
-            io.th0rgal.oraxen.mechanics.Mechanic mechanic = OraxenFurniture.getFurnitureMechanic(location.getBlock());
-            if (mechanic != null) return "oraxen:" + mechanic.getItemID();
+            if (OraxenFurniture.isFurniture(location.getBlock())) return "oraxen:" + OraxenFurniture.getFurnitureMechanic(location.getBlock()).getItemID();
         }
         if (framework().isEnabledDependency("ItemsAdder")) {
             CustomFurniture furniture = CustomFurniture.byAlreadySpawned(location.getBlock());
