@@ -53,19 +53,19 @@ public class CustomBlocks {
         }
     }
 
-    @NotNull
+    @Nullable
     public static String to(@NotNull Block block) {
         if (framework().isEnabledDependency("Nexo")) {
-            com.nexomc.nexo.mechanics.Mechanic mechanic = NexoBlocks.customBlockMechanic(block.getBlockData());
-            if (mechanic != null) return "nexo:" + mechanic.getItemID();
+            if (NexoBlocks.isCustomBlock(block))
+                return "nexo:" + NexoBlocks.chorusBlockMechanic(block).getItemID();
         }
         if (framework().isEnabledDependency("Oraxen")) {
-            io.th0rgal.oraxen.mechanics.Mechanic mechanic = OraxenBlocks.getOraxenBlock(block.getBlockData());
-            if (mechanic != null) return "oraxen:" + mechanic.getItemID();
+            if (OraxenBlocks.isOraxenBlock(block))
+                return "oraxen:" + OraxenBlocks.getBlockMechanic(block).getItemID();
         }
         if (framework().isEnabledDependency("ItemsAdder")) {
-            CustomBlock itemsAdder = CustomBlock.byAlreadyPlaced(block);
-            if (itemsAdder != null) return "itemsadder:" + itemsAdder.getNamespacedID();
+            CustomBlock customBlock = CustomBlock.byAlreadyPlaced(block);
+            if (customBlock != null) return "itemsadder:" + customBlock.getNamespacedID();
         }
         return block.getBlockData().getMaterial().getKey().toString();
     }
