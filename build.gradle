@@ -67,6 +67,9 @@ allprojects {
         maven {
             url = "https://repo.nexomc.com/snapshots/"
         }
+        maven {
+            url = "https://repo.auxilor.io/repository/maven-public/"
+        }
     }
 
     dependencies {

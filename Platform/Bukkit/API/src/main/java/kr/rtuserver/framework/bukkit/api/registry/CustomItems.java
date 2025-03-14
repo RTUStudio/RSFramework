@@ -1,6 +1,10 @@
 package kr.rtuserver.framework.bukkit.api.registry;
 
 import com.nexomc.nexo.api.NexoItems;
+import com.willfp.ecoitems.items.EcoItem;
+import com.willfp.ecoitems.items.EcoItemFinder;
+import com.willfp.ecoitems.items.EcoItems;
+import com.willfp.ecoitems.items.ItemUtilsKt;
 import de.tr7zw.changeme.nbtapi.NBT;
 import de.tr7zw.changeme.nbtapi.iface.ReadableNBT;
 import dev.lone.itemsadder.api.CustomStack;
@@ -68,6 +72,13 @@ public class CustomItems {
                     return MMOItems.plugin.getItem(split[1], split[2]);
                 } else return null;
             }
+            case "ecoitems" -> {
+                if (framework().isEnabledDependency("EcoItems")) {
+                    if (split.length != 2) return null;
+                    EcoItem item = EcoItems.INSTANCE.getByID(split[1]);
+                    return item != null ? item.getItemStack() : null;
+                } else return null;
+            }
             case "custom" -> {
                 if (split.length != 3) return null;
                 Material material = Material.getMaterial(split[1].toUpperCase());
@@ -104,6 +115,10 @@ public class CustomItems {
             String type = MMOItems.getTypeName(itemStack);
             String id = MMOItems.getID(itemStack);
             if (id != null && type != null) return "mmoitems:" + type + ":" + id;
+        }
+        if (framework().isEnabledDependency("EcoItems")) {
+            EcoItem item = ItemUtilsKt.getEcoItem(itemStack);
+            if (item != null) return "ecoitems:" + item.getID();
         }
         String result = itemStack.getType().getKey().toString();
         ItemMeta itemMeta = itemStack.getItemMeta();
@@ -151,6 +166,13 @@ public class CustomItems {
                 ItemStack itemStack = MMOItems.plugin.getItem(type2, id2);
                 if (itemStack != null) return itemStack.isSimilar(stack1);
             }
+        }
+        if (framework().isEnabledDependency("EcoItems")) {
+            EcoItem var1 = ItemUtilsKt.getEcoItem(stack1);
+            EcoItem var2 = ItemUtilsKt.getEcoItem(stack2);
+            if (var1 != null && var2 != null) return var1.getID().equalsIgnoreCase(var2.getID());
+            else if (var1 != null) return var1.getItemStack().isSimilar(stack2);
+            else if (var2 != null) return var2.getItemStack().isSimilar(stack1);
         }
         return stack1.isSimilar(stack2);
     }

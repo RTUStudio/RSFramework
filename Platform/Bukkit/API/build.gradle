@@ -11,11 +11,12 @@ dependencies {
 
     compileOnly "me.clip:placeholderapi:2.11.6"
 
-    compileOnly "io.th0rgal:oraxen:1.168.0"
-    compileOnly "com.github.LoneDev6:API-ItemsAdder:3.6.2-beta-r3-b"
-    compileOnly "net.Indyuce:MMOItems-API:6.9.5-SNAPSHOT"
-    compileOnly "io.lumine:MythicLib-dist:1.5.2-SNAPSHOT"
-    compileOnly "com.nexomc:nexo:1.0.0-dev.17"
+    compileOnly "io.th0rgal:oraxen:1.189.0"
+    compileOnly "com.github.LoneDev6:API-ItemsAdder:3.6.3-beta-14"
+    compileOnly "net.Indyuce:MMOItems-API:6.10.1-SNAPSHOT"
+    compileOnly "io.lumine:MythicLib-dist:1.7.1-SNAPSHOT"
+    compileOnly "com.nexomc:nexo:1.2.0-dev.11"
+    compileOnly "com.willfp:EcoItems:5.61.0"
 
     compileOnly "com.github.MilkBowl:VaultAPI:1.7.1"
     compileOnly "com.comphenix.protocol:ProtocolLib:5.1.0"
