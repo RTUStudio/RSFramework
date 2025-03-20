@@ -71,7 +71,7 @@ public class RSInventory {
         }
 
         public record Event<T extends InventoryEvent>(T event, Inventory inventory, Player player,
-                                                         boolean isInventory) {
+                                                      boolean isInventory) {
         }
 
         public record Drag(Map<Integer, ItemStack> items, ItemStack cursor, ItemStack oldCursor, DragType type) {
@@ -123,18 +123,50 @@ public class RSInventory {
             else return Bukkit.createInventory(this, size, ComponentFormatter.legacy(component));
         }
 
-        protected abstract void load(int page);
+        protected abstract boolean loadPage(int index);
 
-        protected boolean previous() {
-            if (page <= 0) return false;
-            load(--page);
-            return true;
+        protected enum Navigation {
+            FIRST,
+            PREVIOUS,
+            NEXT,
+            LAST
         }
 
-        protected boolean next() {
-            if (page >= pages.size() - 1) return false;
-            load(++page);
-            return true;
+        protected boolean loadPage(Navigation navigation) {
+            int lastPage = pages.size() - 1;
+            switch (navigation) {
+                case FIRST -> {
+                    if (page != 0) {
+                        if (loadPage(0)) {
+                            page = 0;
+                            return true;
+                        }
+                    }
+                }
+                case PREVIOUS -> {
+                    if (page <= 0) return false;
+                    if (loadPage(page - 1)) {
+                        page--;
+                        return true;
+                    }
+                }
+                case NEXT -> {
+                    if (page >= lastPage) return false;
+                    if (loadPage(page + 1)) {
+                        page++;
+                        return true;
+                    }
+                }
+                case LAST -> {
+                    if (page != lastPage) {
+                       if (loadPage(lastPage)) {
+                           page = lastPage;
+                           return true;
+                       }
+                    }
+                }
+            }
+            return false;
         }
 
         protected Inventory addPage(int page, int size, Component component) {
@@ -155,7 +187,7 @@ public class RSInventory {
         }
 
         public record Event<T extends InventoryEvent>(T event, Inventory inventory, Player player,
-                                                         boolean isInventory, int page) {
+                                                      boolean isInventory, int page) {
         }
 
         public record Drag(Map<Integer, ItemStack> items, ItemStack cursor, ItemStack oldCursor, DragType type) {
