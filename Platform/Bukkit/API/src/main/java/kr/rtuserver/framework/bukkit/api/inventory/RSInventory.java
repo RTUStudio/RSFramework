@@ -96,7 +96,7 @@ public class RSInventory {
 
         private final List<Inventory> pages = new ArrayList<>();
         @Setter
-        private int page = -1;
+        private int page = 0;
 
         public Page(T plugin) {
             this.plugin = plugin;
@@ -136,11 +136,9 @@ public class RSInventory {
             int lastPage = pages.size() - 1;
             switch (navigation) {
                 case FIRST -> {
-                    if (page != 0) {
-                        if (loadPage(0)) {
-                            page = 0;
-                            return true;
-                        }
+                    if (loadPage(0)) {
+                        page = 0;
+                        return true;
                     }
                 }
                 case PREVIOUS -> {
@@ -158,11 +156,9 @@ public class RSInventory {
                     }
                 }
                 case LAST -> {
-                    if (page != lastPage) {
-                       if (loadPage(lastPage)) {
-                           page = lastPage;
-                           return true;
-                       }
+                    if (loadPage(lastPage)) {
+                        page = lastPage;
+                        return true;
                     }
                 }
             }
