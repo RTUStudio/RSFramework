@@ -96,7 +96,7 @@ public class RSInventory {
 
         private final List<Inventory> pages = new ArrayList<>();
         @Setter
-        private int page = 0;
+        private int page = -1;
 
         public Page(T plugin) {
             this.plugin = plugin;
