@@ -17,8 +17,6 @@ import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 
 public class RSInventory {
@@ -94,9 +92,13 @@ public class RSInventory {
         private final TranslationConfiguration command;
         private final PlayerChat chat;
 
-        private final List<Inventory> pages = new ArrayList<>();
+        @Setter
+        private Inventory inventory;
+
         @Setter
         private int page = 0;
+        @Setter
+        private int maxPage = 0;
 
         public Page(T plugin) {
             this.plugin = plugin;
@@ -108,7 +110,6 @@ public class RSInventory {
 
         @NotNull
         public Inventory getInventory() {
-            Inventory inventory = pages.get(page);
             if (inventory == null) throw new UnsupportedOperationException("Not initialized inventory");
             return inventory;
         }
@@ -126,7 +127,6 @@ public class RSInventory {
         protected abstract boolean loadPage(int index);
 
         protected boolean loadPage(Navigation navigation) {
-            int lastPage = pages.size() - 1;
             switch (navigation) {
                 case FIRST -> {
                     if (loadPage(0)) {
@@ -142,15 +142,15 @@ public class RSInventory {
                     }
                 }
                 case NEXT -> {
-                    if (page >= lastPage) return false;
+                    if (page >= maxPage) return false;
                     if (loadPage(page + 1)) {
                         page++;
                         return true;
                     }
                 }
                 case LAST -> {
-                    if (loadPage(lastPage)) {
-                        page = lastPage;
+                    if (loadPage(maxPage)) {
+                        page = maxPage;
                         return true;
                     }
                 }
@@ -158,10 +158,11 @@ public class RSInventory {
             return false;
         }
 
-        protected Inventory addPage(int page, int size, Component component) {
-            Inventory inventory = createInventory(size, component);
-            pages.add(page, inventory);
-            return inventory;
+        protected enum Navigation {
+            FIRST,
+            PREVIOUS,
+            NEXT,
+            LAST
         }
 
         public boolean onClick(Event<InventoryClickEvent> event, Click click) {
@@ -173,13 +174,6 @@ public class RSInventory {
         }
 
         public void onClose(Event<InventoryCloseEvent> event, Close close) {
-        }
-
-        protected enum Navigation {
-            FIRST,
-            PREVIOUS,
-            NEXT,
-            LAST
         }
 
         public record Event<T extends InventoryEvent>(T event, Inventory inventory, Player player,
