@@ -125,13 +125,6 @@ public class RSInventory {
 
         protected abstract boolean loadPage(int index);
 
-        protected enum Navigation {
-            FIRST,
-            PREVIOUS,
-            NEXT,
-            LAST
-        }
-
         protected boolean loadPage(Navigation navigation) {
             int lastPage = pages.size() - 1;
             switch (navigation) {
@@ -180,6 +173,13 @@ public class RSInventory {
         }
 
         public void onClose(Event<InventoryCloseEvent> event, Close close) {
+        }
+
+        protected enum Navigation {
+            FIRST,
+            PREVIOUS,
+            NEXT,
+            LAST
         }
 
         public record Event<T extends InventoryEvent>(T event, Inventory inventory, Player player,
