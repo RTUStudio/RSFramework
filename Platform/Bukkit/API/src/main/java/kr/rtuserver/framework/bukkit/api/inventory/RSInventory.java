@@ -19,176 +19,63 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.Map;
 
-public class RSInventory {
+@Getter
+public abstract class RSInventory<T extends RSPlugin> implements InventoryHolder {
 
-    @Getter
-    public abstract static class Default<T extends RSPlugin> implements InventoryHolder {
 
-        private final T plugin;
-        private final SettingConfiguration setting;
-        private final TranslationConfiguration message;
-        private final TranslationConfiguration command;
-        private final PlayerChat chat;
+    private final T plugin;
+    private final SettingConfiguration setting;
+    private final TranslationConfiguration message;
+    private final TranslationConfiguration command;
+    private final PlayerChat chat;
 
-        @Setter
-        private Inventory inventory;
+    @Setter
+    private Inventory inventory;
 
-        public Default(T plugin) {
-            this.plugin = plugin;
-            this.setting = plugin.getConfigurations().getSetting();
-            this.message = plugin.getConfigurations().getMessage();
-            this.command = plugin.getConfigurations().getCommand();
-            this.chat = PlayerChat.of(plugin);
-        }
-
-        @NotNull
-        public Inventory getInventory() {
-            if (inventory == null) throw new UnsupportedOperationException("Not initialized inventory");
-            return inventory;
-        }
-
-        protected Inventory createInventory(InventoryType type, Component title) {
-            if (MinecraftVersion.isPaper()) return Bukkit.createInventory(this, type, title);
-            else return Bukkit.createInventory(this, type, ComponentFormatter.legacy(title));
-        }
-
-        protected Inventory createInventory(int size, Component component) {
-            if (MinecraftVersion.isPaper()) return Bukkit.createInventory(this, size, component);
-            else return Bukkit.createInventory(this, size, ComponentFormatter.legacy(component));
-        }
-
-        public boolean onClick(Event<InventoryClickEvent> event, Click click) {
-            return true;
-        }
-
-        public boolean onDrag(Event<InventoryDragEvent> event, Drag drag) {
-            return true;
-        }
-
-        public void onClose(Event<InventoryCloseEvent> event, Close close) {
-        }
-
-        public record Event<T extends InventoryEvent>(T event, Inventory inventory, Player player,
-                                                      boolean isInventory) {
-        }
-
-        public record Drag(Map<Integer, ItemStack> items, ItemStack cursor, ItemStack oldCursor, DragType type) {
-        }
-
-        public record Click(int slot, InventoryType.SlotType slotType, ClickType type) {
-        }
-
-        public record Close(InventoryCloseEvent.Reason reason) {
-        }
-
+    public RSInventory(T plugin) {
+        this.plugin = plugin;
+        this.setting = plugin.getConfigurations().getSetting();
+        this.message = plugin.getConfigurations().getMessage();
+        this.command = plugin.getConfigurations().getCommand();
+        this.chat = PlayerChat.of(plugin);
     }
 
-    @Getter
-    public abstract static class Page<T extends RSPlugin> implements InventoryHolder {
-
-        private final T plugin;
-        private final SettingConfiguration setting;
-        private final TranslationConfiguration message;
-        private final TranslationConfiguration command;
-        private final PlayerChat chat;
-
-        @Setter
-        private Inventory inventory;
-
-        @Setter
-        private int page = 0;
-        @Setter
-        private int maxPage = 0;
-
-        public Page(T plugin) {
-            this.plugin = plugin;
-            this.setting = plugin.getConfigurations().getSetting();
-            this.message = plugin.getConfigurations().getMessage();
-            this.command = plugin.getConfigurations().getCommand();
-            this.chat = PlayerChat.of(plugin);
-        }
-
-        @NotNull
-        public Inventory getInventory() {
-            if (inventory == null) throw new UnsupportedOperationException("Not initialized inventory");
-            return inventory;
-        }
-
-        protected Inventory createInventory(InventoryType type, Component title) {
-            if (MinecraftVersion.isPaper()) return Bukkit.createInventory(this, type, title);
-            else return Bukkit.createInventory(this, type, ComponentFormatter.legacy(title));
-        }
-
-        protected Inventory createInventory(int size, Component component) {
-            if (MinecraftVersion.isPaper()) return Bukkit.createInventory(this, size, component);
-            else return Bukkit.createInventory(this, size, ComponentFormatter.legacy(component));
-        }
-
-        protected abstract boolean loadPage(int index);
-
-        protected boolean loadPage(Navigation navigation) {
-            switch (navigation) {
-                case FIRST -> {
-                    if (loadPage(0)) {
-                        page = 0;
-                        return true;
-                    }
-                }
-                case PREVIOUS -> {
-                    if (page <= 0) return false;
-                    if (loadPage(page - 1)) {
-                        page--;
-                        return true;
-                    }
-                }
-                case NEXT -> {
-                    if (page >= maxPage) return false;
-                    if (loadPage(page + 1)) {
-                        page++;
-                        return true;
-                    }
-                }
-                case LAST -> {
-                    if (loadPage(maxPage)) {
-                        page = maxPage;
-                        return true;
-                    }
-                }
-            }
-            return false;
-        }
-
-        protected enum Navigation {
-            FIRST,
-            PREVIOUS,
-            NEXT,
-            LAST
-        }
-
-        public boolean onClick(Event<InventoryClickEvent> event, Click click) {
-            return true;
-        }
-
-        public boolean onDrag(Event<InventoryDragEvent> event, Drag drag) {
-            return true;
-        }
-
-        public void onClose(Event<InventoryCloseEvent> event, Close close) {
-        }
-
-        public record Event<T extends InventoryEvent>(T event, Inventory inventory, Player player,
-                                                      boolean isInventory, int page) {
-        }
-
-        public record Drag(Map<Integer, ItemStack> items, ItemStack cursor, ItemStack oldCursor, DragType type) {
-        }
-
-        public record Click(int slot, InventoryType.SlotType slotType, ClickType type) {
-        }
-
-        public record Close(InventoryCloseEvent.Reason reason) {
-        }
-
+    @NotNull
+    public Inventory getInventory() {
+        if (inventory == null) throw new UnsupportedOperationException("Not initialized inventory");
+        return inventory;
     }
 
+    protected Inventory createInventory(InventoryType type, Component title) {
+        if (MinecraftVersion.isPaper()) return Bukkit.createInventory(this, type, title);
+        else return Bukkit.createInventory(this, type, ComponentFormatter.legacy(title));
+    }
+
+    protected Inventory createInventory(int size, Component component) {
+        if (MinecraftVersion.isPaper()) return Bukkit.createInventory(this, size, component);
+        else return Bukkit.createInventory(this, size, ComponentFormatter.legacy(component));
+    }
+
+    public boolean onClick(Event<InventoryClickEvent> event, Click click) {
+        return true;
+    }
+
+    public boolean onDrag(Event<InventoryDragEvent> event, Drag drag) {
+        return true;
+    }
+
+    public void onClose(Event<InventoryCloseEvent> event, Close close) {
+    }
+
+    public record Event<T extends InventoryEvent>(T event, Inventory inventory, Player player, boolean isInventory) {
+    }
+
+    public record Drag(Map<Integer, ItemStack> items, ItemStack cursor, ItemStack oldCursor, DragType type) {
+    }
+
+    public record Click(int slot, InventoryType.SlotType slotType, ClickType type) {
+    }
+
+    public record Close(InventoryCloseEvent.Reason reason) {
+    }
 }
