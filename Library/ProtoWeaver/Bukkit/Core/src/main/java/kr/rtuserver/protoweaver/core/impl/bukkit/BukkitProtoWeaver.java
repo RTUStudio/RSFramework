@@ -22,6 +22,7 @@ import kr.rtuserver.protoweaver.core.impl.bukkit.nms.v1_20_r4.ProtoWeaver_1_20_R
 import kr.rtuserver.protoweaver.core.impl.bukkit.nms.v1_21_r1.ProtoWeaver_1_21_R1;
 import kr.rtuserver.protoweaver.core.impl.bukkit.nms.v1_21_r2.ProtoWeaver_1_21_R2;
 import kr.rtuserver.protoweaver.core.impl.bukkit.nms.v1_21_r3.ProtoWeaver_1_21_R3;
+import kr.rtuserver.protoweaver.core.impl.bukkit.nms.v1_21_r4.ProtoWeaver_1_21_R4;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
@@ -52,6 +53,7 @@ public class BukkitProtoWeaver implements kr.rtuserver.protoweaver.api.impl.bukk
             case "v1_21_R1" -> new ProtoWeaver_1_21_R1(sslFolder);
             case "v1_21_R2" -> new ProtoWeaver_1_21_R2(sslFolder);
             case "v1_21_R3" -> new ProtoWeaver_1_21_R3(sslFolder);
+            case "v1_21_R4" -> new ProtoWeaver_1_21_R4(sslFolder);
             default -> throw new IllegalStateException();
         };
         this.callback = callback;
