@@ -14,24 +14,24 @@ public class ReloadCommand extends RSCommand<RSPlugin> {
 
     @Override
     protected boolean execute(RSCommandData data) {
-        getPlugin().getConfigurations().reload();
-        getChat().announce(getSender(), getCommon().getMessage(getPlayer(), "reload"));
+        plugin.getConfigurations().reload();
+        chat.announce(sender(), common.getMessage(player(), "reload"));
         return true;
     }
 
     @Override
     protected String getLocalizedDescription(Player player) {
-        return getCommon().getCommand(player, getDescription());
+        return common.getCommand(player, getDescription());
     }
 
     @Override
     protected String getLocalizedUsage(Player player) {
-        return getCommon().getCommand(player, getUsage());
+        return common.getCommand(player, getUsage());
     }
 
     @Override
     protected String getLocalizedName(Player player) {
-        return getCommon().getCommand(player, getName() + ".name");
+        return common.getCommand(player, getName() + ".name");
     }
 
 }

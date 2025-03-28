@@ -17,12 +17,12 @@ public class InfoCommand extends RSCommand<RSFramework> {
 
     @Override
     public boolean execute(RSCommandData data) {
-        getChat().announce(getAudience(), ComponentFormatter.mini(
+        chat.announce(audience(), ComponentFormatter.mini(
                 "Info\n<gradient:#2979FF:#7C4DFF> ┠ Name<white>: %s</white>\n ┠ Version<white>: %s</white>\n ┠ Bukkit<white>: %s</white>\n ┠ NMS<white>: %s</white>\n ┠ OS<white>: %s</white>\n ┖ JDK<white>: %s</white></gradient>"
-                        .formatted(getPlugin().getName()
-                                , getPlugin().getDescription().getVersion()
+                        .formatted(plugin.getName()
+                                , plugin.getDescription().getVersion()
                                 , Bukkit.getName() + "-" + MinecraftVersion.getAsText()
-                                , getFramework().getNMSVersion()
+                                , framework.getNMSVersion()
                                 , SystemEnvironment.getOS()
                                 , SystemEnvironment.getJDKVersion())));
         return true;

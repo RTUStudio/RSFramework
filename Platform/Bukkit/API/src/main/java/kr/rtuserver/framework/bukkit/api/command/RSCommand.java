@@ -22,18 +22,20 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
 
-@Getter
 @ToString
 public abstract class RSCommand<T extends RSPlugin> extends Command {
 
-    private final T plugin;
-    private final TranslationConfiguration message;
-    private final TranslationConfiguration command;
-
-    private final Framework framework = LightDI.getBean(Framework.class);
-    private final CommonTranslation common = framework.getCommonTranslation();
-    private final PlayerChat chat;
     private final Map<String, RSCommand<? extends RSPlugin>> commands = new HashMap<>();
+
+    @Getter
+    protected final T plugin;
+    protected final TranslationConfiguration message;
+    protected final TranslationConfiguration command;
+
+    protected final Framework framework = LightDI.getBean(Framework.class);
+    protected final CommonTranslation common = framework.getCommonTranslation();
+    protected final PlayerChat chat;
+
     private CommandSender sender;
     private Audience audience;
 
@@ -58,13 +60,21 @@ public abstract class RSCommand<T extends RSPlugin> extends Command {
         this.message = plugin.getConfigurations().getMessage();
         this.command = plugin.getConfigurations().getCommand();
         this.chat = PlayerChat.of(plugin);
-        Permission perm = new Permission(getPlugin().getName() + ".command." + getName(), permission);
+        Permission perm = new Permission(plugin.getName() + ".command." + getName(), permission);
         Bukkit.getPluginManager().addPermission(perm);
         super.setPermission(perm.getName());
         if (names.size() > 1) super.setAliases(names.subList(1, names.size()));
     }
 
-    public Player getPlayer() {
+    protected CommandSender sender() {
+        return sender;
+    }
+
+    protected Audience audience() {
+        return audience;
+    }
+
+    protected Player player() {
         if (sender instanceof Player player) return player;
         return null;
     }
@@ -98,18 +108,18 @@ public abstract class RSCommand<T extends RSPlugin> extends Command {
         if (sub == null) {
             if (hasPermission(getPermission())) {
                 if (!execute(data)) wrongUsage();
-            } else chat.announce(sender, common.getMessage(getPlayer(), "noPermission"));
+            } else chat.announce(sender, common.getMessage(player(), "noPermission"));
         } else {
             if (sub.getName().equalsIgnoreCase("reload")) reload(data);
             if (hasPermission(sub.getPermission())) {
                 if (!sub.execute(sender, commandLabel, args)) sub.wrongUsage();
-            } else chat.announce(sender, common.getMessage(getPlayer(), "noPermission"));
+            } else chat.announce(sender, common.getMessage(player(), "noPermission"));
         }
         return true;
     }
 
     private void wrongUsage() {
-        chat.announce(sender, common.getMessage(getPlayer(), "wrongUsage"));
+        chat.announce(sender, common.getMessage(player(), "wrongUsage"));
         ThemeModule module = framework.getModules().getThemeModule();
         List<RSCommand<? extends RSPlugin>> list = new ArrayList<>(commands.values());
         if (list.isEmpty()) return;
@@ -117,10 +127,10 @@ public abstract class RSCommand<T extends RSPlugin> extends Command {
         for (int i = 0; i < list.size(); i++) {
             RSCommand<? extends RSPlugin> cmd = list.get(i);
             if (!hasPermission(cmd.getPermission())) continue;
-            String usage = cmd.getLocalizedUsage(getPlayer());
-            if (usage.isEmpty()) usage = "/" + cmd.getLocalizedCommand(getPlayer());
+            String usage = cmd.getLocalizedUsage(player());
+            if (usage.isEmpty()) usage = "/" + cmd.getLocalizedCommand(player());
             if (i > 0) builder.append("\n");
-            String description = cmd.getLocalizedDescription(getPlayer());
+            String description = cmd.getLocalizedDescription(player());
 
             builder.append(" ⏵ <white>").append(usage).append("</white>");
             if (!description.isEmpty())
@@ -138,21 +148,21 @@ public abstract class RSCommand<T extends RSPlugin> extends Command {
     private RSCommand<? extends RSPlugin> findCommand(String name) {
         if (name.isEmpty()) return null;
         for (RSCommand<? extends RSPlugin> sub : commands.values()) {
-            if (sub.getLocalizedName(getPlayer()).equals(name)) return sub;
+            if (sub.getLocalizedName(player()).equals(name)) return sub;
         }
         return null;
     }
 
     protected String getLocalizedName(Player player) {
-        return getCommand().get(player, getName() + ".name");
+        return command.get(player, getName() + ".name");
     }
 
     protected String getLocalizedDescription(Player player) {
-        return getCommand().get(player, getDescription());
+        return command.get(player, getDescription());
     }
 
     protected String getLocalizedUsage(Player player) {
-        return getCommand().get(player, getUsage());
+        return command.get(player, getUsage());
     }
 
     private String getLocalizedCommand(Player player) {
@@ -180,7 +190,7 @@ public abstract class RSCommand<T extends RSPlugin> extends Command {
         List<String> list = new ArrayList<>();
 
         if (data.length(1)) for (RSCommand<? extends RSPlugin> cmd : commands.values()) {
-            if (hasPermission(cmd.getPermission())) list.add(cmd.getLocalizedName(getPlayer()));
+            if (hasPermission(cmd.getPermission())) list.add(cmd.getLocalizedName(player()));
         }
         RSCommand<? extends RSPlugin> sub = findCommand(data.args(0));
         if (sub == null) {

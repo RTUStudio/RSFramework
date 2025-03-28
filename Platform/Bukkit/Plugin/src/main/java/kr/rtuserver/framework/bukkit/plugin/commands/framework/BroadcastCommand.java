@@ -15,8 +15,8 @@ public class BroadcastCommand extends RSCommand<RSFramework> {
     @Override
     public boolean execute(RSCommandData data) {
         if (data.args(1).isEmpty()) {
-            getChat().announce(getSender(), getMessage().get(getSender(), "command.broadcast.empty"));
-        } else getChat().broadcastAll(getPlugin().getPrefix().append(ComponentFormatter.mini(data.args(1))));
+            chat.announce(audience(), message.get(sender(), "command.broadcast.empty"));
+        } else chat.broadcastAll(plugin.getPrefix().append(ComponentFormatter.mini(data.args(1))));
         return true;
     }
 
