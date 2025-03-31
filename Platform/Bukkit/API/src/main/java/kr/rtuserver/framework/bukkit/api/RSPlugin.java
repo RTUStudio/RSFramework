@@ -2,9 +2,9 @@ package kr.rtuserver.framework.bukkit.api;
 
 import kr.rtuserver.cdi.LightDI;
 import kr.rtuserver.framework.bukkit.api.command.RSCommand;
-import kr.rtuserver.framework.bukkit.api.config.impl.Configurations;
+import kr.rtuserver.framework.bukkit.api.configuration.impl.Configurations;
 import kr.rtuserver.framework.bukkit.api.core.Framework;
-import kr.rtuserver.framework.bukkit.api.core.modules.ThemeModule;
+import kr.rtuserver.framework.bukkit.api.core.module.ThemeModule;
 import kr.rtuserver.framework.bukkit.api.listener.RSListener;
 import kr.rtuserver.framework.bukkit.api.storage.Storage;
 import kr.rtuserver.framework.bukkit.api.utility.format.ComponentFormatter;

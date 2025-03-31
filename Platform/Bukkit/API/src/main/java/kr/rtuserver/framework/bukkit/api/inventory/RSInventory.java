@@ -1,8 +1,10 @@
 package kr.rtuserver.framework.bukkit.api.inventory;
 
+import kr.rtuserver.cdi.LightDI;
 import kr.rtuserver.framework.bukkit.api.RSPlugin;
-import kr.rtuserver.framework.bukkit.api.config.impl.SettingConfiguration;
-import kr.rtuserver.framework.bukkit.api.config.impl.TranslationConfiguration;
+import kr.rtuserver.framework.bukkit.api.configuration.impl.SettingConfiguration;
+import kr.rtuserver.framework.bukkit.api.configuration.impl.TranslationConfiguration;
+import kr.rtuserver.framework.bukkit.api.core.Framework;
 import kr.rtuserver.framework.bukkit.api.utility.format.ComponentFormatter;
 import kr.rtuserver.framework.bukkit.api.utility.platform.MinecraftVersion;
 import kr.rtuserver.framework.bukkit.api.utility.player.PlayerChat;
@@ -21,15 +23,34 @@ import java.util.Map;
 public abstract class RSInventory<T extends RSPlugin> implements InventoryHolder {
 
     @Getter
-    protected final T plugin;
-    protected final SettingConfiguration setting;
-    protected final TranslationConfiguration message;
-    protected final TranslationConfiguration command;
-    protected final PlayerChat chat;
+    private final T plugin;
+
+    private final TranslationConfiguration message;
+
+    protected TranslationConfiguration message() {
+        return message;
+    }
+
+    private final TranslationConfiguration command;
+
+    protected TranslationConfiguration command() {
+        return command;
+    }
+
+    private final Framework framework = LightDI.getBean(Framework.class);
+
+    protected Framework framework() {
+        return framework;
+    }
+
+    private final PlayerChat chat;
+
+    protected PlayerChat chat() {
+        return chat;
+    }
 
     public RSInventory(T plugin) {
         this.plugin = plugin;
-        this.setting = plugin.getConfigurations().getSetting();
         this.message = plugin.getConfigurations().getMessage();
         this.command = plugin.getConfigurations().getCommand();
         this.chat = PlayerChat.of(plugin);

@@ -2,8 +2,8 @@ package kr.rtuserver.framework.bukkit.plugin;
 
 import kr.rtuserver.cdi.LightDI;
 import kr.rtuserver.framework.bukkit.api.RSPlugin;
-import kr.rtuserver.framework.bukkit.core.listeners.*;
-import kr.rtuserver.framework.bukkit.plugin.commands.FrameworkCommand;
+import kr.rtuserver.framework.bukkit.core.listener.*;
+import kr.rtuserver.framework.bukkit.plugin.command.FrameworkCommand;
 import lombok.Getter;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.Plugin;

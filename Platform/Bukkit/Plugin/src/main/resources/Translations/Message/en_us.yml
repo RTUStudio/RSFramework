@@ -1,5 +1,5 @@
 common:
-  reload: "<green>Completed reloading config</green>"
+  reload: "<green>Completed reloading configuration</green>"
   noPermission: "<red>You don't have permission</red>"
   wrongUsage: "<red>Wrong Usage</red>"
   onlyPlayer: "<red>Only players can use this command</red>"

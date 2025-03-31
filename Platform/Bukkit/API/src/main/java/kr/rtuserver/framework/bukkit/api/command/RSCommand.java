@@ -2,10 +2,9 @@ package kr.rtuserver.framework.bukkit.api.command;
 
 import kr.rtuserver.cdi.LightDI;
 import kr.rtuserver.framework.bukkit.api.RSPlugin;
-import kr.rtuserver.framework.bukkit.api.config.impl.TranslationConfiguration;
+import kr.rtuserver.framework.bukkit.api.configuration.impl.TranslationConfiguration;
 import kr.rtuserver.framework.bukkit.api.core.Framework;
-import kr.rtuserver.framework.bukkit.api.core.config.CommonTranslation;
-import kr.rtuserver.framework.bukkit.api.core.modules.ThemeModule;
+import kr.rtuserver.framework.bukkit.api.core.module.ThemeModule;
 import kr.rtuserver.framework.bukkit.api.utility.player.PlayerChat;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -28,16 +27,48 @@ public abstract class RSCommand<T extends RSPlugin> extends Command {
     private final Map<String, RSCommand<? extends RSPlugin>> commands = new HashMap<>();
 
     @Getter
-    protected final T plugin;
-    protected final TranslationConfiguration message;
-    protected final TranslationConfiguration command;
+    private final T plugin;
 
-    protected final Framework framework = LightDI.getBean(Framework.class);
-    protected final CommonTranslation common = framework.getCommonTranslation();
-    protected final PlayerChat chat;
+    private final TranslationConfiguration message;
+
+    protected TranslationConfiguration message() {
+        return message;
+    }
+
+    private final TranslationConfiguration command;
+
+    protected TranslationConfiguration command() {
+        return command;
+    }
+
+    private final Framework framework = LightDI.getBean(Framework.class);
+
+    protected Framework framework() {
+        return framework;
+    }
+
+    private final PlayerChat chat;
+
+    protected PlayerChat chat() {
+        return chat;
+    }
 
     private CommandSender sender;
+
+    protected CommandSender sender() {
+        return sender;
+    }
+
     private Audience audience;
+
+    protected Audience audience() {
+        return audience;
+    }
+
+    protected Player player() {
+        if (sender instanceof Player player) return player;
+        return null;
+    }
 
     @Setter(AccessLevel.PRIVATE)
     private RSCommand<? extends RSPlugin> parent = null;
@@ -66,19 +97,6 @@ public abstract class RSCommand<T extends RSPlugin> extends Command {
         if (names.size() > 1) super.setAliases(names.subList(1, names.size()));
     }
 
-    protected CommandSender sender() {
-        return sender;
-    }
-
-    protected Audience audience() {
-        return audience;
-    }
-
-    protected Player player() {
-        if (sender instanceof Player player) return player;
-        return null;
-    }
-
     public boolean isOp() {
         return sender.isOp();
     }
@@ -97,7 +115,7 @@ public abstract class RSCommand<T extends RSPlugin> extends Command {
                 if (cooldownMap.getOrDefault(player.getUniqueId(), 0) <= 0)
                     cooldownMap.put(player.getUniqueId(), cooldown);
             } else {
-                chat.announce(player, framework.getCommonTranslation().getMessage("error.cooldown"));
+                chat.announce(player, message.getCommon(player, "error.cooldown"));
                 return true;
             }
         }
@@ -108,18 +126,18 @@ public abstract class RSCommand<T extends RSPlugin> extends Command {
         if (sub == null) {
             if (hasPermission(getPermission())) {
                 if (!execute(data)) wrongUsage();
-            } else chat.announce(sender, common.getMessage(player(), "noPermission"));
+            } else chat.announce(sender, message.getCommon(player(), "noPermission"));
         } else {
             if (sub.getName().equalsIgnoreCase("reload")) reload(data);
             if (hasPermission(sub.getPermission())) {
                 if (!sub.execute(sender, commandLabel, args)) sub.wrongUsage();
-            } else chat.announce(sender, common.getMessage(player(), "noPermission"));
+            } else chat.announce(sender, message.getCommon(player(), "noPermission"));
         }
         return true;
     }
 
     private void wrongUsage() {
-        chat.announce(sender, common.getMessage(player(), "wrongUsage"));
+        chat.announce(sender, message.getCommon(player(), "wrongUsage"));
         ThemeModule module = framework.getModules().getThemeModule();
         List<RSCommand<? extends RSPlugin>> list = new ArrayList<>(commands.values());
         if (list.isEmpty()) return;
