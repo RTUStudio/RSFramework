@@ -30,8 +30,9 @@ public class RSFramework extends RSPlugin {
         libraries.load("org.quartz-scheduler:quartz:2.5.0-rc1");
 
         libraries.load("com.zaxxer:HikariCP:5.1.0");
-        libraries.load("org.mongodb:bson:4.11.1");
-        libraries.load("org.mongodb:mongodb-driver-sync:4.11.1");
+        libraries.load("org.mongodb:bson:5.4.0");
+        libraries.load("org.mongodb:mongodb-driver-sync:5.4.0");
+        libraries.load("org.mongodb:mongodb-driver-core:5.4.0");
         libraries.load("com.mysql:mysql-connector-j:9.1.0");
         libraries.load("org.xerial:sqlite-jdbc:3.45.3.0");
         libraries.load("org.mariadb.jdbc:mariadb-java-client:3.3.3");
