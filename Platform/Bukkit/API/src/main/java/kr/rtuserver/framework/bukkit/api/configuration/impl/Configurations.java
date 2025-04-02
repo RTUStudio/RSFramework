@@ -61,8 +61,8 @@ public class Configurations {
             mariadb = new MariaDBConfig(plugin);
             mongodb = new MongoDBConfig(plugin);
             mysql = new MySQLConfig(plugin);
-            postgresql = new PostgreSQLConfig(plugin);
-            sqlite = new SQLiteConfig(plugin);
+            //postgresql = new PostgreSQLConfig(plugin);
+            //sqlite = new SQLiteConfig(plugin);
         }
         loadStorage();
     }

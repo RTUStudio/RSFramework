@@ -5,7 +5,7 @@ import kr.rtuserver.framework.bukkit.api.configuration.RSConfiguration;
 import lombok.Getter;
 
 @Getter
-public class PostgreSQLConfig extends RSConfiguration {
+public class PostgreSQLConfig extends RSConfiguration<RSPlugin> {
     private String host = "127.0.0.1";
     private String port = "5432";
     private String database = "";

@@ -1,4 +1,4 @@
-package kr.rtuserver.framework.bukkit.api.utility.dependencies;
+package kr.rtuserver.framework.bukkit.api.utility.dependency;
 
 import kr.rtuserver.cdi.LightDI;
 import kr.rtuserver.framework.bukkit.api.core.Framework;

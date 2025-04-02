@@ -46,7 +46,15 @@ public class MongoDB implements Storage {
         this.prefix = config.getTablePrefix();
         String serverHost = config.getHost() + ":" + config.getPort();
         // Replace the placeholder with your Atlas connection string
-        String uri = "mongodb://" + config.getUsername() + ":" + config.getPassword() + "@" + serverHost;
+        String uri = "mongodb://";
+        String username = config.getUsername();
+        String password = config.getPassword();
+        if (!username.isEmpty()) {
+            uri += username;
+            if (!password.isEmpty()) uri += ":" + password;
+            uri += "@";
+        }
+        uri += serverHost;
         // Construct a ServerApi instance using the ServerApi.builder() method
         ServerApi serverApi = ServerApi.builder()
                 .version(ServerApiVersion.V1)

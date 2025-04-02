@@ -5,7 +5,7 @@ import kr.rtuserver.framework.bukkit.api.configuration.RSConfiguration;
 import lombok.Getter;
 
 @Getter
-public class MongoDBConfig extends RSConfiguration {
+public class MongoDBConfig extends RSConfiguration<RSPlugin> {
     private String host = "127.0.0.1";
     private String port = "27017";
     private String database = "";

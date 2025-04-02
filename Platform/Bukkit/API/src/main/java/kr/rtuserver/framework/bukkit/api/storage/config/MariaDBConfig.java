@@ -5,7 +5,7 @@ import kr.rtuserver.framework.bukkit.api.configuration.RSConfiguration;
 import lombok.Getter;
 
 @Getter
-public class MariaDBConfig extends RSConfiguration {
+public class MariaDBConfig extends RSConfiguration<RSPlugin> {
     private String host = "127.0.0.1";
     private String port = "3306";
     private String database = "";

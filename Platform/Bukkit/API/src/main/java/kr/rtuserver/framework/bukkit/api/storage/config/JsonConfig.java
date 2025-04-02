@@ -5,7 +5,7 @@ import kr.rtuserver.framework.bukkit.api.configuration.RSConfiguration;
 import lombok.Getter;
 
 @Getter
-public class JsonConfig extends RSConfiguration {
+public class JsonConfig extends RSConfiguration<RSPlugin> {
     private int savePeriod = 10;
 
     public JsonConfig(RSPlugin plugin) {
