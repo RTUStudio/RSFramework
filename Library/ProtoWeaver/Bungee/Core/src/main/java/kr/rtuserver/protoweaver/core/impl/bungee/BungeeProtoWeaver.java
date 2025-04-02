@@ -1,5 +1,6 @@
 package kr.rtuserver.protoweaver.core.impl.bungee;
 
+import com.google.gson.JsonObject;
 import kr.rtuserver.protoweaver.api.ProtoConnectionHandler;
 import kr.rtuserver.protoweaver.api.ProxyPlayer;
 import kr.rtuserver.protoweaver.api.callback.HandlerCallback;
@@ -49,6 +50,7 @@ public class BungeeProtoWeaver implements kr.rtuserver.protoweaver.api.impl.bung
         protocol.addPacket(Packet.class);
         protocol.addPacket(ProxyPlayer.class);
         protocol.addPacket(PlayerList.class);
+        protocol.addPacket(Packet.of(JsonObject.class, true, true));
         protocol.addPacket(Packet.of(BroadcastChat.class, true, true));
         protocol.addPacket(Packet.of(StorageSync.class, true, true));
         protocol.setClientHandler(BungeeProtoHandler.class, callable).load();

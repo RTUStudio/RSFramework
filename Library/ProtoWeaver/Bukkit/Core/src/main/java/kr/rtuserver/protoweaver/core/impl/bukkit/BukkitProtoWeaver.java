@@ -1,6 +1,7 @@
 package kr.rtuserver.protoweaver.core.impl.bukkit;
 
 import com.google.common.collect.ImmutableList;
+import com.google.gson.JsonObject;
 import kr.rtuserver.protoweaver.api.ProtoConnectionHandler;
 import kr.rtuserver.protoweaver.api.ProxyPlayer;
 import kr.rtuserver.protoweaver.api.callback.HandlerCallback;
@@ -65,6 +66,7 @@ public class BukkitProtoWeaver implements kr.rtuserver.protoweaver.api.impl.bukk
         protocol.addPacket(Packet.class);
         protocol.addPacket(ProxyPlayer.class);
         protocol.addPacket(PlayerList.class);
+        protocol.addPacket(Packet.of(JsonObject.class, true, true));
         protocol.addPacket(Packet.of(BroadcastChat.class, true, true));
         protocol.addPacket(Packet.of(StorageSync.class, true, true));
         if (isModernProxy) {

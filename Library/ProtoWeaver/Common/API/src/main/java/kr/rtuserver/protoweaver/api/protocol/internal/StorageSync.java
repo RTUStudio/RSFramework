@@ -1,4 +1,6 @@
 package kr.rtuserver.protoweaver.api.protocol.internal;
 
-public record StorageSync(String plugin, String name) implements InternalPacket {
+import com.google.gson.JsonObject;
+
+public record StorageSync(String plugin, String name, JsonObject json) implements InternalPacket {
 }

@@ -86,7 +86,7 @@ public class Framework implements kr.rtuserver.framework.bukkit.api.core.Framewo
         if (packet.packet() instanceof StorageSync sync) {
             RSPlugin plugin = plugins.get(sync.plugin());
             if (plugin == null) return;
-            plugin.syncStorage(sync.name());
+            plugin.syncStorage(sync.name(), sync.json());
         }
         if (packet.packet() instanceof BroadcastChat chat) {
             PlayerChat.of(rsf).broadcast(chat.minimessage());

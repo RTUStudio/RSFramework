@@ -12,6 +12,7 @@ import kr.rtuserver.framework.bukkit.api.utility.platform.JSON;
 import kr.rtuserver.protoweaver.api.protocol.internal.StorageSync;
 import org.apache.commons.lang3.tuple.Pair;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -87,8 +88,7 @@ public class MySQL implements Storage {
                 //INSERT INTO `test` (`data`) VALUES ('{"A": B"}');
                 PreparedStatement ps = getConnection().prepareStatement("INSERT INTO " + prefix + table + " (data) VALUES ('" + json + "');");
                 if (!ps.execute()) return false;
-                StorageSync sync = new StorageSync(plugin.getName(), table);
-                plugin.getFramework().getProtoWeaver().sendPacket(sync);
+                sync(table, data);
                 return true;
             } catch (SQLException e) {
                 //if (verbose) throw new RuntimeException(e);
@@ -112,6 +112,7 @@ public class MySQL implements Storage {
                     case Number number -> value = String.valueOf(number);
                     case Boolean bool -> value = String.valueOf(bool);
                     case String str -> value = "'" + str + "'";
+                    case Character character -> value = "'" + character + "'";
                     case null, default -> {
                         plugin.console("<red>Unsupported type of data tried to be saved! Only supports JsonElement, Number, Boolean, and String</red>");
                         plugin.console("<red>지원하지 않는 타입의 데이터가 저장되려고 했습니다! JsonElement, Number, Boolean, String만 지원합니다</red>");
@@ -132,8 +133,7 @@ public class MySQL implements Storage {
             try {
                 PreparedStatement ps = getConnection().prepareStatement(query + ";");
                 if (!ps.execute()) return false;
-                StorageSync sync = new StorageSync(plugin.getName(), table);
-                plugin.getFramework().getProtoWeaver().sendPacket(sync);
+                sync(table, find);
                 return true;
             } catch (SQLException e) {
                 //if (verbose) throw new RuntimeException(e);
@@ -169,6 +169,32 @@ public class MySQL implements Storage {
             }
             return result;
         });
+    }
+
+    private void sync(@NotNull String table, @Nullable JsonObject find) {
+        StorageSync sync = new StorageSync(plugin.getName(), table, find);
+        plugin.getFramework().getProtoWeaver().sendPacket(sync);
+    }
+
+    private void sync(@NotNull String table, @Nullable Pair<String, Object> find) {
+        StorageSync sync;
+        if (find == null) sync = new StorageSync(plugin.getName(), table, null);
+        else {
+            String key = find.getKey();
+            Object value = find.getValue();
+            JsonObject json = new JsonObject();
+            switch (value) {
+                case JsonElement element -> json.add(key, element);
+                case Number number -> json.addProperty(key, number);
+                case Boolean bool -> json.addProperty(key, bool);
+                case String str -> json.addProperty(key, str);
+                case Character character -> json.addProperty(key, character);
+                case null -> json.add(key, null);
+                default -> throw new IllegalStateException("Unexpected value: " + value);
+            }
+            sync = new StorageSync(plugin.getName(), table, json);
+        }
+        plugin.getFramework().getProtoWeaver().sendPacket(sync);
     }
 
     @Override

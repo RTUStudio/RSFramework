@@ -1,6 +1,7 @@
 package kr.rtuserver.framework.bukkit.api.storage.impl;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.mongodb.ConnectionString;
@@ -22,6 +23,7 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.bson.Document;
 import org.bson.conversions.Bson;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -64,8 +66,7 @@ public class MongoDB implements Storage {
             MongoCollection<Document> collection = database.getCollection(prefix + collectionName);
             Document document = Document.parse(gson.toJson(data));
             if (!collection.insertOne(document).wasAcknowledged()) return false;
-            StorageSync sync = new StorageSync(plugin.getName(), collectionName);
-            plugin.getFramework().getProtoWeaver().sendPacket(sync);
+            sync(collectionName, data);
             return true;
         });
     }
@@ -82,8 +83,7 @@ public class MongoDB implements Storage {
                 if (data == null) {
                     DeleteResult result = collection.deleteMany(filter);
                     if (!result.wasAcknowledged()) return false;
-                    StorageSync sync = new StorageSync(plugin.getName(), collectionName);
-                    plugin.getFramework().getProtoWeaver().sendPacket(sync);
+                    sync(collectionName, find);
                     return true;
                 } else {
                     UpdateOptions options = new UpdateOptions().upsert(true);
@@ -95,15 +95,13 @@ public class MongoDB implements Storage {
                     } else update = Updates.set(data.getKey(), data.getValue());
                     UpdateResult result = collection.updateOne(filter, update, options);
                     if (!result.wasAcknowledged()) return false;
-                    StorageSync sync = new StorageSync(plugin.getName(), collectionName);
-                    plugin.getFramework().getProtoWeaver().sendPacket(sync);
+                    sync(collectionName, find);
                     return true;
                 }
             } else {
                 DeleteResult result = collection.deleteMany(Filters.empty());
                 if (!result.wasAcknowledged()) return false;
-                StorageSync sync = new StorageSync(plugin.getName(), collectionName);
-                plugin.getFramework().getProtoWeaver().sendPacket(sync);
+                sync(collectionName, find);
                 return true;
             }
         });
@@ -125,6 +123,31 @@ public class MongoDB implements Storage {
         });
     }
 
+    private void sync(@NotNull String table, @Nullable JsonObject find) {
+        StorageSync sync = new StorageSync(plugin.getName(), table, find);
+        plugin.getFramework().getProtoWeaver().sendPacket(sync);
+    }
+
+    private void sync(@NotNull String table, @Nullable Pair<String, Object> find) {
+        StorageSync sync;
+        if (find == null) sync = new StorageSync(plugin.getName(), table, null);
+        else {
+            String key = find.getKey();
+            Object value = find.getValue();
+            JsonObject json = new JsonObject();
+            switch (value) {
+                case JsonElement element -> json.add(key, element);
+                case Number number -> json.addProperty(key, number);
+                case Boolean bool -> json.addProperty(key, bool);
+                case String str -> json.addProperty(key, str);
+                case Character character -> json.addProperty(key, character);
+                case null -> json.add(key, null);
+                default -> throw new IllegalStateException("Unexpected value: " + value);
+            }
+            sync = new StorageSync(plugin.getName(), table, json);
+        }
+        plugin.getFramework().getProtoWeaver().sendPacket(sync);
+    }
 
     @Override
     public void close() {

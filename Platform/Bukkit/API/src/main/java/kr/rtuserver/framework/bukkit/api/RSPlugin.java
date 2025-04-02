@@ -1,5 +1,6 @@
 package kr.rtuserver.framework.bukkit.api;
 
+import com.google.gson.JsonObject;
 import kr.rtuserver.cdi.LightDI;
 import kr.rtuserver.framework.bukkit.api.command.RSCommand;
 import kr.rtuserver.framework.bukkit.api.configuration.impl.Configurations;
@@ -166,7 +167,7 @@ public abstract class RSPlugin extends JavaPlugin {
     protected void disable() {
     }
 
-    public void syncStorage(String name) {
+    public void syncStorage(String name, JsonObject json) {
     }
 
 }
