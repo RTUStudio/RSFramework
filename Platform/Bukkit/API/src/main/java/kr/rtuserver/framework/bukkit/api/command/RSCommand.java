@@ -30,46 +30,11 @@ public abstract class RSCommand<T extends RSPlugin> extends Command {
     private final T plugin;
 
     private final TranslationConfiguration message;
-
-    protected TranslationConfiguration message() {
-        return message;
-    }
-
     private final TranslationConfiguration command;
-
-    protected TranslationConfiguration command() {
-        return command;
-    }
-
     private final Framework framework = LightDI.getBean(Framework.class);
-
-    protected Framework framework() {
-        return framework;
-    }
-
     private final PlayerChat chat;
-
-    protected PlayerChat chat() {
-        return chat;
-    }
-
     private CommandSender sender;
-
-    protected CommandSender sender() {
-        return sender;
-    }
-
     private Audience audience;
-
-    protected Audience audience() {
-        return audience;
-    }
-
-    protected Player player() {
-        if (sender instanceof Player player) return player;
-        return null;
-    }
-
     @Setter(AccessLevel.PRIVATE)
     private RSCommand<? extends RSPlugin> parent = null;
 
@@ -95,6 +60,35 @@ public abstract class RSCommand<T extends RSPlugin> extends Command {
         Bukkit.getPluginManager().addPermission(perm);
         super.setPermission(perm.getName());
         if (names.size() > 1) super.setAliases(names.subList(1, names.size()));
+    }
+
+    protected TranslationConfiguration message() {
+        return message;
+    }
+
+    protected TranslationConfiguration command() {
+        return command;
+    }
+
+    protected Framework framework() {
+        return framework;
+    }
+
+    protected PlayerChat chat() {
+        return chat;
+    }
+
+    protected CommandSender sender() {
+        return sender;
+    }
+
+    protected Audience audience() {
+        return audience;
+    }
+
+    protected Player player() {
+        if (sender instanceof Player player) return player;
+        return null;
     }
 
     public boolean isOp() {

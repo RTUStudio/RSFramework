@@ -127,7 +127,7 @@ public class MongoDB implements Storage {
                     result.add(JsonParser.parseString(document.toJson()).getAsJsonObject());
                 }
             }
-            return result.isEmpty() ? null : result;
+            return result;
         });
     }
 

@@ -16,33 +16,30 @@ public abstract class RSListener<T extends RSPlugin> implements Listener {
     private final T plugin;
 
     private final TranslationConfiguration message;
-
-    protected TranslationConfiguration message() {
-        return message;
-    }
-
     private final TranslationConfiguration command;
-
-    protected TranslationConfiguration command() {
-        return command;
-    }
-
     private final Framework framework = LightDI.getBean(Framework.class);
-
-    protected Framework framework() {
-        return framework;
-    }
-
     private final PlayerChat chat;
-
-    protected PlayerChat chat() {
-        return chat;
-    }
 
     public RSListener(T plugin) {
         this.plugin = plugin;
         this.message = plugin.getConfigurations().getMessage();
         this.command = plugin.getConfigurations().getCommand();
         this.chat = PlayerChat.of(plugin);
+    }
+
+    protected TranslationConfiguration message() {
+        return message;
+    }
+
+    protected TranslationConfiguration command() {
+        return command;
+    }
+
+    protected Framework framework() {
+        return framework;
+    }
+
+    protected PlayerChat chat() {
+        return chat;
     }
 }
