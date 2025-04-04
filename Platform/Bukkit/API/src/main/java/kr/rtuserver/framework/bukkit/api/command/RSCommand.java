@@ -2,6 +2,7 @@ package kr.rtuserver.framework.bukkit.api.command;
 
 import kr.rtuserver.cdi.LightDI;
 import kr.rtuserver.framework.bukkit.api.RSPlugin;
+import kr.rtuserver.framework.bukkit.api.configuration.impl.Translation;
 import kr.rtuserver.framework.bukkit.api.configuration.impl.TranslationConfiguration;
 import kr.rtuserver.framework.bukkit.api.core.Framework;
 import kr.rtuserver.framework.bukkit.api.core.module.ThemeModule;
@@ -29,6 +30,8 @@ public abstract class RSCommand<T extends RSPlugin> extends Command {
     @Getter
     private final T plugin;
 
+    private final List<String> aliases;
+
     private final TranslationConfiguration message;
     private final TranslationConfiguration command;
     private final Framework framework = LightDI.getBean(Framework.class);
@@ -52,6 +55,7 @@ public abstract class RSCommand<T extends RSPlugin> extends Command {
 
     public RSCommand(T plugin, List<String> names, PermissionDefault permission) {
         super(names.getFirst());
+        this.aliases = Collections.unmodifiableList(names.subList(1, names.size()));
         this.plugin = plugin;
         this.message = plugin.getConfigurations().getMessage();
         this.command = plugin.getConfigurations().getCommand();
@@ -59,7 +63,25 @@ public abstract class RSCommand<T extends RSPlugin> extends Command {
         Permission perm = new Permission(plugin.getName() + ".command." + getName(), permission);
         Bukkit.getPluginManager().addPermission(perm);
         super.setPermission(perm.getName());
-        if (names.size() > 1) super.setAliases(names.subList(1, names.size()));
+        List<String> aliases = new ArrayList<>(this.aliases);
+        for (Translation translation : command.getMap().values()) {
+            String cmd = translation.get(getName() + ".name");
+            if (cmd.isEmpty()) continue;
+            if (cmd.equals(names.getFirst())) continue;
+            aliases.add(cmd);
+        }
+        if (!aliases.isEmpty()) super.setAliases(aliases);
+    }
+
+    public void updateAliases() {
+        List<String> aliases = new ArrayList<>(this.aliases);
+        for (Translation translation : command.getMap().values()) {
+            String cmd = translation.get(getName() + ".name");
+            if (cmd.isEmpty()) continue;
+            if (cmd.equals(getName())) continue;
+            aliases.add(cmd);
+        }
+        if (!aliases.isEmpty()) super.setAliases(aliases);
     }
 
     protected TranslationConfiguration message() {
@@ -178,6 +200,11 @@ public abstract class RSCommand<T extends RSPlugin> extends Command {
     }
 
     private String getLocalizedCommand(Player player) {
+        if (parent == null) return getName();
+        else return parent.getLocalizedCommand(player) + " " + getLocalizedName(player);
+    }
+
+    private String getLocalizedCommand(Player player, String separator) {
         if (parent == null) return getName();
         else return parent.getLocalizedCommand(player) + " " + getLocalizedName(player);
     }

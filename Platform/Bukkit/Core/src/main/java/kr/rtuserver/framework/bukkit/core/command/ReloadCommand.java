@@ -15,6 +15,7 @@ public class ReloadCommand extends RSCommand<RSPlugin> {
     @Override
     protected boolean execute(RSCommandData data) {
         getPlugin().getConfigurations().reload();
+        getPlugin().getFramework().updateCommand();
         chat().announce(audience(), message().getCommon(player(), "reload"));
         return true;
     }

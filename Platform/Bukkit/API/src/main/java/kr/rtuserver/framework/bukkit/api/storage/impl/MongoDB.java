@@ -109,7 +109,7 @@ public class MongoDB implements Storage {
             } else {
                 DeleteResult result = collection.deleteMany(Filters.empty());
                 if (!result.wasAcknowledged()) return false;
-                sync(collectionName, find);
+                sync(collectionName, (@Nullable Pair<String, Object>) null);
                 return true;
             }
         });

@@ -54,6 +54,8 @@ public interface Framework {
 
     void registerCommand(RSCommand<? extends RSPlugin> command, boolean reload);
 
+    void updateCommand();
+
     void registerPermission(String name, PermissionDefault permissionDefault);
 
     void registerProtocol(String namespace, String key, Packet packet, Class<? extends ProtoConnectionHandler> protocolHandler, HandlerCallback callback);

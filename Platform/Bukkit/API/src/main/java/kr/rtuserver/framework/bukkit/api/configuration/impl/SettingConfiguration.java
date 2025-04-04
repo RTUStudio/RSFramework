@@ -11,7 +11,7 @@ import lombok.Setter;
 public class SettingConfiguration extends RSConfiguration<RSPlugin> {
 
     private boolean verbose = false;
-    private boolean listeners = true;
+    private boolean listener = true;
     private boolean welcome = true;
     private String prefix = "";
     private String locale = "en_us";
@@ -26,8 +26,8 @@ public class SettingConfiguration extends RSConfiguration<RSPlugin> {
         verbose = getBoolean("verbose", verbose, """
                 Debug option
                 디버그 옵션입니다""");
-        listeners = getBoolean("listener", listeners, """
-                When disabled, event listener will be deactivated
+        listener = getBoolean("listener", listener, """
+                When disabled, event listeners will be deactivated
                 비활성화할시 이벤트 리스너가 비활성화됩니다""");
         welcome = getBoolean("welcome", welcome, """
                 Controls whether to send MOTD to all players
@@ -49,10 +49,10 @@ public class SettingConfiguration extends RSConfiguration<RSPlugin> {
 
     @Override
     public void reload() {
-        final boolean previous = listeners;
+        final boolean previous = listener;
         super.reload();
-        if (previous != listeners) {
-            if (listeners) getPlugin().registerEvents();
+        if (previous != listener) {
+            if (listener) getPlugin().registerEvents();
             else getPlugin().unregisterEvents();
         }
     }

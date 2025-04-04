@@ -34,6 +34,8 @@ import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
+import org.bukkit.command.Command;
+import org.bukkit.command.CommandMap;
 import org.bukkit.permissions.Permission;
 import org.bukkit.permissions.PermissionDefault;
 
@@ -180,6 +182,17 @@ public class Framework implements kr.rtuserver.framework.bukkit.api.core.Framewo
     public void registerCommand(RSCommand<? extends RSPlugin> command, boolean reload) {
         if (reload) command.registerCommand(new ReloadCommand(command.getPlugin()));
         NMS.commandMap().register(command.getName(), command);
+    }
+
+    public void updateCommand() {
+        CommandMap cm = NMS.commandMap();
+        for (Command command : cm.getKnownCommands().values()) {
+            if (command instanceof RSCommand<? extends RSPlugin> rsc) {
+                rsc.unregister(cm);
+                rsc.updateAliases();
+                rsc.register(cm);
+            }
+        }
     }
 
     public void registerPermission(String name, PermissionDefault permissionDefault) {
