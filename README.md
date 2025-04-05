@@ -31,9 +31,9 @@ Velocity, Bungeecord, Waterfall and Bungeecord forks
 
 ## Supported Version
 
-1.19.3 ~ 1.21.4
+1.17.1 ~ 1.21.5
 
 ## JDK Version
 
-- for 1.19.3 ~ 1.21.4, Java 21
+- for 1.17.1 ~ 1.21.5, Java 21
 - for Project Build, Java 21
