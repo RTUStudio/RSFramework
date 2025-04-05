@@ -190,12 +190,10 @@ public abstract class RSCommand<T extends RSPlugin> extends Command {
     }
 
     private String getLocalizedCommand(Player player) {
-        if (parent == null) return getName();
-        else return parent.getLocalizedCommand(player) + " " + getLocalizedName(player);
-    }
-
-    private String getLocalizedCommand(Player player, String separator) {
-        if (parent == null) return getName();
+        if (parent == null) {
+            String name = command.getCommon(player, getName());
+            return name.isEmpty() ? getName() : name;
+        }
         else return parent.getLocalizedCommand(player) + " " + getLocalizedName(player);
     }
 
