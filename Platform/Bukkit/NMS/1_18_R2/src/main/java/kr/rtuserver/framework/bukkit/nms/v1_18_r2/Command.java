@@ -8,8 +8,8 @@ import lombok.Getter;
 import org.bukkit.Bukkit;
 import org.bukkit.command.SimpleCommandMap;
 import org.bukkit.craftbukkit.v1_18_R2.CraftServer;
+import org.bukkit.craftbukkit.v1_18_R2.command.CraftCommandMap;
 
-import java.lang.reflect.Field;
 import java.util.Map;
 import java.util.Set;
 
@@ -21,13 +21,7 @@ public class Command implements NMSCommand {
     @Override
     public Map<String, org.bukkit.command.Command> getKnownCommands() {
         if (MinecraftVersion.isPaper()) return commandMap.getKnownCommands();
-        try {
-            Field field = commandMap.getClass().getDeclaredField("knownCommands");
-            field.setAccessible(true);
-            return (Map<String, org.bukkit.command.Command>) field.get(commandMap);
-        } catch (NoSuchFieldException | IllegalAccessException e) {
-            throw new RuntimeException(e);
-        }
+        else return ((CraftCommandMap) commandMap).getKnownCommands();
     }
 
     @Override
