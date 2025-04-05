@@ -29,6 +29,10 @@ include(
 )
 
 include(
+        "Library:ProtoWeaver:Bukkit:NMS:1_17_R1",
+        "Library:ProtoWeaver:Bukkit:NMS:1_18_R1",
+        "Library:ProtoWeaver:Bukkit:NMS:1_18_R2",
+        "Library:ProtoWeaver:Bukkit:NMS:1_19_R1",
         "Library:ProtoWeaver:Bukkit:NMS:1_19_R2",
         "Library:ProtoWeaver:Bukkit:NMS:1_19_R3",
         "Library:ProtoWeaver:Bukkit:NMS:1_20_R1",
@@ -52,6 +56,10 @@ include(
 )
 
 include(
+        "Platform:Bukkit:NMS:1_17_R1",
+        "Platform:Bukkit:NMS:1_18_R1",
+        "Platform:Bukkit:NMS:1_18_R2",
+        "Platform:Bukkit:NMS:1_19_R1",
         "Platform:Bukkit:NMS:1_19_R2",
         "Platform:Bukkit:NMS:1_19_R3",
         "Platform:Bukkit:NMS:1_20_R1",
