@@ -57,9 +57,8 @@ public class TranslationConfiguration {
         File[] files = FileResource.createFolder(getPlugin().getDataFolder() + "/Translations/" + type.getName()).listFiles();
         if (files == null) return;
         Set<String> list = plugin.getLanguages();
-        list.addAll(Arrays.stream(files).map(File::getName).toList());
+        list.addAll(Arrays.stream(files).map(file -> Files.getNameWithoutExtension(file.getName())).toList());
         list.add(defaultLocale);
-        for (String file : list)
-            map.put(file, new Translation(plugin, type.getName(), Files.getNameWithoutExtension(file)));
+        for (String lang : list) map.put(lang, new Translation(plugin, type.getName(), lang));
     }
 }

@@ -28,7 +28,10 @@ import java.util.Set;
 
 public abstract class RSPlugin extends JavaPlugin {
 
-    private final Set<Listener> registeredListeners = new HashSet<>();
+    @Getter
+    private final Set<RSListener<? extends RSPlugin>> listeners = new HashSet<>();
+    @Getter
+    private final Set<RSCommand<? extends RSPlugin>> commands = new HashSet<>();
     @Getter
     private final Set<String> languages = new HashSet<>();
     @Getter
@@ -113,13 +116,13 @@ public abstract class RSPlugin extends JavaPlugin {
     }
 
     public void registerEvent(RSListener<? extends RSPlugin> listener) {
-        this.registeredListeners.add(listener);
+        this.listeners.add(listener);
         Bukkit.getPluginManager().registerEvents(listener, this);
     }
 
 
     public void registerEvents() {
-        for (Listener listener : registeredListeners) {
+        for (Listener listener : listeners) {
             Bukkit.getPluginManager().registerEvents(listener, this);
         }
     }
@@ -135,6 +138,7 @@ public abstract class RSPlugin extends JavaPlugin {
     }
 
     public void registerCommand(RSCommand<? extends RSPlugin> command, boolean reload) {
+        this.commands.add(command);
         framework.registerCommand(command, reload);
     }
 

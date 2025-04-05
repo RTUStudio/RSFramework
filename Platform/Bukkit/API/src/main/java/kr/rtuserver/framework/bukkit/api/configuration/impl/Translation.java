@@ -2,10 +2,12 @@ package kr.rtuserver.framework.bukkit.api.configuration.impl;
 
 import kr.rtuserver.framework.bukkit.api.RSPlugin;
 import kr.rtuserver.framework.bukkit.api.configuration.RSConfiguration;
+import lombok.ToString;
 
 import java.util.HashMap;
 import java.util.Map;
 
+@ToString
 public class Translation extends RSConfiguration<RSPlugin> {
 
     private final Map<String, String> map = new HashMap<>();
