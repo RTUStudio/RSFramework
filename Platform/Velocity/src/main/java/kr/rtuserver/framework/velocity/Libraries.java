@@ -30,4 +30,18 @@ class Libraries {
                 .build();
         manager.loadLibrary(lib);
     }
+
+    public void load(@NotNull String dependency, @NotNull String pattern, @NotNull String relocatedPattern) {
+        String[] split = dependency.split(":");
+        String groupId = split[0];
+        String artifactId = split[1];
+        String version = split[2];
+        Library lib = Library.builder()
+                .groupId(groupId)
+                .artifactId(artifactId)
+                .version(version)
+                .relocate(pattern, relocatedPattern)
+                .build();
+        manager.loadLibrary(lib);
+    }
 }
