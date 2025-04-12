@@ -1,7 +1,8 @@
 dependencies {
     implementation project(":Library:ProtoWeaver:Common:API")
 
-    compileOnly "org.apache.fury:fury-core:0.9.0"
+    implementation "org.apache.fury:fury-core:0.9.0@jar"
+
     compileOnly "io.netty:netty-buffer:4.1.97.Final"
     compileOnly "io.netty:netty-transport:4.1.97.Final"
     compileOnly "io.netty:netty-handler:4.1.97.Final"

@@ -35,7 +35,6 @@ public class RSFramework {
 
         libraries.load("io.netty:netty-codec-http:4.1.111.Final");
         libraries.load("io.netty:netty-codec-http2:4.1.111.Final");
-        libraries.load("org.apache.fury:fury-core:0.9.0", "org.apache.fury", "kr.rtuserver.protoweaver.fury");
         libraries.load("org.bouncycastle:bcpkix-jdk18on:1.79");
         libraries.load("org.bouncycastle:bcprov-jdk18on:1.79");
         libraries.load("org.bouncycastle:bcutil-jdk18on:1.79");
