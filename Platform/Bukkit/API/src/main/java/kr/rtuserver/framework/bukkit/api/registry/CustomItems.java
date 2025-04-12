@@ -1,10 +1,13 @@
 package kr.rtuserver.framework.bukkit.api.registry;
 
+import com.google.gson.*;
 import com.nexomc.nexo.api.NexoItems;
 import com.willfp.ecoitems.items.EcoItem;
 import com.willfp.ecoitems.items.EcoItems;
 import com.willfp.ecoitems.items.ItemUtilsKt;
-import de.tr7zw.changeme.nbtapi.NBT;
+import de.tr7zw.changeme.nbtapi.*;
+import de.tr7zw.changeme.nbtapi.iface.ReadWriteNBT;
+import de.tr7zw.changeme.nbtapi.iface.ReadWriteNBTCompoundList;
 import de.tr7zw.changeme.nbtapi.iface.ReadableNBT;
 import dev.lone.itemsadder.api.CustomStack;
 import io.th0rgal.oraxen.api.OraxenItems;
@@ -13,24 +16,18 @@ import kr.rtuserver.framework.bukkit.api.core.Framework;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import net.Indyuce.mmoitems.MMOItems;
-import net.Indyuce.mmoitems.api.Type;
-import net.Indyuce.mmoitems.api.item.mmoitem.MMOItem;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.util.io.BukkitObjectInputStream;
-import org.bukkit.util.io.BukkitObjectOutputStream;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.xerial.snappy.Snappy;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.util.Base64;
+import java.util.Arrays;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class CustomItems {
+
+    private final static Gson GSON = new Gson();
 
     static Framework framework;
 
@@ -51,13 +48,6 @@ public class CustomItems {
                     return itemBuilder != null ? itemBuilder.build() : null;
                 } else return null;
             }
-            case "oraxen" -> {
-                if (split.length != 2) return null;
-                if (framework().isEnabledDependency("Oraxen")) {
-                    io.th0rgal.oraxen.items.ItemBuilder itemBuilder = OraxenItems.getItemById(split[1]);
-                    return itemBuilder != null ? itemBuilder.build() : null;
-                } else return null;
-            }
             case "itemsadder" -> {
                 if (framework().isEnabledDependency("ItemsAdder")) {
                     if (split.length != 3) return null;
@@ -65,10 +55,11 @@ public class CustomItems {
                     return customStack != null ? customStack.getItemStack() : null;
                 } else return null;
             }
-            case "mmoitems" -> {
-                if (framework().isEnabledDependency("MMOItems")) {
-                    if (split.length != 3) return null;
-                    return MMOItems.plugin.getItem(split[1], split[2]);
+            case "oraxen" -> {
+                if (split.length != 2) return null;
+                if (framework().isEnabledDependency("Oraxen")) {
+                    io.th0rgal.oraxen.items.ItemBuilder itemBuilder = OraxenItems.getItemById(split[1]);
+                    return itemBuilder != null ? itemBuilder.build() : null;
                 } else return null;
             }
             case "ecoitems" -> {
@@ -76,6 +67,12 @@ public class CustomItems {
                     if (split.length != 2) return null;
                     EcoItem item = EcoItems.INSTANCE.getByID(split[1]);
                     return item != null ? item.getItemStack() : null;
+                } else return null;
+            }
+            case "mmoitems" -> {
+                if (framework().isEnabledDependency("MMOItems")) {
+                    if (split.length != 3) return null;
+                    return MMOItems.plugin.getItem(split[1], split[2]);
                 } else return null;
             }
             case "custom" -> {
@@ -102,22 +99,22 @@ public class CustomItems {
             String nexo = NexoItems.idFromItem(itemStack);
             if (nexo != null) return "nexo:" + nexo;
         }
+        if (framework().isEnabledDependency("ItemsAdder")) {
+            CustomStack itemsAdder = CustomStack.byItemStack(itemStack);
+            if (itemsAdder != null) return "itemsadder:" + itemsAdder.getNamespacedID();
+        }
         if (framework().isEnabledDependency("Oraxen")) {
             String oraxen = OraxenItems.getIdByItem(itemStack);
             if (oraxen != null) return "oraxen:" + oraxen;
         }
-        if (framework().isEnabledDependency("ItemsAdder")) {
-            CustomStack itemsAdder = CustomStack.byItemStack(itemStack);
-            if (itemsAdder != null) return "itemsadder:" + itemsAdder.getNamespacedID();
+        if (framework().isEnabledDependency("EcoItems")) {
+            EcoItem item = ItemUtilsKt.getEcoItem(itemStack);
+            if (item != null) return "ecoitems:" + item.getID();
         }
         if (framework().isEnabledDependency("MMOItems")) {
             String type = MMOItems.getTypeName(itemStack);
             String id = MMOItems.getID(itemStack);
             if (id != null && type != null) return "mmoitems:" + type + ":" + id;
-        }
-        if (framework().isEnabledDependency("EcoItems")) {
-            EcoItem item = ItemUtilsKt.getEcoItem(itemStack);
-            if (item != null) return "ecoitems:" + item.getID();
         }
         String result = itemStack.getType().getKey().toString();
         ItemMeta itemMeta = itemStack.getItemMeta();
@@ -128,133 +125,191 @@ public class CustomItems {
     }
 
     public static boolean isSimilar(ItemStack stack1, ItemStack stack2) {
-        if (framework().isEnabledDependency("Nexo")) {
-            String var1 = NexoItems.idFromItem(stack1);
-            String var2 = NexoItems.idFromItem(stack2);
-            if (var1 != null && var2 != null) return var1.equalsIgnoreCase(var2);
-            else if (var1 != null) return NexoItems.itemFromId(var1).build().isSimilar(stack2);
-            else if (var2 != null) return NexoItems.itemFromId(var2).build().isSimilar(stack1);
+        String id1 = to(stack1);
+        String id2 = to(stack2);
+        if (id1.startsWith("minecraft:") || id2.startsWith("minecraft:")) return stack1.isSimilar(stack2);
+        if (id1.startsWith("custom:") || id2.startsWith("custom:")) return stack1.isSimilar(stack2);
+        return id1.equalsIgnoreCase(id2);
+    }
+
+    @Nullable
+    public static String serialize(@NotNull ItemStack target) {
+        ReadWriteNBT result = toNBT(target);
+        return result == null ? null : result.toString();
+    }
+
+    @Nullable
+    public static ItemStack deserialize(@NotNull String nbt) {
+        if (nbt.isEmpty()) return null;
+        return fromNBT(NBT.parseNBT(nbt));
+    }
+
+    @NotNull
+    public static String serializeArray(@NotNull ItemStack[] items) {
+        return toNBTArray(items).toString();
+    }
+
+    @NotNull
+    public static ItemStack[] deserializeArray(@NotNull String nbt) {
+        return fromNBTArray(NBT.parseNBT(nbt));
+    }
+
+    @Nullable
+    public static ReadWriteNBT toNBT(@NotNull ItemStack target) {
+        if (target.getType().isAir()) return null;
+        int count = target.getAmount();
+
+        String id = CustomItems.to(target);
+        ItemStack original = CustomItems.from(id);
+
+        ReadWriteNBT originNBT = NBT.itemStackToNBT(original);
+        ReadWriteNBT targetNBT = NBT.itemStackToNBT(target);
+
+        ReadWriteNBT diff = extractDifferenceNBT(originNBT, targetNBT);
+
+        diff.setString("id", id);
+        diff.setInteger("count", count);
+
+        return diff;
+    }
+
+    @Nullable
+    public static ItemStack fromNBT(@NotNull ReadableNBT nbt) {
+        ReadWriteNBT override = NBT.parseNBT(nbt.toString());
+        String id = override.getString("id");
+        override.removeKey("id");
+
+        int count = override.getInteger("count");
+
+        ItemStack itemStack = CustomItems.from(id);
+        if (itemStack == null) return null;
+        itemStack.setAmount(count);
+
+        ReadWriteNBT source = NBT.itemStackToNBT(itemStack);
+
+        ReadWriteNBT result = mergeNBT(source, override);
+
+        return NBT.itemStackFromNBT(result);
+    }
+
+    @NotNull
+    public static NBTContainer toNBTArray(@NotNull ItemStack[] items) {
+        NBTContainer container = new NBTContainer();
+        container.setInteger("size", items.length);
+        NBTCompoundList list = container.getCompoundList("items");
+        for (int i = 0; i < items.length; i++) {
+            ItemStack item = items[i];
+            if (item == null || item.getType() == Material.AIR) continue;
+            NBTListCompound entry = list.addCompound();
+            entry.setInteger("Slot", i);
+            entry.mergeCompound(toNBT(item));
         }
-        if (framework().isEnabledDependency("Oraxen")) {
-            String var1 = OraxenItems.getIdByItem(stack1);
-            String var2 = OraxenItems.getIdByItem(stack2);
-            if (var1 != null && var2 != null) return var1.equalsIgnoreCase(var2);
-            else if (var1 != null) return OraxenItems.getItemById(var1).build().isSimilar(stack2);
-            else if (var2 != null) return OraxenItems.getItemById(var2).build().isSimilar(stack1);
-        }
-        if (framework().isEnabledDependency("ItemsAdder")) {
-            CustomStack var1 = CustomStack.byItemStack(stack1);
-            CustomStack var2 = CustomStack.byItemStack(stack2);
-            if (var1 != null && var2 != null) return var1.getNamespacedID().equalsIgnoreCase(var2.getNamespacedID());
-            else if (var1 != null) return var1.getItemStack().isSimilar(stack2);
-            else if (var2 != null) return var2.getItemStack().isSimilar(stack1);
-        }
-        if (framework().isEnabledDependency("MMOItems")) {
-            Type type1 = MMOItems.getType(stack1);
-            String id1 = MMOItems.getID(stack1);
-            Type type2 = MMOItems.getType(stack2);
-            String id2 = MMOItems.getID(stack2);
-            MMOItem var1 = MMOItems.plugin.getMMOItem(type1, id1);
-            MMOItem var2 = MMOItems.plugin.getMMOItem(type2, id2);
-            if (var1 != null && var2 != null)
-                return (var1.getType().getName() + ":" + var1.getId()).equalsIgnoreCase(var2.getType().getName() + ":" + var2.getId());
-            else if (var1 != null) {
-                ItemStack itemStack = MMOItems.plugin.getItem(type1, id1);
-                if (itemStack != null) return itemStack.isSimilar(stack2);
-            } else if (var2 != null) {
-                ItemStack itemStack = MMOItems.plugin.getItem(type2, id2);
-                if (itemStack != null) return itemStack.isSimilar(stack1);
+        return container;
+    }
+
+    @NotNull
+    public static ItemStack[] fromNBTArray(@NotNull ReadWriteNBT nbt) {
+        if (!nbt.hasTag("size")) return new ItemStack[]{};
+        ItemStack[] rebuild = new ItemStack[nbt.getInteger("size")];
+        for (int i = 0; i < rebuild.length; i++) rebuild[i] = new ItemStack(Material.AIR);
+        if (!nbt.hasTag("items")) return rebuild;
+        ReadWriteNBTCompoundList list = nbt.getCompoundList("items");
+        for (ReadWriteNBT lcomp : list) {
+            if (lcomp instanceof NBTCompound) {
+                int slot = lcomp.getInteger("Slot");
+                rebuild[slot] = fromNBT(lcomp);
             }
         }
-        if (framework().isEnabledDependency("EcoItems")) {
-            EcoItem var1 = ItemUtilsKt.getEcoItem(stack1);
-            EcoItem var2 = ItemUtilsKt.getEcoItem(stack2);
-            if (var1 != null && var2 != null) return var1.getID().equalsIgnoreCase(var2.getID());
-            else if (var1 != null) return var1.getItemStack().isSimilar(stack2);
-            else if (var2 != null) return var2.getItemStack().isSimilar(stack1);
-        }
-        return stack1.isSimilar(stack2);
+        return rebuild;
     }
 
-    @Nullable
-    public static String encode(ItemStack itemStack) {
-        try {
-            final ByteArrayOutputStream str = new ByteArrayOutputStream();
-            final BukkitObjectOutputStream data = new BukkitObjectOutputStream(str);
-            data.writeObject(itemStack);
-            data.close();
-            String result = Base64.getEncoder().encodeToString(Snappy.compress(str.toByteArray()));
-            return result == null || result.isEmpty() ? null : result;
-        } catch (final Exception e) {
-            return null;
+    private static ReadWriteNBT extractDifferenceNBT(ReadWriteNBT original, ReadWriteNBT target) {
+        ReadWriteNBT result = NBT.createNBTObject();
+        for (String key : target.getKeys()) {
+            if (!original.hasTag(key)) setNBT(result, target, key);
+            else if (original.getType(key) == NBTType.NBTTagCompound && target.getType(key) == NBTType.NBTTagCompound) {
+                ReadWriteNBT nestedDiff = extractDifferenceNBT(original.getCompound(key), target.getCompound(key));
+                if (!nestedDiff.getKeys().isEmpty()) result.getOrCreateCompound(key).mergeCompound(nestedDiff);
+            } else if (!equalsNBT(original, target, key)) setNBT(result, target, key);
         }
+        return result;
     }
 
-    @Nullable
-    public static ItemStack decode(String str) {
-        if (str == null || str.isEmpty()) return null;
-        try {
-            final ByteArrayInputStream stream = new ByteArrayInputStream(Snappy.uncompress(Base64.getDecoder().decode(str)));
-            final BukkitObjectInputStream data = new BukkitObjectInputStream(stream);
-            ItemStack itemStack = (ItemStack) data.readObject();
-            data.close();
-            return itemStack;
-        } catch (final IOException | ClassNotFoundException e) {
-            return null;
+    private static ReadWriteNBT mergeNBT(ReadWriteNBT source, ReadWriteNBT override) {
+        ReadWriteNBT result = NBT.parseNBT(source.toString());
+        for (String key : override.getKeys()) {
+            if (source.hasTag(key)) {
+                NBTType type = source.getType(key);
+                boolean sameType = source.getType(key) == override.getType(key);
+                if (sameType && type == NBTType.NBTTagCompound) {
+                    ReadWriteNBT nestedDiff = mergeNBT(source.getCompound(key), override.getCompound(key));
+                    if (!nestedDiff.getKeys().isEmpty()) result.getOrCreateCompound(key).mergeCompound(nestedDiff);
+                } else if (sameType && type == NBTType.NBTTagString) {
+                    try {
+                        JsonElement sourceJson = JsonParser.parseString(source.getString(key));
+                        JsonElement overrideJson = JsonParser.parseString(override.getString(key));
+                        String json = GSON.toJson(mergeJson(sourceJson.getAsJsonObject(), overrideJson.getAsJsonObject()));
+                        result.setString(key, json);
+                    } catch (JsonSyntaxException e) {
+                        result.setString(key, override.getString(key));
+                    }
+                } else if (!equalsNBT(source, override, key)) setNBT(result, override, key);
+            } else setNBT(result, override, key);
         }
+        return result;
     }
 
-    @Nullable
-    public static String encodeArray(ItemStack[] array) {
-        try {
-            final ByteArrayOutputStream str = new ByteArrayOutputStream();
-            final BukkitObjectOutputStream data = new BukkitObjectOutputStream(str);
-            data.writeInt(array.length);
-            for (ItemStack itemStack : array) data.writeObject(itemStack);
-            data.close();
-            String result = Base64.getEncoder().encodeToString(Snappy.compress(str.toByteArray()));
-            return result == null || result.isEmpty() ? null : result;
-        } catch (final Exception e) {
-            return null;
-        }
-    }
-
-    @Nullable
-    public static ItemStack[] decodeArray(String str) {
-        if (str == null || str.isEmpty()) return null;
-        try {
-            final ByteArrayInputStream stream = new ByteArrayInputStream(Snappy.uncompress(Base64.getDecoder().decode(str)));
-            final BukkitObjectInputStream data = new BukkitObjectInputStream(stream);
-            int invSize = data.readInt();
-            ItemStack[] array = new ItemStack[invSize];
-            for (int i = 0; i < invSize; i++) array[i] = (ItemStack) data.readObject();
-            data.close();
-            return array;
-        } catch (final IOException | ClassNotFoundException e) {
-            return null;
+    private static void setNBT(ReadWriteNBT result, ReadWriteNBT target, String key) {
+        switch (target.getType(key)) {
+            case NBTTagByte -> result.setByte(key, target.getByte(key));
+            case NBTTagByteArray -> result.setByteArray(key, target.getByteArray(key));
+            case NBTTagCompound -> result.getOrCreateCompound(key).mergeCompound(target.getCompound(key));
+            case NBTTagDouble -> result.setDouble(key, target.getDouble(key));
+            case NBTTagFloat -> result.setFloat(key, target.getFloat(key));
+            case NBTTagInt -> result.setInteger(key, target.getInteger(key));
+            case NBTTagIntArray -> result.setIntArray(key, target.getIntArray(key));
+            case NBTTagList ->
+                    NBTReflectionUtil.set((NBTCompound) result, key, NBTReflectionUtil.getEntry((NBTCompound) target, key));
+            case NBTTagLong -> result.setLong(key, target.getLong(key));
+            case NBTTagShort -> result.setShort(key, target.getShort(key));
+            case NBTTagString -> result.setString(key, target.getString(key));
+            case NBTTagLongArray -> result.setLongArray(key, target.getLongArray(key));
         }
     }
 
-    @Nullable
-    public static String serialize(ItemStack itemStack) {
-        if (itemStack == null || itemStack.getType().isAir()) return null;
-        ReadableNBT nbt = NBT.itemStackToNBT(itemStack);
-        return nbt.toString();
+    private static boolean equalsNBT(ReadWriteNBT compA, ReadWriteNBT compB, String key) {
+        if (compA.getType(key) != compB.getType(key)) return false;
+        return switch (compA.getType(key)) {
+            case NBTTagByte -> compA.getByte(key).equals(compB.getByte(key));
+            case NBTTagByteArray -> Arrays.equals(compA.getByteArray(key), compB.getByteArray(key));
+            case NBTTagDouble -> compA.getDouble(key).equals(compB.getDouble(key));
+            case NBTTagEnd -> true;
+            case NBTTagFloat -> compA.getFloat(key).equals(compB.getFloat(key));
+            case NBTTagInt -> compA.getInteger(key).equals(compB.getInteger(key));
+            case NBTTagIntArray -> Arrays.equals(compA.getIntArray(key), compB.getIntArray(key));
+            case NBTTagList -> NBTReflectionUtil.getEntry((NBTCompound) compA, key).toString()
+                    .equals(NBTReflectionUtil.getEntry((NBTCompound) compB, key).toString());
+            case NBTTagLong -> compA.getLong(key).equals(compB.getLong(key));
+            case NBTTagShort -> compA.getShort(key).equals(compB.getShort(key));
+            case NBTTagString -> compA.getString(key).equals(compB.getString(key));
+            case NBTTagLongArray -> Arrays.equals(compA.getLongArray(key), compB.getLongArray(key));
+            default -> false;
+        };
     }
 
-    @Nullable
-    public static ItemStack deserialize(String nbt) {
-        return NBT.itemStackFromNBT(NBT.parseNBT(nbt));
+
+    private static JsonObject mergeJson(JsonObject source, JsonObject override) {
+        JsonObject result = source.deepCopy();
+        for (String key : override.keySet()) {
+            JsonElement overrideVal = override.get(key);
+            if (result.has(key)) {
+                JsonElement sourceVal = result.get(key);
+                if (sourceVal.isJsonObject() && overrideVal.isJsonObject()) {
+                    result.add(key, mergeJson(sourceVal.getAsJsonObject(), overrideVal.getAsJsonObject()));
+                } else result.add(key, overrideVal);
+            } else result.add(key, overrideVal);
+        }
+        return result;
     }
 
-    @Nullable
-    public static String serializeArray(ItemStack[] itemStack) {
-        ReadableNBT nbt = NBT.itemStackArrayToNBT(itemStack);
-        return nbt.toString();
-    }
-
-    @Nullable
-    public static ItemStack[] deserializeArray(String json) {
-        return NBT.itemStackArrayFromNBT(NBT.parseNBT(json));
-    }
 }
