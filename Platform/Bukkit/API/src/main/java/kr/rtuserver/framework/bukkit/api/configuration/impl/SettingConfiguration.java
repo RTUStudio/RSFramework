@@ -44,7 +44,7 @@ public class SettingConfiguration extends RSConfiguration<RSPlugin> {
                 내장된 언어: en_us, ko_kr""");
         storage = StorageType.getType(getString("storage", storage.name(), """
                 Data storage format. Available options: JSON, MONGODB, MYSQL, MARIADB
-                데이터 저장 포멧: 사용 가능한 포멧: JSON, MONGODB, MYSQL, MARIADB"""));
+                데이터 저장 포멧. 사용 가능한 포멧: JSON, MONGODB, MYSQL, MARIADB"""));
     }
 
     @Override

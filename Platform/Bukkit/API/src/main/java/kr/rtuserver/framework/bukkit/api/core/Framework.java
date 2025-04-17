@@ -5,6 +5,7 @@ import kr.rtuserver.framework.bukkit.api.command.RSCommand;
 import kr.rtuserver.framework.bukkit.api.core.configuration.CommonTranslation;
 import kr.rtuserver.framework.bukkit.api.core.internal.runnable.CommandLimit;
 import kr.rtuserver.framework.bukkit.api.core.module.Modules;
+import kr.rtuserver.framework.bukkit.api.core.player.NameProvider;
 import kr.rtuserver.framework.bukkit.api.listener.RSListener;
 import kr.rtuserver.framework.bukkit.api.nms.NMS;
 import kr.rtuserver.protoweaver.api.ProtoConnectionHandler;
@@ -19,6 +20,8 @@ import java.util.Map;
 public interface Framework {
 
     Component getPrefix();
+
+    RSPlugin getPlugin();
 
     Map<String, RSPlugin> getPlugins();
 
@@ -35,6 +38,8 @@ public interface Framework {
     CommonTranslation getCommonTranslation();
 
     Modules getModules();
+
+    NameProvider getNameProvider();
 
     void loadPlugin(RSPlugin plugin);
 

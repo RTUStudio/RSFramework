@@ -34,7 +34,7 @@ public class ReloadCommand extends RSCommand<RSPlugin> {
             nmsc.register(rsc);
             Bukkit.getOnlinePlayers().forEach(Player::updateCommands);
         }
-        chat().announce(audience(), message().getCommon(player(), "reload"));
+        chat().announce(message().getCommon(player(), "reload"));
         return true;
     }
 

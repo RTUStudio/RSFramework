@@ -3,17 +3,20 @@ package kr.rtuserver.framework.bukkit.core;
 import de.tr7zw.changeme.nbtapi.NBT;
 import kr.rtuserver.framework.bukkit.api.RSPlugin;
 import kr.rtuserver.framework.bukkit.api.command.RSCommand;
+import kr.rtuserver.framework.bukkit.api.core.player.NameProvider;
+import kr.rtuserver.framework.bukkit.api.format.ComponentFormatter;
 import kr.rtuserver.framework.bukkit.api.listener.RSListener;
-import kr.rtuserver.framework.bukkit.api.utility.format.ComponentFormatter;
-import kr.rtuserver.framework.bukkit.api.utility.platform.MinecraftVersion;
-import kr.rtuserver.framework.bukkit.api.utility.platform.SystemEnvironment;
-import kr.rtuserver.framework.bukkit.api.utility.player.PlayerChat;
+import kr.rtuserver.framework.bukkit.api.platform.MinecraftVersion;
+import kr.rtuserver.framework.bukkit.api.platform.SystemEnvironment;
+import kr.rtuserver.framework.bukkit.api.player.PlayerChat;
 import kr.rtuserver.framework.bukkit.core.command.ReloadCommand;
 import kr.rtuserver.framework.bukkit.core.configuration.CommonTranslation;
+import kr.rtuserver.framework.bukkit.core.dependency.Dependencies;
 import kr.rtuserver.framework.bukkit.core.internal.listeners.InventoryListener;
 import kr.rtuserver.framework.bukkit.core.internal.listeners.JoinListener;
 import kr.rtuserver.framework.bukkit.core.internal.runnable.CommandLimit;
 import kr.rtuserver.framework.bukkit.core.module.Modules;
+import kr.rtuserver.framework.bukkit.core.player.NameProviderImpl;
 import kr.rtuserver.framework.bukkit.nms.v1_17_r1.NMS_1_17_R1;
 import kr.rtuserver.framework.bukkit.nms.v1_18_r1.NMS_1_18_R1;
 import kr.rtuserver.framework.bukkit.nms.v1_18_r2.NMS_1_18_R2;
@@ -56,7 +59,7 @@ public class Framework implements kr.rtuserver.framework.bukkit.api.core.Framewo
     @Getter
     private final Map<String, Boolean> hooks = new HashMap<>();
     @Getter
-    private RSPlugin rsf;
+    private RSPlugin plugin;
     @Getter
     private kr.rtuserver.framework.bukkit.api.nms.NMS NMS;
     @Getter
@@ -65,11 +68,15 @@ public class Framework implements kr.rtuserver.framework.bukkit.api.core.Framewo
     @Getter
     private String NMSVersion;
     @Getter
+    private Dependencies dependencies;
+    @Getter
     private CommandLimit commandLimit;
     @Getter
     private CommonTranslation commonTranslation;
     @Getter
     private Modules modules;
+    @Getter
+    private NameProvider nameProvider;
 
     public void loadPlugin(RSPlugin plugin) {
         log.info("loading RSPlugin: {}", plugin.getName());
@@ -93,7 +100,7 @@ public class Framework implements kr.rtuserver.framework.bukkit.api.core.Framewo
             plugin.syncStorage(sync.name(), sync.json());
         }
         if (packet.packet() instanceof BroadcastChat chat) {
-            PlayerChat.of(rsf).broadcast(chat.minimessage());
+            PlayerChat.of(plugin).broadcast(chat.minimessage());
         }
     }
 
@@ -106,7 +113,7 @@ public class Framework implements kr.rtuserver.framework.bukkit.api.core.Framewo
     }
 
     public void load(RSPlugin plugin) {
-        this.rsf = plugin;
+        this.plugin = plugin;
         if (!NBT.preloadApi()) {
             log.warn("NBT-API wasn't initialized properly, disabling the plugin");
             Bukkit.getPluginManager().disablePlugin(plugin);
@@ -141,6 +148,8 @@ public class Framework implements kr.rtuserver.framework.bukkit.api.core.Framewo
     }
 
     public void enable(RSPlugin plugin) {
+        dependencies = new Dependencies(this);
+        nameProvider = new NameProviderImpl(this);
         printStartUp(plugin);
         commonTranslation = new CommonTranslation(plugin);
         registerInternal(plugin);

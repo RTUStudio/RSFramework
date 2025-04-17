@@ -4,9 +4,9 @@ import kr.rtuserver.cdi.LightDI;
 import kr.rtuserver.framework.bukkit.api.RSPlugin;
 import kr.rtuserver.framework.bukkit.api.configuration.impl.TranslationConfiguration;
 import kr.rtuserver.framework.bukkit.api.core.Framework;
-import kr.rtuserver.framework.bukkit.api.utility.format.ComponentFormatter;
-import kr.rtuserver.framework.bukkit.api.utility.platform.MinecraftVersion;
-import kr.rtuserver.framework.bukkit.api.utility.player.PlayerChat;
+import kr.rtuserver.framework.bukkit.api.format.ComponentFormatter;
+import kr.rtuserver.framework.bukkit.api.platform.MinecraftVersion;
+import kr.rtuserver.framework.bukkit.api.player.PlayerChat;
 import lombok.Getter;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
@@ -48,7 +48,7 @@ public abstract class RSInventory<T extends RSPlugin> implements InventoryHolder
         return framework;
     }
 
-    protected PlayerChat chat() {
+    public PlayerChat chat() {
         return chat;
     }
 

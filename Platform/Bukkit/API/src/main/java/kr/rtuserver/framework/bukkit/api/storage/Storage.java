@@ -1,7 +1,7 @@
 package kr.rtuserver.framework.bukkit.api.storage;
 
 import com.google.gson.JsonObject;
-import kr.rtuserver.framework.bukkit.api.utility.platform.JSON;
+import kr.rtuserver.framework.bukkit.api.platform.JSON;
 import org.apache.commons.lang3.tuple.Pair;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;

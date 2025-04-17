@@ -8,12 +8,15 @@ import kr.rtuserver.protoweaver.api.protocol.Packet;
 import kr.rtuserver.protoweaver.api.protocol.internal.InternalPacket;
 
 import java.util.List;
+import java.util.Set;
 
 public interface BukkitProtoWeaver {
 
     IProtoWeaver getProtoWeaver();
 
-    List<ProxyPlayer> getPlayers();
+    Set<ProxyPlayer> getPlayers();
+
+    boolean isConnected();
 
     boolean isModernProxy();
 

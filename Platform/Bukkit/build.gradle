@@ -53,7 +53,6 @@ shadowJar {
     relocate "net.kyori.adventure.platform.bukkit", "kr.rtuserver.framework.bukkit.kyori"
     relocate "de.tr7zw.changeme.nbtapi", "kr.rtuserver.framework.bukkit.api.nbt"
     relocate "io.papermc.lib", "kr.rtuserver.framework.bukkit.api.paper"
-    relocate "org.apache.fury", "kr.rtuserver.protoweaver.fury"
 }
 
 tasks.withType(AbstractRun.class).configureEach {

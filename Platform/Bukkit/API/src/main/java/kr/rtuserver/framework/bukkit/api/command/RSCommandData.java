@@ -3,8 +3,7 @@ package kr.rtuserver.framework.bukkit.api.command;
 public record RSCommandData(String[] args) {
 
     public String args(int argIndex) {
-        if (args.length <= argIndex) return "";
-        return args[argIndex];
+        return argIndex < 0 || argIndex >= args.length ? "" : args[argIndex];
     }
 
     public int length() {

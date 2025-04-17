@@ -3,7 +3,7 @@ package kr.rtuserver.framework.bukkit.api.configuration;
 import com.google.common.base.Throwables;
 import com.google.common.collect.ImmutableMap;
 import kr.rtuserver.framework.bukkit.api.RSPlugin;
-import kr.rtuserver.framework.bukkit.api.utility.platform.FileResource;
+import kr.rtuserver.framework.bukkit.api.platform.FileResource;
 import lombok.Getter;
 import org.bukkit.Bukkit;
 import org.simpleyaml.configuration.ConfigurationSection;

@@ -1,9 +1,9 @@
 package kr.rtuserver.framework.bukkit.core.internal.listeners;
 
 import kr.rtuserver.framework.bukkit.api.RSPlugin;
+import kr.rtuserver.framework.bukkit.api.format.ComponentFormatter;
 import kr.rtuserver.framework.bukkit.api.inventory.RSInventory;
 import kr.rtuserver.framework.bukkit.api.listener.RSListener;
-import kr.rtuserver.framework.bukkit.api.utility.format.ComponentFormatter;
 import net.kyori.adventure.text.Component;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -30,6 +30,7 @@ public class InventoryListener extends RSListener<RSPlugin> {
             RSInventory.Event<InventoryClickEvent> event = new RSInventory.Event<>(e, inv, player, isPlayerInventory);
             RSInventory.Click click = new RSInventory.Click(e.getSlot(), e.getSlotType(), e.getClick());
             try {
+                rsInv.chat().setReceiver(player);
                 e.setCancelled(!rsInv.onClick(event, click));
             } catch (Exception ex) {
                 e.setCancelled(true);
@@ -53,6 +54,7 @@ public class InventoryListener extends RSListener<RSPlugin> {
             RSInventory.Event<InventoryDragEvent> holderEvent = new RSInventory.Event<>(e, inv, player, isPlayerInventory);
             RSInventory.Drag drag = new RSInventory.Drag(e.getNewItems(), e.getCursor(), e.getOldCursor(), e.getType());
             try {
+                rsInv.chat().setReceiver(player);
                 e.setCancelled(!rsInv.onDrag(holderEvent, drag));
             } catch (Exception ex) {
                 e.setCancelled(true);
@@ -76,6 +78,7 @@ public class InventoryListener extends RSListener<RSPlugin> {
             RSInventory.Event<InventoryCloseEvent> holderEvent = new RSInventory.Event<>(e, inv, player, isPlayerInventory);
             RSInventory.Close close = new RSInventory.Close(e.getReason());
             try {
+                rsInv.chat().setReceiver(player);
                 rsInv.onClose(holderEvent, close);
             } catch (Exception ex) {
                 Component errorMessage = ComponentFormatter.mini(getMessage().get(player, "error.inventory"));

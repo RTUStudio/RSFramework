@@ -34,6 +34,7 @@ import lombok.extern.slf4j.Slf4j;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Slf4j(topic = "RSF/ProtoWeaver")
 @Getter
@@ -44,8 +45,12 @@ public class BukkitProtoWeaver implements kr.rtuserver.protoweaver.api.impl.bukk
     private final boolean isModernProxy;
     private final List<Protocol> protocols = new ArrayList<>();
     private final List<Protocol> unregistered = new ArrayList<>();
-    private final List<ProxyPlayer> players = new ArrayList<>();
+    private final Set<ProxyPlayer> players = new HashSet<>();
     private ProtoConnection connection;
+
+    public boolean isConnected() {
+        return connection != null;
+    }
 
     public BukkitProtoWeaver(String sslFolder, String nmsVersion, HandlerCallback callback) {
         this.protoWeaver = switch (nmsVersion) {

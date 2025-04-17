@@ -1,4 +1,4 @@
-package kr.rtuserver.framework.bukkit.api.utility.platform;
+package kr.rtuserver.framework.bukkit.api.platform;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;

@@ -7,6 +7,9 @@ common:
   notFound:
     onlinePLayer: "<red>This player does not exist or offline</red>"
     offlinePlayer: "<red>This player does not exist</red>"
+  error:
+    inventory: "<red>Flaw was found in code using inventory click event!</red>"
+    cooldown: "<red>Too Quickly! You must try again later</red>"
 
 dataNameType:
   black: "<red>You can't use this name</red>"
@@ -15,9 +18,6 @@ dataNameType:
   long: "<red>Max length of name is 15</red>"
   exist: "<red>This name is duplicated</red>"
 
-error:
-  inventory: "<red>Flaw was found in code using inventory click event!</red>"
-  cooldown: "<red>Too Quickly! You must try again later</red>"
-
-broadcast:
-  empty: "<red>Message is empty</red>"
+command:
+  broadcast:
+    empty: "<red>Message is empty</red>"

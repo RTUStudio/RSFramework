@@ -1,4 +1,4 @@
-package kr.rtuserver.framework.bukkit.api.utility.format;
+package kr.rtuserver.framework.bukkit.api.format;
 
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;

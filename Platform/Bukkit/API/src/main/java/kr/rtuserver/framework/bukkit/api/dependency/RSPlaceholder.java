@@ -4,7 +4,7 @@ import kr.rtuserver.cdi.LightDI;
 import kr.rtuserver.framework.bukkit.api.RSPlugin;
 import kr.rtuserver.framework.bukkit.api.configuration.impl.TranslationConfiguration;
 import kr.rtuserver.framework.bukkit.api.core.Framework;
-import kr.rtuserver.framework.bukkit.api.utility.player.PlayerChat;
+import kr.rtuserver.framework.bukkit.api.player.PlayerChat;
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
 import org.bukkit.OfflinePlayer;
 import org.jetbrains.annotations.NotNull;
@@ -62,6 +62,7 @@ public abstract class RSPlaceholder<T extends RSPlugin> extends PlaceholderExpan
     }
 
     public String onRequest(OfflinePlayer offlinePlayer, String params) {
+        if (offlinePlayer != null && offlinePlayer.isOnline()) chat.setReceiver(offlinePlayer.getPlayer());
         return request(offlinePlayer, params.split("_"));
     }
 

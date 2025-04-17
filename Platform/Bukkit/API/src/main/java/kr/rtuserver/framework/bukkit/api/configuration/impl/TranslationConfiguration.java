@@ -4,7 +4,7 @@ import com.google.common.io.Files;
 import kr.rtuserver.cdi.LightDI;
 import kr.rtuserver.framework.bukkit.api.RSPlugin;
 import kr.rtuserver.framework.bukkit.api.core.Framework;
-import kr.rtuserver.framework.bukkit.api.utility.platform.FileResource;
+import kr.rtuserver.framework.bukkit.api.platform.FileResource;
 import lombok.Getter;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;

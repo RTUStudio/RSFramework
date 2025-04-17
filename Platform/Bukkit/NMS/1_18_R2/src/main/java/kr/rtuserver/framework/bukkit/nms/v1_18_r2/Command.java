@@ -3,7 +3,7 @@ package kr.rtuserver.framework.bukkit.nms.v1_18_r2;
 import kr.rtuserver.framework.bukkit.api.RSPlugin;
 import kr.rtuserver.framework.bukkit.api.command.RSCommand;
 import kr.rtuserver.framework.bukkit.api.nms.NMSCommand;
-import kr.rtuserver.framework.bukkit.api.utility.platform.MinecraftVersion;
+import kr.rtuserver.framework.bukkit.api.platform.MinecraftVersion;
 import lombok.Getter;
 import org.bukkit.Bukkit;
 import org.bukkit.command.SimpleCommandMap;
