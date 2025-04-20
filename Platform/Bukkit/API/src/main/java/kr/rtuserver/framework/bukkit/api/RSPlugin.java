@@ -107,12 +107,20 @@ public abstract class RSPlugin extends JavaPlugin {
         load();
     }
 
+    public void verbose(Component message) {
+        if (configurations.getSetting().isVerbose()) console(message);
+    }
+
+    public void verbose(String minimessage) {
+        verbose(ComponentFormatter.mini(minimessage));
+    }
+
     public void console(Component message) {
         getAdventure().console().sendMessage(getPrefix().append(message));
     }
 
     public void console(String minimessage) {
-        getAdventure().console().sendMessage(getPrefix().append(ComponentFormatter.mini(minimessage)));
+        console(ComponentFormatter.mini(minimessage));
     }
 
     public void registerEvent(RSListener<? extends RSPlugin> listener) {

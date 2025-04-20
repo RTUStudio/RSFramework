@@ -4,6 +4,7 @@ import com.google.common.base.Throwables;
 import com.google.common.collect.ImmutableMap;
 import kr.rtuserver.framework.bukkit.api.RSPlugin;
 import kr.rtuserver.framework.bukkit.api.platform.FileResource;
+import kr.rtuserver.framework.bukkit.api.scheduler.BukkitScheduler;
 import lombok.Getter;
 import org.bukkit.Bukkit;
 import org.simpleyaml.configuration.ConfigurationSection;
@@ -123,7 +124,7 @@ public class RSConfiguration<T extends RSPlugin> {
     }
 
     public void save() {
-        if (plugin.isEnabled()) Bukkit.getScheduler().runTaskAsynchronously(plugin, this::saveFile);
+        if (plugin.isEnabled()) BukkitScheduler.runAsync(plugin, this::saveFile);
         else saveFile();
     }
 

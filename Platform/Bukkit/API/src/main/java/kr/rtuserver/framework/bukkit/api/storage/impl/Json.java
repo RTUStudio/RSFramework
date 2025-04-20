@@ -3,14 +3,13 @@ package kr.rtuserver.framework.bukkit.api.storage.impl;
 import com.google.common.io.Files;
 import com.google.gson.*;
 import kr.rtuserver.framework.bukkit.api.RSPlugin;
-import kr.rtuserver.framework.bukkit.api.platform.JSON;
+import kr.rtuserver.framework.bukkit.api.scheduler.BukkitScheduler;
 import kr.rtuserver.framework.bukkit.api.storage.Storage;
 import kr.rtuserver.framework.bukkit.api.storage.config.JsonConfig;
 import lombok.Getter;
 import org.apache.commons.lang3.tuple.Pair;
-import org.bukkit.Bukkit;
-import org.bukkit.scheduler.BukkitTask;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.*;
 import java.util.ArrayList;
@@ -44,6 +43,7 @@ public class Json implements Storage {
     @Override
     public CompletableFuture<Boolean> add(@NotNull String name, @NotNull JsonObject data) {
         return CompletableFuture.supplyAsync(() -> {
+            if (data.isJsonNull()) return false;
             if (!map.containsKey(name)) {
                 plugin.console("<red>Can't load " + name + " data!</red>");
                 plugin.console("<red>" + name + " 파일을 불러오는 도중 오류가 발생하였습니다!</red>");
@@ -54,7 +54,7 @@ public class Json implements Storage {
     }
 
     @Override
-    public CompletableFuture<Boolean> set(@NotNull String name, Pair<String, Object> find, Pair<String, Object> data) {
+    public CompletableFuture<Boolean> set(@NotNull String name, @Nullable Pair<String, Object> find, @Nullable JsonObject data) {
         return CompletableFuture.supplyAsync(() -> {
             if (!map.containsKey(name)) {
                 plugin.console("<red>Can't load " + name + " data!</red>");
@@ -66,7 +66,7 @@ public class Json implements Storage {
     }
 
     @Override
-    public CompletableFuture<List<JsonObject>> get(@NotNull String name, Pair<String, Object> find) {
+    public CompletableFuture<List<JsonObject>> get(@NotNull String name, @Nullable Pair<String, Object> find) {
         return CompletableFuture.supplyAsync(() -> {
             if (!map.containsKey(name)) {
                 plugin.console("<red>Can't load " + name + " data!</red>");
@@ -99,7 +99,7 @@ public class Json implements Storage {
         private final File file;
         @Getter
         private final AtomicBoolean needSave = new AtomicBoolean(false);
-        private final BukkitTask task;
+        private final BukkitScheduler task;
         @Getter
         private JsonArray data;
 
@@ -107,22 +107,27 @@ public class Json implements Storage {
             this.plugin = plugin;
             this.file = file;
             this.data = data;
-            this.task = Bukkit.getScheduler().runTaskTimerAsynchronously(plugin, () -> {
+            this.task = BukkitScheduler.runTimerAsync(plugin, () -> {
                 if (!needSave.get()) return;
-                Bukkit.getScheduler().runTask(plugin, () -> {
+                BukkitScheduler.run(plugin, () -> {
                     save();
                     needSave.set(false);
                 });
             }, savePeriod, savePeriod);
         }
 
+        private void debug(String type, String collection, String json) {
+            plugin.verbose("[Storage] " + type + ": " + collection + " - " + json);
+        }
+
         public boolean add(JsonObject value) {
+            debug("ADD", file.getName(), value.toString());
             data.add(value);
             needSave.lazySet(true);
             return true;
         }
 
-        protected boolean set(Pair<String, Object> find, Pair<String, Object> value) {
+        protected boolean set(Pair<String, Object> find, JsonObject value) {
             Map<Integer, JsonObject> list = find(find);
             if (list.isEmpty()) return false;
             final JsonArray backup = data;
@@ -131,33 +136,30 @@ public class Json implements Storage {
                 JsonElement resultValue = list.get(key);
                 if (resultValue == null || resultValue.isJsonNull()) return false;
                 JsonObject valObj = resultValue.getAsJsonObject();
-                if (value == null) {
-                    toRemove.add(key);
-                } else {
-                    Object object = value.getValue();
-                    if (object instanceof JSON obj) object = obj.get();
-                    switch (object) {
-                        case JsonElement element -> valObj.add(value.getKey(), element);
-                        case Number number -> valObj.addProperty(value.getKey(), number);
-                        case Boolean bool -> valObj.addProperty(value.getKey(), bool);
-                        case String str -> valObj.addProperty(value.getKey(), str);
-                        case null, default -> {
-                            plugin.console("<red>Unsupported type of data tried to be saved! Only supports JsonElement, Number, Boolean, and Text</red>");
-                            plugin.console("<red>지원하지 않는 타입의 데이터가 저장되려고 했습니다! JsonElement, Number, Boolean, Text만 지원합니다</red>");
-                            data = backup;
-                            return false;
-                        }
-                    }
-                    if (data.contains(valObj)) {
-                        data.set(key, valObj);
-                    } else {
-                        data.add(valObj);
+                if (value == null || value.isJsonNull()) toRemove.add(key);
+                else {
+                    for (Map.Entry<String, JsonElement> entry : value.entrySet()) {
+                        String property = entry.getKey();
+                        JsonElement element = entry.getValue();
+                        if (element.isJsonPrimitive()) {
+                            JsonPrimitive primitive = element.getAsJsonPrimitive();
+                            if (primitive.isNumber()) valObj.addProperty(property, primitive.getAsNumber());
+                            else if (primitive.isBoolean()) valObj.addProperty(property, primitive.getAsBoolean());
+                            else if (primitive.isString()) valObj.addProperty(property, primitive.getAsString());
+                            else {
+                                plugin.console("<red>Unsupported type of data tried to be saved! Only supports JsonElement, Number, Boolean and String</red>");
+                                plugin.console("<red>지원하지 않는 타입의 데이터가 저장되려고 했습니다! JsonElement, Number, Boolean, String만 지원합니다</red>");
+                                data = backup;
+                                return false;
+                            }
+                        } else if (element.isJsonNull()) valObj.remove(property);
+                        else valObj.add(property, element);
+                        if (data.contains(valObj)) data.set(key, valObj);
+                        else data.add(valObj);
                     }
                 }
             }
-            for (int i = toRemove.size() - 1; i >= 0; i--) {
-                data.remove(toRemove.get(i));
-            }
+            for (int i = toRemove.size() - 1; i >= 0; i--) data.remove(toRemove.get(i));
             needSave.lazySet(true);
             return true;
         }
@@ -183,9 +185,11 @@ public class Json implements Storage {
                         if (!get.getAsJsonPrimitive().equals(new JsonPrimitive(bool))) continue;
                     } else if (findObj instanceof String str) {
                         if (!get.getAsJsonPrimitive().equals(new JsonPrimitive(str))) continue;
+                    } else if (findObj instanceof Character character) {
+                        if (!get.getAsJsonPrimitive().equals(new JsonPrimitive(character))) continue;
                     } else {
-                        //plugin.console(ComponentUtil.miniMessage("<red>Unsupported type of data tried to be saved! Only supports JsonElement, Number, Boolean, and Text</red>"));
-                        //plugin.console(ComponentUtil.miniMessage("<red>지원하지 않는 타입의 데이터가 저장되려고 했습니다! JsonElement, Number, Boolean, Text만 지원합니다</red>"));
+                        //plugin.console(ComponentUtil.miniMessage("<red>Unsupported type of data tried to be saved! Only supports JsonElement, Number, Boolean and String</red>"));
+                        //plugin.console(ComponentUtil.miniMessage("<red>지원하지 않는 타입의 데이터가 저장되려고 했습니다! JsonElement, Number, Boolean, String만 지원합니다</red>"));
                     }
                 }
                 result.put(i, object);

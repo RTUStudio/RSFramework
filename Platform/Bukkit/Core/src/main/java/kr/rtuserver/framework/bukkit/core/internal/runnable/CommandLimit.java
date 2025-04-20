@@ -1,6 +1,7 @@
 package kr.rtuserver.framework.bukkit.core.internal.runnable;
 
 import kr.rtuserver.framework.bukkit.api.RSPlugin;
+import kr.rtuserver.framework.bukkit.api.scheduler.BukkitScheduler;
 import lombok.Getter;
 import org.bukkit.Bukkit;
 
@@ -14,7 +15,7 @@ public class CommandLimit implements kr.rtuserver.framework.bukkit.api.core.inte
     private final Map<UUID, Integer> executeLimit = new ConcurrentHashMap<>();
 
     public CommandLimit(RSPlugin plugin) {
-        Bukkit.getScheduler().runTaskTimerAsynchronously(plugin, this, 0, 1);
+        BukkitScheduler.runTimerAsync(plugin, this, 0, 1);
     }
 
     @Override

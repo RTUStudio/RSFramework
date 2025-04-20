@@ -168,7 +168,7 @@ public class CustomItems {
         ReadWriteNBT diff = extractDifferenceNBT(originNBT, targetNBT);
 
         diff.setString("id", id);
-        diff.setInteger("count", count);
+        if (count > 1) diff.setInteger("count", count);
 
         return diff;
     }
@@ -179,7 +179,8 @@ public class CustomItems {
         String id = override.getString("id");
         override.removeKey("id");
 
-        int count = override.getInteger("count");
+        Integer count = override.getInteger("count");
+        if (count == null) count = 1;
 
         ItemStack itemStack = CustomItems.from(id);
         if (itemStack == null) return null;

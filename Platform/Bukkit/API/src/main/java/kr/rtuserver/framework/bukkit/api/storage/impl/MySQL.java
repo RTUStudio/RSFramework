@@ -3,6 +3,7 @@ package kr.rtuserver.framework.bukkit.api.storage.impl;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonPrimitive;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import kr.rtuserver.framework.bukkit.api.RSPlugin;
@@ -20,6 +21,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
 public class MySQL implements Storage {
@@ -80,18 +82,24 @@ public class MySQL implements Storage {
         return hikariConfig;
     }
 
+    private void debug(String type, String collection, String json) {
+        plugin.verbose("[Storage] " + type + ": " + collection + " - " + json);
+    }
+
     @Override
     public CompletableFuture<Boolean> add(@NotNull String table, @NotNull JsonObject data) {
         return CompletableFuture.supplyAsync(() -> {
+            if (data.isJsonNull()) return false;
             String json = gson.toJson(data);
             try {
                 //INSERT INTO `test` (`data`) VALUES ('{"A": B"}');
-                PreparedStatement ps = getConnection().prepareStatement("INSERT INTO " + prefix + table + " (data) VALUES ('" + json + "');");
+                String query = "INSERT INTO " + prefix + table + " (data) VALUES ('" + json + "');";
+                PreparedStatement ps = getConnection().prepareStatement(query);
+                debug("ADD", table, query);
                 if (!ps.execute()) return false;
                 sync(table, data);
                 return true;
             } catch (SQLException e) {
-                //if (verbose) throw new RuntimeException(e);
                 e.printStackTrace();
                 return false;
             }
@@ -99,44 +107,44 @@ public class MySQL implements Storage {
     }
 
     @Override
-    public CompletableFuture<Boolean> set(@NotNull String table, Pair<String, Object> find, Pair<String, Object> data) {
+    public CompletableFuture<Boolean> set(@NotNull String table, @Nullable Pair<String, Object> find, @Nullable JsonObject data) {
         return CompletableFuture.supplyAsync(() -> {
             String query;
-            if (data != null) {
-
-                String value;
-                Object object = data.getValue();
-                if (object instanceof JSON obj) object = obj.get();
-                switch (object) {
-                    case JsonElement element -> value = "CAST('" + element + "' as JSON)";
-                    case Number number -> value = String.valueOf(number);
-                    case Boolean bool -> value = String.valueOf(bool);
-                    case String str -> value = "'" + str + "'";
-                    case Character character -> value = "'" + character + "'";
-                    case null, default -> {
-                        plugin.console("<red>Unsupported type of data tried to be saved! Only supports JsonElement, Number, Boolean, and Text</red>");
-                        plugin.console("<red>지원하지 않는 타입의 데이터가 저장되려고 했습니다! JsonElement, Number, Boolean, Text만 지원합니다</red>");
-                        return false;
-                    }
+            if (data == null || data.isJsonNull()) query = "DELETE FROM " + prefix + table;
+            else {
+                List<String> list = new ArrayList<>();
+                for (Map.Entry<String, JsonElement> entry : data.entrySet()) {
+                    String key = entry.getKey();
+                    JsonElement element = entry.getValue();
+                    if (element.isJsonPrimitive()) {
+                        JsonPrimitive primitive = element.getAsJsonPrimitive();
+                        if (primitive.isNumber()) list.add("'$." + key + "', " + primitive.getAsNumber());
+                        else if (primitive.isBoolean()) list.add("'$." + key + "', " + primitive.getAsBoolean());
+                        else if (primitive.isString()) list.add("'$." + key + "', " + primitive.getAsString());
+                        else {
+                            plugin.console("<red>Unsupported type of data tried to be saved! Only supports JsonElement, Number, Boolean and String</red>");
+                            plugin.console("<red>지원하지 않는 타입의 데이터가 저장되려고 했습니다! JsonElement, Number, Boolean, String만 지원합니다</red>");
+                            return false;
+                        }
+                    } else if (element.isJsonNull()) list.add("'$." + key + "', NULL");
+                    else list.add("'$." + key + "', CAST('" + element + "' as JSON)");
                 }
-
-                query = "UPDATE " + prefix + table + " SET data = JSON_SET(data, '$." + data.getKey() + "', " + value + ")";
-            } else query = "DELETE FROM " + prefix + table;
+                query = "UPDATE " + prefix + table + " SET data = JSON_SET(data, " + String.join(", ", list) + ")";
+            }
             if (find != null) {
                 Object value = find.getValue();
                 if (value instanceof JsonObject jsonObject) value = jsonObject.toString();
                 if (config.isUseArrowOperator())
                     query += " WHERE data ->> '$." + find.getKey() + "' LIKE '" + value + "'";
-                else
-                    query += " WHERE JSON_UNQUOTE( JSON_EXTRACT(data, '$." + find.getKey() + "')) LIKE '" + value + "'";
+                else query += " WHERE JSON_UNQUOTE(JSON_EXTRACT(data, '$." + find.getKey() + "')) LIKE '" + value + "'";
             }
             try {
                 PreparedStatement ps = getConnection().prepareStatement(query + ";");
+                debug("ADD", table, query + ";");
                 if (!ps.execute()) return false;
                 sync(table, find);
                 return true;
             } catch (SQLException e) {
-                //if (verbose) throw new RuntimeException(e);
                 e.printStackTrace();
             }
             return false;
@@ -151,20 +159,18 @@ public class MySQL implements Storage {
             if (find != null) {
                 Object value = find.getValue();
                 if (value instanceof JsonObject jsonObject) value = jsonObject.toString();
-
                 if (config.isUseArrowOperator())
                     query += " WHERE data ->> '$." + find.getKey() + "' LIKE '" + value + "'";
-                else
-                    query += " WHERE JSON_UNQUOTE( JSON_EXTRACT(data, '$." + find.getKey() + "')) LIKE '" + value + "'";
+                else query += " WHERE JSON_UNQUOTE(JSON_EXTRACT(data, '$." + find.getKey() + "')) LIKE '" + value + "'";
             }
             try {
                 PreparedStatement ps = getConnection().prepareStatement(query + ";");
+                debug("GET", table, query + ";");
                 ResultSet rs = ps.executeQuery();
                 while (rs.next()) {
                     result.add(gson.fromJson(rs.getString("data"), JsonObject.class));
                 }
             } catch (SQLException e) {
-                //if (verbose) throw new RuntimeException(e);
                 e.printStackTrace();
             }
             return result;
@@ -188,7 +194,6 @@ public class MySQL implements Storage {
                 case Number number -> json.addProperty(key, number);
                 case Boolean bool -> json.addProperty(key, bool);
                 case String str -> json.addProperty(key, str);
-                case Character character -> json.addProperty(key, character);
                 case null -> json.add(key, null);
                 default -> throw new IllegalStateException("Unexpected value: " + value);
             }
