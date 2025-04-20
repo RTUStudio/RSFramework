@@ -7,7 +7,6 @@ import com.google.gson.JsonPrimitive;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import kr.rtuserver.framework.bukkit.api.RSPlugin;
-import kr.rtuserver.framework.bukkit.api.platform.JSON;
 import kr.rtuserver.framework.bukkit.api.storage.Storage;
 import kr.rtuserver.framework.bukkit.api.storage.config.MySQLConfig;
 import kr.rtuserver.protoweaver.api.protocol.internal.StorageSync;
