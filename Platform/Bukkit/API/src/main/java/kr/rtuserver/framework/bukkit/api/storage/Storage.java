@@ -13,15 +13,7 @@ public interface Storage {
 
     CompletableFuture<Boolean> add(@NotNull String name, @NotNull JsonObject data);
 
-    default CompletableFuture<Boolean> add(@NotNull String name, @NotNull JSON data) {
-        return add(name, data.get());
-    }
-
     CompletableFuture<Boolean> set(@NotNull String name, @Nullable Pair<String, Object> find, @Nullable JsonObject data);
-
-    default CompletableFuture<Boolean> set(@NotNull String name, @Nullable Pair<String, Object> find, @NotNull JSON data) {
-        return set(name, find, data.get());
-    }
 
     CompletableFuture<List<JsonObject>> get(@NotNull String name, @Nullable Pair<String, Object> find);
 
