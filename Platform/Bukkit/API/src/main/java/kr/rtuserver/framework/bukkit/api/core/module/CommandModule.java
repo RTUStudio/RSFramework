@@ -1,6 +1,7 @@
 package kr.rtuserver.framework.bukkit.api.core.module;
 
 public interface CommandModule {
+
     int getExecuteLimit();
 
     boolean isTabCompletePlayersEnabled();
@@ -9,7 +10,8 @@ public interface CommandModule {
 
     String getTabCompletePlayersPrefix();
 
-    public enum TabCompletePlayersType {
+    enum TabCompletePlayersType {
         DISCORD_SRV
     }
+
 }

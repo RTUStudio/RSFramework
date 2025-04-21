@@ -5,8 +5,8 @@ common:
   onlyPlayer: "<red>Only players can use this command</red>"
   onlyConsole: "<red>This command is only available on the console</red>"
   notFound:
-    onlinePLayer: "<red>This player does not exist or offline</red>"
-    offlinePlayer: "<red>This player does not exist</red>"
+    onlinePLayer: "<red>This adapter does not exist or offline</red>"
+    offlinePlayer: "<red>This adapter does not exist</red>"
   error:
     inventory: "<red>Flaw was found in code using inventory click event!</red>"
     cooldown: "<red>Too Quickly! You must try again later</red>"

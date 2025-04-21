@@ -1,15 +1,16 @@
-package kr.rtuserver.framework.bukkit.api.dependency;
+package kr.rtuserver.framework.bukkit.api.integration.wrapper;
 
 import kr.rtuserver.cdi.LightDI;
 import kr.rtuserver.framework.bukkit.api.RSPlugin;
 import kr.rtuserver.framework.bukkit.api.configuration.impl.TranslationConfiguration;
 import kr.rtuserver.framework.bukkit.api.core.Framework;
+import kr.rtuserver.framework.bukkit.api.integration.IntegrationWrapper;
 import kr.rtuserver.framework.bukkit.api.player.PlayerChat;
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
 import org.bukkit.OfflinePlayer;
 import org.jetbrains.annotations.NotNull;
 
-public abstract class RSPlaceholder<T extends RSPlugin> extends PlaceholderExpansion {
+public abstract class RSPlaceholder<T extends RSPlugin> extends PlaceholderExpansion implements IntegrationWrapper {
 
     private final T plugin;
 
@@ -50,7 +51,7 @@ public abstract class RSPlaceholder<T extends RSPlugin> extends PlaceholderExpan
     }
 
     public @NotNull String getAuthor() {
-        return plugin.getDescription().getAuthors().get(0);
+        return plugin.getDescription().getAuthors().getFirst();
     }
 
     public @NotNull String getIdentifier() {
@@ -61,10 +62,16 @@ public abstract class RSPlaceholder<T extends RSPlugin> extends PlaceholderExpan
         return plugin.getDescription().getVersion();
     }
 
-    public String onRequest(OfflinePlayer offlinePlayer, String params) {
+    public String onRequest(OfflinePlayer offlinePlayer, @NotNull String params) {
         if (offlinePlayer != null && offlinePlayer.isOnline()) chat.setReceiver(offlinePlayer.getPlayer());
         return request(offlinePlayer, params.split("_"));
     }
 
     public abstract String request(OfflinePlayer offlinePlayer, String[] params);
+
+    @Override
+    public boolean isAvailable() {
+        return plugin.getFramework().isEnabledDependency("PlaceholderAPI");
+    }
+
 }

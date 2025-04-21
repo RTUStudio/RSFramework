@@ -26,8 +26,8 @@ public class TextFomatter {
 //        return DataNameType.PASS;
 //    }
 //
-//    public static DataNameType checkType(Player player, List<String> list, String name) {
-//        Audience audience = framework.getAdventure().player(player);
+//    public static DataNameType checkType(Player adapter, List<String> list, String name) {
+//        Audience audience = framework.getAdventure().adapter(adapter);
 //        DataNameType dataNameType = checkType(list, name);
 //        switch (dataNameType) {
 //            case ALL -> audience.sendMessage(ComponentFormatter.parse(message.get("dataNameType.all")));

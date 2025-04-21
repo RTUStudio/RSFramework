@@ -1,4 +1,4 @@
-package kr.rtuserver.framework.bukkit.api.dependency;
+package kr.rtuserver.framework.bukkit.api.integration.wrapper;
 
 import com.comphenix.protocol.ProtocolLibrary;
 import com.comphenix.protocol.events.PacketAdapter;
@@ -7,11 +7,12 @@ import kr.rtuserver.cdi.LightDI;
 import kr.rtuserver.framework.bukkit.api.RSPlugin;
 import kr.rtuserver.framework.bukkit.api.configuration.impl.TranslationConfiguration;
 import kr.rtuserver.framework.bukkit.api.core.Framework;
+import kr.rtuserver.framework.bukkit.api.integration.IntegrationWrapper;
 import kr.rtuserver.framework.bukkit.api.player.PlayerChat;
 import lombok.Getter;
 import org.bukkit.entity.Player;
 
-public abstract class RSPacketListener<T extends RSPlugin> extends PacketAdapter {
+public abstract class RSPacketListener<T extends RSPlugin> extends PacketAdapter implements IntegrationWrapper {
 
     @Getter
     private final T plugin;
@@ -63,15 +64,22 @@ public abstract class RSPacketListener<T extends RSPlugin> extends PacketAdapter
 
     public abstract void receive(PacketEvent event);
 
+    @Override
+    public boolean isAvailable() {
+        return plugin.getFramework().isEnabledDependency("ProtocolLib");
+    }
+
+    @Override
     public boolean register() {
-        if (plugin.getFramework().isEnabledDependency("ProtocolLib")) {
+        if (isAvailable()) {
             ProtocolLibrary.getProtocolManager().addPacketListener(this);
             return true;
         } else return false;
     }
 
+    @Override
     public boolean unregister() {
-        if (plugin.getFramework().isEnabledDependency("ProtocolLib")) {
+        if (isAvailable()) {
             ProtocolLibrary.getProtocolManager().removePacketListener(this);
             return true;
         } else return false;

@@ -5,7 +5,8 @@ import kr.rtuserver.framework.bukkit.api.command.RSCommand;
 import kr.rtuserver.framework.bukkit.api.core.configuration.CommonTranslation;
 import kr.rtuserver.framework.bukkit.api.core.internal.runnable.CommandLimit;
 import kr.rtuserver.framework.bukkit.api.core.module.Modules;
-import kr.rtuserver.framework.bukkit.api.core.player.NameProvider;
+import kr.rtuserver.framework.bukkit.api.integration.IntegrationProvider;
+import kr.rtuserver.framework.bukkit.api.integration.adapter.PlayerIdentifier;
 import kr.rtuserver.framework.bukkit.api.listener.RSListener;
 import kr.rtuserver.framework.bukkit.api.nms.NMS;
 import kr.rtuserver.protoweaver.api.ProtoConnectionHandler;
@@ -39,7 +40,9 @@ public interface Framework {
 
     Modules getModules();
 
-    NameProvider getNameProvider();
+    Map<IntegrationProvider.Plugin, IntegrationProvider> getIntegrationProviders();
+
+    PlayerIdentifier getPlayerIdentifier();
 
     void loadPlugin(RSPlugin plugin);
 
@@ -54,6 +57,8 @@ public interface Framework {
     void enable(RSPlugin plugin);
 
     void disable(RSPlugin plugin);
+
+    void loadProvider();
 
     void registerEvent(RSListener<? extends RSPlugin> listener);
 

@@ -7,6 +7,7 @@ import kr.rtuserver.framework.bukkit.api.configuration.impl.Configurations;
 import kr.rtuserver.framework.bukkit.api.core.Framework;
 import kr.rtuserver.framework.bukkit.api.core.module.ThemeModule;
 import kr.rtuserver.framework.bukkit.api.format.ComponentFormatter;
+import kr.rtuserver.framework.bukkit.api.integration.IntegrationWrapper;
 import kr.rtuserver.framework.bukkit.api.listener.RSListener;
 import kr.rtuserver.framework.bukkit.api.platform.MinecraftVersion;
 import kr.rtuserver.framework.bukkit.api.storage.Storage;
@@ -26,24 +27,18 @@ import org.bukkit.plugin.java.JavaPlugin;
 import java.util.HashSet;
 import java.util.Set;
 
+@Getter
 public abstract class RSPlugin extends JavaPlugin {
 
-    @Getter
     private final Set<RSListener<? extends RSPlugin>> listeners = new HashSet<>();
-    @Getter
     private final Set<RSCommand<? extends RSPlugin>> commands = new HashSet<>();
-    @Getter
+    private final Set<IntegrationWrapper> integrationWrappers = new HashSet<>();
     private final Set<String> languages = new HashSet<>();
-    @Getter
     private Framework framework;
     private Component prefix;
-    @Getter
     private RSPlugin plugin;
-    @Getter
     private BukkitAudiences adventure;
-    @Getter
     private Configurations configurations;
-    @Getter
     @Setter
     private Storage storage;
 
@@ -82,6 +77,7 @@ public abstract class RSPlugin extends JavaPlugin {
 
     @Override
     public void onDisable() {
+        integrationWrappers.forEach(IntegrationWrapper::unregister);
         disable();
         if (storage != null) storage.close();
         framework.unloadPlugin(this);
@@ -123,11 +119,10 @@ public abstract class RSPlugin extends JavaPlugin {
         console(ComponentFormatter.mini(minimessage));
     }
 
-    public void registerEvent(RSListener<? extends RSPlugin> listener) {
+    protected void registerEvent(RSListener<? extends RSPlugin> listener) {
         this.listeners.add(listener);
         Bukkit.getPluginManager().registerEvents(listener, this);
     }
-
 
     public void registerEvents() {
         for (Listener listener : listeners) {
@@ -141,11 +136,11 @@ public abstract class RSPlugin extends JavaPlugin {
         }
     }
 
-    public void registerCommand(RSCommand<? extends RSPlugin> command) {
+    protected void registerCommand(RSCommand<? extends RSPlugin> command) {
         registerCommand(command, false);
     }
 
-    public void registerCommand(RSCommand<? extends RSPlugin> command, boolean reload) {
+    protected void registerCommand(RSCommand<? extends RSPlugin> command, boolean reload) {
         this.commands.add(command);
         framework.registerCommand(command, reload);
     }
@@ -155,7 +150,7 @@ public abstract class RSPlugin extends JavaPlugin {
     }
 
     /**
-     * 프록시의 RSFramework과 통신을 위한 프로토콜 등록
+     * 프록시의 RSFramework와 통신을 위한 프로토콜 등록
      *
      * @param namespace       네임스페이스
      * @param key             키
@@ -165,6 +160,13 @@ public abstract class RSPlugin extends JavaPlugin {
      */
     protected void registerProtocol(String namespace, String key, Packet packet, Class<? extends ProtoConnectionHandler> protocolHandler, HandlerCallback callback) {
         framework.registerProtocol(namespace, key, packet, protocolHandler, callback);
+    }
+
+    protected void registerIntegration(IntegrationWrapper integrationWrapper) {
+        if (integrationWrapper.isAvailable()) {
+            this.integrationWrappers.add(integrationWrapper);
+            integrationWrapper.register();
+        }
     }
 
     protected void initialize() {

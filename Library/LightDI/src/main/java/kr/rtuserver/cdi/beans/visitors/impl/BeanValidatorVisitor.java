@@ -58,7 +58,7 @@ public class BeanValidatorVisitor extends ClassHolderVisitor {
 
     private void validateClass(ClassHolder classHolder) {
         if (!classesInChain.add(classHolder.getBeanClass())) {
-            throw new BeanInstantiationException("Circular dependency found for class: " + classHolder.getBeanClass());
+            throw new BeanInstantiationException("Circular integration found for class: " + classHolder.getBeanClass());
         }
     }
 

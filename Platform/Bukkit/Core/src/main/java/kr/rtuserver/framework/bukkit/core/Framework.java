@@ -3,20 +3,20 @@ package kr.rtuserver.framework.bukkit.core;
 import de.tr7zw.changeme.nbtapi.NBT;
 import kr.rtuserver.framework.bukkit.api.RSPlugin;
 import kr.rtuserver.framework.bukkit.api.command.RSCommand;
-import kr.rtuserver.framework.bukkit.api.core.player.NameProvider;
 import kr.rtuserver.framework.bukkit.api.format.ComponentFormatter;
+import kr.rtuserver.framework.bukkit.api.integration.IntegrationProvider;
+import kr.rtuserver.framework.bukkit.api.integration.adapter.PlayerIdentifier;
 import kr.rtuserver.framework.bukkit.api.listener.RSListener;
 import kr.rtuserver.framework.bukkit.api.platform.MinecraftVersion;
 import kr.rtuserver.framework.bukkit.api.platform.SystemEnvironment;
 import kr.rtuserver.framework.bukkit.api.player.PlayerChat;
 import kr.rtuserver.framework.bukkit.core.command.ReloadCommand;
 import kr.rtuserver.framework.bukkit.core.configuration.CommonTranslation;
-import kr.rtuserver.framework.bukkit.core.dependency.Dependencies;
+import kr.rtuserver.framework.bukkit.core.integration.provider.DiscordSRV;
 import kr.rtuserver.framework.bukkit.core.internal.listeners.InventoryListener;
 import kr.rtuserver.framework.bukkit.core.internal.listeners.JoinListener;
 import kr.rtuserver.framework.bukkit.core.internal.runnable.CommandLimit;
 import kr.rtuserver.framework.bukkit.core.module.Modules;
-import kr.rtuserver.framework.bukkit.core.player.NameProviderImpl;
 import kr.rtuserver.framework.bukkit.nms.v1_17_r1.NMS_1_17_R1;
 import kr.rtuserver.framework.bukkit.nms.v1_18_r1.NMS_1_18_R1;
 import kr.rtuserver.framework.bukkit.nms.v1_18_r2.NMS_1_18_R2;
@@ -59,6 +59,8 @@ public class Framework implements kr.rtuserver.framework.bukkit.api.core.Framewo
     @Getter
     private final Map<String, Boolean> hooks = new HashMap<>();
     @Getter
+    private final Map<IntegrationProvider.Plugin, IntegrationProvider> integrationProviders = new HashMap<>();
+    @Getter
     private RSPlugin plugin;
     @Getter
     private kr.rtuserver.framework.bukkit.api.nms.NMS NMS;
@@ -68,15 +70,13 @@ public class Framework implements kr.rtuserver.framework.bukkit.api.core.Framewo
     @Getter
     private String NMSVersion;
     @Getter
-    private Dependencies dependencies;
-    @Getter
     private CommandLimit commandLimit;
     @Getter
     private CommonTranslation commonTranslation;
     @Getter
     private Modules modules;
     @Getter
-    private NameProvider nameProvider;
+    private PlayerIdentifier playerIdentifier;
 
     public void loadPlugin(RSPlugin plugin) {
         log.info("loading RSPlugin: {}", plugin.getName());
@@ -119,7 +119,9 @@ public class Framework implements kr.rtuserver.framework.bukkit.api.core.Framewo
             Bukkit.getPluginManager().disablePlugin(plugin);
         }
         loadNMS(plugin);
-        modules = new Modules(plugin);
+        loadIntegration();
+        modules = new Modules(this);
+        loadProvider();
     }
 
     private void loadNMS(RSPlugin plugin) {
@@ -148,14 +150,29 @@ public class Framework implements kr.rtuserver.framework.bukkit.api.core.Framewo
     }
 
     public void enable(RSPlugin plugin) {
-        dependencies = new Dependencies(this);
-        nameProvider = new NameProviderImpl(this);
+
         printStartUp(plugin);
         commonTranslation = new CommonTranslation(plugin);
         registerInternal(plugin);
     }
 
     public void disable(RSPlugin plugin) {
+    }
+
+    private void loadIntegration() {
+        if (isEnabledDependency("DiscordSRV")) {
+            integrationProviders.put(IntegrationProvider.Plugin.DISCORD_SRV, new DiscordSRV());
+        }
+    }
+
+    public void loadProvider() {
+        playerIdentifier = null;
+        switch (this.modules.getCommandModule().getTabCompletePlayersType()) {
+            case DISCORD_SRV -> {
+                DiscordSRV provider = (DiscordSRV) integrationProviders.get(IntegrationProvider.Plugin.DISCORD_SRV);
+                if (provider != null) playerIdentifier = provider.getPlayerIdentifier();
+            }
+        }
     }
 
     private void registerInternal(RSPlugin plugin) {

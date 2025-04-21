@@ -92,7 +92,7 @@ public class VelocityProtoWeaver implements kr.rtuserver.protoweaver.api.impl.ve
     }
 
     private boolean isModernProxy() {
-        String mode = velocityConfig.getString("player-info-forwarding-mode", "");
+        String mode = velocityConfig.getString("adapter-info-forwarding-mode", "");
         if (!List.of("modern", "bungeeguard").contains(mode.toLowerCase())) return false;
         String secretPath = velocityConfig.getString("forwarding-secret-file", "");
         if (secretPath.isEmpty()) return false;
