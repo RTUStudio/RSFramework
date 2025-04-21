@@ -21,14 +21,14 @@ public class CommandModule extends RSConfiguration<RSPlugin> implements kr.rtuse
         executeLimit = getInt("execute.limit", executeLimit, """
                 Command cooldown (tick)
                 명령어 재사용 대기 시간 (틱)""");
-        tabCompletePlayersEnabled = getBoolean("tabComplete.players.enable", tabCompletePlayersEnabled, """
+        tabCompletePlayersEnabled = getBoolean("tabComplete.players.enabled", tabCompletePlayersEnabled, """
                 Enable custom player name suggestion
                 커스텀 플레이어 이름 제안""");
         tabCompletePlayersType = TabCompletePlayersType.valueOf(getString("tabComplete.players.type", "DISCORD_SRV", """
                 Entry type. Available options: DISCORD_SRV
                 항목 타입. 사용 가능한 포멧: DISCORD_SRV"""));
         tabCompletePlayersPrefix = getString("tabComplete.players.prefix", tabCompletePlayersPrefix, """
-                Prefix of player name. Prfix must not be empty
+                Prefix of player name. Prefix must not be empty
                 플레이어 이름 앞에 배치되는 문자입니다. 공백은 허용되지 않습니다""");
     }
 }

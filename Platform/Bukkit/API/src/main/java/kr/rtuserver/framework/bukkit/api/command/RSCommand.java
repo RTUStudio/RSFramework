@@ -5,7 +5,9 @@ import kr.rtuserver.framework.bukkit.api.RSPlugin;
 import kr.rtuserver.framework.bukkit.api.configuration.impl.Translation;
 import kr.rtuserver.framework.bukkit.api.configuration.impl.TranslationConfiguration;
 import kr.rtuserver.framework.bukkit.api.core.Framework;
+import kr.rtuserver.framework.bukkit.api.core.module.CommandModule;
 import kr.rtuserver.framework.bukkit.api.core.module.ThemeModule;
+import kr.rtuserver.framework.bukkit.api.integration.adapter.PlayerIdentifier;
 import kr.rtuserver.framework.bukkit.api.player.PlayerChat;
 import kr.rtuserver.framework.bukkit.api.player.PlayerList;
 import kr.rtuserver.protoweaver.api.ProxyPlayer;
@@ -68,7 +70,7 @@ public abstract class RSCommand<T extends RSPlugin> extends Command {
         List<String> aliases = new ArrayList<>(names.subList(1, names.size()));
         for (Translation translation : command.getMap().values()) {
             String name = translation.get(getName() + ".name");
-            if (getName().equals(name)) continue;
+            if (name.isEmpty() || name.equals(getName())) continue;
             aliases.add(name);
         }
         super.setAliases(aliases);
@@ -232,34 +234,31 @@ public abstract class RSCommand<T extends RSPlugin> extends Command {
         return list;
     }
 
-    public List<String> players() {
-        return players(false);
-    }
-
     public UUID getPlayer(String name) {
-        if (name.startsWith("@")) {
+        PlayerIdentifier identifier = framework.getPlayerIdentifier();
+        CommandModule cm = framework.getModules().getCommandModule();
+        boolean enabled = cm.isTabCompletePlayersEnabled();
+        String prefix = cm.getTabCompletePlayersPrefix();
+        if (enabled && name.startsWith(prefix)) {
             name = name.substring(1);
-            return framework.getNameProvider().getUUID(name);
+            return identifier.getUUID(name);
         }
         Player player = Bukkit.getPlayer(name);
         return player != null ? player.getUniqueId() : null;
     }
 
     public List<String> players(boolean includeProxy) {
-        String prefix = framework.getModules().getCommandModule().getTabCompletePlayersPrefix();
+        PlayerIdentifier identifier = framework.getPlayerIdentifier();
+        CommandModule cm = framework.getModules().getCommandModule();
+        boolean enabled = cm.isTabCompletePlayersEnabled();
+        String prefix = cm.getTabCompletePlayersPrefix();
         List<String> result = new ArrayList<>();
-        if (includeProxy) {
-            for (ProxyPlayer player : PlayerList.getPlayer()) {
-                String name = framework.getNameProvider().getName(player.uuid());
+        for (ProxyPlayer player : PlayerList.getPlayer(includeProxy)) {
+            if (enabled && identifier != null) {
+                String name = identifier.getName(player.uuid());
                 if (name != null) result.add(prefix + name);
-                result.add(player.name());
             }
-        } else {
-            for (Player player : Bukkit.getOnlinePlayers()) {
-                String name = framework.getNameProvider().getName(player.getUniqueId());
-                if (name != null) result.add(prefix + name);
-                result.add(player.getName());
-            }
+            result.add(player.name());
         }
         return result;
     }

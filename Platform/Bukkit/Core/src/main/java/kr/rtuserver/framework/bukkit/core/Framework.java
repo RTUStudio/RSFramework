@@ -119,9 +119,7 @@ public class Framework implements kr.rtuserver.framework.bukkit.api.core.Framewo
             Bukkit.getPluginManager().disablePlugin(plugin);
         }
         loadNMS(plugin);
-        loadIntegration();
         modules = new Modules(this);
-        loadProvider();
     }
 
     private void loadNMS(RSPlugin plugin) {
@@ -150,10 +148,11 @@ public class Framework implements kr.rtuserver.framework.bukkit.api.core.Framewo
     }
 
     public void enable(RSPlugin plugin) {
-
         printStartUp(plugin);
         commonTranslation = new CommonTranslation(plugin);
         registerInternal(plugin);
+        loadIntegration();
+        loadProvider();
     }
 
     public void disable(RSPlugin plugin) {

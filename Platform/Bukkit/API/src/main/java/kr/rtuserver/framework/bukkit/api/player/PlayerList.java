@@ -24,6 +24,10 @@ public class PlayerList {
     }
 
     public static Set<ProxyPlayer> getPlayer() {
+        return getPlayer(true);
+    }
+
+    public static Set<ProxyPlayer> getPlayer(boolean includeProxy) {
         BukkitProtoWeaver protoWeaver = framework().getProtoWeaver();
         boolean isConnected = protoWeaver.isConnected();
         return isConnected ? protoWeaver.getPlayers() : Bukkit.getOnlinePlayers().stream().map(player -> new ProxyPlayer(player.getUniqueId(), player.getName())).collect(Collectors.toSet());
