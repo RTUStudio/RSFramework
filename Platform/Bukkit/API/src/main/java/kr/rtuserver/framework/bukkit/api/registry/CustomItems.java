@@ -180,14 +180,13 @@ public class CustomItems {
         override.removeKey("id");
 
         Integer count = override.getInteger("count");
-        if (count == null) count = 1;
+        if (count == 0) count = 1;
 
         ItemStack itemStack = CustomItems.from(id);
-        if (itemStack == null) return null;
+        if (itemStack == null || itemStack.getType().isAir()) return null;
         itemStack.setAmount(count);
 
         ReadWriteNBT source = NBT.itemStackToNBT(itemStack);
-
         ReadWriteNBT result = mergeNBT(source, override);
 
         return NBT.itemStackFromNBT(result);
@@ -200,7 +199,7 @@ public class CustomItems {
         NBTCompoundList list = container.getCompoundList("items");
         for (int i = 0; i < items.length; i++) {
             ItemStack item = items[i];
-            if (item == null || item.getType() == Material.AIR) continue;
+            if (item == null || item.getType().isAir()) continue;
             NBTListCompound entry = list.addCompound();
             entry.setInteger("Slot", i);
             entry.mergeCompound(toNBT(item));
