@@ -104,7 +104,7 @@ public class MongoDB implements Storage {
                             .append("filter", filter.toBsonDocument())
                             .append("update", update.toBsonDocument());
                     debug("SET", collectionName, debug.toJson());
-                    UpdateResult result = collection.updateOne(filter, update, options);
+                    UpdateResult result = collection.updateMany(filter, update, options);
                     if (!result.wasAcknowledged()) return false;
                 }
                 sync(collectionName, find);
