@@ -1,0 +1,7 @@
+dependencies {
+    paperweight.paperDevBundle("1.21.5-no-moonrise-SNAPSHOT")
+}
+
+paperweightUserdevSetup {
+    //dependsOn(":Library:ProtoWeaver:Bukkit:NMS:1_21_R4:paperweightUserdevSetup")
+}

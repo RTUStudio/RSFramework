@@ -1,11 +1,11 @@
 # RSFramework
 
-Framework for Bukkit RSPlugin (Bukkit/Velocity/Bungeecord)
+Framework Bukkit Plugin for RSPlugin (Spigot/Paper/Folia/Velocity/Bungee/Hybrid)
 
 - Send packets to a proxy and another server without developing a plugin for the proxy.
-- Store data in a JSON-based structure with support for MySQL, MongoDB, and JSON files.
-- A simple utility for managing custom items and blocks, compatible with tools like ItemsAdder, Oraxen, Nexo and
-  MMOItems​
+- Store data in a JSON-based structure with support for MySQL, MariaDB, MongoDB, and JSON files.
+- A simple utility for managing custom items and blocks, compatible with tools like ItemsAdder, Oraxen, Nexo, MMOItems
+  and EcoItems
 
 ## How to Build?
 
@@ -22,14 +22,14 @@ Framework for Bukkit RSPlugin (Bukkit/Velocity/Bungeecord)
 
 ## Supported Bukkit
 
-Spigot, Paper, Pufferfish, Purpur, Plazma, Arclight, Mohist
-and Paper forks
+Spigot, Paper, Pufferfish, Purpur, Plazma, Folia, Arclight, Mohist
+and Forks
 
 ## Supported Proxy
 
-Velocity, Bungeecord, Waterfall and Bungeecord forks
+Velocity, Bungeecord, Waterfall and Forks
 
-## Supported Version
+## Supported  Version
 
 1.17.1 ~ 1.21.5
 

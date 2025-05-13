@@ -3,5 +3,5 @@ dependencies {
 }
 
 compileJava {
-    dependsOn(":Platform:Bukkit:NMS:1_17_R1:paperweightUserdevSetup")
+    //dependsOn(":Framework:NMS:1_17_R1:paperweightUserdevSetup")
 }

@@ -48,10 +48,6 @@ public class BukkitProtoWeaver implements kr.rtuserver.protoweaver.api.impl.bukk
     private final Set<ProxyPlayer> players = new HashSet<>();
     private ProtoConnection connection;
 
-    public boolean isConnected() {
-        return connection != null;
-    }
-
     public BukkitProtoWeaver(String sslFolder, String nmsVersion, HandlerCallback callback) {
         this.protoWeaver = switch (nmsVersion) {
             case "v1_17_R1" -> new ProtoWeaver_1_17_R1(sslFolder);
@@ -88,6 +84,10 @@ public class BukkitProtoWeaver implements kr.rtuserver.protoweaver.api.impl.bukk
         }
         protocol.setServerHandler(BukkitProtoHandler.class, this.callback);
         protocol.load();
+    }
+
+    public boolean isConnected() {
+        return connection != null;
     }
 
     public boolean sendPacket(InternalPacket packet) {

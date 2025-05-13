@@ -1,0 +1,23 @@
+dependencies {
+    implementation project(":Library:LightDI")
+    implementation project(":Library:ProtoWeaver:Bukkit:API")
+
+    compileOnly project(":Framework:API")
+
+    compileOnly "org.spigotmc:spigot-api:${api_version}-R0.1-SNAPSHOT"
+
+    implementation "com.alessiodp.libby:libby-bukkit:2.0.0-SNAPSHOT"
+}
+
+processResources {
+    def props = [
+            name   : plugin_name,
+            version: plugin_version,
+            author : plugin_author
+    ]
+    inputs.properties props
+    filteringCharset "UTF-8"
+    filesMatching("plugin.yml") {
+        expand props
+    }
+}

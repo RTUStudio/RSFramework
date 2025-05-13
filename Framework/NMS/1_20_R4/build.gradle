@@ -1,0 +1,7 @@
+dependencies {
+    paperweight.paperDevBundle("1.20.6-R0.1-SNAPSHOT")
+}
+
+paperweightUserdevSetup {
+    //dependsOn(":Library:ProtoWeaver:Bukkit:NMS:1_20_R4:paperweightUserdevSetup")
+}

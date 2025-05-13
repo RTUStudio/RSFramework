@@ -1,7 +1,0 @@
-name: '${name}'
-version: '${version}'
-main: kr.rtuserver.framework.bukkit.plugin.RSFramework
-description: Library Plugin for RSPlugins
-api-version: 1.17
-authors: [ '${author}' ]
-softdepend: [ PlaceholderAPI, Nexo, Oraxen, ItemsAdder, MMOItems, EcoItems, ProtocolLib, LuckPerms, Vault, DiscordSRV, CMI, Essential ]

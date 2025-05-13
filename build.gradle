@@ -55,7 +55,22 @@ allprojects {
             url = "https://repo.viaversion.com"
         }
         maven {
-            url = "https://nexus.scarsz.me/content/groups/public/"
+            url = "https://repo.oraxen.com/releases"
+        }
+        maven {
+            url = "https://nexus.phoenixdevt.fr/repository/maven-public/"
+        }
+        maven {
+            url = "https://repo.nexomc.com/snapshots/"
+        }
+        maven {
+            url = "https://repo.auxilor.io/repository/maven-public/"
+        }
+        maven {
+            url = "https://repo.extendedclip.com/content/repositories/placeholderapi/"
+        }
+        maven {
+            url = "https://repo.dmulloy2.net/repository/public/"
         }
     }
 
@@ -88,7 +103,7 @@ build {
 }
 
 dependencies {
-    implementation project(":Platform:Bukkit")
+    implementation project(":Framework")
     implementation project(":Platform:Bungee")
     implementation project(":Platform:Velocity")
 
@@ -113,7 +128,6 @@ shadowJar {
     relocate "org.simpleyaml", "kr.rtuserver.framework.yaml"
     relocate "net.kyori.adventure.platform.bukkit", "kr.rtuserver.framework.bukkit.kyori"
     relocate "de.tr7zw.changeme.nbtapi", "kr.rtuserver.framework.bukkit.api.nbt"
-    relocate "io.papermc.lib", "kr.rtuserver.framework.bukkit.api.paper"
 
     doLast {
         copy {

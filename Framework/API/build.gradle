@@ -1,0 +1,58 @@
+dependencies {
+    implementation project(":Library:ProtoWeaver:Bukkit:API")
+
+    compileOnly "com.alessiodp.libby:libby-bukkit:2.0.0-SNAPSHOT"
+
+    compileOnly "com.zaxxer:HikariCP:5.1.0"
+    compileOnly "org.mongodb:mongodb-driver-sync:5.4.0"
+    compileOnly "com.mysql:mysql-connector-j:9.1.0"
+    compileOnly "org.mariadb.jdbc:mariadb-java-client:3.3.3"
+//    compileOnly "org.xerial:sqlite-jdbc:3.45.3.0"
+//    compileOnly "org.postgresql:postgresql:42.7.3"
+
+    compileOnly "me.clip:placeholderapi:2.11.6"
+    compileOnly "com.comphenix.protocol:ProtocolLib:5.1.0"
+
+    implementation "com.github.Carleslc.Simple-YAML:Simple-Yaml:1.8.4"
+}
+
+shadowJar {
+    setArchiveClassifier(null)
+    setArchiveBaseName(plugin_name)
+    setArchiveVersion(plugin_version)
+
+    exclude "META-INF/**"
+    exclude "classpath.index"
+    relocate "org.simpleyaml", "kr.rtuserver.framework.yaml"
+    relocate "net.kyori.adventure.platform.bukkit", "kr.rtuserver.framework.bukkit.kyori"
+    relocate "de.tr7zw.changeme.nbtapi", "kr.rtuserver.framework.bukkit.api.nbt"
+
+    doLast {
+        copy {
+            from archiveFile.get().asFile into file("$rootDir/builds/api")
+        }
+    }
+}
+
+publishing {
+    repositories {
+        maven {
+            url = "https://repo.codemc.io/repository/rtuserver/"
+
+            credentials {
+                username = System.getenv("MAVEN_USERNAME")
+                password = System.getenv("MAVEN_PASSWORD")
+            }
+        }
+    }
+
+    publications {
+        api(MavenPublication) { publication ->
+            groupId = "kr.rtuserver"
+            artifactId = "framework-api"
+            version = plugin_version
+
+            project.shadow.component(publication)
+        }
+    }
+}

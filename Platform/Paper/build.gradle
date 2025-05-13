@@ -1,0 +1,23 @@
+dependencies {
+    implementation project(":Library:LightDI")
+    implementation project(":Library:ProtoWeaver:Bukkit:API")
+
+    compileOnly project(":Framework:API")
+
+    implementation project(":Platform:Spigot")
+
+    compileOnly "io.papermc.paper:paper-api:${bukkit_version}-R0.1-SNAPSHOT"
+}
+
+processResources {
+    def props = [
+            name   : plugin_name,
+            version: plugin_version,
+            author : plugin_author
+    ]
+    inputs.properties props
+    filteringCharset "UTF-8"
+    filesMatching("paper-plugin.yml") {
+        expand props
+    }
+}

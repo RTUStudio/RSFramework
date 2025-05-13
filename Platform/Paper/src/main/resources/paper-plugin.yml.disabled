@@ -1,0 +1,30 @@
+name: '${name}'
+version: '${version}'
+main: kr.rtuserver.framework.bukkit.plugin.RSFramework
+description: Framework of RSPlugins, developed by IPECTER 이팩터
+api-version: 1.19
+folia-supported: true
+authors: [ '${author}' ]
+dependencies:
+  server:
+    PlaceholderAPI:
+      load: BEFORE
+      required: false
+    ProtocolLib:
+      load: BEFORE
+      required: false
+    Nexo:
+      load: BEFORE
+      required: false
+    ItemsAdder:
+      load: BEFORE
+      required: false
+    Oraxen:
+      load: BEFORE
+      required: false
+    EcoItems:
+      load: BEFORE
+      required: false
+    MMOItems:
+      load: BEFORE
+      required: false
