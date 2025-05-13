@@ -11,7 +11,7 @@ import kr.rtuserver.framework.bukkit.api.player.PlayerChat;
 import lombok.Getter;
 import org.bukkit.entity.Player;
 
-public abstract class RSPacketListener<T extends RSPlugin> extends PacketAdapter implements Integration {
+public class RSPacketListener<T extends RSPlugin> extends PacketAdapter implements Integration {
 
     @Getter
     private final T plugin;
@@ -59,9 +59,11 @@ public abstract class RSPacketListener<T extends RSPlugin> extends PacketAdapter
         receive(event);
     }
 
-    public abstract void send(PacketEvent event);
+    public void send(PacketEvent event) {
+    }
 
-    public abstract void receive(PacketEvent event);
+    public void receive(PacketEvent event) {
+    }
 
     @Override
     public boolean isAvailable() {
