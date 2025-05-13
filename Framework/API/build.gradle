@@ -16,9 +16,13 @@ dependencies {
     implementation "com.github.Carleslc.Simple-YAML:Simple-Yaml:1.8.4"
 }
 
+jar {
+    finalizedBy(shadowJar)
+}
+
 shadowJar {
     setArchiveClassifier(null)
-    setArchiveBaseName(plugin_name)
+    setArchiveBaseName("api")
     setArchiveVersion(plugin_version)
 
     exclude "META-INF/**"

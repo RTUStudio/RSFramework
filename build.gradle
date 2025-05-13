@@ -98,8 +98,8 @@ allprojects {
     }
 }
 
-build {
-    dependsOn(shadowJar)
+jar {
+    finalizedBy(shadowJar)
 }
 
 dependencies {
@@ -120,7 +120,7 @@ shadowJar {
     file("$rootDir/builds").delete()
 
     setArchiveClassifier(null)
-    setArchiveBaseName("api")
+    setArchiveBaseName(plugin_name)
     setArchiveVersion(plugin_version)
 
     exclude "META-INF/**"
