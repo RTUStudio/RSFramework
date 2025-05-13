@@ -120,7 +120,7 @@ shadowJar {
     file("$rootDir/builds").delete()
 
     setArchiveClassifier(null)
-    setArchiveBaseName(plugin_name)
+    setArchiveBaseName("api")
     setArchiveVersion(plugin_version)
 
     exclude "META-INF/**"
