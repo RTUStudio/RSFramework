@@ -7,6 +7,7 @@ import kr.rtuserver.protoweaver.api.auth.ServerAuthHandler;
 import kr.rtuserver.protoweaver.api.callback.HandlerCallback;
 import kr.rtuserver.protoweaver.api.netty.ProtoConnection;
 import kr.rtuserver.protoweaver.api.protocol.internal.CustomPacket;
+import kr.rtuserver.protoweaver.api.protocol.internal.GlobalPacket;
 import kr.rtuserver.protoweaver.api.util.ObjectSerializer;
 import kr.rtuserver.protoweaver.api.util.ProtoLogger;
 import lombok.*;
@@ -16,8 +17,6 @@ import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
 
 /**
@@ -30,13 +29,10 @@ public class Protocol {
     private final ObjectSerializer serializer = new ObjectSerializer();
     @Getter
     private final MessageDigest packetMD = MessageDigest.getInstance("SHA-1");
-
     @Getter
     private final String namespace;
     @Getter
     private final String key;
-    @Getter
-    private final Map<Class<?>, Packet> packetMap = new ConcurrentHashMap<>();
     @Getter
     private CompressionType compression = CompressionType.NONE;
     @Getter
@@ -83,10 +79,8 @@ public class Protocol {
         return namespace + ":" + key;
     }
 
-    public boolean isGlobal(Object packetObject) {
-        Packet packet = this.packetMap.get(packetObject.getClass());
-        if (packet == null) return false;
-        else return packet.isGlobal();
+    public boolean isGlobal(Object packet) {
+        return packet instanceof GlobalPacket;
     }
 
     /**
@@ -191,9 +185,9 @@ public class Protocol {
         private final Protocol protocol;
 
         /**
-         * Set the packet handler that the server will use to process inbound packets.
+         * Set the packets handler that the server will use to process inbound packets.
          *
-         * @param handler The class of the packet handler.
+         * @param handler The class of the packets handler.
          */
         @SneakyThrows
         public Builder setServerHandler(Class<? extends ProtoConnectionHandler> handler) {
@@ -206,9 +200,9 @@ public class Protocol {
         }
 
         /**
-         * Set the packet handler that the server will use to process inbound packets.
+         * Set the packets handler that the server will use to process inbound packets.
          *
-         * @param handler The class of the packet handler.
+         * @param handler The class of the packets handler.
          */
         @SneakyThrows
         public Builder setServerHandler(Class<? extends ProtoConnectionHandler> handler, HandlerCallback callable) {
@@ -222,9 +216,9 @@ public class Protocol {
         }
 
         /**
-         * Set the packet handler that the client will use to process inbound packets.
+         * Set the packets handler that the client will use to process inbound packets.
          *
-         * @param handler The class of the packet handler.
+         * @param handler The class of the packets handler.
          */
         @SneakyThrows
         public Builder setClientHandler(Class<? extends ProtoConnectionHandler> handler) {
@@ -237,9 +231,9 @@ public class Protocol {
         }
 
         /**
-         * Set the packet handler that the client will use to process inbound packets.
+         * Set the packets handler that the client will use to process inbound packets.
          *
-         * @param handler The class of the packet handler.
+         * @param handler The class of the packets handler.
          */
         @SneakyThrows
         public Builder setClientHandler(Class<? extends ProtoConnectionHandler> handler, HandlerCallback callable) {
@@ -287,24 +281,20 @@ public class Protocol {
         /**
          * Register a class to the {@link Protocol} with proxy protocol. Does nothing if the class has already been registered.
          *
-         * @param packet The packet to register.
+         * @param packet The packets to register.
          */
         public Builder addPacket(@NonNull Class<?> packet) {
-            protocol.packetMap.put(packet, Packet.of(packet));
-            protocol.serializer.register(packet, true);
-            protocol.packetMD.update(packet.getName().getBytes(StandardCharsets.UTF_8));
-            return this;
+            return addPacket(packet, true);
         }
 
         /**
          * Register a class to the {@link Protocol}. Does nothing if the class has already been registered.
          *
-         * @param packet The packet to register.
+         * @param packet The packets to register.
          */
-        public Builder addPacket(@NonNull Packet packet) {
-            protocol.packetMap.put(packet.getTypeClass(), packet);
-            protocol.serializer.register(packet.getTypeClass(), packet.isBothSide());
-            String type = packet.isBothSide() ? packet.getType() : CustomPacket.class.getName();
+        public Builder addPacket(@NonNull Class<?> packet, boolean isBothSide) {
+            protocol.serializer.register(packet, isBothSide);
+            String type = isBothSide ? packet.getName() : CustomPacket.class.getName();
             protocol.packetMD.update(type.getBytes(StandardCharsets.UTF_8));
             return this;
         }
@@ -331,10 +321,10 @@ public class Protocol {
         }
 
         /**
-         * Set the maximum packet size this {@link Protocol} can handle. The higher the value, the more ram will be
-         * allocated when sending and receiving packets. The maximum packet size defaults to 16kb.
+         * Set the maximum packets size this {@link Protocol} can handle. The higher the value, the more ram will be
+         * allocated when sending and receiving packets. The maximum packets size defaults to 16kb.
          *
-         * @param maxPacketSize The maximum size a packet can be in bytes.
+         * @param maxPacketSize The maximum size a packets can be in bytes.
          */
         public Builder setMaxPacketSize(int maxPacketSize) {
             protocol.maxPacketSize = maxPacketSize;

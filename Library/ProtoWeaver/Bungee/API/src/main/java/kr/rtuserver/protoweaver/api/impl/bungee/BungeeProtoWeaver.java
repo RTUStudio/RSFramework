@@ -10,6 +10,7 @@ import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.plugin.Listener;
 
 import java.nio.file.Path;
+import java.util.Set;
 
 public interface BungeeProtoWeaver extends Listener, ProtoLogger.IProtoLogger, ServerSupplier {
 
@@ -22,4 +23,6 @@ public interface BungeeProtoWeaver extends Listener, ProtoLogger.IProtoLogger, S
     void disable();
 
     void registerProtocol(String namespace, String key, Packet packet, Class<? extends ProtoConnectionHandler> protocolHandler, HandlerCallback callback);
+
+    void registerProtocol(String namespace, String key, Set<Packet> packets, Class<? extends ProtoConnectionHandler> protocolHandler, HandlerCallback callback);
 }

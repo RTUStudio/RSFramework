@@ -73,11 +73,13 @@ public class BukkitProtoWeaver implements kr.rtuserver.protoweaver.api.impl.bukk
         protocol.setMaxPacketSize(67108864); // 64mb
         protocol.addPacket(ProtocolRegister.class);
         protocol.addPacket(Packet.class);
+
         protocol.addPacket(ProxyPlayer.class);
         protocol.addPacket(PlayerList.class);
-        protocol.addPacket(Packet.of(JsonObject.class, true, true));
-        protocol.addPacket(Packet.of(BroadcastChat.class, true, true));
-        protocol.addPacket(Packet.of(StorageSync.class, true, true));
+
+        protocol.addPacket(JsonObject.class);
+        protocol.addPacket(BroadcastChat.class);
+        protocol.addPacket(StorageSync.class);
         if (isModernProxy) {
             protocol.setServerAuthHandler(VelocityAuth.class);
             protocol.setClientAuthHandler(VelocityAuth.class);
@@ -100,7 +102,7 @@ public class BukkitProtoWeaver implements kr.rtuserver.protoweaver.api.impl.bukk
         connection = data.protoConnection();
         List<Protocol> copy = ImmutableList.copyOf(unregistered);
         for (Protocol protocol : copy) {
-            ProtocolRegister registry = new ProtocolRegister(protocol.getNamespace(), protocol.getKey(), new HashSet<>(protocol.getPacketMap().values()));
+            ProtocolRegister registry = new ProtocolRegister(protocol.getNamespace(), protocol.getKey(), new HashSet<>(protocol.getPacketMap().keySet()));
             connection.send(registry);
             unregistered.remove(protocol);
         }
@@ -114,10 +116,14 @@ public class BukkitProtoWeaver implements kr.rtuserver.protoweaver.api.impl.bukk
     }
 
     public void registerProtocol(String namespace, String key, Packet packet, Class<? extends ProtoConnectionHandler> protocolHandler, HandlerCallback callback) {
+        registerProtocol(namespace, key, Set.of(packet), protocolHandler, callback);
+    }
+
+    public void registerProtocol(String namespace, String key, Set<Packet> packets, Class<? extends ProtoConnectionHandler> protocolHandler, HandlerCallback callback) {
         Protocol.Builder protocol = Protocol.create(namespace, key);
         protocol.setCompression(CompressionType.SNAPPY);
         protocol.setMaxPacketSize(67108864); // 64mb
-        protocol.addPacket(packet);
+        for (Packet packet : packets) protocol.addPacket(packet.getTypeClass(), packet.isBothSide());
         if (isModernProxy) {
             protocol.setServerAuthHandler(VelocityAuth.class);
             protocol.setClientAuthHandler(VelocityAuth.class);
@@ -127,7 +133,7 @@ public class BukkitProtoWeaver implements kr.rtuserver.protoweaver.api.impl.bukk
         Protocol result = protocol.load();
         protocols.add(result);
         if (connection != null) {
-            ProtocolRegister registry = new ProtocolRegister(namespace, key, packet);
+            ProtocolRegister registry = new ProtocolRegister(namespace, key, packets);
             Sender sender = connection.send(registry);
             if (sender.isSuccess()) log.info("New Protocol({}) is connected", namespace + ":" + key);
         } else unregistered.add(result);

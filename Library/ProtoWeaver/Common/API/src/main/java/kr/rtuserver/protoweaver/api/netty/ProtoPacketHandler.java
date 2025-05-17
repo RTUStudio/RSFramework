@@ -32,7 +32,7 @@ public class ProtoPacketHandler extends ByteToMessageDecoder {
         this.connection = connection;
         ProtoPacketHandler.connectionCount = connectionCount;
         if (connection.getSide().equals(Side.CLIENT)) {
-            buf.writeByte(0); // Fake out minecraft packet len
+            buf.writeByte(0); // Fake out minecraft packets len
             buf.writeByte(ProtoConstants.PROTOWEAVER_MAGIC_BYTE);
         }
     }

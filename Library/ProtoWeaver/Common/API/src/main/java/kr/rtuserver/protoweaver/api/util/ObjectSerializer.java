@@ -38,16 +38,14 @@ public class ObjectSerializer {
 
     public void register(Class<?> type, boolean isBothSide) {
         packetMap.put(type.getName(), isBothSide);
-        recursiveRegister(isBothSide ? type : CustomPacket.class, new ArrayList<>());
+        recursiveRegister(isBothSide ? type : CustomPacket.class, new ArrayList<>()); // TODO
     }
 
     public byte[] serialize(Object object, ProtoConnectionHandler handler) throws IllegalArgumentException {
         try {
             if (!packetMap.getOrDefault(object.getClass().getName(), false)) {
                 return fury.serialize(new CustomPacket(object.getClass().getName(), handler.getClass().getName(), GSON.toJson(object)));
-            } else {
-                return fury.serialize(object);
-            }
+            } else return fury.serialize(object);
         } catch (InsecureException e) {
             e.printStackTrace();
             throw new IllegalArgumentException("unregistered object: " + object.getClass().getName());

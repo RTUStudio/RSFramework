@@ -1,7 +1,3 @@
 dependencies {
     paperweight.paperDevBundle("1.17.1-R0.1-SNAPSHOT")
 }
-
-compileJava {
-    //dependsOn(":Library:ProtoWeaver:Bukkit:NMS:1_17_R1:paperweightUserdevSetup")
-}

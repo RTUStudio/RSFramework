@@ -24,7 +24,7 @@ public class SettingConfiguration extends RSConfiguration<RSPlugin> {
 
     private void init() {
         verbose = getBoolean("verbose", verbose, """
-                Debug option
+                Debug target
                 디버그 옵션입니다""");
         listener = getBoolean("listener", listener, """
                 When disabled, event listeners will be deactivated

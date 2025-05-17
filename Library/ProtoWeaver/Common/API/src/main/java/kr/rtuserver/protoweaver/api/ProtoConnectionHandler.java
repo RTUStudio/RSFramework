@@ -3,7 +3,7 @@ package kr.rtuserver.protoweaver.api;
 import kr.rtuserver.protoweaver.api.netty.ProtoConnection;
 
 /**
- * A packet handler for your custom protocol.
+ * A packets handler for your custom protocol.
  */
 public interface ProtoConnectionHandler {
     /**
@@ -23,7 +23,7 @@ public interface ProtoConnectionHandler {
     }
 
     /**
-     * This function is called everytime a packet is received on your protocol.
+     * This function is called everytime a packets is received on your protocol.
      *
      * @param connection The current connection.
      * @param packet     The received object. use "instanceof" to check which one of your packets it is.

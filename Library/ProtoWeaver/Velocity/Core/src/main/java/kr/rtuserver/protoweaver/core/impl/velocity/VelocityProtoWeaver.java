@@ -18,7 +18,10 @@ import kr.rtuserver.protoweaver.api.impl.velocity.VelocityProtoHandler;
 import kr.rtuserver.protoweaver.api.protocol.CompressionType;
 import kr.rtuserver.protoweaver.api.protocol.Packet;
 import kr.rtuserver.protoweaver.api.protocol.Protocol;
-import kr.rtuserver.protoweaver.api.protocol.internal.*;
+import kr.rtuserver.protoweaver.api.protocol.internal.BroadcastChat;
+import kr.rtuserver.protoweaver.api.protocol.internal.PlayerList;
+import kr.rtuserver.protoweaver.api.protocol.internal.ProtocolRegister;
+import kr.rtuserver.protoweaver.api.protocol.internal.StorageSync;
 import kr.rtuserver.protoweaver.api.protocol.velocity.VelocityAuth;
 import kr.rtuserver.protoweaver.api.proxy.ProtoServer;
 import kr.rtuserver.protoweaver.api.util.ProtoLogger;
@@ -58,12 +61,13 @@ public class VelocityProtoWeaver implements kr.rtuserver.protoweaver.api.impl.ve
         protocol.setCompression(CompressionType.SNAPPY);
         protocol.setMaxPacketSize(67108864); // 64mb
         protocol.addPacket(ProtocolRegister.class);
-        protocol.addPacket(Packet.class);
+
         protocol.addPacket(ProxyPlayer.class);
         protocol.addPacket(PlayerList.class);
-        protocol.addPacket(Packet.of(JsonObject.class, true, true));
-        protocol.addPacket(Packet.of(BroadcastChat.class, true, true));
-        protocol.addPacket(Packet.of(StorageSync.class, true, true));
+
+        protocol.addPacket(JsonObject.class);
+        protocol.addPacket(BroadcastChat.class);
+        protocol.addPacket(StorageSync.class);
         if (isModernProxy()) {
             info("Detected modern proxy");
             protocol.setServerAuthHandler(VelocityAuth.class);
@@ -80,10 +84,7 @@ public class VelocityProtoWeaver implements kr.rtuserver.protoweaver.api.impl.ve
         Protocol.Builder protocol = Protocol.create(namespace, key);
         protocol.setCompression(CompressionType.SNAPPY);
         protocol.setMaxPacketSize(67108864); // 64mb
-        for (Packet packet : packets) {
-            if (packet.isBothSide()) protocol.addPacket(packet);
-            else protocol.addPacket(Packet.of(CustomPacket.class, packet.isGlobal(), false));
-        }
+        for (Packet packet : packets) protocol.addPacket(packet.getTypeClass(), packet.isBothSide());
         if (isModernProxy()) {
             protocol.setServerAuthHandler(VelocityAuth.class);
             protocol.setClientAuthHandler(VelocityAuth.class);
@@ -92,7 +93,7 @@ public class VelocityProtoWeaver implements kr.rtuserver.protoweaver.api.impl.ve
     }
 
     private boolean isModernProxy() {
-        String mode = velocityConfig.getString("adapter-info-forwarding-mode", "");
+        String mode = velocityConfig.getString("player-info-forwarding-mode", "");
         if (!List.of("modern", "bungeeguard").contains(mode.toLowerCase())) return false;
         String secretPath = velocityConfig.getString("forwarding-secret-file", "");
         if (secretPath.isEmpty()) return false;
@@ -162,7 +163,7 @@ public class VelocityProtoWeaver implements kr.rtuserver.protoweaver.api.impl.ve
 
     private void onPacket(HandlerCallback.Packet data) {
         if (data.packet() instanceof ProtocolRegister register) {
-            registerProtocol(register.namespace(), register.key(), register.packet(), CommonPacketHandler.class, null);
+            registerProtocol(register.namespace(), register.key(), register.packets(), CommonPacketHandler.class, null);
         }
     }
 }
