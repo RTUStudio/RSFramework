@@ -61,6 +61,7 @@ public class VelocityProtoWeaver implements kr.rtuserver.protoweaver.api.impl.ve
         protocol.setCompression(CompressionType.SNAPPY);
         protocol.setMaxPacketSize(67108864); // 64mb
         protocol.addPacket(ProtocolRegister.class);
+        protocol.addPacket(Packet.class);
 
         protocol.addPacket(ProxyPlayer.class);
         protocol.addPacket(PlayerList.class);
