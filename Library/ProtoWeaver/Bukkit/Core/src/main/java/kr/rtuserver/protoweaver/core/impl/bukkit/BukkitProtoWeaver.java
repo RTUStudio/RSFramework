@@ -102,7 +102,7 @@ public class BukkitProtoWeaver implements kr.rtuserver.protoweaver.api.impl.bukk
         connection = data.protoConnection();
         List<Protocol> copy = ImmutableList.copyOf(unregistered);
         for (Protocol protocol : copy) {
-            ProtocolRegister registry = new ProtocolRegister(protocol.getNamespace(), protocol.getKey(), new HashSet<>(protocol.getPacketMap().keySet()));
+            ProtocolRegister registry = new ProtocolRegister(protocol.getNamespace(), protocol.getKey(), new HashSet<>(protocol.getPackets()));
             connection.send(registry);
             unregistered.remove(protocol);
         }

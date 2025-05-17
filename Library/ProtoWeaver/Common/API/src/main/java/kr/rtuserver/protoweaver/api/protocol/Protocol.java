@@ -17,6 +17,8 @@ import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.logging.Level;
 
 /**
@@ -33,6 +35,8 @@ public class Protocol {
     private final String namespace;
     @Getter
     private final String key;
+    @Getter
+    private final Set<Packet> packets = new HashSet<>();
     @Getter
     private CompressionType compression = CompressionType.NONE;
     @Getter
@@ -293,6 +297,7 @@ public class Protocol {
          * @param packet The packets to register.
          */
         public Builder addPacket(@NonNull Class<?> packet, boolean isBothSide) {
+            protocol.packets.add(Packet.of(packet, isBothSide));
             protocol.serializer.register(packet, isBothSide);
             String type = isBothSide ? packet.getName() : CustomPacket.class.getName();
             protocol.packetMD.update(type.getBytes(StandardCharsets.UTF_8));
