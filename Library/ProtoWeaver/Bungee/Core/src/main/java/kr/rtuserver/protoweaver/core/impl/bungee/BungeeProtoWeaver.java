@@ -8,10 +8,7 @@ import kr.rtuserver.protoweaver.api.impl.bungee.BungeeProtoHandler;
 import kr.rtuserver.protoweaver.api.protocol.CompressionType;
 import kr.rtuserver.protoweaver.api.protocol.Packet;
 import kr.rtuserver.protoweaver.api.protocol.Protocol;
-import kr.rtuserver.protoweaver.api.protocol.internal.BroadcastChat;
-import kr.rtuserver.protoweaver.api.protocol.internal.PlayerList;
-import kr.rtuserver.protoweaver.api.protocol.internal.ProtocolRegister;
-import kr.rtuserver.protoweaver.api.protocol.internal.StorageSync;
+import kr.rtuserver.protoweaver.api.protocol.internal.*;
 import kr.rtuserver.protoweaver.api.proxy.ProtoServer;
 import kr.rtuserver.protoweaver.api.util.ProtoLogger;
 import kr.rtuserver.protoweaver.core.protocol.protoweaver.CommonPacketHandler;
@@ -69,14 +66,16 @@ public class BungeeProtoWeaver implements kr.rtuserver.protoweaver.api.impl.bung
         Protocol.Builder protocol = Protocol.create(namespace, key);
         protocol.setCompression(CompressionType.SNAPPY);
         protocol.setMaxPacketSize(67108864); // 64mb
-        for (Packet packet : packets) protocol.addPacket(packet.getTypeClass(), packet.isBothSide());
+        for (Packet packet : packets) {
+            if (packet.isBothSide()) protocol.addPacket(packet.getTypeClass());
+        }
+        protocol.addPacket(CustomPacket.class, false);
         protocol.setClientHandler(CommonPacketHandler.class, null).load();
     }
 
     public void disable() {
         protoProxy.shutdown();
     }
-
 
     @Override
     public List<ProtoServer> getServers() {

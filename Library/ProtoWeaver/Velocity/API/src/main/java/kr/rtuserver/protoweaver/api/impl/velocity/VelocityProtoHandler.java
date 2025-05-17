@@ -34,16 +34,12 @@ public class VelocityProtoHandler implements ProtoConnectionHandler {
         log.info("Connected to Server");
         log.info("┠ Address: {}", protoConnection.getRemoteAddress());
         log.info("┖ Protocol: {}", protoConnection.getProtocol().getNamespaceKey());
-        if (callable != null) {
-            callable.onReady(protoConnection);
-        }
+        if (callable != null) callable.onReady(protoConnection);
     }
 
     @Override
     public void handlePacket(ProtoConnection protoConnection, Object packet) {
-        if (callable != null) {
-            callable.handlePacket(protoConnection, packet);
-        }
+        if (callable != null) callable.handlePacket(protoConnection, packet);
         if (protoConnection.getProtocol().isGlobal(packet)) getServers().forEach(connection -> connection.send(packet));
     }
 }

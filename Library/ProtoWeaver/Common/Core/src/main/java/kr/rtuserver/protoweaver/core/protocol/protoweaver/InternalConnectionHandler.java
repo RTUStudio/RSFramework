@@ -3,7 +3,6 @@ package kr.rtuserver.protoweaver.core.protocol.protoweaver;
 import kr.rtuserver.protoweaver.api.netty.ProtoConnection;
 import kr.rtuserver.protoweaver.api.netty.Sender;
 import kr.rtuserver.protoweaver.api.protocol.Protocol;
-import kr.rtuserver.protoweaver.api.protocol.internal.CustomPacket;
 import kr.rtuserver.protoweaver.api.protocol.internal.ProtocolRegister;
 import kr.rtuserver.protoweaver.api.util.ProtoLogger;
 import lombok.Getter;
@@ -17,7 +16,6 @@ public class InternalConnectionHandler {
             .addPacket(AuthStatus.class)
             .addPacket(ProtocolStatus.class)
             .addPacket(ProtocolRegister.class)
-            .addPacket(CustomPacket.class)
             .load();
 
     protected void disconnectIfNeverUpgraded(ProtoConnection connection, Sender sender) {

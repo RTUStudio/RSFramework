@@ -25,6 +25,10 @@ public class ObjectSerializer {
     private final Gson GSON = new Gson();
     private final Map<String, Boolean> packetMap = new HashMap<>();
 
+    public ObjectSerializer() {
+        fury.register(CustomPacket.class);
+    }
+
     private void recursiveRegister(Class<?> type, List<Class<?>> registered) {
         if (type == null || type == Object.class || registered.contains(type)) return;
         fury.register(type);
