@@ -1,7 +1,5 @@
 package kr.rtuserver.protoweaver.core.impl.bukkit;
 
-import com.google.common.collect.ImmutableList;
-import com.google.gson.JsonObject;
 import kr.rtuserver.protoweaver.api.ProtoConnectionHandler;
 import kr.rtuserver.protoweaver.api.ProxyPlayer;
 import kr.rtuserver.protoweaver.api.callback.HandlerCallback;
@@ -13,6 +11,7 @@ import kr.rtuserver.protoweaver.api.protocol.CompressionType;
 import kr.rtuserver.protoweaver.api.protocol.Packet;
 import kr.rtuserver.protoweaver.api.protocol.Protocol;
 import kr.rtuserver.protoweaver.api.protocol.internal.*;
+import kr.rtuserver.protoweaver.api.protocol.serializer.CustomPacketSerializer;
 import kr.rtuserver.protoweaver.api.protocol.velocity.VelocityAuth;
 import kr.rtuserver.protoweaver.core.impl.bukkit.nms.v1_17_r1.ProtoWeaver_1_17_R1;
 import kr.rtuserver.protoweaver.core.impl.bukkit.nms.v1_18_r1.ProtoWeaver_1_18_R1;
@@ -28,10 +27,10 @@ import kr.rtuserver.protoweaver.core.impl.bukkit.nms.v1_21_r1.ProtoWeaver_1_21_R
 import kr.rtuserver.protoweaver.core.impl.bukkit.nms.v1_21_r2.ProtoWeaver_1_21_R2;
 import kr.rtuserver.protoweaver.core.impl.bukkit.nms.v1_21_r3.ProtoWeaver_1_21_R3;
 import kr.rtuserver.protoweaver.core.impl.bukkit.nms.v1_21_r4.ProtoWeaver_1_21_R4;
+import kr.rtuserver.protoweaver.core.protocol.protoweaver.ProxyPacketHandler;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -43,8 +42,8 @@ public class BukkitProtoWeaver implements kr.rtuserver.protoweaver.api.impl.bukk
     private final IProtoWeaver protoWeaver;
     private final HandlerCallback callback;
     private final boolean isModernProxy;
-    private final List<Protocol> protocols = new ArrayList<>();
-    private final List<Protocol> unregistered = new ArrayList<>();
+    private final Set<ProtocolRegister> protocols = new HashSet<>();
+    private final Set<ProtocolRegister> unregistered = new HashSet<>();
     private final Set<ProxyPlayer> players = new HashSet<>();
     private ProtoConnection connection;
 
@@ -76,16 +75,12 @@ public class BukkitProtoWeaver implements kr.rtuserver.protoweaver.api.impl.bukk
 
         protocol.addPacket(ProxyPlayer.class);
         protocol.addPacket(PlayerList.class);
-
-        protocol.addPacket(JsonObject.class);
-        protocol.addPacket(BroadcastChat.class);
         protocol.addPacket(StorageSync.class);
         if (isModernProxy) {
             protocol.setServerAuthHandler(VelocityAuth.class);
             protocol.setClientAuthHandler(VelocityAuth.class);
         }
-        protocol.setServerHandler(BukkitProtoHandler.class, this.callback);
-        protocol.load();
+        protocol.setServerHandler(BukkitProtoHandler.class, this.callback).load();
     }
 
     public boolean isConnected() {
@@ -99,19 +94,27 @@ public class BukkitProtoWeaver implements kr.rtuserver.protoweaver.api.impl.bukk
 
 
     public void onReady(HandlerCallback.Ready data) {
+//        if (connection != null) {
+//            for (ProtocolRegister protocol : protocols) {
+//                if (connection != null) {
+//                    Sender sender = connection.send(protocol);
+//                    if (sender.isSuccess()) log.info("Protocol({}) is reconnected", protocol.namespace() + ":" + protocol.key());
+//                } else unregistered.add(protocol);
+//            }
+//        }
         connection = data.protoConnection();
-        List<Protocol> copy = ImmutableList.copyOf(unregistered);
-        for (Protocol protocol : copy) {
-            ProtocolRegister registry = new ProtocolRegister(protocol.getNamespace(), protocol.getKey(), new HashSet<>(protocol.getPackets()));
-            connection.send(registry);
-            unregistered.remove(protocol);
+        Set<ProtocolRegister> toRemove = new HashSet<>();
+        for (ProtocolRegister protocol : unregistered) {
+            Sender sender = connection.send(protocol);
+            if (sender.isSuccess()) toRemove.add(protocol);
         }
+        unregistered.removeAll(toRemove);
     }
 
     public void onPacket(HandlerCallback.Packet packet) {
-        if (packet.packet() instanceof PlayerList list) {
+        if (packet.packet() instanceof PlayerList(List<ProxyPlayer> players1)) {
             players.clear();
-            players.addAll(list.players());
+            players.addAll(players1);
         }
     }
 
@@ -123,19 +126,28 @@ public class BukkitProtoWeaver implements kr.rtuserver.protoweaver.api.impl.bukk
         Protocol.Builder protocol = Protocol.create(namespace, key);
         protocol.setCompression(CompressionType.SNAPPY);
         protocol.setMaxPacketSize(67108864); // 64mb
-        for (Packet packet : packets) protocol.addPacket(packet.getTypeClass(), packet.isBothSide());
+        for (Packet packet : packets) {
+            if (packet.getSerializer() != null) {
+                protocol.addPacket(packet.getPacket(), packet.getSerializer());
+            } else protocol.addPacket(packet.getPacket());
+        }
+        protocol.addPacket(CustomPacket.class, CustomPacketSerializer.class);
         if (isModernProxy) {
             protocol.setServerAuthHandler(VelocityAuth.class);
             protocol.setClientAuthHandler(VelocityAuth.class);
         }
-        if (callback == null) protocol.setServerHandler(protocolHandler);
-        else protocol.setServerHandler(protocolHandler, callback);
-        Protocol result = protocol.load();
-        protocols.add(result);
+        if (protocolHandler == null) protocolHandler = ProxyPacketHandler.class;
+        if (callback == null) protocol.setServerHandler(protocolHandler).load();
+        else protocol.setServerHandler(protocolHandler, callback).load();
+
+        Set<Packet> result = new HashSet<>();
+        for (Packet packet : packets) {
+            if (packet.getSerializer() != CustomPacketSerializer.class) result.add(packet);
+        }
+        ProtocolRegister registry = new ProtocolRegister(namespace, key, result);
         if (connection != null) {
-            ProtocolRegister registry = new ProtocolRegister(namespace, key, packets);
             Sender sender = connection.send(registry);
             if (sender.isSuccess()) log.info("New Protocol({}) is connected", namespace + ":" + key);
-        } else unregistered.add(result);
+        } else unregistered.add(registry);
     }
 }

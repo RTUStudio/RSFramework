@@ -1,12 +1,14 @@
-package kr.rtuserver.protoweaver.core.protocol.protoweaver;
+package kr.rtuserver.protoweaver.api.protocol.handler;
 
 import kr.rtuserver.protoweaver.api.ProtoConnectionHandler;
 import kr.rtuserver.protoweaver.api.ProtoWeaver;
-import kr.rtuserver.protoweaver.api.auth.ServerAuthHandler;
 import kr.rtuserver.protoweaver.api.netty.ProtoConnection;
 import kr.rtuserver.protoweaver.api.netty.Sender;
 import kr.rtuserver.protoweaver.api.protocol.Protocol;
 import kr.rtuserver.protoweaver.api.protocol.Side;
+import kr.rtuserver.protoweaver.api.protocol.handler.auth.ServerAuthHandler;
+import kr.rtuserver.protoweaver.api.protocol.status.AuthStatus;
+import kr.rtuserver.protoweaver.api.protocol.status.ProtocolStatus;
 import kr.rtuserver.protoweaver.api.util.ProtoConstants;
 import lombok.SneakyThrows;
 
@@ -31,8 +33,8 @@ public class ServerConnectionHandler extends InternalConnectionHandler implement
                         return;
                     }
 
-                    if (!ProtoConstants.PROTOWEAVER_VERSION.equals(status.getProtoweaverVersion())) {
-                        nextProtocol.logWarn("Client connecting with ProtoWeaver version: " + status.getProtoweaverVersion() + ", but server is running: " + ProtoConstants.PROTOWEAVER_VERSION + ". There could be unexpected issues.");
+                    if (!ProtoConstants.PROTOWEAVER_VERSION.equals(status.getVersion())) {
+                        nextProtocol.logWarn("Client connecting with ProtoWeaver version: " + status.getVersion() + ", but server is running: " + ProtoConstants.PROTOWEAVER_VERSION + ". There could be unexpected issues.");
                     }
 
                     if (nextProtocol.getMaxConnections() != -1 && nextProtocol.getConnections() >= nextProtocol.getMaxConnections()) {
@@ -81,5 +83,10 @@ public class ServerConnectionHandler extends InternalConnectionHandler implement
         connection.send(new ProtocolStatus(connection.getProtocol().toString(), nextProtocol.toString(), new byte[]{}, ProtocolStatus.Status.UPGRADE));
         connection.upgradeProtocol(nextProtocol);
         //nextProtocol.logInfo("Connected to: " + connection.getRemoteAddress());
+    }
+
+    @Override
+    public void onDisconnect(ProtoConnection connection) {
+        protocol.logInfo("Disconnected from: " + connection.getRemoteAddress());
     }
 }

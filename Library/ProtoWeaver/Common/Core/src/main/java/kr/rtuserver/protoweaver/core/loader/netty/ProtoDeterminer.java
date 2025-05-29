@@ -9,9 +9,9 @@ import io.netty.handler.codec.ByteToMessageDecoder;
 import io.netty.handler.ssl.SslHandler;
 import kr.rtuserver.protoweaver.api.netty.ProtoConnection;
 import kr.rtuserver.protoweaver.api.protocol.Side;
+import kr.rtuserver.protoweaver.api.protocol.handler.InternalConnectionHandler;
 import kr.rtuserver.protoweaver.api.util.ProtoConstants;
 import kr.rtuserver.protoweaver.api.util.ProtoLogger;
-import kr.rtuserver.protoweaver.core.protocol.protoweaver.InternalConnectionHandler;
 import lombok.SneakyThrows;
 
 import java.util.List;

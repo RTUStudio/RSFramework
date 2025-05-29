@@ -1,4 +1,4 @@
-package kr.rtuserver.protoweaver.core.protocol.protoweaver;
+package kr.rtuserver.protoweaver.api.protocol.status;
 
 public enum AuthStatus {
     OK,

@@ -1,9 +1,10 @@
-package kr.rtuserver.protoweaver.core.protocol.protoweaver;
+package kr.rtuserver.protoweaver.api.protocol.handler;
 
 import kr.rtuserver.protoweaver.api.netty.ProtoConnection;
 import kr.rtuserver.protoweaver.api.netty.Sender;
 import kr.rtuserver.protoweaver.api.protocol.Protocol;
-import kr.rtuserver.protoweaver.api.protocol.internal.ProtocolRegister;
+import kr.rtuserver.protoweaver.api.protocol.status.AuthStatus;
+import kr.rtuserver.protoweaver.api.protocol.status.ProtocolStatus;
 import kr.rtuserver.protoweaver.api.util.ProtoLogger;
 import lombok.Getter;
 
@@ -15,11 +16,14 @@ public class InternalConnectionHandler {
             .setClientHandler(ClientConnectionHandler.class)
             .addPacket(AuthStatus.class)
             .addPacket(ProtocolStatus.class)
-            .addPacket(ProtocolRegister.class)
             .load();
 
+    protected boolean wasUpgraded(ProtoConnection connection) {
+        return connection.getProtocol().toString().equals(protocol.toString());
+    }
+
     protected void disconnectIfNeverUpgraded(ProtoConnection connection, Sender sender) {
-        if (!connection.getProtocol().toString().equals(protocol.toString())) return;
+        if (!wasUpgraded(connection)) return;
         if (sender != null) {
             sender.disconnect();
             return;

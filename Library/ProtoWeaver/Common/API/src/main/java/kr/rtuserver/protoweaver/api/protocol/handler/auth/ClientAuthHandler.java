@@ -1,4 +1,4 @@
-package kr.rtuserver.protoweaver.api.auth;
+package kr.rtuserver.protoweaver.api.protocol.handler.auth;
 
 /**
  * A simple provider class for client authentication. Any implementations loaded on the server won't do anything.

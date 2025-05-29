@@ -1,24 +1,21 @@
 package kr.rtuserver.protoweaver.api.netty;
 
-import com.google.gson.Gson;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.ByteToMessageDecoder;
 import kr.rtuserver.protoweaver.api.ProtoConnectionHandler;
 import kr.rtuserver.protoweaver.api.protocol.Side;
-import kr.rtuserver.protoweaver.api.protocol.internal.CustomPacket;
 import kr.rtuserver.protoweaver.api.util.DrunkenBishop;
 import kr.rtuserver.protoweaver.api.util.ProtoConstants;
 import kr.rtuserver.protoweaver.api.util.ProtoLogger;
 import lombok.Setter;
 
+import java.net.SocketException;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class ProtoPacketHandler extends ByteToMessageDecoder {
-
-    private final static Gson GSON = new Gson();
 
     private static ConcurrentHashMap<String, Integer> connectionCount;
 
@@ -32,7 +29,7 @@ public class ProtoPacketHandler extends ByteToMessageDecoder {
         this.connection = connection;
         ProtoPacketHandler.connectionCount = connectionCount;
         if (connection.getSide().equals(Side.CLIENT)) {
-            buf.writeByte(0); // Fake out minecraft packets len
+            buf.writeByte(0); // Fake out minecraft packet len
             buf.writeByte(ProtoConstants.PROTOWEAVER_MAGIC_BYTE);
         }
     }
@@ -55,23 +52,21 @@ public class ProtoPacketHandler extends ByteToMessageDecoder {
 
     @Override
     protected void decode(ChannelHandlerContext ctx, ByteBuf byteBuf, List<Object> list) {
-        if (byteBuf.readableBytes() == 0) return;
+        // Ensure the whole packet has arrived before trying to decode
+        if (byteBuf.readableBytes() < 4) return;
+        byteBuf.markReaderIndex();
+        int packetLen = byteBuf.readInt();
+        if (byteBuf.readableBytes() < packetLen) {
+            byteBuf.resetReaderIndex();
+            return;
+        }
 
         Object packet = null;
-
         try {
-            byte[] bytes = new byte[byteBuf.readInt()];
+            byte[] bytes = new byte[packetLen];
             byteBuf.readBytes(bytes);
             packet = connection.getProtocol().deserialize(bytes);
-            if (packet instanceof CustomPacket custom) {
-                if (handler.getClass().getName().equals(custom.handlerClass())) {
-                    try {
-                        packet = GSON.fromJson(custom.json(), Class.forName(custom.classType()));
-                    } catch (ClassNotFoundException ignore) {
-                    }
-                }
-            }
-            handler.handlePacket(connection, (Object) packet);
+            handler.handlePacket(connection, packet);
 
         } catch (IllegalArgumentException e) {
             connection.getProtocol().logWarn("Ignoring an " + e.getMessage());
@@ -85,7 +80,7 @@ public class ProtoPacketHandler extends ByteToMessageDecoder {
     // Done with two bufs to prevent the user from messing with the internal data
     public Sender send(Object packet) {
         try {
-            byte[] packetBuf = connection.getProtocol().serialize(packet, connection.getHandler());
+            byte[] packetBuf = connection.getProtocol().serialize(packet);
             if (packetBuf.length == 0) return new Sender(connection, ctx.newSucceededFuture(), false);
 
             buf.writeInt(packetBuf.length); // Packet Len
@@ -94,9 +89,9 @@ public class ProtoPacketHandler extends ByteToMessageDecoder {
             Sender sender = new Sender(connection, ctx.writeAndFlush(buf), true);
             buf = Unpooled.buffer();
             return sender;
+
         } catch (IllegalArgumentException e) {
             connection.getProtocol().logErr("Tried to send an " + e.getMessage());
-            e.printStackTrace();
             return new Sender(connection, ctx.newSucceededFuture(), false);
         } catch (Exception e) {
             connection.getProtocol().logErr("Threw an error when trying to send: " + packet.getClass() + "!");
@@ -124,6 +119,12 @@ public class ProtoPacketHandler extends ByteToMessageDecoder {
             ProtoLogger.err(" - https://en.wikipedia.org/wiki/Man-in-the-middle_attack");
             ProtoLogger.err("If you've reset your server configuration recently, you can probably ignore this and reset/remove the \"protoweaver.hosts\" file.");
 
+            ctx.close();
+            connection.disconnect();
+        }
+
+        if (cause instanceof SocketException) {
+            ctx.close();
             connection.disconnect();
         }
     }

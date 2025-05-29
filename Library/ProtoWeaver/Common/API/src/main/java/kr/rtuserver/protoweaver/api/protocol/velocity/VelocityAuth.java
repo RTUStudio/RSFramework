@@ -1,8 +1,8 @@
 package kr.rtuserver.protoweaver.api.protocol.velocity;
 
-import kr.rtuserver.protoweaver.api.auth.ClientAuthHandler;
-import kr.rtuserver.protoweaver.api.auth.ServerAuthHandler;
 import kr.rtuserver.protoweaver.api.netty.ProtoConnection;
+import kr.rtuserver.protoweaver.api.protocol.handler.auth.ClientAuthHandler;
+import kr.rtuserver.protoweaver.api.protocol.handler.auth.ServerAuthHandler;
 import lombok.Cleanup;
 import lombok.Getter;
 import lombok.Setter;

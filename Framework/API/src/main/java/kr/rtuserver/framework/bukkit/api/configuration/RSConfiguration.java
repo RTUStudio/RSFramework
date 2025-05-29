@@ -29,11 +29,11 @@ public class RSConfiguration<T extends RSPlugin> {
             ║ ░█▀▄░░░█░░░█░█░░░░░▀▀█░░░█░░░█░█░░█░█░░░█░░░█░█░ ║
             ║ ░▀░▀░░░▀░░░▀▀▀░░░░░▀▀▀░░░▀░░░▀▀▀░░▀▀░░░▀▀▀░░▀▀▀░ ║
             ╚══════════════════════════════════════════════════╝
-
+            
             This is the configuration for %s.
             If you have any questions or need assistance,
             please join our Discord server and ask for help from %s!
-
+            
             이것은 %s의 구성입니다.
             질문이 있거나 도움이 필요하시면,
             저희 Discord 서버에 가입하셔서 %s에게 도움을 요청해 주세요!""";

@@ -1,5 +1,6 @@
 package kr.rtuserver.protoweaver.api.protocol;
 
+import kr.rtuserver.protoweaver.api.ProtoSerializer;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -10,29 +11,22 @@ import lombok.ToString;
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 public class Packet {
 
-    private final String type;
-    private final boolean isBothSide;
+    private final Class<?> packet;
+    private final Class<? extends ProtoSerializer<?>> serializer;
 
     /**
-     * @param type 패킷의 타입
+     * @param packet 패킷 클래스
      */
-    public static Packet of(Class<?> type) {
-        return new Packet(type.getName(), false);
+    public static Packet of(Class<?> packet) {
+        return new Packet(packet, null);
     }
 
     /**
-     * @param type       패킷의 타입
-     * @param isBothSide 패킷의 옵션 (기본값: false)
+     * @param packet     패킷 클래스
+     * @param serializer 직렬화 클래스
      */
-    public static Packet of(Class<?> type, boolean isBothSide) {
-        return new Packet(type.getName(), isBothSide);
+    public static Packet of(Class<?> packet, Class<? extends ProtoSerializer<?>> serializer) {
+        return new Packet(packet, serializer);
     }
 
-    public Class<?> getTypeClass() {
-        try {
-            return Class.forName(type);
-        } catch (ClassNotFoundException e) {
-            return null;
-        }
-    }
 }

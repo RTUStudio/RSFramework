@@ -1,4 +1,4 @@
-package kr.rtuserver.protoweaver.core.client.netty;
+package kr.rtuserver.protoweaver.api.client.netty;
 
 import io.netty.util.concurrent.FastThreadLocal;
 import io.netty.util.internal.EmptyArrays;

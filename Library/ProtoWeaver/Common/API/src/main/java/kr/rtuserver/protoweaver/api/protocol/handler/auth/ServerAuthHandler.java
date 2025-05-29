@@ -1,4 +1,4 @@
-package kr.rtuserver.protoweaver.api.auth;
+package kr.rtuserver.protoweaver.api.protocol.handler.auth;
 
 import kr.rtuserver.protoweaver.api.netty.ProtoConnection;
 

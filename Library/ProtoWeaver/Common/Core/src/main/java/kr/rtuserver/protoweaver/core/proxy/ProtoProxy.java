@@ -1,12 +1,13 @@
 package kr.rtuserver.protoweaver.core.proxy;
 
 import kr.rtuserver.protoweaver.api.ProtoWeaver;
+import kr.rtuserver.protoweaver.api.client.ProtoClient;
+import kr.rtuserver.protoweaver.api.netty.ProtoConnection;
 import kr.rtuserver.protoweaver.api.protocol.Protocol;
 import kr.rtuserver.protoweaver.api.protocol.Side;
 import kr.rtuserver.protoweaver.api.proxy.ProtoServer;
 import kr.rtuserver.protoweaver.api.proxy.ServerSupplier;
-import kr.rtuserver.protoweaver.api.r.R;
-import kr.rtuserver.protoweaver.core.client.ProtoClient;
+import kr.rtuserver.protoweaver.api.util.ReflectionUtil;
 import lombok.NonNull;
 import lombok.Setter;
 import org.jetbrains.annotations.ApiStatus;
@@ -16,6 +17,7 @@ import java.net.SocketAddress;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -66,10 +68,22 @@ public class ProtoProxy {
      */
     public static List<ProtoServer> getConnectedServers(@NonNull Protocol protocol) {
         List<ProtoServer> connected = new ArrayList<>();
+
         servers.forEach((server, clients) -> clients.stream()
                 .filter(c -> protocol.equals(c.getCurrentProtocol()) || c.isConnected())
                 .findFirst().ifPresent(c -> connected.add(server)));
         return connected;
+    }
+
+    /**
+     * Returns a {@link ProtoServer} with a matching {@link ProtoConnection}.
+     *
+     * @param connection the connection to match.
+     */
+    public static Optional<ProtoServer> getConnectedServer(ProtoConnection connection) {
+        return getConnectedServers(connection.getProtocol()).stream()
+                .filter(server -> server.getConnection(connection.getProtocol()).map(con -> Objects.equals(con, connection)).orElse(false))
+                .findFirst();
     }
 
     /**
@@ -99,6 +113,7 @@ public class ProtoProxy {
                 // Don't start a new connection if one already exists for this protocol
                 if (client.getCurrentProtocol().toString().equals(protocol.toString())) return;
             }
+            ReflectionUtil.of(server).set("clients", clients);
             connectClient(protocol, server, clients);
         });
     }
@@ -111,7 +126,7 @@ public class ProtoProxy {
             if (connection.getDisconnecter().equals(Side.CLIENT)) return;
             Thread.sleep(serverPollRate);
             connectClient(protocol, server, clients);
-        }).onConnectionEstablished(connection -> R.of(server).set("connection", connection));
+        });
         clients.add(client);
     }
 

@@ -1,4 +1,4 @@
-package kr.rtuserver.protoweaver.core.client;
+package kr.rtuserver.protoweaver.api.client;
 
 import com.google.common.base.internal.Finalizer;
 import io.netty.bootstrap.Bootstrap;
@@ -12,13 +12,13 @@ import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.handler.ssl.SslContext;
 import io.netty.handler.ssl.SslContextBuilder;
 import kr.rtuserver.protoweaver.api.ProtoWeaver;
+import kr.rtuserver.protoweaver.api.client.netty.ProtoTrustManager;
 import kr.rtuserver.protoweaver.api.netty.ProtoConnection;
 import kr.rtuserver.protoweaver.api.netty.Sender;
 import kr.rtuserver.protoweaver.api.protocol.Protocol;
 import kr.rtuserver.protoweaver.api.protocol.Side;
-import kr.rtuserver.protoweaver.core.client.netty.ProtoTrustManager;
-import kr.rtuserver.protoweaver.core.protocol.protoweaver.ClientConnectionHandler;
-import kr.rtuserver.protoweaver.core.protocol.protoweaver.InternalConnectionHandler;
+import kr.rtuserver.protoweaver.api.protocol.handler.ClientConnectionHandler;
+import kr.rtuserver.protoweaver.api.protocol.handler.InternalConnectionHandler;
 import lombok.Getter;
 import lombok.NonNull;
 

@@ -1,5 +1,5 @@
 dependencies {
-    implementation project(":Library:ProtoWeaver:Bukkit:API")
+    implementation project(path: ":Library:ProtoWeaver:Bukkit:API", configuration: "shadow")
 
     compileOnly "com.alessiodp.libby:libby-bukkit:2.0.0-SNAPSHOT"
 

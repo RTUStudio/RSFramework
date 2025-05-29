@@ -1,18 +1,16 @@
-package kr.rtuserver.protoweaver.core.protocol.protoweaver;
+package kr.rtuserver.protoweaver.api.protocol.status;
 
 import kr.rtuserver.protoweaver.api.util.ProtoConstants;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
-import lombok.ToString;
 
 @Getter
 @Setter
-@ToString
 @AllArgsConstructor
 public class ProtocolStatus {
 
-    private final String protoweaverVersion = ProtoConstants.PROTOWEAVER_VERSION;
+    private final String version = ProtoConstants.PROTOWEAVER_VERSION;
     private String currentProtocol;
     private String nextProtocol;
     private byte[] nextSHA1;

@@ -13,12 +13,12 @@ import java.util.List;
 
 @Slf4j(topic = "RSF/ProtoHandler")
 @RequiredArgsConstructor
-public class CommonPacketHandler implements ProtoConnectionHandler {
+public class ServerPacketHandler implements ProtoConnectionHandler {
 
     private static final List<ProtoConnection> servers = new ArrayList<>();
     private final HandlerCallback callable;
 
-    public CommonPacketHandler() {
+    public ServerPacketHandler() {
         this.callable = null;
     }
 

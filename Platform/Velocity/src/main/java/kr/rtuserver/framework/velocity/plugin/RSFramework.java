@@ -33,12 +33,15 @@ public class RSFramework {
         libraries.load("com.google.guava:guava:32.1.2-jre");
         libraries.load("org.xerial.snappy:snappy-java:1.1.10.5");
 
+        libraries.load("io.netty:netty-buffer:4.1.111.Final");
+        libraries.load("io.netty:netty-transport:4.1.111.Final");
+        libraries.load("io.netty:netty-handler:4.1.111.Final");
         libraries.load("io.netty:netty-codec-http:4.1.111.Final");
         libraries.load("io.netty:netty-codec-http2:4.1.111.Final");
-        libraries.load("org.apache.fury:fury-core:0.9.0");
-        libraries.load("org.bouncycastle:bcpkix-jdk18on:1.79");
-        libraries.load("org.bouncycastle:bcprov-jdk18on:1.79");
-        libraries.load("org.bouncycastle:bcutil-jdk18on:1.79");
+        libraries.load("org.apache.fury:fury-core:0.10.3", "org.apache.fury", "kr.rtuserver.protoweaver.fury");
+        libraries.load("org.bouncycastle:bcpkix-jdk18on:1.80");
+        libraries.load("org.bouncycastle:bcprov-jdk18on:1.80");
+        libraries.load("org.bouncycastle:bcutil-jdk18on:1.80");
         libraries.load("org.javassist:javassist:3.30.2-GA");
         libraries.load("org.reflections:reflections:0.10.2");
 

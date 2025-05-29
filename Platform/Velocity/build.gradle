@@ -9,8 +9,8 @@ runVelocity {
 }
 
 dependencies {
-    implementation project(":Library:ProtoWeaver:Velocity:API")
-    implementation project(":Library:ProtoWeaver:Velocity:Core")
+    implementation project(path: ":Library:ProtoWeaver:Velocity:API", configuration: "shadow")
+    implementation project(path: ":Library:ProtoWeaver:Velocity:Core", configuration: "shadow")
     implementation "com.alessiodp.libby:libby-velocity:2.0.0-SNAPSHOT"
     compileOnly "com.github.Carleslc.Simple-YAML:Simple-Yaml:1.8.4"
 

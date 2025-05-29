@@ -1,6 +1,5 @@
 package kr.rtuserver.protoweaver.core.impl.bungee;
 
-import com.google.gson.JsonObject;
 import kr.rtuserver.protoweaver.api.ProtoConnectionHandler;
 import kr.rtuserver.protoweaver.api.ProxyPlayer;
 import kr.rtuserver.protoweaver.api.callback.HandlerCallback;
@@ -8,10 +7,13 @@ import kr.rtuserver.protoweaver.api.impl.bungee.BungeeProtoHandler;
 import kr.rtuserver.protoweaver.api.protocol.CompressionType;
 import kr.rtuserver.protoweaver.api.protocol.Packet;
 import kr.rtuserver.protoweaver.api.protocol.Protocol;
-import kr.rtuserver.protoweaver.api.protocol.internal.*;
+import kr.rtuserver.protoweaver.api.protocol.internal.CustomPacket;
+import kr.rtuserver.protoweaver.api.protocol.internal.PlayerList;
+import kr.rtuserver.protoweaver.api.protocol.internal.ProtocolRegister;
+import kr.rtuserver.protoweaver.api.protocol.internal.StorageSync;
 import kr.rtuserver.protoweaver.api.proxy.ProtoServer;
 import kr.rtuserver.protoweaver.api.util.ProtoLogger;
-import kr.rtuserver.protoweaver.core.protocol.protoweaver.CommonPacketHandler;
+import kr.rtuserver.protoweaver.core.protocol.protoweaver.ServerPacketHandler;
 import kr.rtuserver.protoweaver.core.proxy.ProtoProxy;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
@@ -51,9 +53,6 @@ public class BungeeProtoWeaver implements kr.rtuserver.protoweaver.api.impl.bung
 
         protocol.addPacket(ProxyPlayer.class);
         protocol.addPacket(PlayerList.class);
-
-        protocol.addPacket(JsonObject.class);
-        protocol.addPacket(BroadcastChat.class);
         protocol.addPacket(StorageSync.class);
         protocol.setClientHandler(BungeeProtoHandler.class, callable).load();
     }
@@ -67,10 +66,13 @@ public class BungeeProtoWeaver implements kr.rtuserver.protoweaver.api.impl.bung
         protocol.setCompression(CompressionType.SNAPPY);
         protocol.setMaxPacketSize(67108864); // 64mb
         for (Packet packet : packets) {
-            if (packet.isBothSide()) protocol.addPacket(packet.getTypeClass());
+            if (packet.getSerializer() != null) {
+                protocol.addPacket(packet.getPacket(), packet.getSerializer());
+            } else protocol.addPacket(packet.getPacket());
         }
-        protocol.addPacket(CustomPacket.class, false);
-        protocol.setClientHandler(CommonPacketHandler.class, null).load();
+        protocol.addPacket(CustomPacket.class, CustomPacketSerializer.class);
+        if (callback == null) protocol.setClientHandler(protocolHandler).load();
+        else protocol.setClientHandler(protocolHandler, callback).load();
     }
 
     public void disable() {
@@ -115,8 +117,8 @@ public class BungeeProtoWeaver implements kr.rtuserver.protoweaver.api.impl.bung
     }
 
     private void onPacket(HandlerCallback.Packet data) {
-        if (data.packet() instanceof ProtocolRegister register) {
-            registerProtocol(register.namespace(), register.key(), register.packets(), CommonPacketHandler.class, null);
+        if (data.packet() instanceof ProtocolRegister(String namespace, String key, Set<Packet> packets)) {
+            registerProtocol(namespace, key, packets, ServerPacketHandler.class, null);
         }
     }
 }

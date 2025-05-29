@@ -1,5 +1,5 @@
 dependencies {
-    implementation project(":Library:ProtoWeaver:Bukkit:Core")
+    implementation project(path: ":Library:ProtoWeaver:Bukkit:Core", configuration: "shadow")
 
     implementation project(":Framework:API")
 

@@ -1,25 +1,42 @@
 package kr.rtuserver.protoweaver.api.proxy;
 
+import kr.rtuserver.protoweaver.api.client.ProtoClient;
 import kr.rtuserver.protoweaver.api.netty.ProtoConnection;
+import kr.rtuserver.protoweaver.api.protocol.Protocol;
 import lombok.Getter;
 
 import java.net.SocketAddress;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
-@Getter
 public class ProtoServer {
 
+    @Getter
     private final String name;
+    @Getter
     private final SocketAddress address;
-    private ProtoConnection connection;
+    private List<ProtoClient> clients = new ArrayList<>();
 
     public ProtoServer(String name, SocketAddress address) {
         this.name = name;
         this.address = address;
     }
 
-    public boolean isConnected() {
-        return connection != null && connection.isOpen();
+    public boolean isConnected(Protocol protocol) {
+        for (ProtoClient client : clients) {
+            if (client.isConnected() && client.getCurrentProtocol().equals(protocol)) return true;
+        }
+        return false;
+    }
+
+    public Optional<ProtoConnection> getConnection(Protocol protocol) {
+        for (ProtoClient client : clients) {
+            if (client.isConnected() && client.getCurrentProtocol().equals(protocol))
+                return Optional.ofNullable(client.getConnection());
+        }
+        return Optional.empty();
     }
 
     @Override

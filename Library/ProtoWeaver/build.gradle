@@ -1,0 +1,6 @@
+subprojects {
+    shadowJar {
+
+        relocate "org.apache.fury", "kr.rtuserver.protoweaver.fury"
+    }
+}

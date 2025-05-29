@@ -1,11 +1,13 @@
-package kr.rtuserver.protoweaver.core.protocol.protoweaver;
+package kr.rtuserver.protoweaver.api.protocol.handler;
 
 import kr.rtuserver.protoweaver.api.ProtoConnectionHandler;
 import kr.rtuserver.protoweaver.api.ProtoWeaver;
-import kr.rtuserver.protoweaver.api.auth.ClientAuthHandler;
 import kr.rtuserver.protoweaver.api.netty.ProtoConnection;
 import kr.rtuserver.protoweaver.api.protocol.Protocol;
 import kr.rtuserver.protoweaver.api.protocol.Side;
+import kr.rtuserver.protoweaver.api.protocol.handler.auth.ClientAuthHandler;
+import kr.rtuserver.protoweaver.api.protocol.status.AuthStatus;
+import kr.rtuserver.protoweaver.api.protocol.status.ProtocolStatus;
 import kr.rtuserver.protoweaver.api.util.ProtoConstants;
 
 public class ClientConnectionHandler extends InternalConnectionHandler implements ProtoConnectionHandler {
@@ -26,21 +28,21 @@ public class ClientConnectionHandler extends InternalConnectionHandler implement
         if (packet instanceof ProtocolStatus status) {
             switch (status.getStatus()) {
                 case MISSING -> {
-                    protocol.logErr("Not loaded on server.");
+                    protocol.logErr("Not loaded on server: " + connection.getRemoteAddress());
                     disconnectIfNeverUpgraded(connection);
                 }
                 case MISMATCH -> {
-                    protocol.logErr("Mismatch with protocol version on the server! (" + protocol.getNamespaceKey() + ")");
-                    protocol.logErr("Double check that all packets are registered in the same order and all settings are the same.");
+                    protocol.logErr("Mismatch with protocol version on server: " + connection.getRemoteAddress());
+                    protocol.logErr("Double check that all packets are registered in the same order and all settings are the same");
                     disconnectIfNeverUpgraded(connection);
                 }
                 case FULL -> {
-                    protocol.logErr("The maximum number of allowed connections on the server has been reached!");
+                    protocol.logErr("The maximum number of allowed connections on server: " + connection.getRemoteAddress() + " has been reached!");
                     disconnectIfNeverUpgraded(connection);
                 }
                 case UPGRADE -> {
-                    if (!ProtoConstants.PROTOWEAVER_VERSION.equals(status.getProtoweaverVersion())) {
-                        protocol.logWarn("Connecting with ProtoWeaver version: " + status.getProtoweaverVersion() + ", but server is running: " + ProtoConstants.PROTOWEAVER_VERSION + ". There could be unexpected issues.");
+                    if (!ProtoConstants.PROTOWEAVER_VERSION.equals(status.getVersion())) {
+                        protocol.logWarn("Connecting with ProtoWeaver version: " + status.getVersion() + ", but server is running: " + ProtoConstants.PROTOWEAVER_VERSION + ". There could be unexpected issues");
                     }
 
                     if (!authenticated) return;
@@ -58,20 +60,25 @@ public class ClientConnectionHandler extends InternalConnectionHandler implement
 
         if (packet instanceof AuthStatus auth) {
             switch (auth) {
-                case OK -> authenticated = true;
-                case REQUIRED -> {
+                case AuthStatus.OK -> authenticated = true;
+                case AuthStatus.REQUIRED -> {
                     if (authHandler == null) {
-                        protocol.logErr("Client protocol has not defined an auth handler, but the server requires auth. Closing connection.");
+                        protocol.logErr("Client protocol has not defined an auth handler, but the server at: " + connection.getRemoteAddress() + " requires auth. Closing connection");
                         connection.disconnect();
                         return;
                     }
                     connection.send(authHandler.getSecret());
                 }
-                case DENIED -> {
-                    protocol.logErr("Denied access by the server.");
+                case AuthStatus.DENIED -> {
+                    protocol.logErr("Denied access by server at: " + connection.getRemoteAddress());
                     disconnectIfNeverUpgraded(connection);
                 }
             }
         }
+    }
+
+    @Override
+    public void onDisconnect(ProtoConnection connection) {
+        if (wasUpgraded(connection)) protocol.logInfo("Disconnected from: " + connection.getRemoteAddress());
     }
 }

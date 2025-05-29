@@ -1,44 +1,44 @@
-package kr.rtuserver.protoweaver.api.r;
+package kr.rtuserver.protoweaver.api.util;
 
 import java.lang.reflect.*;
 import java.util.Arrays;
 import java.util.Objects;
 
-public class R {
+public class ReflectionUtil {
 
     private final Object instance;
     private final Class<?> clazz;
 
-    public R(Object instance) {
+    public ReflectionUtil(Object instance) {
         this.instance = instance;
         clazz = instance.getClass();
     }
 
-    public R(Class<?> clazz) {
+    public ReflectionUtil(Class<?> clazz) {
         instance = null;
         this.clazz = clazz;
     }
 
     /**
-     * Create an instance of {@link R}. Can be used for static or non-static actions
+     * Create an instance of {@link ReflectionUtil}. Can be used for static or non-static actions
      */
-    public static R of(Object instance) {
-        return new R(instance);
+    public static ReflectionUtil of(Object instance) {
+        return new ReflectionUtil(instance);
     }
 
     /**
-     * Create an instance of {@link R} that can only be used for static actions
+     * Create an instance of {@link ReflectionUtil} that can only be used for static actions
      */
-    public static R of(Class<?> clazz) {
-        return new R(clazz);
+    public static ReflectionUtil of(Class<?> clazz) {
+        return new ReflectionUtil(clazz);
     }
 
     /**
-     * Create an instance of {@link R} from a field in another {@link R} instance
+     * Create an instance of {@link ReflectionUtil} from a field in another {@link ReflectionUtil} instance
      */
-    public R of(String name) {
+    public ReflectionUtil of(String name) {
         try {
-            return R.of(findField(name, clazz).get(instance));
+            return ReflectionUtil.of(findField(name, clazz).get(instance));
         } catch (IllegalAccessException | NoSuchFieldException e) {
             throw new RuntimeException(e);
         }
@@ -86,7 +86,7 @@ public class R {
     /**
      * Set the value of a field. Can be private, final, or static
      */
-    public R set(String name, Object value) {
+    public ReflectionUtil set(String name, Object value) {
         try {
             findField(name, clazz).set(instance, value);
         } catch (NoSuchFieldException | IllegalAccessException e) {
@@ -112,7 +112,7 @@ public class R {
     /**
      * Invoke a function with no return type
      */
-    public R call(String name, Object... args) {
+    public ReflectionUtil call(String name, Object... args) {
         call(name, null, args);
         return this;
     }
