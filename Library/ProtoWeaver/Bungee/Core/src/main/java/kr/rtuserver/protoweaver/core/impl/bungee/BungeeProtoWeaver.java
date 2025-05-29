@@ -11,6 +11,7 @@ import kr.rtuserver.protoweaver.api.protocol.internal.CustomPacket;
 import kr.rtuserver.protoweaver.api.protocol.internal.PlayerList;
 import kr.rtuserver.protoweaver.api.protocol.internal.ProtocolRegister;
 import kr.rtuserver.protoweaver.api.protocol.internal.StorageSync;
+import kr.rtuserver.protoweaver.api.protocol.serializer.CustomPacketSerializer;
 import kr.rtuserver.protoweaver.api.proxy.ProtoServer;
 import kr.rtuserver.protoweaver.api.util.ProtoLogger;
 import kr.rtuserver.protoweaver.core.protocol.protoweaver.ServerPacketHandler;
