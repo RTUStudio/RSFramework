@@ -93,6 +93,8 @@ public class ObjectSerializer {
             } catch (InsecureException | ClassNotFoundException e) {
                 String packet = e.getMessage().split(" is not registered")[0].replace("class ", "");
                 throw new IllegalArgumentException("unregistered object: " + packet);
+            } catch (NullPointerException e) {
+                throw new IllegalArgumentException("unregistered object: " + e.getMessage());
             }
         }
     }

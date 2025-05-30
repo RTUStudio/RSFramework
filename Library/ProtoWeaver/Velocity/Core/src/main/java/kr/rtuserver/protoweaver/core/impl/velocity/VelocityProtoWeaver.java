@@ -1,5 +1,6 @@
 package kr.rtuserver.protoweaver.core.impl.velocity;
 
+import com.google.gson.JsonObject;
 import com.moandjiezana.toml.Toml;
 import com.velocitypowered.api.event.Subscribe;
 import com.velocitypowered.api.event.connection.DisconnectEvent;
@@ -66,6 +67,7 @@ public class VelocityProtoWeaver implements kr.rtuserver.protoweaver.api.impl.ve
         protocol.addPacket(ProxyPlayer.class);
         protocol.addPacket(PlayerList.class);
         protocol.addPacket(StorageSync.class);
+        protocol.addPacket(JsonObject.class);
         if (isModernProxy()) {
             info("Detected modern proxy");
             protocol.setServerAuthHandler(VelocityAuth.class);
