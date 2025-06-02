@@ -135,6 +135,7 @@ public class ProtoConnection {
      * @return A {@link Sender} that can be used to close the connection after the packets is sent.
      */
     public Sender send(@NonNull Object packet) {
+        System.out.println("[S4] " + packet);
         return packetHandler.send(packet);
     }
 

@@ -37,6 +37,7 @@ public class InternalConnectionHandler {
 
     protected void protocolNotLoaded(ProtoConnection connection, String name) {
         ProtoLogger.warn("Protocol: " + name + " is not loaded! Closing connection!");
+        System.out.println("[S5-A]");
         Sender sender = connection.send(new ProtocolStatus(connection.getProtocol().toString(), name, new byte[]{}, ProtocolStatus.Status.MISSING));
         disconnectIfNeverUpgraded(connection, sender);
     }

@@ -19,6 +19,7 @@ import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.logging.Level;
@@ -130,10 +131,12 @@ public class Protocol {
     }
 
     public byte[] serialize(@NonNull Object packet) throws IllegalArgumentException {
+        System.out.println("[S2] " + packet);
         return serializer.serialize(packet);
     }
 
     public Object deserialize(byte @NonNull [] packet) throws IllegalArgumentException {
+        System.out.println("[D2] " + Arrays.toString(packet));
         return serializer.deserialize(packet);
     }
 

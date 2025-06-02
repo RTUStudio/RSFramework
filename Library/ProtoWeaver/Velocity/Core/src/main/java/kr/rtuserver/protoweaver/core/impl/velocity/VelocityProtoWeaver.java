@@ -144,6 +144,7 @@ public class VelocityProtoWeaver implements kr.rtuserver.protoweaver.api.impl.ve
         List<ProxyPlayer> players = new ArrayList<>();
         for (Player player : server.getAllPlayers())
             players.add(new ProxyPlayer(player.getUniqueId(), player.getUsername()));
+        System.out.println("[S5-E]");
         VelocityProtoHandler.getServers().forEach(server -> server.send(new PlayerList(players)));
     }
 

@@ -138,6 +138,7 @@ public class ProtoClient {
     }
 
     public Sender send(@NonNull Object packet) {
+        System.out.println("[S5-AB");
         if (connection != null) return connection.send(packet);
         return Sender.NULL;
     }

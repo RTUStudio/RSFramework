@@ -6,16 +6,14 @@ import kr.rtuserver.protoweaver.api.protocol.internal.CustomPacket;
 import kr.rtuserver.protoweaver.api.protocol.serializer.CustomPacketSerializer;
 import lombok.SneakyThrows;
 import org.apache.fury.Fury;
+import org.apache.fury.config.CompatibleMode;
 import org.apache.fury.config.Language;
 import org.apache.fury.exception.InsecureException;
 import org.apache.fury.logging.LoggerFactory;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Modifier;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 public class ObjectSerializer {
 
@@ -24,13 +22,15 @@ public class ObjectSerializer {
         LoggerFactory.disableLogging();
     }
 
-    private final Gson GSON = new Gson();
+    private static final Gson GSON = new Gson();
     private final Fury fury = Fury.builder()
             .withJdkClassSerializableCheck(false)
             .withDeserializeNonexistentClass(false)
             .withLanguage(Language.JAVA)
+            //.withCompatibleMode(CompatibleMode.COMPATIBLE)
             .withAsyncCompilation(true)
             .build();
+
     private final Set<Class<?>> customPackets = new HashSet<>();
 
     private void recursiveRegister(Class<?> type, List<Class<?>> registered) {
@@ -68,6 +68,7 @@ public class ObjectSerializer {
     }
 
     public byte[] serialize(Object object) throws IllegalArgumentException {
+        System.out.println("[S1] " + object);
         synchronized (fury) {
             try {
                 System.out.println("[S] " + object.getClass().getName() + ": " + object);
@@ -83,6 +84,7 @@ public class ObjectSerializer {
     }
 
     public Object deserialize(byte[] bytes) throws IllegalArgumentException {
+        System.out.println("[D1] " + Arrays.toString(bytes));
         synchronized (fury) {
             try {
                 Object result = fury.deserialize(bytes);
@@ -93,8 +95,6 @@ public class ObjectSerializer {
             } catch (InsecureException | ClassNotFoundException e) {
                 String packet = e.getMessage().split(" is not registered")[0].replace("class ", "");
                 throw new IllegalArgumentException("unregistered object: " + packet);
-            } catch (NullPointerException e) {
-                throw new IllegalArgumentException("unregistered object: " + e.getMessage());
             }
         }
     }
