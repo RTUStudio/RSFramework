@@ -131,12 +131,10 @@ public class Protocol {
     }
 
     public byte[] serialize(@NonNull Object packet) throws IllegalArgumentException {
-        System.out.println("[S2] " + packet);
         return serializer.serialize(packet);
     }
 
     public Object deserialize(byte @NonNull [] packet) throws IllegalArgumentException {
-        System.out.println("[D2] " + Arrays.toString(packet));
         return serializer.deserialize(packet);
     }
 

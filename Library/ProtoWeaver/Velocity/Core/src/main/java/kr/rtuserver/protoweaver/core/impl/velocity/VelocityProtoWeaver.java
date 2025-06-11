@@ -144,7 +144,6 @@ public class VelocityProtoWeaver implements kr.rtuserver.protoweaver.api.impl.ve
         List<ProxyPlayer> players = new ArrayList<>();
         for (Player player : server.getAllPlayers())
             players.add(new ProxyPlayer(player.getUniqueId(), player.getUsername()));
-        System.out.println("[S5-E]");
         VelocityProtoHandler.getServers().forEach(server -> server.send(new PlayerList(players)));
     }
 
@@ -169,7 +168,6 @@ public class VelocityProtoWeaver implements kr.rtuserver.protoweaver.api.impl.ve
     }
 
     private void onPacket(HandlerCallback.Packet data) {
-        System.out.println("[oP] " + data.packet());
         if (data.packet() instanceof ProtocolRegister(String namespace, String key, Set<Packet> packets)) {
             registerProtocol(namespace, key, packets, ServerPacketHandler.class, null);
         }

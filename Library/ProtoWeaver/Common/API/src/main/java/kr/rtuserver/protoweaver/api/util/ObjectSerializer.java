@@ -27,7 +27,7 @@ public class ObjectSerializer {
             .withJdkClassSerializableCheck(false)
             .withDeserializeNonexistentClass(false)
             .withLanguage(Language.JAVA)
-            //.withCompatibleMode(CompatibleMode.COMPATIBLE)
+            .withCompatibleMode(CompatibleMode.COMPATIBLE)
             .withAsyncCompilation(true)
             .build();
 
@@ -47,7 +47,6 @@ public class ObjectSerializer {
     }
 
     public void register(Class<?> type) {
-        System.out.println("[r] " + type.getName());
         recursiveRegister(type, new ArrayList<>());
     }
 
@@ -60,21 +59,15 @@ public class ObjectSerializer {
             serializer.getDeclaredConstructor(Class.class).newInstance(type);
         }
         synchronized (fury) {
-            System.out.println("[R] " + type.getName() + ": " + serializer.getName());
             if (serializer == CustomPacketSerializer.class) customPackets.add(type);
             fury.registerSerializer(type, ProtoSerializer.SerializerWrapper.class);
-            System.out.println("[L] " + String.join(", ", customPackets.stream().map(Class::getName).toList()));
         }
     }
 
     public byte[] serialize(Object object) throws IllegalArgumentException {
-        System.out.println("[S1] " + object);
         synchronized (fury) {
             try {
-                System.out.println("[S] " + object.getClass().getName() + ": " + object);
-                System.out.println("[L] " + String.join(", ", customPackets.stream().map(Class::getName).toList()));
                 if (customPackets.contains(object.getClass())) {
-                    System.out.println("[C] " + new CustomPacket(object));
                     return fury.serialize(new CustomPacket(object));
                 } else return fury.serialize(object);
             } catch (InsecureException e) {
@@ -84,11 +77,9 @@ public class ObjectSerializer {
     }
 
     public Object deserialize(byte[] bytes) throws IllegalArgumentException {
-        System.out.println("[D1] " + Arrays.toString(bytes));
         synchronized (fury) {
             try {
                 Object result = fury.deserialize(bytes);
-                System.out.println("[D] " + result.getClass().getName() + ": " + result);
                 if (result instanceof CustomPacket(String classType, String json)) {
                     return GSON.fromJson(json, Class.forName(classType));
                 } else return result;

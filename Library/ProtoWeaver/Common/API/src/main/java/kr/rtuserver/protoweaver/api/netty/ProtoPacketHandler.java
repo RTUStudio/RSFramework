@@ -54,7 +54,6 @@ public class ProtoPacketHandler extends ByteToMessageDecoder {
     @Override
     protected void decode(ChannelHandlerContext ctx, ByteBuf byteBuf, List<Object> list) {
         // Ensure the whole packet has arrived before trying to decode
-        System.out.println("[D3-1] " + byteBuf.toString());
         if (byteBuf.readableBytes() < 4) return;
         byteBuf.markReaderIndex();
         int packetLen = byteBuf.readInt();
@@ -67,7 +66,6 @@ public class ProtoPacketHandler extends ByteToMessageDecoder {
         try {
             byte[] bytes = new byte[packetLen];
             byteBuf.readBytes(bytes);
-            System.out.println("[D3-2] " + Arrays.toString(bytes));
             packet = connection.getProtocol().deserialize(bytes);
             handler.handlePacket(connection, packet);
 
@@ -83,7 +81,6 @@ public class ProtoPacketHandler extends ByteToMessageDecoder {
     // Done with two bufs to prevent the user from messing with the internal data
     public Sender send(Object packet) {
         try {
-            System.out.println("[S3] " + packet);
             byte[] packetBuf = connection.getProtocol().serialize(packet);
             if (packetBuf.length == 0) return new Sender(connection, ctx.newSucceededFuture(), false);
 

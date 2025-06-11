@@ -13,7 +13,6 @@ import java.util.function.Function;
 public abstract class ProtoSerializer<T> {
 
     public ProtoSerializer(Class<T> type) {
-        System.out.println("[PS] " + type.getName() + ": " + this.getClass().getName());
         SerializerWrapper.serializers.put(type, new FunctionWrapper<>(this::read, this::write));
     }
 
@@ -37,21 +36,15 @@ public abstract class ProtoSerializer<T> {
 
         @Override
         public T read(MemoryBuffer buffer) {
-            System.out.println("[PSR] 1");
             ByteArrayInputStream in = new ByteArrayInputStream(buffer.getRemainingBytes());
-            System.out.println("[PSR] 2");
             return wrapper.read.apply(in);
         }
 
         @Override
         public void write(MemoryBuffer buffer, T value) {
-            System.out.println("[PSW] 1");
             ByteArrayOutputStream out = new ByteArrayOutputStream();
-            System.out.println("[PSW] 2");
             wrapper.write.accept(out, value);
-            System.out.println("[PSW] 3");
             buffer.writeBytes(out.toByteArray());
-            System.out.println("[PSW] 4");
         }
     }
 }
