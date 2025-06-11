@@ -44,7 +44,6 @@ public class ServerPacketHandler implements ProtoConnectionHandler {
         if (callable != null) callable.handlePacket(protoConnection, packet);
         Protocol protocol = protoConnection.getProtocol();
         if (protocol.isGlobal(packet)) {
-            System.out.println("[S5-D] " + packet);
             getServers().forEach(connection -> {
                 if (protocol.equals(connection.getProtocol())) connection.send(packet);
             });

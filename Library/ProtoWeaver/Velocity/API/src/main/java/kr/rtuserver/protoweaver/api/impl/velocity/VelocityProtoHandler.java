@@ -40,7 +40,6 @@ public class VelocityProtoHandler implements ProtoConnectionHandler {
     @Override
     public void handlePacket(ProtoConnection protoConnection, Object packet) {
         if (callable != null) callable.handlePacket(protoConnection, packet);
-        System.out.println("[S5-C] " + packet);
         if (protoConnection.getProtocol().isGlobal(packet)) getServers().forEach(connection -> connection.send(packet));
     }
 }

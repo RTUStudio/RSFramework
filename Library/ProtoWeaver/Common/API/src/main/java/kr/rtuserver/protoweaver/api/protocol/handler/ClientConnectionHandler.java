@@ -69,7 +69,6 @@ public class ClientConnectionHandler extends InternalConnectionHandler implement
                         connection.disconnect();
                         return;
                     }
-                    System.out.println("[S5-G] " + packet + Arrays.toString(authHandler.getSecret()));
                     connection.send(authHandler.getSecret());
                 }
                 case AuthStatus.DENIED -> {
