@@ -10,8 +10,6 @@ import kr.rtuserver.protoweaver.api.protocol.status.AuthStatus;
 import kr.rtuserver.protoweaver.api.protocol.status.ProtocolStatus;
 import kr.rtuserver.protoweaver.api.util.ProtoConstants;
 
-import java.util.Arrays;
-
 public class ClientConnectionHandler extends InternalConnectionHandler implements ProtoConnectionHandler {
 
     private Protocol protocol;

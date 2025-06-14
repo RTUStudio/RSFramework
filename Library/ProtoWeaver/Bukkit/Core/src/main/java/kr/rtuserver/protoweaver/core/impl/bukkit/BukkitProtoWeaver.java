@@ -96,14 +96,12 @@ public class BukkitProtoWeaver implements kr.rtuserver.protoweaver.api.impl.bukk
 
 
     public void onReady(HandlerCallback.Ready data) {
-//        if (connection != null) {
-//            for (ProtocolRegister protocol : protocols) {
-//                if (connection != null) {
-//                    Sender sender = connection.send(protocol);
-//                    if (sender.isSuccess()) log.info("Protocol({}) is reconnected", protocol.namespace() + ":" + protocol.key());
-//                } else unregistered.add(protocol);
-//            }
-//        }
+        if (connection != null) {
+            for (ProtocolRegister protocol : protocols) {
+                Sender sender = data.protoConnection().send(protocol);
+                if (!sender.isSuccess()) unregistered.add(protocol);
+            }
+        }
         connection = data.protoConnection();
         Set<ProtocolRegister> toRemove = new HashSet<>();
         for (ProtocolRegister protocol : unregistered) {
@@ -147,9 +145,10 @@ public class BukkitProtoWeaver implements kr.rtuserver.protoweaver.api.impl.bukk
             if (packet.getSerializer() != CustomPacketSerializer.class) result.add(packet);
         }
         ProtocolRegister registry = new ProtocolRegister(namespace, key, result);
+        protocols.add(registry);
         if (connection != null) {
             Sender sender = connection.send(registry);
-            if (sender.isSuccess()) log.info("New Protocol({}) is connected", namespace + ":" + key);
+            if (!sender.isSuccess()) unregistered.add(registry);
         } else unregistered.add(registry);
     }
 }

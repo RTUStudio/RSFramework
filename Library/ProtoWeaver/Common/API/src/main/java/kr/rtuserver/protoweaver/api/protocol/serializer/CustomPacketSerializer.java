@@ -2,14 +2,15 @@ package kr.rtuserver.protoweaver.api.protocol.serializer;
 
 import kr.rtuserver.protoweaver.api.ProtoSerializer;
 import kr.rtuserver.protoweaver.api.protocol.internal.CustomPacket;
+import org.apache.fury.Fury;
 import org.apache.fury.memory.Platform;
 
 import java.io.*;
 
 public class CustomPacketSerializer extends ProtoSerializer<CustomPacket> {
 
-    public CustomPacketSerializer(Class<CustomPacket> type) {
-        super(type);
+    public CustomPacketSerializer(Fury fury, Class<CustomPacket> type) {
+        super(fury, type);
     }
 
     @Override

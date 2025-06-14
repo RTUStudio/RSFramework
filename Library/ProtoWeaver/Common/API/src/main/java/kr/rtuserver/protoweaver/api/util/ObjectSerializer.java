@@ -11,24 +11,28 @@ import org.apache.fury.config.Language;
 import org.apache.fury.exception.InsecureException;
 import org.apache.fury.logging.LoggerFactory;
 
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Modifier;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 public class ObjectSerializer {
+
+    private static final Gson GSON = new Gson();
 
     static {
         // Make fury be quiet
         LoggerFactory.disableLogging();
     }
 
-    private static final Gson GSON = new Gson();
     private final Fury fury = Fury.builder()
             .withJdkClassSerializableCheck(false)
             .withDeserializeNonexistentClass(false)
             .withLanguage(Language.JAVA)
             .withCompatibleMode(CompatibleMode.COMPATIBLE)
             .withAsyncCompilation(true)
+            .withClassLoader(ProtoSerializer.class.getClassLoader())
             .build();
 
     private final Set<Class<?>> customPackets = new HashSet<>();
@@ -52,15 +56,9 @@ public class ObjectSerializer {
 
     @SneakyThrows
     public void register(Class<?> type, Class<? extends ProtoSerializer<?>> serializer) {
-        try {
-            serializer.getDeclaredConstructor().newInstance();
-        } catch (InstantiationException | IllegalAccessException | InvocationTargetException |
-                 NoSuchMethodException ignored) {
-            serializer.getDeclaredConstructor(Class.class).newInstance(type);
-        }
         synchronized (fury) {
-            if (serializer == CustomPacketSerializer.class) customPackets.add(type);
-            fury.registerSerializer(type, ProtoSerializer.SerializerWrapper.class);
+            if (type != CustomPacket.class && serializer == CustomPacketSerializer.class) customPackets.add(type);
+            fury.registerSerializer(CustomPacket.class, serializer);
         }
     }
 
@@ -81,11 +79,16 @@ public class ObjectSerializer {
             try {
                 Object result = fury.deserialize(bytes);
                 if (result instanceof CustomPacket(String classType, String json)) {
-                    return GSON.fromJson(json, Class.forName(classType));
-                } else return result;
-            } catch (InsecureException | ClassNotFoundException e) {
-                String packet = e.getMessage().split(" is not registered")[0].replace("class ", "");
-                throw new IllegalArgumentException("unregistered object: " + packet);
+                    try {
+                        Class<?> type = Class.forName(classType);
+                        if (customPackets.contains(type)) return GSON.fromJson(json, type);
+                    } catch (ClassNotFoundException ignore) {
+                    }
+                }
+                return result;
+            } catch (InsecureException e) {
+                String packetName = e.getMessage().replace("class ", "").split(" is not registered")[0];
+                throw new IllegalArgumentException("unregistered object: " + packetName, e);
             }
         }
     }
