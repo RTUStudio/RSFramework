@@ -3,6 +3,8 @@ package kr.rtuserver.framework.bukkit.api.integration;
 import kr.rtuserver.cdi.LightDI;
 import kr.rtuserver.framework.bukkit.api.RSPlugin;
 import kr.rtuserver.framework.bukkit.api.configuration.translation.TranslationConfiguration;
+import kr.rtuserver.framework.bukkit.api.configuration.translation.command.CommandTranslation;
+import kr.rtuserver.framework.bukkit.api.configuration.translation.message.MessageTranslation;
 import kr.rtuserver.framework.bukkit.api.core.Framework;
 import kr.rtuserver.framework.bukkit.api.player.PlayerChat;
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
@@ -13,8 +15,8 @@ public abstract class RSPlaceholder<T extends RSPlugin> extends PlaceholderExpan
 
     private final T plugin;
 
-    private final TranslationConfiguration message;
-    private final TranslationConfiguration command;
+    private final MessageTranslation message;
+    private final CommandTranslation command;
     private final Framework framework = LightDI.getBean(Framework.class);
     private final PlayerChat chat;
 

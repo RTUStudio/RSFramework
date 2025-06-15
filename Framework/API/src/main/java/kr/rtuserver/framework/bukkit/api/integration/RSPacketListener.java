@@ -6,6 +6,8 @@ import com.comphenix.protocol.events.PacketEvent;
 import kr.rtuserver.cdi.LightDI;
 import kr.rtuserver.framework.bukkit.api.RSPlugin;
 import kr.rtuserver.framework.bukkit.api.configuration.translation.TranslationConfiguration;
+import kr.rtuserver.framework.bukkit.api.configuration.translation.command.CommandTranslation;
+import kr.rtuserver.framework.bukkit.api.configuration.translation.message.MessageTranslation;
 import kr.rtuserver.framework.bukkit.api.core.Framework;
 import kr.rtuserver.framework.bukkit.api.player.PlayerChat;
 import lombok.Getter;
@@ -16,8 +18,8 @@ public class RSPacketListener<T extends RSPlugin> extends PacketAdapter implemen
     @Getter
     private final T plugin;
 
-    private final TranslationConfiguration message;
-    private final TranslationConfiguration command;
+    private final MessageTranslation message;
+    private final CommandTranslation command;
     private final Framework framework = LightDI.getBean(Framework.class);
     private final PlayerChat chat;
 
