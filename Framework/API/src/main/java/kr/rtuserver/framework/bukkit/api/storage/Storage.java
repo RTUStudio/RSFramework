@@ -18,14 +18,6 @@ public interface Storage {
 
     CompletableFuture<Boolean> set(@NotNull String name, @Nullable JsonObject find, @Nullable JsonObject data);
 
-    default CompletableFuture<Boolean> set(@NotNull String name, @Nullable JsonObject find, @Nullable JSON data) {
-        return set(name, find, data != null ? data.get() : null);
-    }
-
-    default CompletableFuture<Boolean> set(@NotNull String name, @Nullable JSON find, @Nullable JsonObject data) {
-        return set(name, find != null ? find.get() : null, data);
-    }
-
     default CompletableFuture<Boolean> set(@NotNull String name, @Nullable JSON find, @Nullable JSON data) {
         return set(name, find != null ? find.get() : null, data != null ? data.get() : null);
     }
