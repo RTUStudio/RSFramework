@@ -1,8 +1,8 @@
 plugins {
     id "java"
     id "maven-publish"
-    id "io.freefair.lombok" version "8.13"
-    id "com.gradleup.shadow" version "9.0.0-beta8"
+    id "io.freefair.lombok" version "8.13.1"
+    id "com.gradleup.shadow" version "9.0.0-beta16"
     id "io.papermc.paperweight.userdev" version "2.0.0-beta.16" apply false
 }
 
@@ -82,8 +82,9 @@ allprojects {
         compileOnly "com.google.guava:guava:32.1.2-jre"
         compileOnly "org.apache.commons:commons-lang3:3.14.0"
         compileOnly "org.xerial.snappy:snappy-java:1.1.10.5"
-        compileOnly "org.projectlombok:lombok:1.18.32"
         compileOnly "org.slf4j:slf4j-api:2.0.16"
+
+        compileOnly "org.projectlombok:lombok:1.18.38"
     }
 
     java {
