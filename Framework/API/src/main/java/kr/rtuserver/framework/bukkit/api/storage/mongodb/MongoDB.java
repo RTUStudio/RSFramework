@@ -1,9 +1,6 @@
 package kr.rtuserver.framework.bukkit.api.storage.mongodb;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
+import com.google.gson.*;
 import com.mongodb.ConnectionString;
 import com.mongodb.MongoClientSettings;
 import com.mongodb.ServerApi;
@@ -25,6 +22,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
 public class MongoDB implements Storage {
@@ -84,14 +82,11 @@ public class MongoDB implements Storage {
     }
 
     @Override
-    public CompletableFuture<Boolean> set(@NotNull String collectionName, @Nullable Pair<String, Object> find, @Nullable JsonObject data) {
+    public CompletableFuture<Boolean> set(@NotNull String collectionName, @Nullable JsonObject find, @Nullable JsonObject data) {
         return CompletableFuture.supplyAsync(() -> {
             MongoCollection<Document> collection = database.getCollection(prefix + collectionName);
             if (find != null) {
-                Bson filter;
-                if (find.getValue() instanceof JsonObject jsonElement) {
-                    filter = Filters.eq(find.getKey(), Document.parse(jsonElement.toString()));
-                } else filter = Filters.eq(find.getKey(), (String) find.getValue());
+                Bson filter = filter(find);
                 if (data == null || data.isJsonNull()) {
                     debug("SET", collectionName, filter.toBsonDocument().toJson());
                     DeleteResult result = collection.deleteMany(filter);
@@ -119,10 +114,10 @@ public class MongoDB implements Storage {
 
 
     @Override
-    public CompletableFuture<List<JsonObject>> get(@NotNull String collectionName, Pair<String, Object> find) {
+    public CompletableFuture<List<JsonObject>> get(@NotNull String collectionName, JsonObject find) {
         return CompletableFuture.supplyAsync(() -> {
             MongoCollection<Document> collection = database.getCollection(prefix + collectionName);
-            Bson filter = find != null ? Filters.eq(find.getKey(), find.getValue()) : Filters.empty();
+            Bson filter = filter(find);
             debug("GET", collectionName, filter.toBsonDocument().toJson());
             FindIterable<Document> documents = collection.find(filter);
             List<JsonObject> result = new ArrayList<>();
@@ -133,6 +128,24 @@ public class MongoDB implements Storage {
             }
             return result;
         });
+    }
+
+    private Bson filter(JsonObject find) {
+        if (find == null) return Filters.empty();
+        List<Bson> filters = new ArrayList<>();
+        if (!find.entrySet().isEmpty()) {
+            for (Map.Entry<String, JsonElement> entry : find.entrySet()) {
+                if (entry.getValue().isJsonNull()) {
+                    filters.add(Filters.eq(entry.getKey(), null));
+                } else if (entry.getValue() instanceof JsonPrimitive primitive) {
+                    if (primitive.isBoolean()) filters.add(Filters.eq(entry.getKey(), primitive.getAsBoolean()));
+                    else if (primitive.isNumber()) filters.add(Filters.eq(entry.getKey(), primitive.getAsNumber()));
+                    else if (primitive.isString()) filters.add(Filters.eq(entry.getKey(), primitive.getAsString()));
+                } else filters.add(Filters.eq(entry.getKey(), Document.parse(entry.getValue().toString())));
+            }
+        }
+        if (filters.isEmpty()) return Filters.empty();
+        else return Filters.and(filters);
     }
 
     private void sync(@NotNull String table, @Nullable JsonObject find) {

@@ -3,8 +3,9 @@ package kr.rtuserver.framework.bukkit.api.configuration;
 import kr.rtuserver.framework.bukkit.api.RSPlugin;
 import kr.rtuserver.framework.bukkit.api.configuration.setting.SettingConfiguration;
 import kr.rtuserver.framework.bukkit.api.configuration.storage.StorageConfiguration;
-import kr.rtuserver.framework.bukkit.api.configuration.translation.TranslationConfiguration;
 import kr.rtuserver.framework.bukkit.api.configuration.translation.TranslationType;
+import kr.rtuserver.framework.bukkit.api.configuration.translation.command.CommandTranslation;
+import kr.rtuserver.framework.bukkit.api.configuration.translation.message.MessageTranslation;
 import lombok.Getter;
 
 @Getter
@@ -15,15 +16,15 @@ public class Configurations {
     private final SettingConfiguration setting;
     private final StorageConfiguration storage;
 
-    private TranslationConfiguration message;
-    private TranslationConfiguration command;
+    private MessageTranslation message;
+    private CommandTranslation command;
 
     public Configurations(RSPlugin plugin) {
         this.plugin = plugin;
         setting = new SettingConfiguration(plugin);
         storage = new StorageConfiguration(plugin);
-        message = new TranslationConfiguration(plugin, TranslationType.MESSAGE, setting.getLocale());
-        command = new TranslationConfiguration(plugin, TranslationType.COMMAND, setting.getLocale());
+        message = new MessageTranslation(plugin, TranslationType.MESSAGE, setting.getLocale());
+        command = new CommandTranslation(plugin, TranslationType.COMMAND, setting.getLocale());
     }
 
     public void reload() {
@@ -34,8 +35,8 @@ public class Configurations {
             message.reload();
             command.reload();
         } else {
-            message = new TranslationConfiguration(plugin, TranslationType.MESSAGE, setting.getLocale());
-            command = new TranslationConfiguration(plugin, TranslationType.COMMAND, setting.getLocale());
+            message = new MessageTranslation(plugin, TranslationType.MESSAGE, setting.getLocale());
+            command = new CommandTranslation(plugin, TranslationType.COMMAND, setting.getLocale());
         }
     }
 

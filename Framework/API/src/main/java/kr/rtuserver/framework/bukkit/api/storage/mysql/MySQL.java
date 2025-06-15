@@ -90,7 +90,7 @@ public class MySQL implements Storage {
             if (data.isJsonNull()) return false;
             String json = gson.toJson(data);
             try {
-                //INSERT INTO `test` (`data`) VALUES ('{"A": B"}');
+                //INSERT INTO `test` (`data`) VALUES ('{"A": "B"}');
                 String query = "INSERT INTO " + prefix + table + " (data) VALUES ('" + json + "');";
                 PreparedStatement ps = getConnection().prepareStatement(query);
                 debug("ADD", table, query);
@@ -105,10 +105,10 @@ public class MySQL implements Storage {
     }
 
     @Override
-    public CompletableFuture<Boolean> set(@NotNull String table, @Nullable Pair<String, Object> find, @Nullable JsonObject data) {
+    public CompletableFuture<Boolean> set(@NotNull String table, @Nullable JsonObject find, @Nullable JsonObject data) {
         return CompletableFuture.supplyAsync(() -> {
             String query;
-            if (data == null || data.isJsonNull()) query = "DELETE FROM " + prefix + table;
+            if (data == null) query = "DELETE FROM " + prefix + table;
             else {
                 List<String> list = new ArrayList<>();
                 for (Map.Entry<String, JsonElement> entry : data.entrySet()) {
@@ -118,7 +118,7 @@ public class MySQL implements Storage {
                         JsonPrimitive primitive = element.getAsJsonPrimitive();
                         if (primitive.isNumber()) list.add("'$." + key + "', " + primitive.getAsNumber());
                         else if (primitive.isBoolean()) list.add("'$." + key + "', " + primitive.getAsBoolean());
-                        else if (primitive.isString()) list.add("'$." + key + "', " + primitive.getAsString());
+                        else if (primitive.isString()) list.add("'$." + key + "', \"" + primitive.getAsString() + "\"");
                         else {
                             plugin.console("<red>Unsupported type of data tried to be saved! Only supports JsonElement, Number, Boolean and String</red>");
                             plugin.console("<red>지원하지 않는 타입의 데이터가 저장되려고 했습니다! JsonElement, Number, Boolean, String만 지원합니다</red>");
@@ -129,13 +129,7 @@ public class MySQL implements Storage {
                 }
                 query = "UPDATE " + prefix + table + " SET data = JSON_SET(data, " + String.join(", ", list) + ")";
             }
-            if (find != null) {
-                Object value = find.getValue();
-                if (value instanceof JsonObject jsonObject) value = jsonObject.toString();
-                if (config.isUseArrowOperator())
-                    query += " WHERE data ->> '$." + find.getKey() + "' LIKE '" + value + "'";
-                else query += " WHERE JSON_UNQUOTE(JSON_EXTRACT(data, '$." + find.getKey() + "')) LIKE '" + value + "'";
-            }
+            if (find != null && !find.entrySet().isEmpty()) query += filter(find);
             try {
                 PreparedStatement ps = getConnection().prepareStatement(query + ";");
                 debug("ADD", table, query + ";");
@@ -150,17 +144,11 @@ public class MySQL implements Storage {
     }
 
     @Override
-    public CompletableFuture<List<JsonObject>> get(@NotNull String table, Pair<String, Object> find) {
+    public CompletableFuture<List<JsonObject>> get(@NotNull String table, JsonObject find) {
         return CompletableFuture.supplyAsync(() -> {
             List<JsonObject> result = new ArrayList<>();
             String query = "SELECT * FROM " + prefix + table;
-            if (find != null) {
-                Object value = find.getValue();
-                if (value instanceof JsonObject jsonObject) value = jsonObject.toString();
-                if (config.isUseArrowOperator())
-                    query += " WHERE data ->> '$." + find.getKey() + "' LIKE '" + value + "'";
-                else query += " WHERE JSON_UNQUOTE(JSON_EXTRACT(data, '$." + find.getKey() + "')) LIKE '" + value + "'";
-            }
+            if (find != null && !find.entrySet().isEmpty()) query += filter(find);
             try {
                 PreparedStatement ps = getConnection().prepareStatement(query + ";");
                 debug("GET", table, query + ";");
@@ -173,6 +161,24 @@ public class MySQL implements Storage {
             }
             return result;
         });
+    }
+
+    private String filter(JsonObject find) {
+        String query = " WHERE ";
+        List<String> filters = new ArrayList<>();
+        for (Map.Entry<String, JsonElement> entry : find.entrySet()) {
+            String filter = config.isUseArrowOperator() ? "data ->> '$." : "JSON_UNQUOTE(JSON_EXTRACT(data, '$.";
+            filter += entry.getKey() + (config.isUseArrowOperator() ? "'" : "'))");
+            if (entry.getValue().isJsonNull()) filter += " IS NULL";
+            else if (entry.getValue() instanceof JsonPrimitive primitive) {
+                if (primitive.isBoolean()) filter += " = " + String.valueOf(primitive.getAsBoolean()).toUpperCase();
+                else if (primitive.isNumber()) filter += " = " + primitive.getAsNumber();
+                else if (primitive.isString()) filter += " = '" + primitive.getAsString() + "'";
+            } else filter += " = CAST('" + entry.getValue() + "' as JSON)";
+            filters.add(filter);
+        }
+        query += String.join(" AND ", filters);
+        return query;
     }
 
     private void sync(@NotNull String table, @Nullable JsonObject find) {

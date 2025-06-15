@@ -7,7 +7,6 @@ import kr.rtuserver.framework.bukkit.api.core.scheduler.ScheduledTask;
 import kr.rtuserver.framework.bukkit.api.scheduler.CraftScheduler;
 import kr.rtuserver.framework.bukkit.api.storage.Storage;
 import lombok.Getter;
-import org.apache.commons.lang3.tuple.Pair;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -54,7 +53,7 @@ public class Json implements Storage {
     }
 
     @Override
-    public CompletableFuture<Boolean> set(@NotNull String name, @Nullable Pair<String, Object> find, @Nullable JsonObject data) {
+    public CompletableFuture<Boolean> set(@NotNull String name, @Nullable JsonObject find, @Nullable JsonObject data) {
         return CompletableFuture.supplyAsync(() -> {
             if (!map.containsKey(name)) {
                 plugin.console("<red>Can't load " + name + " data!</red>");
@@ -66,7 +65,7 @@ public class Json implements Storage {
     }
 
     @Override
-    public CompletableFuture<List<JsonObject>> get(@NotNull String name, @Nullable Pair<String, Object> find) {
+    public CompletableFuture<List<JsonObject>> get(@NotNull String name, @Nullable JsonObject find) {
         return CompletableFuture.supplyAsync(() -> {
             if (!map.containsKey(name)) {
                 plugin.console("<red>Can't load " + name + " data!</red>");
@@ -127,7 +126,7 @@ public class Json implements Storage {
             return true;
         }
 
-        protected boolean set(Pair<String, Object> find, JsonObject value) {
+        protected boolean set(JsonObject find, JsonObject value) {
             Map<Integer, JsonObject> list = find(find);
             if (list.isEmpty()) return false;
             final JsonArray backup = data;
@@ -141,6 +140,7 @@ public class Json implements Storage {
                     for (Map.Entry<String, JsonElement> entry : value.entrySet()) {
                         String property = entry.getKey();
                         JsonElement element = entry.getValue();
+                        if (element.isJsonNull()) valObj.remove(property);
                         if (element.isJsonPrimitive()) {
                             JsonPrimitive primitive = element.getAsJsonPrimitive();
                             if (primitive.isNumber()) valObj.addProperty(property, primitive.getAsNumber());
@@ -152,8 +152,7 @@ public class Json implements Storage {
                                 data = backup;
                                 return false;
                             }
-                        } else if (element.isJsonNull()) valObj.remove(property);
-                        else valObj.add(property, element);
+                        } else valObj.add(property, element);
                         if (data.contains(valObj)) data.set(key, valObj);
                         else data.add(valObj);
                     }
@@ -164,35 +163,37 @@ public class Json implements Storage {
             return true;
         }
 
-        protected List<JsonObject> get(Pair<String, Object> find) {
+        protected List<JsonObject> get(JsonObject find) {
             Map<Integer, JsonObject> list = find(find);
             return new ArrayList<>(list.values());
         }
 
-        private Map<Integer, JsonObject> find(Pair<String, Object> find) {
+        public Map<Integer, JsonObject> find(JsonObject find) {
             Map<Integer, JsonObject> result = new HashMap<>();
+            if (data == null || data.isEmpty()) return result;
+
             for (int i = 0; i < data.size(); i++) {
-                JsonObject object = data.get(i).getAsJsonObject();
-                if (find != null) {
-                    JsonElement get = object.get(find.getKey());
-                    if (get == null || get.isJsonNull()) continue;
-                    Object findObj = find.getValue();
-                    if (findObj instanceof JsonElement element) {
-                        if (!get.equals(element)) continue;
-                    } else if (findObj instanceof Number number) {
-                        if (!get.getAsJsonPrimitive().equals(new JsonPrimitive(number))) continue;
-                    } else if (findObj instanceof Boolean bool) {
-                        if (!get.getAsJsonPrimitive().equals(new JsonPrimitive(bool))) continue;
-                    } else if (findObj instanceof String str) {
-                        if (!get.getAsJsonPrimitive().equals(new JsonPrimitive(str))) continue;
-                    } else if (findObj instanceof Character character) {
-                        if (!get.getAsJsonPrimitive().equals(new JsonPrimitive(character))) continue;
-                    } else {
-                        //plugin.console(ComponentUtil.miniMessage("<red>Unsupported type of data tried to be saved! Only supports JsonElement, Number, Boolean and String</red>"));
-                        //plugin.console(ComponentUtil.miniMessage("<red>지원하지 않는 타입의 데이터가 저장되려고 했습니다! JsonElement, Number, Boolean, String만 지원합니다</red>"));
+                JsonElement element = data.get(i);
+                if (!element.isJsonObject()) continue;
+                JsonObject object = element.getAsJsonObject();
+
+                boolean allMatch = true;
+                if (find != null && !find.entrySet().isEmpty()) {
+                    for (Map.Entry<String, JsonElement> entry : find.entrySet()) {
+                        String key = entry.getKey();
+                        JsonElement value = entry.getValue();
+                        JsonElement get = object.get(key);
+                        if (value == null) allMatch = false;
+                        else if (value.isJsonNull()) allMatch = get.isJsonNull();
+                        else if (value instanceof JsonObject vjo && get instanceof JsonObject gjo) {
+                            allMatch = vjo.equals(gjo);
+                        } else if (value instanceof JsonPrimitive vjp && get instanceof JsonPrimitive gjp) {
+                            allMatch = vjp.equals(gjp);
+                        }
+                        if (!allMatch) break;
                     }
                 }
-                result.put(i, object);
+                if (allMatch) result.put(i, object);
             }
             return result;
         }

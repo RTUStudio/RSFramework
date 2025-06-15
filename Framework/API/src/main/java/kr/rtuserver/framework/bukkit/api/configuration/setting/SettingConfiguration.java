@@ -14,11 +14,12 @@ public class SettingConfiguration extends RSConfiguration<RSPlugin> {
     private boolean listener = true;
     private boolean welcome = true;
     private String prefix = "";
-    private String locale = "en_us";
+    private String locale;
     private StorageType storage = StorageType.JSON;
 
     public SettingConfiguration(RSPlugin plugin) {
         super(plugin, "Setting.yml", 1);
+        this.locale = plugin.getLanguages().getFirst();
         setup(this);
     }
 

@@ -24,7 +24,9 @@ import org.bukkit.event.Listener;
 import org.bukkit.permissions.PermissionDefault;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import java.util.Collections;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Set;
 
 @Getter
@@ -33,7 +35,7 @@ public abstract class RSPlugin extends JavaPlugin {
     private final Set<RSListener<? extends RSPlugin>> listeners = new HashSet<>();
     private final Set<RSCommand<? extends RSPlugin>> commands = new HashSet<>();
     private final Set<Integration> integrations = new HashSet<>();
-    private final Set<String> languages = new HashSet<>();
+    private final LinkedHashSet<String> languages = new LinkedHashSet<>();
     private Framework framework;
     private Component prefix;
     private RSPlugin plugin;
@@ -43,11 +45,11 @@ public abstract class RSPlugin extends JavaPlugin {
     private Storage storage;
 
     public RSPlugin() {
-        this("ko_kr", "en_us");
+        this("en_us", "ko_kr");
     }
 
     public RSPlugin(String... languages) {
-        this.languages.addAll(Set.of(languages));
+        Collections.addAll(this.languages, languages);
     }
 
     public Component getPrefix() {
