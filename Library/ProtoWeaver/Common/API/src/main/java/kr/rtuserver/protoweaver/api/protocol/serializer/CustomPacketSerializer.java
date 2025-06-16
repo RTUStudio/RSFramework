@@ -9,10 +9,6 @@ import java.io.*;
 
 public class CustomPacketSerializer extends ProtoSerializer<CustomPacket> {
 
-    public CustomPacketSerializer(Fury fury, Class<CustomPacket> type) {
-        super(fury, type);
-    }
-
     @Override
     public void write(ByteArrayOutputStream buffer, CustomPacket value) {
         try (DataOutputStream dos = new DataOutputStream(buffer)) {

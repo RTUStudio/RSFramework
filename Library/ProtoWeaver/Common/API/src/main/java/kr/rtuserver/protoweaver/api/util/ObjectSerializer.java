@@ -1,6 +1,7 @@
 package kr.rtuserver.protoweaver.api.util;
 
 import com.google.gson.Gson;
+import kr.rtuserver.protoweaver.api.ProtoSerializerAdapter;
 import kr.rtuserver.protoweaver.api.ProtoSerializer;
 import kr.rtuserver.protoweaver.api.protocol.internal.CustomPacket;
 import kr.rtuserver.protoweaver.api.protocol.serializer.CustomPacketSerializer;
@@ -58,7 +59,7 @@ public class ObjectSerializer {
     public void register(Class<?> type, Class<? extends ProtoSerializer<?>> serializer) {
         synchronized (fury) {
             if (type != CustomPacket.class && serializer == CustomPacketSerializer.class) customPackets.add(type);
-            fury.registerSerializer(CustomPacket.class, serializer);
+            fury.registerSerializer(CustomPacket.class, new ProtoSerializerAdapter<>(fury, CustomPacket.class, serializer));
         }
     }
 
