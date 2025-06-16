@@ -29,7 +29,7 @@ public class ClientConnectionHandler extends InternalConnectionHandler implement
             switch (status.getStatus()) {
                 case MISSING -> {
                     protocol.logErr("Not loaded on server: " + connection.getRemoteAddress());
-                    disconnectIfNeverUpgraded(connection);
+                    //disconnectIfNeverUpgraded(connection);
                 }
                 case MISMATCH -> {
                     protocol.logErr("Mismatch with protocol version on server: " + connection.getRemoteAddress());
