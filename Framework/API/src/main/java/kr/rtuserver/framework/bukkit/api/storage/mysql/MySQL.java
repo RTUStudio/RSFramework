@@ -56,6 +56,10 @@ public class MySQL implements Storage {
         }
     }
 
+    private boolean isNull(JsonObject json) {
+        return json == null || json.isEmpty() || json.isJsonNull();
+    }
+
     private Connection getConnection() throws SQLException {
         if (connection.isClosed()) {
             connection = hikariDataSource.getConnection();
@@ -101,7 +105,7 @@ public class MySQL implements Storage {
     @Override
     public CompletableFuture<Boolean> add(@NotNull String table, @NotNull JsonObject data) {
         return CompletableFuture.supplyAsync(() -> {
-            if (data.isJsonNull()) return false;
+            if (isNull(data)) return false;
             String json = gson.toJson(data);
             String query = "INSERT INTO " + prefix + table + " (data) VALUES (?);";
             try {
@@ -123,7 +127,7 @@ public class MySQL implements Storage {
         return CompletableFuture.supplyAsync(() -> {
             StringBuilder query = new StringBuilder();
             List<Object> values = new ArrayList<>();
-            if (data == null) {
+            if (isNull(data)) {
                 query.append("DELETE FROM ").append(prefix).append(table);
             } else {
                 query.append("UPDATE ").append(prefix).append(table).append(" SET data = JSON_SET(data, ");
@@ -152,7 +156,7 @@ public class MySQL implements Storage {
                 }
                 query.append(String.join(", ", jsonSetArgs)).append(")");
             }
-            if (find != null && !find.entrySet().isEmpty()) {
+            if (!isNull(find)) {
                 Pair<String, List<Object>> filterPair = filter(find);
                 query.append(filterPair.getLeft());
                 values.addAll(filterPair.getRight());
@@ -172,12 +176,12 @@ public class MySQL implements Storage {
     }
 
     @Override
-    public CompletableFuture<List<JsonObject>> get(@NotNull String table, JsonObject find) {
+    public CompletableFuture<List<JsonObject>> get(@NotNull String table, @NotNull JsonObject find) {
         return CompletableFuture.supplyAsync(() -> {
             List<JsonObject> result = new ArrayList<>();
             StringBuilder query = new StringBuilder("SELECT * FROM ").append(prefix).append(table);
             List<Object> values = new ArrayList<>();
-            if (find != null && !find.entrySet().isEmpty()) {
+            if (!isNull(find)) {
                 Pair<String, List<Object>> filterPair = filter(find);
                 query.append(filterPair.getLeft());
                 values.addAll(filterPair.getRight());
@@ -229,26 +233,6 @@ public class MySQL implements Storage {
 
     private void sync(@NotNull String table, @Nullable JsonObject find) {
         StorageSync sync = new StorageSync(plugin.getName(), table, find);
-        plugin.getFramework().getProtoWeaver().sendPacket(sync);
-    }
-
-    private void sync(@NotNull String table, @Nullable Pair<String, Object> find) {
-        StorageSync sync;
-        if (find == null) sync = new StorageSync(plugin.getName(), table, null);
-        else {
-            String key = find.getKey();
-            Object value = find.getValue();
-            JsonObject json = new JsonObject();
-            switch (value) {
-                case JsonElement element -> json.add(key, element);
-                case Number number -> json.addProperty(key, number);
-                case Boolean bool -> json.addProperty(key, bool);
-                case String str -> json.addProperty(key, str);
-                case null -> json.add(key, null);
-                default -> throw new IllegalStateException("Unexpected value: " + value);
-            }
-            sync = new StorageSync(plugin.getName(), table, json);
-        }
         plugin.getFramework().getProtoWeaver().sendPacket(sync);
     }
 

@@ -65,7 +65,7 @@ public class Json implements Storage {
     }
 
     @Override
-    public CompletableFuture<List<JsonObject>> get(@NotNull String name, @Nullable JsonObject find) {
+    public CompletableFuture<List<JsonObject>> get(@NotNull String name, @NotNull JsonObject find) {
         return CompletableFuture.supplyAsync(() -> {
             if (!map.containsKey(name)) {
                 plugin.console("<red>Can't load " + name + " data!</red>");
@@ -119,8 +119,13 @@ public class Json implements Storage {
             plugin.verbose("[Storage] " + type + ": " + collection + " - " + json);
         }
 
+        private boolean isNull(JsonObject json) {
+            return json == null || json.isEmpty() || json.isJsonNull();
+        }
+
         public boolean add(JsonObject value) {
             debug("ADD", file.getName(), value.toString());
+            if (isNull(value)) return false;
             data.add(value);
             needSave.lazySet(true);
             return true;
@@ -172,13 +177,14 @@ public class Json implements Storage {
             Map<Integer, JsonObject> result = new HashMap<>();
             if (data == null || data.isEmpty()) return result;
 
+            boolean isNull = isNull(find);
             for (int i = 0; i < data.size(); i++) {
                 JsonElement element = data.get(i);
                 if (!element.isJsonObject()) continue;
                 JsonObject object = element.getAsJsonObject();
 
                 boolean allMatch = true;
-                if (find != null && !find.entrySet().isEmpty()) {
+                if (!isNull) {
                     for (Map.Entry<String, JsonElement> entry : find.entrySet()) {
                         String key = entry.getKey();
                         JsonElement value = entry.getValue();

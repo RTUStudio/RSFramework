@@ -64,6 +64,10 @@ public class MongoDB implements Storage {
         this.database = client.getDatabase(config.getDatabase());
     }
 
+    private boolean isNull(JsonObject json) {
+        return json == null || json.isEmpty() || json.isJsonNull();
+    }
+
     private void debug(String type, String collection, String json) {
         plugin.verbose("[Storage] " + type + ": " + collection + " - " + json);
     }
@@ -71,7 +75,7 @@ public class MongoDB implements Storage {
     @Override
     public CompletableFuture<Boolean> add(@NotNull String collectionName, @NotNull JsonObject data) {
         return CompletableFuture.supplyAsync(() -> {
-            if (data.isJsonNull()) return false;
+            if (isNull(data)) return false;
             MongoCollection<Document> collection = database.getCollection(prefix + collectionName);
             Document document = Document.parse(gson.toJson(data));
             debug("ADD", collectionName, document.toJson());
@@ -85,9 +89,9 @@ public class MongoDB implements Storage {
     public CompletableFuture<Boolean> set(@NotNull String collectionName, @Nullable JsonObject find, @Nullable JsonObject data) {
         return CompletableFuture.supplyAsync(() -> {
             MongoCollection<Document> collection = database.getCollection(prefix + collectionName);
-            if (find != null) {
+            if (!isNull(find)) {
                 Bson filter = filter(find);
-                if (data == null || data.isJsonNull()) {
+                if (isNull(data)) {
                     debug("SET", collectionName, filter.toBsonDocument().toJson());
                     DeleteResult result = collection.deleteMany(filter);
                     if (!result.wasAcknowledged()) return false;
@@ -106,7 +110,7 @@ public class MongoDB implements Storage {
                 debug("SET", collectionName, Filters.empty().toBsonDocument().toJson());
                 DeleteResult result = collection.deleteMany(Filters.empty());
                 if (!result.wasAcknowledged()) return false;
-                sync(collectionName, (@Nullable Pair<String, Object>) null);
+                sync(collectionName, null);
             }
             return true;
         });
@@ -114,7 +118,7 @@ public class MongoDB implements Storage {
 
 
     @Override
-    public CompletableFuture<List<JsonObject>> get(@NotNull String collectionName, JsonObject find) {
+    public CompletableFuture<List<JsonObject>> get(@NotNull String collectionName, @NotNull JsonObject find) {
         return CompletableFuture.supplyAsync(() -> {
             MongoCollection<Document> collection = database.getCollection(prefix + collectionName);
             Bson filter = filter(find);
@@ -131,7 +135,7 @@ public class MongoDB implements Storage {
     }
 
     private Bson filter(JsonObject find) {
-        if (find == null) return Filters.empty();
+        if (isNull(find)) return Filters.empty();
         List<Bson> filters = new ArrayList<>();
         if (!find.entrySet().isEmpty()) {
             for (Map.Entry<String, JsonElement> entry : find.entrySet()) {
@@ -150,27 +154,6 @@ public class MongoDB implements Storage {
 
     private void sync(@NotNull String table, @Nullable JsonObject find) {
         StorageSync sync = new StorageSync(plugin.getName(), table, find);
-        plugin.getFramework().getProtoWeaver().sendPacket(sync);
-    }
-
-    private void sync(@NotNull String table, @Nullable Pair<String, Object> find) {
-        StorageSync sync;
-        if (find == null) sync = new StorageSync(plugin.getName(), table, null);
-        else {
-            String key = find.getKey();
-            Object value = find.getValue();
-            JsonObject json = new JsonObject();
-            switch (value) {
-                case JsonElement element -> json.add(key, element);
-                case Number number -> json.addProperty(key, number);
-                case Boolean bool -> json.addProperty(key, bool);
-                case String str -> json.addProperty(key, str);
-                case Character character -> json.addProperty(key, character);
-                case null -> json.add(key, null);
-                default -> throw new IllegalStateException("Unexpected value: " + value);
-            }
-            sync = new StorageSync(plugin.getName(), table, json);
-        }
         plugin.getFramework().getProtoWeaver().sendPacket(sync);
     }
 

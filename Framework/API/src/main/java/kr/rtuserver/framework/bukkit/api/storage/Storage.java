@@ -3,7 +3,6 @@ package kr.rtuserver.framework.bukkit.api.storage;
 import com.google.gson.JsonObject;
 import kr.rtuserver.framework.bukkit.api.platform.JSON;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -16,16 +15,16 @@ public interface Storage {
         return add(name, data.get());
     }
 
-    CompletableFuture<Boolean> set(@NotNull String name, @Nullable JsonObject find, @Nullable JsonObject data);
+    CompletableFuture<Boolean> set(@NotNull String name, @NotNull JsonObject find, @NotNull JsonObject data);
 
-    default CompletableFuture<Boolean> set(@NotNull String name, @Nullable JSON find, @Nullable JSON data) {
-        return set(name, find != null ? find.get() : null, data != null ? data.get() : null);
+    default CompletableFuture<Boolean> set(@NotNull String name, @NotNull JSON find, @NotNull JSON data) {
+        return set(name, find.get(), data.get());
     }
 
-    CompletableFuture<List<JsonObject>> get(@NotNull String name, @Nullable JsonObject find);
+    CompletableFuture<List<JsonObject>> get(@NotNull String name, @NotNull JsonObject find);
 
-    default CompletableFuture<List<JsonObject>> get(@NotNull String name, @Nullable JSON find) {
-        return get(name, find != null ? find.get() : null);
+    default CompletableFuture<List<JsonObject>> get(@NotNull String name, @NotNull JSON find) {
+        return get(name, find.get());
     }
 
     void close();
