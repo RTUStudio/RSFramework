@@ -94,7 +94,8 @@ public class MinecraftVersion {
             case 1212, 1213 -> "v1_21_R2";
             case 1214 -> "v1_21_R3";
             case 1215 -> "v1_21_R4";
-            default -> "v1_21_R4";
+            case 1216 -> "v1_21_R5";
+            default -> "v1_21_R5";
         };
     }
 

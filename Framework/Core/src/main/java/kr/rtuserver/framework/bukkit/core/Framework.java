@@ -142,6 +142,7 @@ public class Framework implements kr.rtuserver.framework.bukkit.api.core.Framewo
             case "v1_21_R2" -> NMS = new NMS_1_21_R2();
             case "v1_21_R3" -> NMS = new NMS_1_21_R3();
             case "v1_21_R4" -> NMS = new NMS_1_21_R4();
+            //case "v1_21_R5" -> NMS = new NMS_1_21_R5();
             default -> {
                 log.warn("Server version is unsupported version, Disabling RSFramework...");
                 Bukkit.getPluginManager().disablePlugin(plugin);

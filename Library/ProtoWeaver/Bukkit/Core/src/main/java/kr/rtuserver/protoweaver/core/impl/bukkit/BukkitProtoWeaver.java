@@ -64,8 +64,10 @@ public class BukkitProtoWeaver implements kr.rtuserver.protoweaver.api.impl.bukk
             case "v1_21_R2" -> new ProtoWeaver_1_21_R2(sslFolder);
             case "v1_21_R3" -> new ProtoWeaver_1_21_R3(sslFolder);
             case "v1_21_R4" -> new ProtoWeaver_1_21_R4(sslFolder);
+            //case "v1_21_R5" -> new ProtoWeaver_1_21_R5(sslFolder);
             default -> throw new IllegalStateException();
         };
+        protoWeaver.setup();
         this.callback = callback;
         this.isModernProxy = protoWeaver.isModernProxy();
         Protocol.Builder protocol = Protocol.create("rsframework", "internal");

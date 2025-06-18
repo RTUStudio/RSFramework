@@ -26,7 +26,6 @@ public class MariaDB implements Storage {
 
     private final RSPlugin plugin;
     private final MariaDBConfig config;
-    private final boolean verbose;
 
     private final Gson gson = new Gson();
     private final String driver = "org.mariadb.jdbc.MariaDbDataSource";
@@ -37,7 +36,6 @@ public class MariaDB implements Storage {
     public MariaDB(RSPlugin plugin, List<String> list) {
         this.plugin = plugin;
         this.config = plugin.getConfigurations().getStorage().getMariadb();
-        this.verbose = plugin.getConfigurations().getSetting().isVerbose();
         this.prefix = config.getTablePrefix();
         HikariConfig hikariConfig = getHikariConfig(plugin);
         hikariDataSource = new HikariDataSource(hikariConfig);
@@ -68,7 +66,7 @@ public class MariaDB implements Storage {
     @NotNull
     private HikariConfig getHikariConfig(RSPlugin plugin) {
         String serverHost = config.getHost() + ":" + config.getPort();
-        String url = "jdbc:mysql://" + serverHost + "/" + config.getDatabase() + "?serverTimezone=UTC&useUniCode=yes&characterEncoding=UTF-8";
+        String url = "jdbc:mariadb://" + serverHost + "/" + config.getDatabase() + "?serverTimezone=UTC&useUniCode=yes&characterEncoding=UTF-8";
         HikariConfig hikariConfig = new HikariConfig();
         hikariConfig.setDriverClassName(driver);
         hikariConfig.setJdbcUrl(url);
@@ -84,16 +82,32 @@ public class MariaDB implements Storage {
         plugin.verbose("[Storage] " + type + ": " + collection + " - " + json);
     }
 
+    private String getDebugQuery(String query, List<Object> values) {
+        String finalQuery = query;
+        for (Object value : values) {
+            String formattedValue;
+            if (value instanceof String) {
+                formattedValue = "'" + value.toString().replace("'", "''") + "'";
+            } else if (value == null) {
+                formattedValue = "NULL";
+            } else {
+                formattedValue = value.toString();
+            }
+            finalQuery = finalQuery.replaceFirst("\\?", java.util.regex.Matcher.quoteReplacement(formattedValue));
+        }
+        return finalQuery;
+    }
+
     @Override
     public CompletableFuture<Boolean> add(@NotNull String table, @NotNull JsonObject data) {
         return CompletableFuture.supplyAsync(() -> {
             if (data.isJsonNull()) return false;
             String json = gson.toJson(data);
+            String query = "INSERT INTO " + prefix + table + " (data) VALUES (?);";
             try {
-                //INSERT INTO `test` (`data`) VALUES ('{"A": B"}');
-                String query = "INSERT INTO " + prefix + table + " (data) VALUES ('" + json + "');";
                 PreparedStatement ps = getConnection().prepareStatement(query);
-                debug("ADD", table, query);
+                ps.setString(1, json);
+                debug("ADD", table, getDebugQuery(query, List.of(json)));
                 if (!ps.execute()) return false;
                 sync(table, data);
                 return true;
@@ -107,32 +121,46 @@ public class MariaDB implements Storage {
     @Override
     public CompletableFuture<Boolean> set(@NotNull String table, @Nullable JsonObject find, @Nullable JsonObject data) {
         return CompletableFuture.supplyAsync(() -> {
-            String query;
-            if (data == null) query = "DELETE FROM " + prefix + table;
-            else {
-                List<String> list = new ArrayList<>();
+            StringBuilder query = new StringBuilder();
+            List<Object> values = new ArrayList<>();
+            if (data == null) {
+                query.append("DELETE FROM ").append(prefix).append(table);
+            } else {
+                query.append("UPDATE ").append(prefix).append(table).append(" SET data = JSON_SET(data, ");
+                List<String> jsonSetArgs = new ArrayList<>();
                 for (Map.Entry<String, JsonElement> entry : data.entrySet()) {
                     String key = entry.getKey();
                     JsonElement element = entry.getValue();
-                    if (element.isJsonPrimitive()) {
+                    jsonSetArgs.add("'$." + key + "'");
+                    if (element.isJsonNull()) {
+                        jsonSetArgs.add("NULL");
+                    } else if (element.isJsonPrimitive()) {
                         JsonPrimitive primitive = element.getAsJsonPrimitive();
-                        if (primitive.isNumber()) list.add("'$." + key + "', " + primitive.getAsNumber());
-                        else if (primitive.isBoolean()) list.add("'$." + key + "', " + primitive.getAsBoolean());
-                        else if (primitive.isString()) list.add("'$." + key + "', \"" + primitive.getAsString() + "\"");
+                        jsonSetArgs.add("?");
+                        if (primitive.isNumber()) values.add(primitive.getAsNumber());
+                        else if (primitive.isBoolean()) values.add(primitive.getAsBoolean());
+                        else if (primitive.isString()) values.add(primitive.getAsString());
                         else {
                             plugin.console("<red>Unsupported type of data tried to be saved! Only supports JsonElement, Number, Boolean and String</red>");
                             plugin.console("<red>지원하지 않는 타입의 데이터가 저장되려고 했습니다! JsonElement, Number, Boolean, String만 지원합니다</red>");
                             return false;
                         }
-                    } else if (element.isJsonNull()) list.add("'$." + key + "', NULL");
-                    else list.add("'$." + key + "', CAST('" + element + "' as JSON)");
+                    } else {
+                        jsonSetArgs.add("CAST(? AS JSON)");
+                        values.add(gson.toJson(element));
+                    }
                 }
-                query = "UPDATE " + prefix + table + " SET data = JSON_SET(data, " + String.join(", ", list) + ")";
+                query.append(String.join(", ", jsonSetArgs)).append(")");
             }
-            if (find != null && !find.entrySet().isEmpty()) query += filter(find);
+            if (find != null && !find.entrySet().isEmpty()) {
+                Pair<String, List<Object>> filterPair = filter(find);
+                query.append(filterPair.getLeft());
+                values.addAll(filterPair.getRight());
+            }
             try {
-                PreparedStatement ps = getConnection().prepareStatement(query + ";");
-                debug("ADD", table, query + ";");
+                PreparedStatement ps = getConnection().prepareStatement(query.toString() + ";");
+                setParameters(ps, values);
+                debug("SET", table, getDebugQuery(query.toString() + ";", values));
                 if (!ps.execute()) return false;
                 sync(table, find);
                 return true;
@@ -147,11 +175,17 @@ public class MariaDB implements Storage {
     public CompletableFuture<List<JsonObject>> get(@NotNull String table, JsonObject find) {
         return CompletableFuture.supplyAsync(() -> {
             List<JsonObject> result = new ArrayList<>();
-            String query = "SELECT * FROM " + prefix + table;
-            if (find != null && !find.entrySet().isEmpty()) query += filter(find);
+            StringBuilder query = new StringBuilder("SELECT * FROM ").append(prefix).append(table);
+            List<Object> values = new ArrayList<>();
+            if (find != null && !find.entrySet().isEmpty()) {
+                Pair<String, List<Object>> filterPair = filter(find);
+                query.append(filterPair.getLeft());
+                values.addAll(filterPair.getRight());
+            }
             try {
-                PreparedStatement ps = getConnection().prepareStatement(query + ";");
-                debug("GET", table, query + ";");
+                PreparedStatement ps = getConnection().prepareStatement(query.toString() + ";");
+                setParameters(ps, values);
+                debug("GET", table, getDebugQuery(query.toString() + ";", values));
                 ResultSet rs = ps.executeQuery();
                 while (rs.next()) {
                     result.add(gson.fromJson(rs.getString("data"), JsonObject.class));
@@ -163,22 +197,34 @@ public class MariaDB implements Storage {
         });
     }
 
-    private String filter(JsonObject find) {
-        String query = " WHERE ";
+    private Pair<String, List<Object>> filter(JsonObject find) {
+        StringBuilder query = new StringBuilder(" WHERE ");
         List<String> filters = new ArrayList<>();
+        List<Object> values = new ArrayList<>();
         for (Map.Entry<String, JsonElement> entry : find.entrySet()) {
             String filter = config.isUseArrowOperator() ? "data ->> '$." : "JSON_UNQUOTE(JSON_EXTRACT(data, '$.";
             filter += entry.getKey() + (config.isUseArrowOperator() ? "'" : "'))");
-            if (entry.getValue().isJsonNull()) filter += " IS NULL";
-            else if (entry.getValue() instanceof JsonPrimitive primitive) {
-                if (primitive.isBoolean()) filter += " = " + String.valueOf(primitive.getAsBoolean()).toUpperCase();
-                else if (primitive.isNumber()) filter += " = " + primitive.getAsNumber();
-                else if (primitive.isString()) filter += " = '" + primitive.getAsString() + "'";
-            } else filter += " = CAST('" + entry.getValue() + "' as JSON)";
+            if (entry.getValue().isJsonNull()) {
+                filter += " IS NULL";
+            } else if (entry.getValue() instanceof JsonPrimitive primitive) {
+                filter += " = ?";
+                if (primitive.isBoolean()) values.add(primitive.getAsBoolean());
+                else if (primitive.isNumber()) values.add(primitive.getAsNumber());
+                else if (primitive.isString()) values.add(primitive.getAsString());
+            } else {
+                filter += " = CAST(? as JSON)";
+                values.add(gson.toJson(entry.getValue()));
+            }
             filters.add(filter);
         }
-        query += String.join(" AND ", filters);
-        return query;
+        query.append(String.join(" AND ", filters));
+        return Pair.of(query.toString(), values);
+    }
+
+    private void setParameters(PreparedStatement statement, List<Object> values) throws SQLException {
+        for (int i = 0; i < values.size(); i++) {
+            statement.setObject(i + 1, values.get(i));
+        }
     }
 
     private void sync(@NotNull String table, @Nullable JsonObject find) {

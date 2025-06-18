@@ -4,12 +4,16 @@ import io.papermc.paper.configuration.GlobalConfiguration;
 import kr.rtuserver.protoweaver.api.impl.bukkit.nms.IProtoWeaver;
 import kr.rtuserver.protoweaver.api.util.ProtoLogger;
 import kr.rtuserver.protoweaver.core.loader.netty.SSLContext;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j(topic = "RSF/ProtoWeaver")
+@RequiredArgsConstructor
 public class ProtoWeaver_1_20_R2 implements IProtoWeaver {
 
-    public ProtoWeaver_1_20_R2(String folder) {
+    private final String folder;
+
+    public void setup() {
         ProtoLogger.setLogger(this);
         SSLContext.initKeystore(folder);
         SSLContext.genKeys();
