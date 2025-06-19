@@ -21,8 +21,11 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.xerial.snappy.Snappy;
 
+import java.io.IOException;
 import java.util.Arrays;
+import java.util.Base64;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class CustomItems {
@@ -134,23 +137,80 @@ public class CustomItems {
 
     @Nullable
     public static String serialize(@NotNull ItemStack target) {
+        return serialize(target, false);
+    }
+
+    @Nullable
+    public static String serialize(@NotNull ItemStack target, boolean compress) {
         ReadWriteNBT result = toNBT(target);
-        return result == null ? null : result.toString();
+        if (result == null) return null;
+        if (compress) {
+            try {
+                byte[] bytes = Snappy.compress(result.toString());
+                return Base64.getEncoder().encodeToString(bytes);
+            } catch (IOException e) {
+                e.printStackTrace();
+                return null;
+            }
+        }
+        else return result.toString();
     }
 
     @Nullable
     public static ItemStack deserialize(@NotNull String nbt) {
+        return deserialize(nbt, false);
+    }
+
+    @Nullable
+    public static ItemStack deserialize(@NotNull String nbt, boolean compressed) {
         if (nbt.isEmpty()) return null;
+        if (compressed) {
+            try {
+                byte[] bytes = Base64.getDecoder().decode(nbt);
+                nbt = Snappy.uncompressString(bytes);
+            } catch (IOException e) {
+                e.printStackTrace();
+                return null;
+            }
+        }
         return fromNBT(NBT.parseNBT(nbt));
     }
 
     @NotNull
     public static String serializeArray(@NotNull ItemStack[] items) {
-        return toNBTArray(items).toString();
+        return  serializeArray(items, false);
+    }
+
+    @NotNull
+    public static String serializeArray(@NotNull ItemStack[] items, boolean compress) {
+        NBTContainer result = toNBTArray(items);
+        if (compress) {
+            try {
+                byte[] bytes = Snappy.compress(result.toString());
+                return Base64.getEncoder().encodeToString(bytes);
+            } catch (IOException e) {
+                e.printStackTrace();
+                return "";
+            }
+        } else return result.toString();
     }
 
     @NotNull
     public static ItemStack[] deserializeArray(@NotNull String nbt) {
+        return deserializeArray(nbt, false);
+    }
+
+    @NotNull
+    public static ItemStack[] deserializeArray(@NotNull String nbt, boolean compressed) {
+        if (compressed) {
+            try {
+                byte[] bytes = Base64.getDecoder().decode(nbt);
+                nbt = Snappy.uncompressString(bytes);
+            } catch (IOException e) {
+                e.printStackTrace();
+                return null;
+            }
+        }
         return fromNBTArray(NBT.parseNBT(nbt));
     }
 
