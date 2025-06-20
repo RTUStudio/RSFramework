@@ -26,4 +26,5 @@ public class HandlerCallback {
 
     public record Packet(ProtoConnection protoConnection, Object packet) {
     }
+
 }

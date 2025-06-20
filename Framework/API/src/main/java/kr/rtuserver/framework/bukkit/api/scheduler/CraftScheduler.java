@@ -118,4 +118,5 @@ public abstract class CraftScheduler {
     public static ScheduledTask runTimer(RSPlugin plugin, Entity entity, Runnable runnable, long delay, long period) {
         return framework().getScheduler().runTimer(plugin, entity, runnable, delay, period);
     }
+
 }

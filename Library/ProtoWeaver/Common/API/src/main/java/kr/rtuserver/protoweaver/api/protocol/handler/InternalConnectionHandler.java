@@ -5,7 +5,6 @@ import kr.rtuserver.protoweaver.api.netty.Sender;
 import kr.rtuserver.protoweaver.api.protocol.Protocol;
 import kr.rtuserver.protoweaver.api.protocol.status.AuthStatus;
 import kr.rtuserver.protoweaver.api.protocol.status.ProtocolStatus;
-import kr.rtuserver.protoweaver.api.util.ProtoLogger;
 import lombok.Getter;
 
 public class InternalConnectionHandler {
@@ -40,4 +39,5 @@ public class InternalConnectionHandler {
         Sender sender = connection.send(new ProtocolStatus(connection.getProtocol().toString(), name, new byte[]{}, ProtocolStatus.Status.MISSING));
         //disconnectIfNeverUpgraded(connection, sender);
     }
+
 }

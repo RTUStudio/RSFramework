@@ -94,7 +94,7 @@ public abstract class RSPlugin extends JavaPlugin {
     public void onLoad() {
         this.framework = LightDI.getBean(Framework.class);
         initialize();
-        ThemeModule theme = this.framework.getModules().getThemeModule();
+        ThemeModule theme = this.framework.getModules().getTheme();
         String text = String.format("<gradient:%s:%s>%s%s%s</gradient>",
                 theme.getGradientStart(),
                 theme.getGradientEnd(),

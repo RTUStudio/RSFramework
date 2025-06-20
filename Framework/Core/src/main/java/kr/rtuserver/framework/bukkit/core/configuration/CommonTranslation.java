@@ -30,4 +30,5 @@ public class CommonTranslation implements kr.rtuserver.framework.bukkit.api.core
     private String getMessage(CommandSender sender, String key) {
         return plugin.getConfigurations().getMessage().get(sender, "common." + key);
     }
+
 }

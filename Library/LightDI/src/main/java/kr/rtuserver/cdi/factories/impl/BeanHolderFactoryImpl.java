@@ -26,4 +26,5 @@ public class BeanHolderFactoryImpl implements BeanHolderFactory {
                 throw new IllegalArgumentException("No factory found for the given class: " + clazz.getSimpleName());
         }
     }
+
 }

@@ -5,6 +5,7 @@ import kr.rtuserver.framework.bukkit.api.command.RSCommand;
 import kr.rtuserver.framework.bukkit.api.core.configuration.CommonTranslation;
 import kr.rtuserver.framework.bukkit.api.core.internal.runnable.CommandLimit;
 import kr.rtuserver.framework.bukkit.api.core.module.Modules;
+import kr.rtuserver.framework.bukkit.api.core.provider.Providers;
 import kr.rtuserver.framework.bukkit.api.core.scheduler.Scheduler;
 import kr.rtuserver.framework.bukkit.api.listener.RSListener;
 import kr.rtuserver.framework.bukkit.api.nms.NMS;
@@ -38,6 +39,8 @@ public interface Framework {
     CommonTranslation getCommonTranslation();
 
     Modules getModules();
+
+    Providers getProviders();
 
     Scheduler getScheduler();
 

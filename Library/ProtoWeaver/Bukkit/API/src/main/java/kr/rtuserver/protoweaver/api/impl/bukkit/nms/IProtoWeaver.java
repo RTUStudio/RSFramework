@@ -16,4 +16,5 @@ public interface IProtoWeaver extends ProtoLogger.IProtoLogger {
             return false;
         }
     }
+
 }

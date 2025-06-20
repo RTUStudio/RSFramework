@@ -51,4 +51,5 @@ public class Biome implements NMSBiome {
             return world.getHandle().getChunk(pos).getNoiseBiome(pos.getX() >> 2, pos.getY() >> 2, pos.getZ() >> 2).value();
         return null;
     }
+
 }

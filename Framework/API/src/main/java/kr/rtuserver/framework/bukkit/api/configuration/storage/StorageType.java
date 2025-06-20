@@ -16,4 +16,5 @@ public enum StorageType {
             return StorageType.valueOf(storageType.toUpperCase());
         } else return StorageType.JSON;
     }
+
 }

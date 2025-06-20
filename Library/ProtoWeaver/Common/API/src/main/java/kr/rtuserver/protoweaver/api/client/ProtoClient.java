@@ -155,4 +155,5 @@ public class ProtoClient {
     public interface ConnectionLostHandler {
         void handle(ProtoConnection connection) throws Exception;
     }
+
 }

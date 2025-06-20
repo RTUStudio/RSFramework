@@ -47,12 +47,12 @@ public class ComponentFormatter {
     }
 
     public static Component system(CommandSender sender, String miniMessage) {
-        Component lore = parse(sender, framework().getModules().getThemeModule().getSystemMessage());
+        Component lore = parse(sender, framework().getModules().getTheme().getSystemMessage());
         return parse(miniMessage).hoverEvent(HoverEvent.showText(lore));
     }
 
     public static Component system(CommandSender sender, Component component) {
-        Component lore = parse(sender, framework().getModules().getThemeModule().getSystemMessage());
+        Component lore = parse(sender, framework().getModules().getTheme().getSystemMessage());
         return component.hoverEvent(HoverEvent.showText(lore));
     }
 

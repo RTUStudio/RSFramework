@@ -35,8 +35,9 @@ public class JoinListener extends RSListener<RSPlugin> {
     }
 
     private String gradient(String name) {
-        String start = framework.getModules().getThemeModule().getGradientStart();
-        String end = framework.getModules().getThemeModule().getGradientEnd();
+        String start = framework.getModules().getTheme().getGradientStart();
+        String end = framework.getModules().getTheme().getGradientEnd();
         return "<gradient:" + start + ":" + end + ">" + name + "</gradient>";
     }
+
 }

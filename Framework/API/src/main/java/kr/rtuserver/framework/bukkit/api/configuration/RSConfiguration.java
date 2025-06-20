@@ -303,4 +303,5 @@ public class RSConfiguration<T extends RSPlugin> {
     private void setComment(String path, String... comment) {
         config.setComment(path, String.join("\n", comment), CommentType.BLOCK);
     }
+
 }

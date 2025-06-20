@@ -42,4 +42,5 @@ public class VelocityProtoHandler implements ProtoConnectionHandler {
         if (callable != null) callable.handlePacket(protoConnection, packet);
         if (protoConnection.getProtocol().isGlobal(packet)) getServers().forEach(connection -> connection.send(packet));
     }
+
 }

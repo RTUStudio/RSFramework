@@ -67,4 +67,5 @@ public class BeanStoreInstanceVisitor extends ClassHolderVisitor {
     public Optional<Object> getInstance() {
         return Optional.ofNullable(instance);
     }
+
 }

@@ -172,4 +172,5 @@ public class VelocityProtoWeaver implements kr.rtuserver.protoweaver.api.impl.ve
             registerProtocol(namespace, key, packets, ServerPacketHandler.class, null);
         }
     }
+
 }

@@ -17,4 +17,5 @@ public class PrototypeFactory<T> {
     public T get() {
         return instanceSupplier.get();
     }
+
 }

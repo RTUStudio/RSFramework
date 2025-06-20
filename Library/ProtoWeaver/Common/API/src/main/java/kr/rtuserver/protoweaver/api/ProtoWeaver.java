@@ -78,4 +78,5 @@ public class ProtoWeaver {
     public interface LoadedProtocol {
         void trigger(Protocol protocol);
     }
+
 }

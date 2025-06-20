@@ -153,4 +153,5 @@ public class BukkitProtoWeaver implements kr.rtuserver.protoweaver.api.impl.bukk
             if (!sender.isSuccess()) unregistered.add(registry);
         } else unregistered.add(registry);
     }
+
 }

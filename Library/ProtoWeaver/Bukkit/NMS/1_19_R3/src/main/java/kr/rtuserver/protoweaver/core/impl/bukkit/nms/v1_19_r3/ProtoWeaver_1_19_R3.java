@@ -20,6 +20,7 @@ public class ProtoWeaver_1_19_R3 implements IProtoWeaver {
         SSLContext.initContext();
         if (isModernProxy()) ModernProxy.initialize();
     }
+
     @Override
     public boolean isModernProxy() {
         if (!isPaper()) return false; //TODO: Fabric, Forge, Arclight 등의 Velocity 지원 확장을 고려해야함
@@ -44,4 +45,5 @@ public class ProtoWeaver_1_19_R3 implements IProtoWeaver {
     public void err(String message) {
         log.error(message);
     }
+
 }

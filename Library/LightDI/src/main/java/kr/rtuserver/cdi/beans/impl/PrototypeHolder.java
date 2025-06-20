@@ -20,4 +20,5 @@ public class PrototypeHolder implements BeanHolder {
     public Object get() {
         return instanceSupplier.get();
     }
+
 }

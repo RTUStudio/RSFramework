@@ -44,4 +44,5 @@ public abstract class RSListener<T extends RSPlugin> implements Listener {
     protected PlayerChat chat() {
         return chat;
     }
+
 }

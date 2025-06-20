@@ -156,4 +156,5 @@ public class ProtoConnection {
     public String toString() {
         return "[" + protocol.toString() + ", " + getRemoteAddress() + "]";
     }
+
 }

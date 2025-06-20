@@ -89,4 +89,5 @@ public class ServerConnectionHandler extends InternalConnectionHandler implement
     public void onDisconnect(ProtoConnection connection) {
         protocol.logInfo("Disconnected from: " + connection.getRemoteAddress());
     }
+
 }

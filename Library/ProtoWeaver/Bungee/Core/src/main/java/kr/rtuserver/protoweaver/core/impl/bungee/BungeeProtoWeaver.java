@@ -124,4 +124,5 @@ public class BungeeProtoWeaver implements kr.rtuserver.protoweaver.api.impl.bung
             registerProtocol(namespace, key, packets, ServerPacketHandler.class, null);
         }
     }
+
 }

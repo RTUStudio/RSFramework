@@ -25,4 +25,5 @@ public class FoliaTask implements ScheduledTask {
     public void cancel() {
         task.cancel();
     }
+
 }

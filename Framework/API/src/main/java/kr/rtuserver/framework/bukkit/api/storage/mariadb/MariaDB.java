@@ -248,4 +248,5 @@ public class MariaDB implements Storage {
             e.printStackTrace();
         }
     }
+
 }

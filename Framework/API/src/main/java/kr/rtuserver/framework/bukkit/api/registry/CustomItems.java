@@ -152,8 +152,7 @@ public class CustomItems {
                 e.printStackTrace();
                 return null;
             }
-        }
-        else return result.toString();
+        } else return result.toString();
     }
 
     @Nullable
@@ -178,7 +177,7 @@ public class CustomItems {
 
     @NotNull
     public static String serializeArray(@NotNull ItemStack[] items) {
-        return  serializeArray(items, false);
+        return serializeArray(items, false);
     }
 
     @NotNull

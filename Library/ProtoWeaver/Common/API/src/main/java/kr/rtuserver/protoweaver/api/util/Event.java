@@ -33,4 +33,5 @@ public class Event<T> {
             canceled = true;
         }
     }
+
 }

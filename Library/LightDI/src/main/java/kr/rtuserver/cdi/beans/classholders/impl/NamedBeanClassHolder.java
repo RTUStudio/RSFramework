@@ -31,4 +31,5 @@ public class NamedBeanClassHolder implements ClassHolder {
     public String getBeanName() {
         return beanName;
     }
+
 }

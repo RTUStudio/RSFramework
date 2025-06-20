@@ -2,9 +2,10 @@ package kr.rtuserver.framework.bukkit.api.core.module;
 
 public interface Modules {
 
-    CommandModule getCommandModule();
+    CommandModule getCommand();
 
-    ThemeModule getThemeModule();
+    ThemeModule getTheme();
 
     void reload();
+
 }

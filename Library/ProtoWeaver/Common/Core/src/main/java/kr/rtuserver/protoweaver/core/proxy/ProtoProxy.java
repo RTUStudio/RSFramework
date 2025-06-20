@@ -146,4 +146,5 @@ public class ProtoProxy {
     public void unregister(ProtoServer server) {
         Optional.ofNullable(servers.remove(server)).ifPresent(clients -> clients.forEach(ProtoClient::disconnect));
     }
+
 }

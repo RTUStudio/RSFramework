@@ -23,4 +23,5 @@ public class ModernProxy implements ChannelInitializeListener {
     public void afterInitChannel(@NonNull Channel channel) {
         ProtoDeterminer.registerToPipeline(channel);
     }
+
 }

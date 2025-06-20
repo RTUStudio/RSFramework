@@ -48,4 +48,5 @@ public class RSFramework {
         protoWeaver = new kr.rtuserver.protoweaver.core.impl.velocity.VelocityProtoWeaver(server, dir.toAbsolutePath().getParent().getParent());
         server.getEventManager().register(this, protoWeaver);
     }
+
 }

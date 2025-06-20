@@ -26,4 +26,5 @@ public class SpigotTask implements ScheduledTask {
     public void cancel() {
         task.cancel();
     }
+
 }

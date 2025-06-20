@@ -32,4 +32,5 @@ public class DrunkenBishop {
         }
         return inlined.toString();
     }
+
 }

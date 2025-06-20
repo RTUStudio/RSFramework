@@ -61,4 +61,5 @@ public class TranslationConfiguration {
         list.add(defaultLocale);
         for (String lang : list) map.put(lang, new Translation(plugin, type.getName(), lang));
     }
+
 }

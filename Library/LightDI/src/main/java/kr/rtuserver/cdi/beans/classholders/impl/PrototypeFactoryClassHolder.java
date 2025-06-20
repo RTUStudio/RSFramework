@@ -24,4 +24,5 @@ public class PrototypeFactoryClassHolder implements ClassHolder {
     public Class<?> getBeanClass() {
         return beanClass;
     }
+
 }

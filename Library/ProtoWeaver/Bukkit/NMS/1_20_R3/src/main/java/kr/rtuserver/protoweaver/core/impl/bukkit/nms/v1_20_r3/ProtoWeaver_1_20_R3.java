@@ -45,4 +45,5 @@ public class ProtoWeaver_1_20_R3 implements IProtoWeaver {
     public void err(String message) {
         log.error(message);
     }
+
 }

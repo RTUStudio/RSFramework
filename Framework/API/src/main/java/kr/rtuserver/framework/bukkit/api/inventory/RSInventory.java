@@ -83,4 +83,5 @@ public abstract class RSInventory<T extends RSPlugin> implements InventoryHolder
 
     public record Click(int slot, InventoryType.SlotType slotType, ClickType type) {
     }
+
 }

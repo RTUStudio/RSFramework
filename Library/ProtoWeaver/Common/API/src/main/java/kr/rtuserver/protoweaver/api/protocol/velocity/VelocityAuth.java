@@ -37,4 +37,5 @@ public class VelocityAuth implements ServerAuthHandler, ClientAuthHandler {
             return null;
         }
     }
+
 }

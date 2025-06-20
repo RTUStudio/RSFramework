@@ -22,7 +22,7 @@ public class ProtoSerializerAdapter<T> extends Serializer<T> {
         }
     }
 
-        @Override
+    @Override
     public T read(MemoryBuffer buffer) {
         ByteArrayInputStream in = new ByteArrayInputStream(buffer.getRemainingBytes());
         return streamSerializer.read(in);
@@ -34,4 +34,5 @@ public class ProtoSerializerAdapter<T> extends Serializer<T> {
         streamSerializer.write(out, value);
         buffer.writeBytes(out.toByteArray());
     }
+
 }

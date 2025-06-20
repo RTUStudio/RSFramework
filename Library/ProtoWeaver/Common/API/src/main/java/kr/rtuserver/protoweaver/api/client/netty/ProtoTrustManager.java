@@ -92,4 +92,5 @@ public class ProtoTrustManager {
             throw new RuntimeException(e);
         }
     }
+
 }

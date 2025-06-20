@@ -29,4 +29,5 @@ public class ProtoLogger {
 
         void err(String message);
     }
+
 }

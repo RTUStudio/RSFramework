@@ -77,4 +77,5 @@ public class RSFramework extends RSPlugin {
     protected void disable() {
         getFramework().disable(this);
     }
+
 }

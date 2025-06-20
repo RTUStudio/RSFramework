@@ -28,4 +28,5 @@ public class Translation extends RSConfiguration<RSPlugin> {
     public String get(String key) {
         return map.getOrDefault(key, "");
     }
+
 }

@@ -16,6 +16,7 @@ import kr.rtuserver.framework.bukkit.core.internal.listeners.JoinListener;
 import kr.rtuserver.framework.bukkit.core.internal.runnable.CommandLimit;
 import kr.rtuserver.framework.bukkit.core.listener.*;
 import kr.rtuserver.framework.bukkit.core.module.Modules;
+import kr.rtuserver.framework.bukkit.core.provider.Providers;
 import kr.rtuserver.framework.bukkit.core.scheduler.FoliaScheduler;
 import kr.rtuserver.framework.bukkit.core.scheduler.SpigotScheduler;
 import kr.rtuserver.framework.bukkit.nms.v1_17_r1.NMS_1_17_R1;
@@ -75,6 +76,8 @@ public class Framework implements kr.rtuserver.framework.bukkit.api.core.Framewo
     @Getter
     private Modules modules;
     @Getter
+    private Providers providers;
+    @Getter
     private Scheduler scheduler;
 
     public void loadPlugin(RSPlugin plugin) {
@@ -119,6 +122,7 @@ public class Framework implements kr.rtuserver.framework.bukkit.api.core.Framewo
         }
         loadNMS(plugin);
         modules = new Modules(this);
+        providers = new Providers(this);
 
         if (MinecraftVersion.isFolia()) scheduler = new FoliaScheduler();
         else if (MinecraftVersion.isPaper()) scheduler = new SpigotScheduler();
@@ -221,4 +225,5 @@ public class Framework implements kr.rtuserver.framework.bukkit.api.core.Framewo
     public void registerProtocol(String namespace, String key, Packet packet, Class<? extends ProtoConnectionHandler> protocolHandler, HandlerCallback callback) {
         protoWeaver.registerProtocol(namespace, key, packet, protocolHandler, callback);
     }
+
 }

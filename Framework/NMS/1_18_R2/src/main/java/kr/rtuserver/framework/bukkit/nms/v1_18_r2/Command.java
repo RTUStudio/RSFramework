@@ -44,4 +44,5 @@ public class Command implements NMSCommand {
         }
         return success;
     }
+
 }

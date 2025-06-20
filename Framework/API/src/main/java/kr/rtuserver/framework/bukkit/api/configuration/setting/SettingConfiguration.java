@@ -57,4 +57,5 @@ public class SettingConfiguration extends RSConfiguration<RSPlugin> {
             else getPlugin().unregisterEvents();
         }
     }
+
 }

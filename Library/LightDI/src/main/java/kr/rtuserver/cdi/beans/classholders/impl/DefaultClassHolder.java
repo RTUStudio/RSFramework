@@ -24,4 +24,5 @@ public class DefaultClassHolder implements ClassHolder {
     public Class<?> getBeanClass() {
         return beanClass;
     }
+
 }

@@ -8,6 +8,7 @@ import kr.rtuserver.framework.bukkit.api.configuration.translation.command.Comma
 import kr.rtuserver.framework.bukkit.api.configuration.translation.message.MessageTranslation;
 import kr.rtuserver.framework.bukkit.api.core.Framework;
 import kr.rtuserver.framework.bukkit.api.core.module.ThemeModule;
+import kr.rtuserver.framework.bukkit.api.core.provider.name.NameProvider;
 import kr.rtuserver.framework.bukkit.api.player.PlayerChat;
 import lombok.Getter;
 import lombok.ToString;
@@ -91,6 +92,10 @@ public abstract class RSCommand<T extends RSPlugin> extends Command {
         return framework;
     }
 
+    protected NameProvider provider() {
+        return framework.getProviders().getName();
+    }
+
     protected PlayerChat chat() {
         return chat;
     }
@@ -121,7 +126,7 @@ public abstract class RSCommand<T extends RSPlugin> extends Command {
         chat.setReceiver(sender);
         if (parent == null && (sender instanceof Player player)) {
             Map<UUID, Integer> cooldownMap = framework.getCommandLimit().getExecuteLimit();
-            int cooldown = framework.getModules().getCommandModule().getExecuteLimit();
+            int cooldown = framework.getModules().getCommand().getExecuteLimit();
             if (cooldown > 0) {
                 if (cooldownMap.containsKey(player.getUniqueId())) {
                     chat.announce(message.getCommon(player, "error.cooldown"));
@@ -148,7 +153,7 @@ public abstract class RSCommand<T extends RSPlugin> extends Command {
 
     private void wrongUsage() {
         chat.announce(message.getCommon(player(), "wrongUsage"));
-        ThemeModule module = framework.getModules().getThemeModule();
+        ThemeModule module = framework.getModules().getTheme();
         String startGradient = module.getGradientStart();
         String endGradient = module.getGradientEnd();
         List<RSCommand<? extends RSPlugin>> list = new ArrayList<>(commands.values());
@@ -244,4 +249,5 @@ public abstract class RSCommand<T extends RSPlugin> extends Command {
 
     protected void reload(RSCommandData data) {
     }
+
 }

@@ -24,4 +24,5 @@ public class Sender {
     public void disconnect() {
         if (future != null) future.addListener((ChannelFutureListener) channelFuture -> connection.disconnect());
     }
+
 }

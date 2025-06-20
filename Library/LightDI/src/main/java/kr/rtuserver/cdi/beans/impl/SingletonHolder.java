@@ -18,4 +18,5 @@ public class SingletonHolder implements BeanHolder {
     public Object get() {
         return instance;
     }
+
 }
