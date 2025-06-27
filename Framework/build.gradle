@@ -24,7 +24,7 @@ for (name in projects) project(":Framework:$name") {
         compileOnly "net.Indyuce:MMOItems-API:6.10.1-SNAPSHOT"
         compileOnly "io.lumine:MythicLib-dist:1.7.1-SNAPSHOT"
 
-        compileOnly "com.nexomc:nexo:1.2.0-dev.11"
+        compileOnly "com.nexomc:nexo:1.8.0"
 
         compileOnly "com.willfp:EcoItems:5.62.0"
         compileOnly "com.willfp:eco:6.75.2"
