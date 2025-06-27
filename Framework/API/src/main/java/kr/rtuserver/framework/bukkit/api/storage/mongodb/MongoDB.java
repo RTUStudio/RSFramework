@@ -40,7 +40,6 @@ public class MongoDB implements Storage {
         this.config = plugin.getConfigurations().getStorage().getMongodb();
         this.prefix = config.getTablePrefix();
         String serverHost = config.getHost() + ":" + config.getPort();
-        // Replace the placeholder with your Atlas connection string
         String uri = "mongodb://";
         String username = config.getUsername();
         String password = config.getPassword();

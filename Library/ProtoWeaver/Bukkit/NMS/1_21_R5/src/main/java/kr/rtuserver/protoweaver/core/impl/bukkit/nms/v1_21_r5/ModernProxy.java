@@ -1,4 +1,4 @@
-package kr.rtuserver.protoweaver.core.impl.bukkit.nms.v1_21_r5;
+package kr.rtuserver.protoweaver.bukkit.core.nms.v1_21_r5;
 
 import io.netty.channel.Channel;
 import io.papermc.paper.configuration.GlobalConfiguration;

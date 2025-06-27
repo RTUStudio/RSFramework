@@ -5,7 +5,7 @@ import com.velocitypowered.api.event.Subscribe;
 import com.velocitypowered.api.event.proxy.ProxyInitializeEvent;
 import com.velocitypowered.api.plugin.annotation.DataDirectory;
 import com.velocitypowered.api.proxy.ProxyServer;
-import kr.rtuserver.protoweaver.api.impl.velocity.VelocityProtoWeaver;
+import kr.rtuserver.protoweaver.velocity.api.VelocityProtoWeaver;
 import lombok.extern.slf4j.Slf4j;
 
 import java.nio.file.Path;
@@ -45,7 +45,7 @@ public class RSFramework {
         libraries.load("org.javassist:javassist:3.30.2-GA");
         libraries.load("org.reflections:reflections:0.10.2");
 
-        protoWeaver = new kr.rtuserver.protoweaver.core.impl.velocity.VelocityProtoWeaver(server, dir.toAbsolutePath().getParent().getParent());
+        protoWeaver = new kr.rtuserver.protoweaver.velocity.core.VelocityProtoWeaver(server, dir.toAbsolutePath().getParent().getParent());
         server.getEventManager().register(this, protoWeaver);
     }
 

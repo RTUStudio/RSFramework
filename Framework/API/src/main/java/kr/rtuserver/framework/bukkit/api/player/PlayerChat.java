@@ -4,7 +4,6 @@ import kr.rtuserver.framework.bukkit.api.RSPlugin;
 import kr.rtuserver.framework.bukkit.api.format.ComponentFormatter;
 import kr.rtuserver.protoweaver.api.protocol.internal.BroadcastChat;
 import lombok.Getter;
-import lombok.Setter;
 import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.text.Component;
 import org.bukkit.command.CommandSender;
@@ -16,7 +15,6 @@ public class PlayerChat {
 
     private final RSPlugin plugin;
     @Getter
-    @Setter
     private Audience receiver;
 
     PlayerChat(RSPlugin plugin, Audience audience) {

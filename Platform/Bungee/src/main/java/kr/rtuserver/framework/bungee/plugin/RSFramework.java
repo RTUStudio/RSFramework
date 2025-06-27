@@ -1,6 +1,6 @@
 package kr.rtuserver.framework.bungee.plugin;
 
-import kr.rtuserver.protoweaver.api.impl.bungee.BungeeProtoWeaver;
+import kr.rtuserver.protoweaver.bungee.api.BungeeProtoWeaver;
 import lombok.extern.slf4j.Slf4j;
 import net.md_5.bungee.api.plugin.Plugin;
 
@@ -34,7 +34,7 @@ public class RSFramework extends Plugin {
     @Override
     public void onEnable() {
         log.info("RSFramework Bungee loaded.");
-        protoWeaver = new kr.rtuserver.protoweaver.core.impl.bungee.BungeeProtoWeaver(getProxy(), getDataFolder().toPath());
+        protoWeaver = new kr.rtuserver.protoweaver.bungee.core.BungeeProtoWeaver(getProxy(), getDataFolder().toPath());
         getProxy().getPluginManager().registerListener(this, protoWeaver);
     }
 

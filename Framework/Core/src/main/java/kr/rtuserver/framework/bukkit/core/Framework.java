@@ -38,7 +38,7 @@ import kr.rtuserver.protoweaver.api.callback.HandlerCallback;
 import kr.rtuserver.protoweaver.api.protocol.Packet;
 import kr.rtuserver.protoweaver.api.protocol.internal.BroadcastChat;
 import kr.rtuserver.protoweaver.api.protocol.internal.StorageSync;
-import kr.rtuserver.protoweaver.core.impl.bukkit.BukkitProtoWeaver;
+import kr.rtuserver.protoweaver.bukkit.core.BukkitProtoWeaver;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import net.kyori.adventure.text.Component;

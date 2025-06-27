@@ -11,8 +11,8 @@ import kr.rtuserver.framework.bukkit.api.listener.RSListener;
 import kr.rtuserver.framework.bukkit.api.nms.NMS;
 import kr.rtuserver.protoweaver.api.ProtoConnectionHandler;
 import kr.rtuserver.protoweaver.api.callback.HandlerCallback;
-import kr.rtuserver.protoweaver.api.impl.bukkit.BukkitProtoWeaver;
 import kr.rtuserver.protoweaver.api.protocol.Packet;
+import kr.rtuserver.protoweaver.bukkit.api.BukkitProtoWeaver;
 import net.kyori.adventure.text.Component;
 import org.bukkit.permissions.PermissionDefault;
 
