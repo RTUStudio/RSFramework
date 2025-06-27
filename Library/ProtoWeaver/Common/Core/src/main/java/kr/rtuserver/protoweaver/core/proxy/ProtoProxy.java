@@ -111,7 +111,7 @@ public class ProtoProxy {
                 // Don't start a new connection if one already exists for this protocol
                 if (client.getCurrentProtocol().toString().equals(protocol.toString())) return;
             }
-            ReflectionUtil.of(server).set("clients", clients);
+            //ReflectionUtil.of(server).set("clients", clients);
             connectClient(protocol, server, clients);
         });
     }
