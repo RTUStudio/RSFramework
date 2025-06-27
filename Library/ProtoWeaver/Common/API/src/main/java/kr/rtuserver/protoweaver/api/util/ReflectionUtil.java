@@ -90,7 +90,7 @@ public class ReflectionUtil {
         try {
             findField(name, clazz).set(instance, value);
         } catch (NoSuchFieldException | IllegalAccessException e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException(name + "/" + value + "/" + e);
         }
         return this;
     }
