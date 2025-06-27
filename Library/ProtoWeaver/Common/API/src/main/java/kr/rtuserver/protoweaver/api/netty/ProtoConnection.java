@@ -7,6 +7,7 @@ import kr.rtuserver.protoweaver.api.ProtoConnectionHandler;
 import kr.rtuserver.protoweaver.api.protocol.CompressionType;
 import kr.rtuserver.protoweaver.api.protocol.Protocol;
 import kr.rtuserver.protoweaver.api.protocol.Side;
+import kr.rtuserver.protoweaver.api.protocol.internal.InternalPacket;
 import lombok.Getter;
 import lombok.NonNull;
 
@@ -130,7 +131,7 @@ public class ProtoConnection {
     }
 
     /**
-     * Sends a {@link Object} to the connected peer.
+     * Sends a {@link InternalPacket} to the connected peer.
      *
      * @return A {@link Sender} that can be used to close the connection after the packets is sent.
      */

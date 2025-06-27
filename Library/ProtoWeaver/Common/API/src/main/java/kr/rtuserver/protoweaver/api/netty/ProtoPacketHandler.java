@@ -6,6 +6,7 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.ByteToMessageDecoder;
 import kr.rtuserver.protoweaver.api.ProtoConnectionHandler;
 import kr.rtuserver.protoweaver.api.protocol.Side;
+import kr.rtuserver.protoweaver.api.protocol.internal.InternalPacket;
 import kr.rtuserver.protoweaver.api.util.DrunkenBishop;
 import kr.rtuserver.protoweaver.api.util.ProtoConstants;
 import kr.rtuserver.protoweaver.api.util.ProtoLogger;

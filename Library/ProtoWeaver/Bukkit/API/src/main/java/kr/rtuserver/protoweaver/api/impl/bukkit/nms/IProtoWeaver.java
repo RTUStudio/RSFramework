@@ -9,8 +9,12 @@ public interface IProtoWeaver extends ProtoLogger.IProtoLogger {
     boolean isModernProxy();
 
     default boolean isPaper() {
+        return hasClass("com.destroystokyo.paper.PaperConfig") || hasClass("io.papermc.paper.configuration.Configuration");
+    }
+
+    default boolean hasClass(String className) {
         try {
-            Class.forName("com.destroystokyo.paper.PaperConfig");
+            Class.forName(className);
             return true;
         } catch (ClassNotFoundException e) {
             return false;

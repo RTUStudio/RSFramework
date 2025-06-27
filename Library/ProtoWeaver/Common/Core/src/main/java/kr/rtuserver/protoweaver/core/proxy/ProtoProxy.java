@@ -2,7 +2,6 @@ package kr.rtuserver.protoweaver.core.proxy;
 
 import kr.rtuserver.protoweaver.api.ProtoWeaver;
 import kr.rtuserver.protoweaver.api.client.ProtoClient;
-import kr.rtuserver.protoweaver.api.netty.ProtoConnection;
 import kr.rtuserver.protoweaver.api.protocol.Protocol;
 import kr.rtuserver.protoweaver.api.protocol.Side;
 import kr.rtuserver.protoweaver.api.proxy.ProtoServer;
@@ -17,7 +16,6 @@ import java.net.SocketAddress;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -51,14 +49,14 @@ public class ProtoProxy {
      * @return A {@link ProtoServer} that is registered to this proxy instance.
      */
     public static Optional<ProtoServer> getRegisteredServer(String name) {
-        return getRegisteredServers().stream().filter(s -> s.getName().equals(name)).findFirst();
+        return getRegisteredServers().stream().filter(s -> s.name().equals(name)).findFirst();
     }
 
     /**
      * @return A {@link ProtoServer} that is registered to this proxy instance.
      */
     public static Optional<ProtoServer> getRegisteredServer(SocketAddress address) {
-        return getRegisteredServers().stream().filter(s -> s.getAddress().equals(address)).findFirst();
+        return getRegisteredServers().stream().filter(s -> s.address().equals(address)).findFirst();
     }
 
     /**
@@ -75,16 +73,16 @@ public class ProtoProxy {
         return connected;
     }
 
-    /**
-     * Returns a {@link ProtoServer} with a matching {@link ProtoConnection}.
-     *
-     * @param connection the connection to match.
-     */
-    public static Optional<ProtoServer> getConnectedServer(ProtoConnection connection) {
-        return getConnectedServers(connection.getProtocol()).stream()
-                .filter(server -> server.getConnection(connection.getProtocol()).map(con -> Objects.equals(con, connection)).orElse(false))
-                .findFirst();
-    }
+//    /**
+//     * Returns a {@link ProtoServer} with a matching {@link ProtoConnection}.
+//     *
+//     * @param connection the connection to match.
+//     */
+//    public static Optional<ProtoServer> getConnectedServer(ProtoConnection connection) {
+//        return getConnectedServers(connection.getProtocol()).stream()
+//                .filter(server -> server.getConnection(connection.getProtocol()).map(con -> Objects.equals(con, connection)).orElse(false))
+//                .findFirst();
+//    }
 
     /**
      * Returns a {@link ProtoServer} connected on the supplied {@link Protocol}.
@@ -93,7 +91,7 @@ public class ProtoProxy {
      * @param name     the name of the server.
      */
     public static Optional<ProtoServer> getConnectedServer(@NonNull Protocol protocol, String name) {
-        return getConnectedServers(protocol).stream().filter(s -> s.getName().equals(name)).findFirst();
+        return getConnectedServers(protocol).stream().filter(s -> s.name().equals(name)).findFirst();
     }
 
     /**
@@ -103,7 +101,7 @@ public class ProtoProxy {
      * @param address  the address of the server.
      */
     public static Optional<ProtoServer> getConnectedServer(@NonNull Protocol protocol, SocketAddress address) {
-        return getConnectedServers(protocol).stream().filter(s -> s.getAddress().equals(address)).findFirst();
+        return getConnectedServers(protocol).stream().filter(s -> s.address().equals(address)).findFirst();
     }
 
     private void startProtocol(Protocol protocol) {
@@ -119,7 +117,7 @@ public class ProtoProxy {
     }
 
     private void connectClient(Protocol protocol, ProtoServer server, ArrayList<ProtoClient> clients) {
-        ProtoClient client = new ProtoClient((InetSocketAddress) server.getAddress(), hostsFile);
+        ProtoClient client = new ProtoClient((InetSocketAddress) server.address(), hostsFile);
         client.connect(protocol).onConnectionLost(connection -> {
             clients.remove(client);
 

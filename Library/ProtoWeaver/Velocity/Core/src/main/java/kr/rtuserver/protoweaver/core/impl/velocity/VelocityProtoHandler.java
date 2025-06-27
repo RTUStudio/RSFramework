@@ -1,4 +1,4 @@
-package kr.rtuserver.protoweaver.api.impl.bungee;
+package kr.rtuserver.protoweaver.core.impl.velocity;
 
 import com.google.common.collect.ImmutableList;
 import kr.rtuserver.protoweaver.api.ProtoConnectionHandler;
@@ -8,16 +8,24 @@ import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.List;
 
 @Slf4j(topic = "RSF/ProtoHandler")
 @NoArgsConstructor(force = true)
 @RequiredArgsConstructor
-public class BungeeProtoHandler implements ProtoConnectionHandler {
+public class VelocityProtoHandler implements ProtoConnectionHandler {
 
     private static final List<ProtoConnection> servers = new ArrayList<>();
     private final HandlerCallback callable;
+
+    public static ProtoConnection getServer(InetSocketAddress address) {
+        for (ProtoConnection server : getServers()) {
+            if (server.getRemoteAddress().equals(address)) return server;
+        }
+        return null;
+    }
 
     public static List<ProtoConnection> getServers() {
         List<ProtoConnection> result = new ArrayList<>();

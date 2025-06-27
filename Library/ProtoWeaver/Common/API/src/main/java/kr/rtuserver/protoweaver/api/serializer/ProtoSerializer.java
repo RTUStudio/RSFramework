@@ -1,4 +1,4 @@
-package kr.rtuserver.protoweaver.api;
+package kr.rtuserver.protoweaver.api.serializer;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;

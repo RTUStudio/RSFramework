@@ -1,30 +1,29 @@
 package kr.rtuserver.protoweaver.core.impl.velocity;
 
-import com.google.gson.JsonObject;
 import com.moandjiezana.toml.Toml;
 import com.velocitypowered.api.event.Subscribe;
 import com.velocitypowered.api.event.connection.DisconnectEvent;
-import com.velocitypowered.api.event.connection.PostLoginEvent;
+import com.velocitypowered.api.event.player.ServerPostConnectEvent;
 import com.velocitypowered.api.event.proxy.ProxyShutdownEvent;
 import com.velocitypowered.api.event.proxy.server.ServerRegisteredEvent;
 import com.velocitypowered.api.event.proxy.server.ServerUnregisteredEvent;
 import com.velocitypowered.api.proxy.Player;
 import com.velocitypowered.api.proxy.ProxyServer;
+import com.velocitypowered.api.proxy.ServerConnection;
+import com.velocitypowered.api.proxy.server.RegisteredServer;
 import com.velocitypowered.api.proxy.server.ServerInfo;
 import kr.rtuserver.protoweaver.api.ProtoConnectionHandler;
-import kr.rtuserver.protoweaver.api.ProxyPlayer;
 import kr.rtuserver.protoweaver.api.callback.HandlerCallback;
-import kr.rtuserver.protoweaver.api.impl.velocity.VelocityProtoHandler;
+import kr.rtuserver.protoweaver.api.netty.ProtoConnection;
 import kr.rtuserver.protoweaver.api.protocol.CompressionType;
 import kr.rtuserver.protoweaver.api.protocol.Packet;
 import kr.rtuserver.protoweaver.api.protocol.Protocol;
-import kr.rtuserver.protoweaver.api.protocol.internal.CustomPacket;
-import kr.rtuserver.protoweaver.api.protocol.internal.PlayerList;
-import kr.rtuserver.protoweaver.api.protocol.internal.ProtocolRegister;
-import kr.rtuserver.protoweaver.api.protocol.internal.StorageSync;
-import kr.rtuserver.protoweaver.api.protocol.serializer.CustomPacketSerializer;
+import kr.rtuserver.protoweaver.api.protocol.internal.*;
 import kr.rtuserver.protoweaver.api.protocol.velocity.VelocityAuth;
 import kr.rtuserver.protoweaver.api.proxy.ProtoServer;
+import kr.rtuserver.protoweaver.api.proxy.ProxyPlayer;
+import kr.rtuserver.protoweaver.api.proxy.request.TeleportRequest;
+import kr.rtuserver.protoweaver.api.serializer.CustomPacketSerializer;
 import kr.rtuserver.protoweaver.api.util.ProtoLogger;
 import kr.rtuserver.protoweaver.core.protocol.protoweaver.ServerPacketHandler;
 import kr.rtuserver.protoweaver.core.proxy.ProtoProxy;
@@ -35,9 +34,8 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Slf4j(topic = "RSF/ProtoWeaver")
 @Getter
@@ -50,6 +48,7 @@ public class VelocityProtoWeaver implements kr.rtuserver.protoweaver.api.impl.ve
     private final Path dir;
 
     private final ProtoProxy protoProxy;
+    private final ConcurrentHashMap<UUID, TeleportRequest> teleportRequests = new ConcurrentHashMap<>();
     private final HandlerCallback callable = new HandlerCallback(null, this::onPacket);
 
     public VelocityProtoWeaver(ProxyServer server, Path dir) {
@@ -64,13 +63,14 @@ public class VelocityProtoWeaver implements kr.rtuserver.protoweaver.api.impl.ve
         protocol.addPacket(ProtocolRegister.class);
         protocol.addPacket(Packet.class);
 
+        protocol.addPacket(StorageSync.class);
+        protocol.addPacket(BroadcastChat.class);
+
         protocol.addPacket(ProxyPlayer.class);
         protocol.addPacket(PlayerList.class);
-        protocol.addPacket(StorageSync.class);
-        protocol.addPacket(JsonObject.class);
+        protocol.addPacket(TeleportRequest.class);
         if (isModernProxy()) {
             info("Detected modern proxy");
-            protocol.setServerAuthHandler(VelocityAuth.class);
             protocol.setClientAuthHandler(VelocityAuth.class);
         }
         protocol.setClientHandler(VelocityProtoHandler.class, callable).load();
@@ -131,8 +131,17 @@ public class VelocityProtoWeaver implements kr.rtuserver.protoweaver.api.impl.ve
     }
 
     @Subscribe
-    private void onJoin(PostLoginEvent e) {
+    private void onJoin(ServerPostConnectEvent e) {
         updatePlayerList();
+        Player player = e.getPlayer();
+        Optional<ServerConnection> scOptional = player.getCurrentServer();
+        if (scOptional.isEmpty()) return;
+        ServerConnection serverConnection = scOptional.get();
+        ServerInfo info = serverConnection.getServerInfo();
+        ProtoConnection connection = VelocityProtoHandler.getServer(info.getAddress());
+        if (connection == null) return;
+        TeleportRequest tpr = teleportRequests.get(player.getUniqueId());
+        if (tpr != null) connection.send(tpr);
     }
 
     @Subscribe
@@ -142,8 +151,14 @@ public class VelocityProtoWeaver implements kr.rtuserver.protoweaver.api.impl.ve
 
     private void updatePlayerList() {
         List<ProxyPlayer> players = new ArrayList<>();
-        for (Player player : server.getAllPlayers())
+        for (Player player : server.getAllPlayers()) {
+//            Optional<ServerConnection> optional = player.getCurrentServer();
+//            if (optional.isEmpty()) continue;
+//            ServerConnection connection = optional.get();
+//            ServerInfo info = connection.getServerInfo();
+//            ProtoServer server = new ProtoServer(info.getName(), info.getAddress());
             players.add(new ProxyPlayer(player.getUniqueId(), player.getUsername()));
+        }
         VelocityProtoHandler.getServers().forEach(server -> server.send(new PlayerList(players)));
     }
 
@@ -168,8 +183,22 @@ public class VelocityProtoWeaver implements kr.rtuserver.protoweaver.api.impl.ve
     }
 
     private void onPacket(HandlerCallback.Packet data) {
-        if (data.packet() instanceof ProtocolRegister(String namespace, String key, Set<Packet> packets)) {
+        Object packet = data.packet();
+        if (packet instanceof ProtocolRegister(String namespace, String key, Set<Packet> packets)) {
             registerProtocol(namespace, key, packets, ServerPacketHandler.class, null);
+        } else if (packet instanceof TeleportRequest request) {
+            Optional<RegisteredServer> optionalServer = this.server.getServer(request.location().server());
+            if (optionalServer.isEmpty()) return;
+            Optional<Player> optionalPlayer = this.server.getPlayer(request.player().uuid());
+            if (optionalPlayer.isEmpty()) return;
+            RegisteredServer targetServer = optionalServer.get();
+            Player targetPlayer = optionalPlayer.get();
+            teleportRequests.put(targetPlayer.getUniqueId(), request);
+            targetPlayer.createConnectionRequest(targetServer).connectWithIndication().whenComplete((result, throwable) -> {
+                if (throwable != null) teleportRequests.remove(targetPlayer.getUniqueId());
+                else if (!result) teleportRequests.remove(targetPlayer.getUniqueId());
+                else System.out.println("성공");
+            });
         }
     }
 

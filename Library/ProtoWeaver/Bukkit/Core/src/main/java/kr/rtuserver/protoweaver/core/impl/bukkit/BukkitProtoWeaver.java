@@ -1,10 +1,7 @@
 package kr.rtuserver.protoweaver.core.impl.bukkit;
 
-import com.google.gson.JsonObject;
 import kr.rtuserver.protoweaver.api.ProtoConnectionHandler;
-import kr.rtuserver.protoweaver.api.ProxyPlayer;
 import kr.rtuserver.protoweaver.api.callback.HandlerCallback;
-import kr.rtuserver.protoweaver.api.impl.bukkit.BukkitProtoHandler;
 import kr.rtuserver.protoweaver.api.impl.bukkit.nms.IProtoWeaver;
 import kr.rtuserver.protoweaver.api.netty.ProtoConnection;
 import kr.rtuserver.protoweaver.api.netty.Sender;
@@ -12,8 +9,11 @@ import kr.rtuserver.protoweaver.api.protocol.CompressionType;
 import kr.rtuserver.protoweaver.api.protocol.Packet;
 import kr.rtuserver.protoweaver.api.protocol.Protocol;
 import kr.rtuserver.protoweaver.api.protocol.internal.*;
-import kr.rtuserver.protoweaver.api.protocol.serializer.CustomPacketSerializer;
 import kr.rtuserver.protoweaver.api.protocol.velocity.VelocityAuth;
+import kr.rtuserver.protoweaver.api.proxy.ProxyLocation;
+import kr.rtuserver.protoweaver.api.proxy.ProxyPlayer;
+import kr.rtuserver.protoweaver.api.proxy.request.TeleportRequest;
+import kr.rtuserver.protoweaver.api.serializer.CustomPacketSerializer;
 import kr.rtuserver.protoweaver.core.impl.bukkit.nms.v1_17_r1.ProtoWeaver_1_17_R1;
 import kr.rtuserver.protoweaver.core.impl.bukkit.nms.v1_18_r1.ProtoWeaver_1_18_R1;
 import kr.rtuserver.protoweaver.core.impl.bukkit.nms.v1_18_r2.ProtoWeaver_1_18_R2;
@@ -31,6 +31,9 @@ import kr.rtuserver.protoweaver.core.impl.bukkit.nms.v1_21_r4.ProtoWeaver_1_21_R
 import kr.rtuserver.protoweaver.core.protocol.protoweaver.ProxyPacketHandler;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
+import org.bukkit.Bukkit;
+import org.bukkit.Location;
+import org.bukkit.entity.Player;
 
 import java.util.HashSet;
 import java.util.List;
@@ -76,13 +79,14 @@ public class BukkitProtoWeaver implements kr.rtuserver.protoweaver.api.impl.bukk
         protocol.addPacket(ProtocolRegister.class);
         protocol.addPacket(Packet.class);
 
+        protocol.addPacket(StorageSync.class);
+        protocol.addPacket(BroadcastChat.class);
+
         protocol.addPacket(ProxyPlayer.class);
         protocol.addPacket(PlayerList.class);
-        protocol.addPacket(StorageSync.class);
-        protocol.addPacket(JsonObject.class);
+        protocol.addPacket(TeleportRequest.class);
         if (isModernProxy) {
             protocol.setServerAuthHandler(VelocityAuth.class);
-            protocol.setClientAuthHandler(VelocityAuth.class);
         }
         protocol.setServerHandler(BukkitProtoHandler.class, this.callback).load();
     }
@@ -113,10 +117,18 @@ public class BukkitProtoWeaver implements kr.rtuserver.protoweaver.api.impl.bukk
         unregistered.removeAll(toRemove);
     }
 
-    public void onPacket(HandlerCallback.Packet packet) {
-        if (packet.packet() instanceof PlayerList(List<ProxyPlayer> players1)) {
-            players.clear();
-            players.addAll(players1);
+    public void onPacket(HandlerCallback.Packet data) {
+        Object packet = data.packet();
+        if (packet instanceof PlayerList(List<ProxyPlayer> players)) {
+            this.players.clear();
+            this.players.addAll(players);
+        } else if (packet instanceof TeleportRequest request) {
+            Player player = Bukkit.getPlayer(request.player().uuid());
+            if (player == null) return;
+            ProxyLocation proxyLocation = request.location();
+            Location location = new Location(player.getWorld(), proxyLocation.x(), proxyLocation.y(), proxyLocation.z(), proxyLocation.yaw(), proxyLocation.pitch());
+            if (protoWeaver.isPaper()) player.teleportAsync(location);
+            else player.teleport(location);
         }
     }
 

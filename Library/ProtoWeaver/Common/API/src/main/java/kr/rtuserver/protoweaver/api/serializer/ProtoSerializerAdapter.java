@@ -1,4 +1,4 @@
-package kr.rtuserver.protoweaver.api;
+package kr.rtuserver.protoweaver.api.serializer;
 
 import org.apache.fury.Fury;
 import org.apache.fury.memory.MemoryBuffer;

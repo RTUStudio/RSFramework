@@ -1,6 +1,7 @@
 package kr.rtuserver.protoweaver.api.protocol;
 
-import kr.rtuserver.protoweaver.api.ProtoSerializer;
+import kr.rtuserver.protoweaver.api.protocol.internal.InternalPacket;
+import kr.rtuserver.protoweaver.api.serializer.ProtoSerializer;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -9,7 +10,7 @@ import lombok.ToString;
 @Getter
 @ToString
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
-public class Packet {
+public class Packet implements InternalPacket {
 
     private final Class<?> packet;
     private final Class<? extends ProtoSerializer<?>> serializer;

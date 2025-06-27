@@ -1,14 +1,14 @@
 package kr.rtuserver.protoweaver.api.protocol;
 
 import kr.rtuserver.protoweaver.api.ProtoConnectionHandler;
-import kr.rtuserver.protoweaver.api.ProtoSerializer;
 import kr.rtuserver.protoweaver.api.ProtoWeaver;
 import kr.rtuserver.protoweaver.api.netty.ProtoConnection;
 import kr.rtuserver.protoweaver.api.protocol.handler.auth.ClientAuthHandler;
 import kr.rtuserver.protoweaver.api.protocol.handler.auth.ServerAuthHandler;
 import kr.rtuserver.protoweaver.api.protocol.internal.CustomPacket;
 import kr.rtuserver.protoweaver.api.protocol.internal.GlobalPacket;
-import kr.rtuserver.protoweaver.api.protocol.serializer.CustomPacketSerializer;
+import kr.rtuserver.protoweaver.api.serializer.CustomPacketSerializer;
+import kr.rtuserver.protoweaver.api.serializer.ProtoSerializer;
 import kr.rtuserver.protoweaver.api.util.ObjectSerializer;
 import kr.rtuserver.protoweaver.api.util.ProtoLogger;
 import lombok.*;

@@ -1,10 +1,10 @@
 package kr.rtuserver.protoweaver.api.util;
 
 import com.google.gson.Gson;
-import kr.rtuserver.protoweaver.api.ProtoSerializer;
-import kr.rtuserver.protoweaver.api.ProtoSerializerAdapter;
 import kr.rtuserver.protoweaver.api.protocol.internal.CustomPacket;
-import kr.rtuserver.protoweaver.api.protocol.serializer.CustomPacketSerializer;
+import kr.rtuserver.protoweaver.api.serializer.CustomPacketSerializer;
+import kr.rtuserver.protoweaver.api.serializer.ProtoSerializer;
+import kr.rtuserver.protoweaver.api.serializer.ProtoSerializerAdapter;
 import lombok.SneakyThrows;
 import org.apache.fury.Fury;
 import org.apache.fury.config.CompatibleMode;

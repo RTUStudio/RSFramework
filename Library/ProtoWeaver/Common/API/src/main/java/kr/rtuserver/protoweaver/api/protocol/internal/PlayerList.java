@@ -1,6 +1,6 @@
 package kr.rtuserver.protoweaver.api.protocol.internal;
 
-import kr.rtuserver.protoweaver.api.ProxyPlayer;
+import kr.rtuserver.protoweaver.api.proxy.ProxyPlayer;
 
 import java.util.List;
 

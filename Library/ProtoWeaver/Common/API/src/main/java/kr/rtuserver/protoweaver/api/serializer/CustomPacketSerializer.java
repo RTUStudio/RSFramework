@@ -1,6 +1,5 @@
-package kr.rtuserver.protoweaver.api.protocol.serializer;
+package kr.rtuserver.protoweaver.api.serializer;
 
-import kr.rtuserver.protoweaver.api.ProtoSerializer;
 import kr.rtuserver.protoweaver.api.protocol.internal.CustomPacket;
 import org.apache.fury.memory.Platform;
 
