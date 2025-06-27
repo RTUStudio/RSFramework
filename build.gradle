@@ -61,7 +61,7 @@ allprojects {
             url = "https://nexus.phoenixdevt.fr/repository/maven-public/"
         }
         maven {
-            url = "https://repo.nexomc.com/snapshots/"
+            url = "https://repo.nexomc.com/releases/"
         }
         maven {
             url = "https://repo.auxilor.io/repository/maven-public/"
