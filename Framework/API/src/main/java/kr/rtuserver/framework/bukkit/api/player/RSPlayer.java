@@ -10,6 +10,7 @@ import kr.rtuserver.protoweaver.bukkit.api.BukkitProtoWeaver;
 import lombok.Getter;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
@@ -65,22 +66,25 @@ public class RSPlayer extends ProxyPlayer {
         } else return true;
     }
 
-    public CompletableFuture<Boolean> teleport(@NotNull String server, Location location) {
+    public CompletableFuture<Boolean> teleport(@NotNull ProxyLocation location) {
         BukkitProtoWeaver protoWeaver = framework().getProtoWeaver();
         if (update()) {
-            if (server.equalsIgnoreCase(getServer())) return teleport(location);
+            if (location.server().equalsIgnoreCase(getServer())) {
+                World world = Bukkit.getWorld(location.world());
+                if (world == null) return CompletableFuture.completedFuture(false);
+                return teleport(new Location(world, location.x(), location.y(), location.z(), location.yaw(), location.pitch()));
+            }
             if (protoWeaver.isConnected()) {
-                ProxyLocation proxyLocation = new ProxyLocation(server, location.getWorld().getName(), location.getX(), location.getY(), location.getZ(), location.getYaw(), location.getPitch());
-                return CompletableFuture.supplyAsync(() -> protoWeaver.sendPacket(new TeleportRequest.Location(this, proxyLocation)));
+                return CompletableFuture.supplyAsync(() -> protoWeaver.sendPacket(new TeleportRequest.Location(this, location)));
             }
         }
         return CompletableFuture.completedFuture(false);
     }
 
-    public CompletableFuture<Boolean> teleport(@NotNull String server, ProxyPlayer player) {
+    public CompletableFuture<Boolean> teleport(@NotNull ProxyPlayer player) {
         BukkitProtoWeaver protoWeaver = framework().getProtoWeaver();
         if (update()) {
-            if (server.equalsIgnoreCase(getServer())) {
+            if (player.getServer().equalsIgnoreCase(getServer())) {
                 Player target = Bukkit.getPlayer(player.getUniqueId());
                 if (target == null) return CompletableFuture.completedFuture(false);
                 return teleport(target.getLocation());
@@ -97,6 +101,18 @@ public class RSPlayer extends ProxyPlayer {
         else {
             try {
                 player.teleport(location);
+                return CompletableFuture.completedFuture(true);
+            } catch (Exception e) {
+                return CompletableFuture.completedFuture(false);
+            }
+        }
+    }
+
+    public CompletableFuture<Boolean> teleport(Player target) {
+        if (MinecraftVersion.isPaper()) return player.teleportAsync(target.getLocation());
+        else {
+            try {
+                player.teleport(target.getLocation());
                 return CompletableFuture.completedFuture(true);
             } catch (Exception e) {
                 return CompletableFuture.completedFuture(false);
