@@ -140,7 +140,7 @@ public class Json implements Storage {
                 JsonElement resultValue = list.get(key);
                 if (resultValue == null || resultValue.isJsonNull()) return false;
                 JsonObject valObj = resultValue.getAsJsonObject();
-                if (value == null || value.isJsonNull()) toRemove.add(key);
+                if (isNull(value)) toRemove.add(key);
                 else {
                     for (Map.Entry<String, JsonElement> entry : value.entrySet()) {
                         String property = entry.getKey();
