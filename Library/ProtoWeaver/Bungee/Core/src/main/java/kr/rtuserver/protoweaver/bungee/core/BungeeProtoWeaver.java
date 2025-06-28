@@ -10,6 +10,7 @@ import kr.rtuserver.protoweaver.api.protocol.internal.*;
 import kr.rtuserver.protoweaver.api.proxy.ProtoServer;
 import kr.rtuserver.protoweaver.api.proxy.ProxyLocation;
 import kr.rtuserver.protoweaver.api.proxy.ProxyPlayer;
+import kr.rtuserver.protoweaver.api.proxy.request.Request;
 import kr.rtuserver.protoweaver.api.proxy.request.TeleportRequest;
 import kr.rtuserver.protoweaver.api.serializer.CustomPacketSerializer;
 import kr.rtuserver.protoweaver.api.util.ProtoLogger;
@@ -57,6 +58,7 @@ public class BungeeProtoWeaver implements kr.rtuserver.protoweaver.bungee.api.Bu
         protocol.addPacket(StorageSync.class);
         protocol.addPacket(BroadcastChat.class);
 
+        protocol.addPacket(ServerName.class);
         protocol.addPacket(ProxyPlayer.class);
         protocol.addPacket(PlayerList.class);
         protocol.addPacket(TeleportRequest.class);
@@ -161,8 +163,7 @@ public class BungeeProtoWeaver implements kr.rtuserver.protoweaver.bungee.api.Bu
         if (packet instanceof ProtocolRegister(String namespace, String key, Set<Packet> packets)) {
             registerProtocol(namespace, key, packets, ServerPacketHandler.class, null);
         } else if (packet instanceof TeleportRequest request) {
-            ProxyLocation location = request.location();
-            ServerInfo info = this.server.getServerInfo(location.server());
+            ServerInfo info = this.server.getServerInfo(request.server());
             if (info == null) return;
             ProxiedPlayer player = this.server.getPlayer(request.player().getUniqueId());
             if (player == null) return;

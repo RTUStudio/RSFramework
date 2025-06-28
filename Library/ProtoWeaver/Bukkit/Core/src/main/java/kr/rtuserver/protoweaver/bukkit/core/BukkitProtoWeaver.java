@@ -33,6 +33,7 @@ import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.World;
 import org.bukkit.entity.Player;
 
 import java.util.*;
@@ -81,6 +82,7 @@ public class BukkitProtoWeaver implements kr.rtuserver.protoweaver.bukkit.api.Bu
         protocol.addPacket(StorageSync.class);
         protocol.addPacket(BroadcastChat.class);
 
+        protocol.addPacket(ServerName.class);
         protocol.addPacket(ProxyPlayer.class);
         protocol.addPacket(PlayerList.class);
         protocol.addPacket(TeleportRequest.class);
@@ -124,8 +126,19 @@ public class BukkitProtoWeaver implements kr.rtuserver.protoweaver.bukkit.api.Bu
         } else if (packet instanceof TeleportRequest request) {
             Player player = Bukkit.getPlayer(request.player().getUniqueId());
             if (player == null) return;
-            ProxyLocation proxyLocation = request.location();
-            Location location = new Location(player.getWorld(), proxyLocation.x(), proxyLocation.y(), proxyLocation.z(), proxyLocation.yaw(), proxyLocation.pitch());
+            Location location = null;
+            if (request instanceof TeleportRequest.Location trl) {
+                ProxyLocation loc = trl.location();
+                World world = Bukkit.getWorld(loc.world());
+                if (world == null) return;
+                location = new Location(world, loc.x(), loc.y(), loc.z(), loc.yaw(), loc.pitch());
+            } else if (request instanceof TeleportRequest.Player trp) {
+                ProxyPlayer loc = trp.location();
+                Player target = Bukkit.getPlayer(loc.getUniqueId());
+                if (target == null) return;
+                location = target.getLocation();
+            }
+            if (location == null) return;
             if (protoWeaver.isPaper()) player.teleportAsync(location);
             else player.teleport(location);
         } else if (packet instanceof ServerName(String name)) {

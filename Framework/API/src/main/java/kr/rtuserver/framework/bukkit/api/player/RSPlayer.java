@@ -13,6 +13,7 @@ import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
@@ -48,7 +49,7 @@ public class RSPlayer extends ProxyPlayer {
         BukkitProtoWeaver protoWeaver = framework().getProtoWeaver();
         boolean isConnected = protoWeaver.isConnected();
         if (isConnected && includeProxy) {
-            return protoWeaver.getPlayers().values().stream().map(p -> (RSPlayer) p).collect(Collectors.toSet());
+            return new HashSet<>(protoWeaver.getPlayers().values());
         } else {
             return Bukkit.getOnlinePlayers().stream().map(RSPlayer::new).collect(Collectors.toSet());
         }
@@ -70,7 +71,22 @@ public class RSPlayer extends ProxyPlayer {
             if (server.equalsIgnoreCase(getServer())) return teleport(location);
             if (protoWeaver.isConnected()) {
                 ProxyLocation proxyLocation = new ProxyLocation(server, location.getWorld().getName(), location.getX(), location.getY(), location.getZ(), location.getYaw(), location.getPitch());
-                return CompletableFuture.supplyAsync(() -> protoWeaver.sendPacket(new TeleportRequest(this, proxyLocation)));
+                return CompletableFuture.supplyAsync(() -> protoWeaver.sendPacket(new TeleportRequest.Location(this, proxyLocation)));
+            }
+        }
+        return CompletableFuture.completedFuture(false);
+    }
+
+    public CompletableFuture<Boolean> teleport(@NotNull String server, ProxyPlayer player) {
+        BukkitProtoWeaver protoWeaver = framework().getProtoWeaver();
+        if (update()) {
+            if (server.equalsIgnoreCase(getServer())) {
+                Player target = Bukkit.getPlayer(player.getUniqueId());
+                if (target == null) return CompletableFuture.completedFuture(false);
+                return teleport(target.getLocation());
+            }
+            if (protoWeaver.isConnected()) {
+                return CompletableFuture.supplyAsync(() -> protoWeaver.sendPacket(new TeleportRequest.Player(this, player)));
             }
         }
         return CompletableFuture.completedFuture(false);

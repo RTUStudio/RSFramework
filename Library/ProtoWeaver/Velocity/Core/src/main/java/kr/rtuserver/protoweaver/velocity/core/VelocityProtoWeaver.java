@@ -23,6 +23,7 @@ import kr.rtuserver.protoweaver.api.protocol.internal.*;
 import kr.rtuserver.protoweaver.api.protocol.velocity.VelocityAuth;
 import kr.rtuserver.protoweaver.api.proxy.ProtoServer;
 import kr.rtuserver.protoweaver.api.proxy.ProxyPlayer;
+import kr.rtuserver.protoweaver.api.proxy.request.Request;
 import kr.rtuserver.protoweaver.api.proxy.request.TeleportRequest;
 import kr.rtuserver.protoweaver.api.serializer.CustomPacketSerializer;
 import kr.rtuserver.protoweaver.api.util.ProtoLogger;
@@ -67,6 +68,7 @@ public class VelocityProtoWeaver implements kr.rtuserver.protoweaver.velocity.ap
         protocol.addPacket(StorageSync.class);
         protocol.addPacket(BroadcastChat.class);
 
+        protocol.addPacket(ServerName.class);
         protocol.addPacket(ProxyPlayer.class);
         protocol.addPacket(PlayerList.class);
         protocol.addPacket(TeleportRequest.class);
@@ -207,7 +209,7 @@ public class VelocityProtoWeaver implements kr.rtuserver.protoweaver.velocity.ap
         if (packet instanceof ProtocolRegister(String namespace, String key, Set<Packet> packets)) {
             registerProtocol(namespace, key, packets, ServerPacketHandler.class, null);
         } else if (packet instanceof TeleportRequest request) {
-            Optional<RegisteredServer> optionalServer = this.server.getServer(request.location().server());
+            Optional<RegisteredServer> optionalServer = this.server.getServer(request.server());
             if (optionalServer.isEmpty()) return;
             Optional<Player> optionalPlayer = this.server.getPlayer(request.player().getUniqueId());
             if (optionalPlayer.isEmpty()) return;
