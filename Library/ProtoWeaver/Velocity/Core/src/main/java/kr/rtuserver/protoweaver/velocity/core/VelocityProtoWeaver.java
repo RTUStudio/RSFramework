@@ -71,7 +71,8 @@ public class VelocityProtoWeaver implements kr.rtuserver.protoweaver.velocity.ap
         protocol.addPacket(ServerName.class);
         protocol.addPacket(ProxyPlayer.class);
         protocol.addPacket(PlayerList.class);
-        protocol.addPacket(TeleportRequest.class);
+        protocol.addPacket(TeleportRequest.Location.class);
+        protocol.addPacket(TeleportRequest.Player.class);
         if (isModernProxy()) {
             info("Detected modern proxy");
             protocol.setClientAuthHandler(VelocityAuth.class);
