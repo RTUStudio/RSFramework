@@ -25,12 +25,13 @@ import java.util.stream.Collectors;
 public class RSPlayer extends ProxyPlayer {
 
     static Framework framework;
-    private final Player player;
+
+    public RSPlayer(UUID uniqueId, String name) {
+        super(uniqueId, framework().getProtoWeaver().getServer(), name);
+    }
 
     public RSPlayer(Player player) {
-        super(player.getUniqueId(), null, player.getName());
-        this.player = player;
-        update();
+        this(player.getUniqueId(), player.getName());
     }
 
     static Framework framework() {
@@ -38,8 +39,8 @@ public class RSPlayer extends ProxyPlayer {
         return framework;
     }
 
-    public static ProxyPlayer getPlayer(UUID uuid) {
-        return getPlayers().stream().filter(player -> player.getUniqueId().equals(uuid)).findFirst().orElse(null);
+    public static ProxyPlayer getPlayer(UUID uniqueId) {
+        return getPlayers().stream().filter(player -> player.getUniqueId().equals(uniqueId)).findFirst().orElse(null);
     }
 
     public static Set<ProxyPlayer> getPlayers() {
@@ -57,12 +58,23 @@ public class RSPlayer extends ProxyPlayer {
     }
 
     private boolean update() {
-        setName(player.getName());
         BukkitProtoWeaver protoWeaver = framework().getProtoWeaver();
         setServer(protoWeaver.getServer());
         if (protoWeaver.isConnected()) {
             Map<UUID, ProxyPlayer> players = protoWeaver.getPlayers();
-            return players.containsKey(player.getUniqueId());
+            return players.containsKey(getUniqueId());
+        } else return true;
+    }
+
+    public Player getPlayer() {
+        return Bukkit.getPlayer(getUniqueId());
+    }
+
+    public boolean isOnline() {
+        BukkitProtoWeaver protoWeaver = framework().getProtoWeaver();
+        if (protoWeaver.isConnected()) {
+            Map<UUID, ProxyPlayer> players = protoWeaver.getPlayers();
+            return players.containsKey(getUniqueId());
         } else return true;
     }
 
@@ -97,6 +109,8 @@ public class RSPlayer extends ProxyPlayer {
     }
 
     public CompletableFuture<Boolean> teleport(Location location) {
+        Player player = getPlayer();
+        if (player == null) return CompletableFuture.completedFuture(false);
         if (MinecraftVersion.isPaper()) return player.teleportAsync(location);
         else {
             try {
@@ -109,6 +123,8 @@ public class RSPlayer extends ProxyPlayer {
     }
 
     public CompletableFuture<Boolean> teleport(Player target) {
+        Player player = getPlayer();
+        if (player == null) return CompletableFuture.completedFuture(false);
         if (MinecraftVersion.isPaper()) return player.teleportAsync(target.getLocation());
         else {
             try {

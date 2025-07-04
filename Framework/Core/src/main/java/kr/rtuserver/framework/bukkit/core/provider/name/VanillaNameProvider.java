@@ -8,28 +8,34 @@ import lombok.RequiredArgsConstructor;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.UUID;
 
 public class VanillaNameProvider implements NameProvider {
 
+    @NotNull
     @Override
     public List<String> getNames() {
         return Bukkit.getOnlinePlayers().stream().map(Player::getName).toList();
     }
 
+    @NotNull
     @Override
     public List<String> getNames(boolean includeProxy) {
         if (includeProxy) return RSPlayer.getPlayers(true).stream().map(ProxyPlayer::getName).toList();
         else return getNames();
     }
 
+    @NotNull
     @Override
     public String getName(Player player) {
         return player.getName();
     }
 
+    @Nullable
     @Override
     public Player getPlayer(String name) {
         return Bukkit.getPlayer(name);
@@ -38,6 +44,7 @@ public class VanillaNameProvider implements NameProvider {
     /**
      * 프록시 플레이어를 지원합니다
      */
+    @Nullable
     @Override
     public UUID getUniqueId(String name) {
         for (ProxyPlayer player : RSPlayer.getPlayers()) {

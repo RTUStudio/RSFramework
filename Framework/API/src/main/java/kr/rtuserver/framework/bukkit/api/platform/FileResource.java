@@ -84,7 +84,6 @@ public class FileResource {
         if (!resourceFolder.exists()) {
             try {
                 resourceFolder.mkdirs();
-
             } catch (Exception e) {
                 Bukkit.getLogger().log(Level.WARNING, "Error creating folder " + folder, e);
             }
@@ -93,10 +92,7 @@ public class FileResource {
         if (!resourceFile.exists()) {
             try {
                 resourceFile.createNewFile();
-
             } catch (Exception e) {
-//                Bukkit.getLogger().severe("Error creating file " + file);
-//                e.printStackTrace();
                 Bukkit.getLogger().log(Level.WARNING, "Error creating file " + file, e);
             }
         }
@@ -108,7 +104,6 @@ public class FileResource {
         if (!resourceFolder.exists()) {
             try {
                 resourceFolder.mkdirs();
-
             } catch (Exception e) {
                 Bukkit.getLogger().log(Level.WARNING, "Error creating folder " + folder, e);
             }
@@ -120,7 +115,6 @@ public class FileResource {
         if (!folder.exists()) {
             try {
                 folder.mkdirs();
-
             } catch (Exception e) {
                 Bukkit.getLogger().log(Level.WARNING, "Error creating folder " + folder, e);
             }

@@ -39,7 +39,6 @@ public class InventoryListener extends RSListener<RSPlugin> {
                 getPlugin().getAdventure().player(player).sendMessage(errorMessage);
                 ex.printStackTrace();
             }
-            return;
         }
     }
 
@@ -63,7 +62,6 @@ public class InventoryListener extends RSListener<RSPlugin> {
                 getPlugin().getAdventure().player(player).sendMessage(errorMessage);
                 ex.printStackTrace();
             }
-            return;
         }
     }
 
@@ -85,7 +83,6 @@ public class InventoryListener extends RSListener<RSPlugin> {
                 getPlugin().getAdventure().player(player).sendMessage(errorMessage);
                 ex.printStackTrace();
             }
-            return;
         }
     }
 

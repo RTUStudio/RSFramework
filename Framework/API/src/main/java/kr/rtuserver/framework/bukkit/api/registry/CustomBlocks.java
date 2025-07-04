@@ -53,7 +53,7 @@ public class CustomBlocks {
         }
     }
 
-    @Nullable
+    @NotNull
     public static String to(@NotNull Block block) {
         if (framework().isEnabledDependency("Nexo")) {
             if (NexoBlocks.isCustomBlock(block))

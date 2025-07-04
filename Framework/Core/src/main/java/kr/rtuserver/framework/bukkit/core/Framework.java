@@ -1,5 +1,6 @@
 package kr.rtuserver.framework.bukkit.core;
 
+import com.google.gson.JsonObject;
 import de.tr7zw.changeme.nbtapi.NBT;
 import kr.rtuserver.framework.bukkit.api.RSPlugin;
 import kr.rtuserver.framework.bukkit.api.command.RSCommand;
@@ -33,6 +34,7 @@ import kr.rtuserver.framework.bukkit.nms.v1_21_r1.NMS_1_21_R1;
 import kr.rtuserver.framework.bukkit.nms.v1_21_r2.NMS_1_21_R2;
 import kr.rtuserver.framework.bukkit.nms.v1_21_r3.NMS_1_21_R3;
 import kr.rtuserver.framework.bukkit.nms.v1_21_r4.NMS_1_21_R4;
+import kr.rtuserver.framework.bukkit.nms.v1_21_r5.NMS_1_21_R5;
 import kr.rtuserver.protoweaver.api.ProtoConnectionHandler;
 import kr.rtuserver.protoweaver.api.callback.HandlerCallback;
 import kr.rtuserver.protoweaver.api.protocol.Packet;
@@ -96,13 +98,13 @@ public class Framework implements kr.rtuserver.framework.bukkit.api.core.Framewo
 
     private void onPacket(HandlerCallback.Packet packet) {
         protoWeaver.onPacket(packet);
-        if (packet.packet() instanceof StorageSync sync) {
-            RSPlugin plugin = plugins.get(sync.plugin());
+        if (packet.packet() instanceof StorageSync(String plugin1, String name, JsonObject json)) {
+            RSPlugin plugin = plugins.get(plugin1);
             if (plugin == null) return;
-            plugin.syncStorage(sync.name(), sync.json());
+            plugin.syncStorage(name, json);
         }
-        if (packet.packet() instanceof BroadcastChat chat) {
-            PlayerChat.of(plugin).broadcast(chat.minimessage());
+        if (packet.packet() instanceof BroadcastChat(String minimessage)) {
+            PlayerChat.of(plugin).broadcast(minimessage);
         }
     }
 
@@ -146,7 +148,7 @@ public class Framework implements kr.rtuserver.framework.bukkit.api.core.Framewo
             case "v1_21_R2" -> NMS = new NMS_1_21_R2();
             case "v1_21_R3" -> NMS = new NMS_1_21_R3();
             case "v1_21_R4" -> NMS = new NMS_1_21_R4();
-            //case "v1_21_R5" -> NMS = new NMS_1_21_R5();
+            case "v1_21_R5" -> NMS = new NMS_1_21_R5();
             default -> {
                 log.warn("Server version is unsupported version, Disabling RSFramework...");
                 Bukkit.getPluginManager().disablePlugin(plugin);

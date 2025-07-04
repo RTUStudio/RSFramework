@@ -1,7 +1,7 @@
 package kr.rtuserver.protoweaver.bukkit.core.nms.v1_21_r5;
 
 import io.papermc.paper.configuration.GlobalConfiguration;
-import kr.rtuserver.protoweaver.api.impl.bukkit.nms.IProtoWeaver;
+import kr.rtuserver.protoweaver.bukkit.api.nms.IProtoWeaver;
 import kr.rtuserver.protoweaver.api.util.ProtoLogger;
 import kr.rtuserver.protoweaver.core.loader.netty.SSLContext;
 import lombok.RequiredArgsConstructor;

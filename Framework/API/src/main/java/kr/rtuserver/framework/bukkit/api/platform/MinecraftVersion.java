@@ -36,7 +36,7 @@ public class MinecraftVersion {
     }
 
     /***
-     * check server is > 1.14.4
+     * check server is higher than minVersion
      * @return isSupportVersion
      */
     public static boolean isSupport(String minVersion) {
@@ -94,7 +94,7 @@ public class MinecraftVersion {
             case 1212, 1213 -> "v1_21_R2";
             case 1214 -> "v1_21_R3";
             case 1215 -> "v1_21_R4";
-            case 1216 -> "v1_21_R5";
+            case 1216, 1217 -> "v1_21_R5";
             default -> "v1_21_R5";
         };
     }
