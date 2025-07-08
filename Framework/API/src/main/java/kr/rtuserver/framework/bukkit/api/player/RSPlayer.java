@@ -88,7 +88,7 @@ public class RSPlayer extends ProxyPlayer {
                 return teleport(new Location(world, location.x(), location.y(), location.z(), location.yaw(), location.pitch()));
             }
             if (protoWeaver.isConnected()) {
-                return CompletableFuture.supplyAsync(() -> protoWeaver.sendPacket(new LocationTeleport((ProxyPlayer) this, new ProxyLocation(this, location)));
+                return CompletableFuture.supplyAsync(() -> protoWeaver.sendPacket(new LocationTeleport((ProxyPlayer) this, location)));
             }
         }
         return CompletableFuture.completedFuture(false);
