@@ -78,6 +78,10 @@ public class RSPlayer extends ProxyPlayer {
             return players.containsKey(getUniqueId());
         } else return true;
     }
+    
+    public ProxyPlayer asSuper() {
+        return new ProxyPlayer(getUniqueId(), getServer(), getName());
+    }
 
     public CompletableFuture<Boolean> teleport(@NotNull ProxyLocation location) {
         BukkitProtoWeaver protoWeaver = framework().getProtoWeaver();
@@ -88,7 +92,7 @@ public class RSPlayer extends ProxyPlayer {
                 return teleport(new Location(world, location.x(), location.y(), location.z(), location.yaw(), location.pitch()));
             }
             if (protoWeaver.isConnected()) {
-                return CompletableFuture.supplyAsync(() -> protoWeaver.sendPacket(new LocationTeleport((ProxyPlayer) this, location)));
+                return CompletableFuture.supplyAsync(() -> protoWeaver.sendPacket(new LocationTeleport(asSuper(), location)));
             }
         }
         return CompletableFuture.completedFuture(false);
@@ -103,7 +107,7 @@ public class RSPlayer extends ProxyPlayer {
                 return teleport(target.getLocation());
             }
             if (protoWeaver.isConnected()) {
-                return CompletableFuture.supplyAsync(() -> protoWeaver.sendPacket(new PlayerTeleport((ProxyPlayer) this, player)));
+                return CompletableFuture.supplyAsync(() -> protoWeaver.sendPacket(new PlayerTeleport(asSuper(), player)));
             }
         }
         return CompletableFuture.completedFuture(false);
