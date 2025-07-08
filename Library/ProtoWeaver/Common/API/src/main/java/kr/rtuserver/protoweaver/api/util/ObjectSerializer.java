@@ -32,7 +32,6 @@ public class ObjectSerializer {
     private final Fury fury = Fury.builder()
             .withJdkClassSerializableCheck(false)
             .withDeserializeNonexistentClass(false)
-            .requireClassRegistration(false)
             .withLanguage(Language.JAVA)
             .withCompatibleMode(CompatibleMode.COMPATIBLE)
             .withAsyncCompilation(true)
