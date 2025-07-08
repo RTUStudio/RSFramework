@@ -6,6 +6,7 @@ import kr.rtuserver.protoweaver.api.serializer.CustomPacketSerializer;
 import kr.rtuserver.protoweaver.api.serializer.ProtoSerializer;
 import kr.rtuserver.protoweaver.api.serializer.ProtoSerializerAdapter;
 import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.fury.Fury;
 import org.apache.fury.config.CompatibleMode;
 import org.apache.fury.config.Language;
@@ -18,6 +19,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+@Slf4j
 public class ObjectSerializer {
 
     private static final Gson GSON = new Gson();
@@ -37,11 +39,13 @@ public class ObjectSerializer {
             .build();
 
     private final Set<Class<?>> customPackets = new HashSet<>();
+    private final Set<Class<?>> packets = new HashSet<>();
 
     private void recursiveRegister(Class<?> type, List<Class<?>> registered) {
         if (type == null || type == Object.class || registered.contains(type) || Modifier.isAbstract(type.getModifiers())) return;
         synchronized (fury) {
             fury.register(type);
+            packets.add(type);
         }
         registered.add(type);
 
@@ -52,6 +56,7 @@ public class ObjectSerializer {
 
     public void register(Class<?> type) {
         recursiveRegister(type, new ArrayList<>());
+        log.info("Registered packets: {}", String.join(", ", packets.stream().map(Class::getName).toArray(String[]::new)));
     }
 
     @SneakyThrows
