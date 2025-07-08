@@ -23,7 +23,6 @@ import kr.rtuserver.protoweaver.api.protocol.internal.*;
 import kr.rtuserver.protoweaver.api.protocol.velocity.VelocityAuth;
 import kr.rtuserver.protoweaver.api.proxy.ProtoServer;
 import kr.rtuserver.protoweaver.api.proxy.ProxyPlayer;
-import kr.rtuserver.protoweaver.api.proxy.request.Request;
 import kr.rtuserver.protoweaver.api.proxy.request.TeleportRequest;
 import kr.rtuserver.protoweaver.api.serializer.CustomPacketSerializer;
 import kr.rtuserver.protoweaver.api.util.ProtoLogger;
