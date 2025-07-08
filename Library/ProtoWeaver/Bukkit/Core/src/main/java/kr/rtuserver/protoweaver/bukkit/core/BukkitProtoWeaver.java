@@ -80,16 +80,13 @@ public class BukkitProtoWeaver implements kr.rtuserver.protoweaver.bukkit.api.Bu
         protocol.setCompression(CompressionType.SNAPPY);
         protocol.setMaxPacketSize(67108864); // 64mb
         protocol.addPacket(ProtocolRegister.class);
-        protocol.addPacket(Packet.class);
-
         protocol.addPacket(StorageSync.class);
         protocol.addPacket(BroadcastChat.class);
-
         protocol.addPacket(ServerName.class);
-        protocol.addPacket(ProxyPlayer.class);
         protocol.addPacket(PlayerList.class);
         protocol.addPacket(LocationTeleport.class);
         protocol.addPacket(PlayerTeleport.class);
+
         if (isModernProxy) {
             protocol.setServerAuthHandler(VelocityAuth.class);
         }

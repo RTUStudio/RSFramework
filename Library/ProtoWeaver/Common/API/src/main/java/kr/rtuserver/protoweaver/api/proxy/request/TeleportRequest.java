@@ -4,7 +4,7 @@ import kr.rtuserver.protoweaver.api.protocol.internal.InternalPacket;
 import kr.rtuserver.protoweaver.api.proxy.ProxyLocation;
 import kr.rtuserver.protoweaver.api.proxy.ProxyPlayer;
 
-public interface TeleportRequest extends Request, InternalPacket {
+public interface TeleportRequest extends Request {
 
     ProxyPlayer player();
 

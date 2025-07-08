@@ -1,4 +1,6 @@
 package kr.rtuserver.protoweaver.api.proxy.request;
 
-public interface Request {
+import kr.rtuserver.protoweaver.api.protocol.internal.InternalPacket;
+
+public interface Request extends InternalPacket {
 }
