@@ -27,8 +27,7 @@ public class ProtoWeaver_1_19_R2 implements IProtoWeaver {
         boolean enabled = GlobalConfiguration.get().proxies.velocity.enabled;
         if (!enabled) return false;
         String secret = GlobalConfiguration.get().proxies.velocity.secret;
-        if (secret == null || secret.isEmpty()) return false;
-        return true;
+        return secret != null && !secret.isEmpty();
     }
 
     @Override

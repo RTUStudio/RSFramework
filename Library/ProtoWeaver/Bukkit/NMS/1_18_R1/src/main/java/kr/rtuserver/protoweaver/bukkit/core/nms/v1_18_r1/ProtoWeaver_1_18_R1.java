@@ -27,8 +27,7 @@ public class ProtoWeaver_1_18_R1 implements IProtoWeaver {
         boolean enabled = PaperConfig.velocitySupport;
         if (!enabled) return false;
         String secret = new String(PaperConfig.velocitySecretKey);
-        if (secret == null || secret.isEmpty()) return false;
-        return true;
+        return secret != null && !secret.isEmpty();
     }
 
     @Override

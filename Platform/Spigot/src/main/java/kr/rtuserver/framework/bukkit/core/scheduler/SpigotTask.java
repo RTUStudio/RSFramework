@@ -1,16 +1,10 @@
 package kr.rtuserver.framework.bukkit.core.scheduler;
 
 import kr.rtuserver.framework.bukkit.api.core.scheduler.ScheduledTask;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.scheduler.BukkitTask;
 
-@Getter
-@RequiredArgsConstructor
-public class SpigotTask implements ScheduledTask {
-
-    private final BukkitTask task;
+public record SpigotTask(BukkitTask task) implements ScheduledTask {
 
     @Override
     public Plugin getPlugin() {

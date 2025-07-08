@@ -39,13 +39,11 @@ public class ObjectSerializer {
             .build();
 
     private final Set<Class<?>> customPackets = new HashSet<>();
-    private final Set<Class<?>> packets = new HashSet<>();
 
     private void recursiveRegister(Class<?> type, List<Class<?>> registered) {
         if (type == null || type == Object.class || registered.contains(type) || Modifier.isAbstract(type.getModifiers())) return;
         synchronized (fury) {
             fury.register(type);
-            packets.add(type);
         }
         registered.add(type);
 
@@ -56,7 +54,6 @@ public class ObjectSerializer {
 
     public void register(Class<?> type) {
         recursiveRegister(type, new ArrayList<>());
-        log.info("Registered packets: {}", String.join(", ", packets.stream().map(Class::getName).toArray(String[]::new)));
     }
 
     @SneakyThrows
@@ -74,6 +71,7 @@ public class ObjectSerializer {
                     return fury.serialize(new CustomPacket(object));
                 } else return fury.serialize(object);
             } catch (InsecureException e) {
+                e.printStackTrace();
                 throw new IllegalArgumentException("unregistered object: " + object.getClass().getName());
             }
         }

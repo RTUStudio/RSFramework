@@ -15,7 +15,7 @@ public class RSFramework {
 
     private final ProxyServer server;
     private final Path dir;
-    private Libraries libraries;
+    private final Libraries libraries;
     private VelocityProtoWeaver protoWeaver;
 
     @Inject

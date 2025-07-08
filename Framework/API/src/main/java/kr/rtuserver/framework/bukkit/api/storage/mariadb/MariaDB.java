@@ -162,9 +162,9 @@ public class MariaDB implements Storage {
                 values.addAll(filterPair.getRight());
             }
             try {
-                PreparedStatement ps = getConnection().prepareStatement(query.toString() + ";");
+                PreparedStatement ps = getConnection().prepareStatement(query + ";");
                 setParameters(ps, values);
-                debug("SET", table, getDebugQuery(query.toString() + ";", values));
+                debug("SET", table, getDebugQuery(query + ";", values));
                 if (!ps.execute()) return false;
                 sync(table, find);
                 return true;
@@ -187,9 +187,9 @@ public class MariaDB implements Storage {
                 values.addAll(filterPair.getRight());
             }
             try {
-                PreparedStatement ps = getConnection().prepareStatement(query.toString() + ";");
+                PreparedStatement ps = getConnection().prepareStatement(query + ";");
                 setParameters(ps, values);
-                debug("GET", table, getDebugQuery(query.toString() + ";", values));
+                debug("GET", table, getDebugQuery(query + ";", values));
                 ResultSet rs = ps.executeQuery();
                 while (rs.next()) {
                     result.add(gson.fromJson(rs.getString("data"), JsonObject.class));
