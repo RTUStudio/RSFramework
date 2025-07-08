@@ -72,7 +72,6 @@ public class ObjectSerializer {
                     return fury.serialize(new CustomPacket(object));
                 } else return fury.serialize(object);
             } catch (InsecureException e) {
-                e.printStackTrace();
                 throw new IllegalArgumentException("unregistered object: " + object.getClass().getName());
             }
         }
