@@ -39,8 +39,10 @@ public class ObjectSerializer {
     private final Set<Class<?>> customPackets = new HashSet<>();
 
     private void recursiveRegister(Class<?> type, List<Class<?>> registered) {
-        if (type == null || type == Object.class || registered.contains(type) || Modifier.isAbstract(type.getModifiers()))
+        if (type == null || type == Object.class || registered.contains(type) || Modifier.isAbstract(type.getModifiers())) {
+            System.out.println("============================\n" + "Can't register " + type + "\nModifier check:" + Modifier.isAbstract(type.getModifiers()) + "\n" + String.join(", ", registered.stream().map(Class::getName).toList()) + "\n============================");
             return;
+        }
         synchronized (fury) {
             fury.register(type);
         }

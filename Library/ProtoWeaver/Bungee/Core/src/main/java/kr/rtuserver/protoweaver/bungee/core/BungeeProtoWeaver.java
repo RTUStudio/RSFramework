@@ -61,6 +61,7 @@ public class BungeeProtoWeaver implements kr.rtuserver.protoweaver.bungee.api.Bu
         protocol.addPacket(ServerName.class);
         protocol.addPacket(ProxyPlayer.class);
         protocol.addPacket(PlayerList.class);
+        protocol.addPacket(TeleportRequest.class);
         protocol.addPacket(TeleportRequest.Location.class);
         protocol.addPacket(TeleportRequest.Player.class);
         protocol.setClientHandler(BungeeProtoHandler.class, callable).load();
