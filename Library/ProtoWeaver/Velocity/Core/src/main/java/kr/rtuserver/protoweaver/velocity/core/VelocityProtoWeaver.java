@@ -24,6 +24,8 @@ import kr.rtuserver.protoweaver.api.protocol.velocity.VelocityAuth;
 import kr.rtuserver.protoweaver.api.proxy.ProtoServer;
 import kr.rtuserver.protoweaver.api.proxy.ProxyPlayer;
 import kr.rtuserver.protoweaver.api.proxy.request.TeleportRequest;
+import kr.rtuserver.protoweaver.api.proxy.request.teleport.LocationTeleport;
+import kr.rtuserver.protoweaver.api.proxy.request.teleport.PlayerTeleport;
 import kr.rtuserver.protoweaver.api.serializer.CustomPacketSerializer;
 import kr.rtuserver.protoweaver.api.util.ProtoLogger;
 import kr.rtuserver.protoweaver.core.protocol.protoweaver.ServerPacketHandler;
@@ -70,9 +72,8 @@ public class VelocityProtoWeaver implements kr.rtuserver.protoweaver.velocity.ap
         protocol.addPacket(ServerName.class);
         protocol.addPacket(ProxyPlayer.class);
         protocol.addPacket(PlayerList.class);
-        protocol.addPacket(TeleportRequest.class);
-        protocol.addPacket(TeleportRequest.Location.class);
-        protocol.addPacket(TeleportRequest.Player.class);
+        protocol.addPacket(LocationTeleport.class);
+        protocol.addPacket(PlayerTeleport.class);
         if (isModernProxy()) {
             info("Detected modern proxy");
             protocol.setClientAuthHandler(VelocityAuth.class);

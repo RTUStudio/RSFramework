@@ -10,21 +10,5 @@ public interface TeleportRequest extends Request, InternalPacket {
 
     String server();
 
-    record Location(ProxyPlayer player, ProxyLocation location) implements TeleportRequest {
-
-        public String server() {
-            return location.server();
-        }
-
-    }
-
-    record Player(ProxyPlayer player, ProxyPlayer location) implements TeleportRequest {
-
-        public String server() {
-            return location.getServer();
-        }
-
-    }
-
 }
 

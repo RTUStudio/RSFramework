@@ -6,6 +6,8 @@ import kr.rtuserver.framework.bukkit.api.platform.MinecraftVersion;
 import kr.rtuserver.protoweaver.api.proxy.ProxyLocation;
 import kr.rtuserver.protoweaver.api.proxy.ProxyPlayer;
 import kr.rtuserver.protoweaver.api.proxy.request.TeleportRequest;
+import kr.rtuserver.protoweaver.api.proxy.request.teleport.LocationTeleport;
+import kr.rtuserver.protoweaver.api.proxy.request.teleport.PlayerTeleport;
 import kr.rtuserver.protoweaver.bukkit.api.BukkitProtoWeaver;
 import lombok.Getter;
 import org.bukkit.Bukkit;
@@ -87,7 +89,7 @@ public class RSPlayer extends ProxyPlayer {
                 return teleport(new Location(world, location.x(), location.y(), location.z(), location.yaw(), location.pitch()));
             }
             if (protoWeaver.isConnected()) {
-                return CompletableFuture.supplyAsync(() -> protoWeaver.sendPacket(new TeleportRequest.Location(this, location)));
+                return CompletableFuture.supplyAsync(() -> protoWeaver.sendPacket(new LocationTeleport(this, location)));
             }
         }
         return CompletableFuture.completedFuture(false);
@@ -102,7 +104,7 @@ public class RSPlayer extends ProxyPlayer {
                 return teleport(target.getLocation());
             }
             if (protoWeaver.isConnected()) {
-                return CompletableFuture.supplyAsync(() -> protoWeaver.sendPacket(new TeleportRequest.Player(this, player)));
+                return CompletableFuture.supplyAsync(() -> protoWeaver.sendPacket(new PlayerTeleport(this, player)));
             }
         }
         return CompletableFuture.completedFuture(false);

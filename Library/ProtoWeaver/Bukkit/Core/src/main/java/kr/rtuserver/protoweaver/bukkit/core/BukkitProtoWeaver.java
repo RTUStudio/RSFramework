@@ -12,6 +12,8 @@ import kr.rtuserver.protoweaver.api.protocol.velocity.VelocityAuth;
 import kr.rtuserver.protoweaver.api.proxy.ProxyLocation;
 import kr.rtuserver.protoweaver.api.proxy.ProxyPlayer;
 import kr.rtuserver.protoweaver.api.proxy.request.TeleportRequest;
+import kr.rtuserver.protoweaver.api.proxy.request.teleport.LocationTeleport;
+import kr.rtuserver.protoweaver.api.proxy.request.teleport.PlayerTeleport;
 import kr.rtuserver.protoweaver.api.serializer.CustomPacketSerializer;
 import kr.rtuserver.protoweaver.bukkit.api.nms.IProtoWeaver;
 import kr.rtuserver.protoweaver.bukkit.core.nms.v1_17_r1.ProtoWeaver_1_17_R1;
@@ -86,9 +88,8 @@ public class BukkitProtoWeaver implements kr.rtuserver.protoweaver.bukkit.api.Bu
         protocol.addPacket(ServerName.class);
         protocol.addPacket(ProxyPlayer.class);
         protocol.addPacket(PlayerList.class);
-        protocol.addPacket(TeleportRequest.class);
-        protocol.addPacket(TeleportRequest.Location.class);
-        protocol.addPacket(TeleportRequest.Player.class);
+        protocol.addPacket(LocationTeleport.class);
+        protocol.addPacket(PlayerTeleport.class);
         if (isModernProxy) {
             protocol.setServerAuthHandler(VelocityAuth.class);
         }
@@ -130,13 +131,13 @@ public class BukkitProtoWeaver implements kr.rtuserver.protoweaver.bukkit.api.Bu
             Player player = Bukkit.getPlayer(request.player().getUniqueId());
             if (player == null) return;
             Location location = null;
-            if (request instanceof TeleportRequest.Location trl) {
-                ProxyLocation loc = trl.location();
+            if (request instanceof LocationTeleport lt) {
+                ProxyLocation loc = lt.location();
                 World world = Bukkit.getWorld(loc.world());
                 if (world == null) return;
                 location = new Location(world, loc.x(), loc.y(), loc.z(), loc.yaw(), loc.pitch());
-            } else if (request instanceof TeleportRequest.Player trp) {
-                ProxyPlayer loc = trp.location();
+            } else if (request instanceof PlayerTeleport pt) {
+                ProxyPlayer loc = pt.location();
                 Player target = Bukkit.getPlayer(loc.getUniqueId());
                 if (target == null) return;
                 location = target.getLocation();
