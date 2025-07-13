@@ -3,6 +3,9 @@ common:
     name: "reload"
     description: "Reloading plugin configuration"
 
+rsf:
+  name: "rsf"
+
 broadcast:
   name: "broadcast"
   description: "Send broadcast message"

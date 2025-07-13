@@ -3,6 +3,9 @@ common:
     name: "구성"
     description: "플러그인 구성을 다시 불러옵니다"
 
+rsf:
+  name: "프레임워크"
+
 broadcast:
   name: "공지"
   description: "공지 메세지를 전송합니다"

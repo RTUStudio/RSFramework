@@ -12,22 +12,14 @@ public class MessageTranslation extends TranslationConfiguration {
         super(plugin, type, defaultLocale);
     }
 
-    @Getter
-    @RequiredArgsConstructor
-    public enum Common {
-
-        RELOAD("reload"),
-        NO_PERMISSION("noPermission"),
-        WRONG_USAGE("wrongUsage"),
-        ONLY_PLAYER("onlyPlayer"),
-        ONLY_CONSOLE("onlyConsole"),
-        NOT_FOUND_ONLINE_PLAYER("notFound.onlinePlayer"),
-        NOT_FOUND_OFFLINE_PLAYER("notFound.offlinePlayer"),
-        ERROR_INVENTORY("error.inventory"),
-        ERROR_COOLDOWN("error.cooldown");
-
-        private final String key;
-
-    }
+    public static String RELOAD = "reload";
+    public static String NO_PERMISSION = "noPermission";
+    public static String WRONG_USAGE = "wrongUsage";
+    public static String ONLY_PLAYER = "onlyPlayer";
+    public static String ONLY_CONSOLE = "onlyConsole";
+    public static String NOT_FOUND_ONLINE_PLAYER = "notFound.onlinePlayer";
+    public static String NOT_FOUND_OFFLINE_PLAYER = "notFound.offlinePlayer";
+    public static String ERROR_INVENTORY = "error.inventory";
+    public static String ERROR_COOLDOWN = "error.cooldown";
 
 }

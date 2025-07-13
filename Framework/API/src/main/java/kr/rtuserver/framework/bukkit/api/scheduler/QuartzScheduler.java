@@ -6,7 +6,6 @@ import lombok.RequiredArgsConstructor;
 import org.quartz.*;
 import org.quartz.impl.StdSchedulerFactory;
 
-import java.sql.Time;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -32,9 +31,9 @@ public class QuartzScheduler {
 
     private static Scheduler scheduler() throws SchedulerException {
         if (scheduler != null) return scheduler;
-        Scheduler newScheduler = new StdSchedulerFactory().getScheduler();
-        newScheduler.start();
-        return newScheduler;
+        scheduler = new StdSchedulerFactory().getScheduler();
+        scheduler.start();
+        return scheduler;
     }
 
     public static QuartzScheduler run(String name, String cron, Class<? extends Job> job) {

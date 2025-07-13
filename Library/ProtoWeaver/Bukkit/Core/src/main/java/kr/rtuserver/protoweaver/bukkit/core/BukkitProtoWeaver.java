@@ -134,7 +134,7 @@ public class BukkitProtoWeaver implements kr.rtuserver.protoweaver.bukkit.api.Bu
                 if (world == null) return;
                 location = new Location(world, loc.x(), loc.y(), loc.z(), loc.yaw(), loc.pitch());
             } else if (request instanceof PlayerTeleport pt) {
-                ProxyPlayer loc = pt.location();
+                ProxyPlayer loc = pt.target();
                 Player target = Bukkit.getPlayer(loc.getUniqueId());
                 if (target == null) return;
                 location = target.getLocation();

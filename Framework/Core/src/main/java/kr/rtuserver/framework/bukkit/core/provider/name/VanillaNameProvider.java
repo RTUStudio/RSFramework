@@ -1,10 +1,8 @@
 package kr.rtuserver.framework.bukkit.core.provider.name;
 
 import kr.rtuserver.framework.bukkit.api.core.provider.name.NameProvider;
-import kr.rtuserver.framework.bukkit.api.player.RSPlayer;
-import kr.rtuserver.framework.bukkit.core.Framework;
+import kr.rtuserver.framework.bukkit.api.player.PlayerList;
 import kr.rtuserver.protoweaver.api.proxy.ProxyPlayer;
-import lombok.RequiredArgsConstructor;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
@@ -25,7 +23,7 @@ public class VanillaNameProvider implements NameProvider {
     @NotNull
     @Override
     public List<String> getNames(boolean includeProxy) {
-        if (includeProxy) return RSPlayer.getPlayers(true).stream().map(ProxyPlayer::getName).toList();
+        if (includeProxy) return PlayerList.getPlayers(true).stream().map(ProxyPlayer::getName).toList();
         else return getNames();
     }
 
@@ -47,7 +45,7 @@ public class VanillaNameProvider implements NameProvider {
     @Nullable
     @Override
     public UUID getUniqueId(String name) {
-        for (ProxyPlayer player : RSPlayer.getPlayers()) {
+        for (ProxyPlayer player : PlayerList.getPlayers()) {
             if (player.getName().equals(name)) return player.getUniqueId();
         }
         return null;

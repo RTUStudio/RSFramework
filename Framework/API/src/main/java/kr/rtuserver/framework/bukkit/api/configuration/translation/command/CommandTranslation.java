@@ -12,15 +12,7 @@ public class CommandTranslation extends TranslationConfiguration {
         super(plugin, type, defaultLocale);
     }
 
-    @Getter
-    @RequiredArgsConstructor
-    public enum Common {
-
-        RELOAD_NAME("reload.name"),
-        RELOAD_DESCRIPTION("reload.description");
-
-        private final String key;
-
-    }
+    public static String RELOAD_NAME = "reload.name";
+    public static String RELOAD_DESCRIPTION = "reload.description";
 
 }
