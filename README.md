@@ -22,7 +22,7 @@ Framework Bukkit Plugin for RSPlugin (Spigot/Paper/Folia/Velocity/Bungee/Hybrid)
 
 ## Supported Bukkit
 
-Spigot, Paper, Pufferfish, Purpur, Plazma, Folia, Arclight, Mohist
+Spigot, Paper, Folia, Arclight, Mohist
 and Forks
 
 ## Supported Proxy
@@ -31,9 +31,9 @@ Velocity, Bungeecord, Waterfall and Forks
 
 ## Supported  Version
 
-1.17.1 ~ 1.21.5
+1.17.1 ~ 1.21.7
 
 ## JDK Version
 
-- for 1.17.1 ~ 1.21.5, Java 21
+- for 1.17.1 ~ 1.21.7, Java 21
 - for Project Build, Java 21
