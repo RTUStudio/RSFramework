@@ -36,11 +36,11 @@ public class PlayerTeleport {
     }
 
     private String server() {
-        return framework.getProtoWeaver().getServer();
+        return framework().getProtoWeaver().getServer();
     }
 
     private BukkitProtoWeaver protoWeaver() {
-        return framework.getProtoWeaver();
+        return framework().getProtoWeaver();
     }
 
     public CompletableFuture<Boolean> teleport(@NotNull ProxyLocation location) {
