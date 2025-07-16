@@ -17,6 +17,7 @@ import net.kyori.adventure.text.Component;
 import org.bukkit.permissions.PermissionDefault;
 
 import java.util.Map;
+import java.util.Set;
 
 public interface Framework {
 
@@ -65,5 +66,7 @@ public interface Framework {
     void registerPermission(String name, PermissionDefault permissionDefault);
 
     void registerProtocol(String namespace, String key, Packet packet, Class<? extends ProtoConnectionHandler> protocolHandler, HandlerCallback callback);
+
+    void registerProtocol(String namespace, String key, Set<Packet> packets, Class<? extends ProtoConnectionHandler> protocolHandler, HandlerCallback callback);
 
 }

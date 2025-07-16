@@ -51,6 +51,7 @@ import org.bukkit.permissions.PermissionDefault;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 @Slf4j(topic = "RSFramework")
 @kr.rtuserver.cdi.annotations.Component
@@ -226,6 +227,10 @@ public class Framework implements kr.rtuserver.framework.bukkit.api.core.Framewo
 
     public void registerProtocol(String namespace, String key, Packet packet, Class<? extends ProtoConnectionHandler> protocolHandler, HandlerCallback callback) {
         protoWeaver.registerProtocol(namespace, key, packet, protocolHandler, callback);
+    }
+
+    public void registerProtocol(String namespace, String key, Set<Packet> packets, Class<? extends ProtoConnectionHandler> protocolHandler, HandlerCallback callback) {
+        protoWeaver.registerProtocol(namespace, key, packets, protocolHandler, callback);
     }
 
 }
