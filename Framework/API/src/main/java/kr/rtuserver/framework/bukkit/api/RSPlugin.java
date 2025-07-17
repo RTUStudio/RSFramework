@@ -164,6 +164,19 @@ public abstract class RSPlugin extends JavaPlugin {
         framework.registerProtocol(namespace, key, packet, protocolHandler, callback);
     }
 
+    /**
+     * 프록시의 RSFramework와 통신을 위한 프로토콜 등록
+     *
+     * @param namespace       네임스페이스
+     * @param key             키
+     * @param packets          패킷 정보
+     * @param protocolHandler 수신을 담당하는 핸들러
+     * @param callback        핸들러 외부에서 수신 이벤트를 받는 callback
+     */
+    protected void registerProtocol(String namespace, String key, Set<Packet> packets, Class<? extends ProtoConnectionHandler> protocolHandler, HandlerCallback callback) {
+        framework.registerProtocol(namespace, key, packets, protocolHandler, callback);
+    }
+
     protected void registerIntegration(Integration integrationWrapper) {
         if (!integrationWrapper.isAvailable()) return;
         this.integrations.add(integrationWrapper);
