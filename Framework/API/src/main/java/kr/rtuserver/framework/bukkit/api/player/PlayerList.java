@@ -6,6 +6,7 @@ import kr.rtuserver.protoweaver.api.proxy.ProxyPlayer;
 import kr.rtuserver.protoweaver.bukkit.api.BukkitProtoWeaver;
 import lombok.Getter;
 import org.bukkit.Bukkit;
+import org.bukkit.entity.Player;
 
 import java.util.HashSet;
 import java.util.Objects;

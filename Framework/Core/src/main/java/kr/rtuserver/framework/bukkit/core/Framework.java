@@ -38,13 +38,16 @@ import kr.rtuserver.framework.bukkit.nms.v1_21_r5.NMS_1_21_R5;
 import kr.rtuserver.protoweaver.api.ProtoConnectionHandler;
 import kr.rtuserver.protoweaver.api.callback.HandlerCallback;
 import kr.rtuserver.protoweaver.api.protocol.Packet;
-import kr.rtuserver.protoweaver.api.protocol.internal.BroadcastChat;
+import kr.rtuserver.protoweaver.api.protocol.internal.Broadcast;
+import kr.rtuserver.protoweaver.api.protocol.internal.SendMessage;
 import kr.rtuserver.protoweaver.api.protocol.internal.StorageSync;
+import kr.rtuserver.protoweaver.api.proxy.ProxyPlayer;
 import kr.rtuserver.protoweaver.bukkit.core.BukkitProtoWeaver;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
+import org.bukkit.entity.Player;
 import org.bukkit.permissions.Permission;
 import org.bukkit.permissions.PermissionDefault;
 
@@ -103,9 +106,11 @@ public class Framework implements kr.rtuserver.framework.bukkit.api.core.Framewo
             RSPlugin plugin = plugins.get(plugin1);
             if (plugin == null) return;
             plugin.syncStorage(name, json);
-        }
-        if (packet.packet() instanceof BroadcastChat(String minimessage)) {
-            PlayerChat.of(plugin).broadcast(minimessage);
+        } else if (packet.packet() instanceof Broadcast(String minimessage)) {
+            PlayerChat.broadcast(minimessage);
+        } else if (packet.packet() instanceof SendMessage(ProxyPlayer target, String minimessage)) {
+            Player player = Bukkit.getPlayer(target.getUniqueId());
+            if (player != null) PlayerChat.of(plugin, player).send(minimessage);
         }
     }
 

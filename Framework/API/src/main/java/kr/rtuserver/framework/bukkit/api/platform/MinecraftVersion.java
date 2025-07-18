@@ -28,7 +28,9 @@ public class MinecraftVersion {
     public static boolean isSupport(String minVersion, String maxVersion) {
         Version min = new Version(minVersion);
         Version max = new Version(maxVersion);
-        return min.getVersion() <= VERSION.getVersion() && max.getVersion() >= VERSION.getVersion();
+        if (min.getMajor() > VERSION.getMajor() || max.getMajor() < VERSION.getMajor()) return false;
+        if (min.getMinor() > VERSION.getMinor() || max.getMinor() < VERSION.getMinor()) return false;
+        return min.getPatch() <= VERSION.getPatch() && max.getPatch() >= VERSION.getPatch();
     }
 
     public static boolean isSupport(List<String> versions) {
@@ -41,7 +43,9 @@ public class MinecraftVersion {
      */
     public static boolean isSupport(String minVersion) {
         Version min = new Version(minVersion);
-        return min.getVersion() <= VERSION.getVersion();
+        if (min.getMajor() > VERSION.getMajor()) return false;
+        if (min.getMinor() > VERSION.getMinor()) return false;
+        return min.getPatch() <= VERSION.getPatch();
     }
 
     @Deprecated
@@ -79,23 +83,30 @@ public class MinecraftVersion {
     @NotNull
     public static String getNMS(String versionStr) {
         Version version = new Version(versionStr);
-        return switch (version.getVersion()) {
-            case 1171 -> "v1_17_R1";
-            case 1180, 1181 -> "v1_18_R1";
-            case 1182 -> "v1_18_R2";
-            case 1190, 1191, 1192 -> "v1_19_R1";
-            case 1193 -> "v1_19_R2";
-            case 1194 -> "v1_19_R3";
-            case 1200, 1201 -> "v1_20_R1";
-            case 1202 -> "v1_20_R2";
-            case 1203, 1204 -> "v1_20_R3";
-            case 1205, 1206 -> "v1_20_R4";
-            case 1210, 1211 -> "v1_21_R1";
-            case 1212, 1213 -> "v1_21_R2";
-            case 1214 -> "v1_21_R3";
-            case 1215 -> "v1_21_R4";
-            case 1216, 1217 -> "v1_21_R5";
-            default -> "v1_21_R5";
+        return switch (version.getMinor()) {
+            case 17 -> "v1_17_R1"; // 1.17.1
+            case 18 -> switch (version.getPatch()) {
+                case 0, 1 -> "v1_18_R1";
+                default -> "v1_18_R2"; // 1.18.2
+            };
+            case 19 -> switch (version.getPatch()) {
+                case 0, 1, 2 -> "v1_19_R1";
+                case 3 -> "v1_19_R2";
+                default -> "v1_19_R3"; // 1.19.4
+            };
+            case 20 -> switch (version.getPatch()) {
+                case 0, 1 -> "v1_20_R1";
+                case 2 -> "v1_20_R2";
+                case 3, 4 -> "v1_20_R3";
+                default -> "v1_20_R4"; // 1.20.5, 1.20.6
+            };
+            case 21 -> switch (version.getPatch()) {
+                case 0, 1 -> "v1_21_R1";
+                case 2, 3 -> "v1_21_R2";
+                case 4 -> "v1_21_R3";
+                default -> "v1_21_R4"; // 1.21.6, 1.21.7, 1.21.8
+            };
+            default -> "v1_21_R4";
         };
     }
 
@@ -105,17 +116,20 @@ public class MinecraftVersion {
         private final int major;
         private final int minor;
         private final int patch;
-        private final int version;
 
         public Version(String version) {
             String[] numbers = version.split("\\.");
             String majorStr = numbers.length == 0 ? "0" : numbers[0];
-            String minorStr = numbers.length <= 1 ? "00" : numbers[1];
+            String minorStr = numbers.length <= 1 ? "0" : numbers[1];
             String patchStr = numbers.length <= 2 ? "0" : numbers[2];
             this.major = Integer.parseInt(majorStr);
             this.minor = Integer.parseInt(minorStr);
             this.patch = Integer.parseInt(patchStr);
-            this.version = Integer.parseInt(majorStr + minorStr + patchStr);
+        }
+
+        @Override
+        public String toString() {
+            return major + "." + minor + "." + patch;
         }
 
     }

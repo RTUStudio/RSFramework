@@ -8,9 +8,7 @@ import kr.rtuserver.protoweaver.api.protocol.Packet;
 import kr.rtuserver.protoweaver.api.protocol.Protocol;
 import kr.rtuserver.protoweaver.api.protocol.internal.*;
 import kr.rtuserver.protoweaver.api.proxy.ProtoServer;
-import kr.rtuserver.protoweaver.api.proxy.ProxyLocation;
 import kr.rtuserver.protoweaver.api.proxy.ProxyPlayer;
-import kr.rtuserver.protoweaver.api.proxy.request.Request;
 import kr.rtuserver.protoweaver.api.proxy.request.TeleportRequest;
 import kr.rtuserver.protoweaver.api.proxy.request.teleport.LocationTeleport;
 import kr.rtuserver.protoweaver.api.proxy.request.teleport.PlayerTeleport;
@@ -56,7 +54,8 @@ public class BungeeProtoWeaver implements kr.rtuserver.protoweaver.bungee.api.Bu
         protocol.setMaxPacketSize(67108864); // 64mb
         protocol.addPacket(ProtocolRegister.class);
         protocol.addPacket(StorageSync.class);
-        protocol.addPacket(BroadcastChat.class);
+        protocol.addPacket(SendMessage.class);
+        protocol.addPacket(Broadcast.class);
         protocol.addPacket(ServerName.class);
         protocol.addPacket(PlayerList.class);
         protocol.addPacket(LocationTeleport.class);

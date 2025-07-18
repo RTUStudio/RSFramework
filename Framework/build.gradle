@@ -15,7 +15,7 @@ for (name in projects) project(":Framework:$name") {
         compileOnly "io.papermc.paper:paper-api:${api_version}-R0.1-SNAPSHOT"
 
         implementation "net.kyori:adventure-platform-bukkit:4.3.4"
-        implementation "de.tr7zw:item-nbt-api:2.15.1"
+        implementation "de.tr7zw:item-nbt-api:2.15.2-SNAPSHOT"
 
         compileOnly "com.github.LoneDev6:API-ItemsAdder:3.6.3-beta-14"
 
