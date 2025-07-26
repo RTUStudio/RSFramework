@@ -20,19 +20,14 @@ allprojects {
     repositories {
         mavenCentral()
         maven {
-            name = "maven-snapshots"
-            url = "https://s01.oss.sonatype.org/content/repositories/snapshots/"
-        }
-        maven {
             url = "https://jitpack.io"
         }
         maven {
             url = "https://mvnrepository.com/artifact/org.projectlombok/lombok"
         }
-
         maven {
             name = "AlessioDP"
-            url = "https://repo.alessiodp.com/releases/"
+            url = "https://repo.alessiodp.com/snapshots/"
         }
         maven {
             name = "spigotmc-repo"
