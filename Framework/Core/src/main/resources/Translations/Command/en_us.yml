@@ -5,12 +5,17 @@ common:
 
 rsf:
   name: "rsf"
+  commands:
+    broadcast:
+      name: "broadcast"
+      description: "Send broadcast message"
+      usage: "/rsf broadcast [message]"
 
-broadcast:
-  name: "broadcast"
-  description: "Send broadcast message"
-  usage: "/rsf broadcast [message]"
+    information:
+      name: "information"
+      description: "Check software information of server"
 
-information:
-  name: "information"
-  description: "Check software information of server"
+    send:
+      name: "send"
+      description: "Send message to player"
+      usage: "/rsf send [player] [message]"

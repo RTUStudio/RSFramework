@@ -223,6 +223,10 @@ public class Framework implements kr.rtuserver.framework.bukkit.api.core.Framewo
 
     public void registerCommand(RSCommand<? extends RSPlugin> command, boolean reload) {
         if (reload) command.registerCommand(new ReloadCommand(command.getPlugin()));
+        if (command.getPermission() != null) {
+            Permission permission = new Permission(command.getPermission(), command.getPermissionDefault());
+            Bukkit.getPluginManager().addPermission(permission);
+        }
         NMS.getCommand().getCommandMap().register(command.getName(), command);
     }
 

@@ -20,7 +20,7 @@ public class RSFramework extends RSPlugin {
     public RSFramework() {
         libraries = new Libraries(this);
 
-        libraries.load("net.kyori:adventure-text-minimessage:4.16.0");
+        //libraries.load("net.kyori:adventure-text-minimessage:4.16.0");
 
         libraries.load("com.zaxxer:HikariCP:5.1.0");
         libraries.load("org.mongodb:bson:5.4.0");

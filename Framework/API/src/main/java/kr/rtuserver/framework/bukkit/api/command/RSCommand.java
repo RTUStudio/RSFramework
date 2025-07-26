@@ -32,6 +32,9 @@ public abstract class RSCommand<T extends RSPlugin> extends Command {
     private final T plugin;
 
     @Getter
+    private final PermissionDefault permissionDefault;
+
+    @Getter
     private final List<String> names;
 
     private final MessageTranslation message;
@@ -60,12 +63,11 @@ public abstract class RSCommand<T extends RSPlugin> extends Command {
         super(names.getFirst());
         this.names = Collections.unmodifiableList(names);
         this.plugin = plugin;
+        this.permissionDefault = permission;
         this.message = plugin.getConfigurations().getMessage();
         this.command = plugin.getConfigurations().getCommand();
         this.chat = PlayerChat.of(plugin);
-        Permission perm = new Permission(plugin.getName() + ".command." + getName(), permission);
-        Bukkit.getPluginManager().addPermission(perm);
-        super.setPermission(perm.getName());
+        super.setPermission(plugin.getName() + ".command." + getName());
         List<String> aliases = new ArrayList<>(names.subList(1, names.size()));
         for (Translation translation : command.getMap().values()) {
             String name = translation.get(getName() + ".name");
@@ -78,6 +80,10 @@ public abstract class RSCommand<T extends RSPlugin> extends Command {
     private void setParent(RSCommand<? extends RSPlugin> parent) {
         this.parent = parent;
         this.index++;
+    }
+
+    protected String getQualifiedName() {
+        return parent == null ? getName() : parent.getQualifiedName() + "." + getName();
     }
 
     protected TranslationConfiguration message() {
@@ -178,6 +184,9 @@ public abstract class RSCommand<T extends RSPlugin> extends Command {
 
     public void registerCommand(RSCommand<? extends RSPlugin> command) {
         command.setParent(this);
+        String permission = plugin.getName() + ".command." + command.getQualifiedName();
+        command.setPermission(permission);
+        Bukkit.getPluginManager().addPermission(new Permission(permission, command.getPermissionDefault()));
         commands.put(command.getName(), command);
     }
 
@@ -189,8 +198,12 @@ public abstract class RSCommand<T extends RSPlugin> extends Command {
         return null;
     }
 
+    private String getTranslationKey() {
+        return parent == null ? getName() : parent.getName() + ".commands." + getName();
+    }
+
     protected String getLocalizedName(Player player) {
-        return command.get(player, getName() + ".name");
+        return command.get(player, getTranslationKey() + ".name");
     }
 
     protected String getLocalizedDescription(Player player) {
@@ -211,13 +224,13 @@ public abstract class RSCommand<T extends RSPlugin> extends Command {
     @NotNull
     @Override
     public String getDescription() {
-        return getName() + ".description";
+        return getTranslationKey() + ".description";
     }
 
     @NotNull
     @Override
     public String getUsage() {
-        return getName() + ".usage";
+        return getTranslationKey() + ".usage";
     }
 
     @Override

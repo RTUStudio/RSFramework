@@ -19,5 +19,4 @@ dataNameType:
   exist: "<red>This name is duplicated</red>"
 
 command:
-  broadcast:
-    empty: "<red>Message is empty</red>"
+  empty: "<red>Message is empty</red>"

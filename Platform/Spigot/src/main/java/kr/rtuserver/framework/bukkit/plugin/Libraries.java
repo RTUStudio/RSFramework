@@ -13,6 +13,7 @@ class Libraries {
         this.manager = new BukkitLibraryManager(plugin, "Libraries");
         manager.addMavenCentral();
         manager.addJitPack();
+        manager.addRepository("https://repo.papermc.io");
     }
 
     public void load(@NotNull String dependency) {

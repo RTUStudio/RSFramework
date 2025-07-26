@@ -16,6 +16,7 @@ class Libraries {
         this.manager = new VelocityLibraryManager<>(plugin, logger, dataDirectory, pluginManager, "Libraries");
         manager.addMavenCentral();
         manager.addJitPack();
+        manager.addRepository("https://repo.papermc.io");
     }
 
     public void load(@NotNull String dependency) {

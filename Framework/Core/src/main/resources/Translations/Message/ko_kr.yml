@@ -19,5 +19,4 @@ dataNameType:
   exist: "<red>이미 사용중인 이름입니다</red>"
 
 command:
-  broadcast:
-    empty: "<red>메세지가 비어있습니다</red>"
+  empty: "<red>메세지가 비어있습니다</red>"

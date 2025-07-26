@@ -11,16 +11,23 @@ import java.util.UUID;
 public interface NameProvider extends Provider {
 
     @NotNull
-    List<String> getNames();
+    List<String> names(Scope scope);
 
-    @NotNull
-    List<String> getNames(boolean includeProxy);
+    /**
+     * Get all player names on current server
+     * @return player names
+     */
+    default @NotNull List<String> names() {
+        return names(Scope.CURRENT_SERVER);
+    }
 
-    @NotNull
-    String getName(Player player);
+    enum Scope {
+        GLOBAL_SERVERS,
+        CURRENT_SERVER
+    }
 
     @Nullable
-    Player getPlayer(String name);
+    String getName(UUID uniqueId);
 
     @Nullable
     UUID getUniqueId(String name);
