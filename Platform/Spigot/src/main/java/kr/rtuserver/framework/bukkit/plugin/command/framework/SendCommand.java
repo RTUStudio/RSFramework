@@ -4,6 +4,7 @@ import kr.rtuserver.framework.bukkit.api.command.RSCommand;
 import kr.rtuserver.framework.bukkit.api.command.RSCommandData;
 import kr.rtuserver.framework.bukkit.api.configuration.translation.message.MessageTranslation;
 import kr.rtuserver.framework.bukkit.api.core.provider.Providers;
+import kr.rtuserver.framework.bukkit.api.core.provider.name.NameProvider;
 import kr.rtuserver.framework.bukkit.api.format.ComponentFormatter;
 import kr.rtuserver.framework.bukkit.api.player.PlayerChat;
 import kr.rtuserver.framework.bukkit.api.player.PlayerList;
@@ -50,7 +51,7 @@ public class SendCommand extends RSCommand<RSFramework> {
 
     @Override
     public List<String> tabComplete(RSCommandData data) {
-        if (data.length(2)) return providers.getName().names();
+        if (data.length(2)) return providers.getName().names(NameProvider.Scope.GLOBAL_SERVERS);
         return List.of();
     }
 
