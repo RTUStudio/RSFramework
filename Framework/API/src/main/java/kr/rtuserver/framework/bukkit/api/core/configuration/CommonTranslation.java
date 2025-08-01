@@ -7,6 +7,6 @@ public interface CommonTranslation {
 
     String get(TranslationType type, String key);
 
-    String get(TranslationType type, CommandSender sender, String key);
+    String get(TranslationType type, String locale, String key);
 
 }

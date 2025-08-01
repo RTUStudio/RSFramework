@@ -35,8 +35,8 @@ public class Configurations {
             message.reload();
             command.reload();
         } else {
-            message = new MessageTranslation(plugin, TranslationType.MESSAGE, setting.getLocale());
-            command = new CommandTranslation(plugin, TranslationType.COMMAND, setting.getLocale());
+            message = new MessageTranslation(plugin, TranslationType.MESSAGE, locale);
+            command = new CommandTranslation(plugin, TranslationType.COMMAND, locale);
         }
     }
 

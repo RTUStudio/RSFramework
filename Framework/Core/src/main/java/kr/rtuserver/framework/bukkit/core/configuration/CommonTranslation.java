@@ -16,19 +16,19 @@ public class CommonTranslation implements kr.rtuserver.framework.bukkit.api.core
     }
 
     @Override
-    public String get(TranslationType type, CommandSender sender, String key) {
+    public String get(TranslationType type, String locale, String key) {
         return switch (type) {
-            case COMMAND -> getCommand(sender, key);
-            case MESSAGE -> getMessage(sender, key);
+            case COMMAND -> getCommand(locale, key);
+            case MESSAGE -> getMessage(locale, key);
         };
     }
 
-    private String getCommand(CommandSender sender, String key) {
-        return plugin.getConfigurations().getCommand().get(sender, "common." + key);
+    private String getCommand(String locale, String key) {
+        return plugin.getConfigurations().getCommand().get(locale, "common." + key);
     }
 
-    private String getMessage(CommandSender sender, String key) {
-        return plugin.getConfigurations().getMessage().get(sender, "common." + key);
+    private String getMessage(String locale, String key) {
+        return plugin.getConfigurations().getMessage().get(locale, "common." + key);
     }
 
 }
