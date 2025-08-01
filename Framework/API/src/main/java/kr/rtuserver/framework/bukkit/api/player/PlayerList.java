@@ -2,17 +2,17 @@ package kr.rtuserver.framework.bukkit.api.player;
 
 import kr.rtuserver.cdi.LightDI;
 import kr.rtuserver.framework.bukkit.api.core.Framework;
+import kr.rtuserver.framework.bukkit.api.platform.MinecraftVersion;
 import kr.rtuserver.protoweaver.api.proxy.ProxyPlayer;
 import kr.rtuserver.protoweaver.bukkit.api.BukkitProtoWeaver;
 import lombok.Getter;
+import net.kyori.adventure.translation.Translator;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.HashSet;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 @Getter
 public class PlayerList {
@@ -40,7 +40,10 @@ public class PlayerList {
         if (protoWeaver.isConnected() && includeProxy) return new HashSet<>(protoWeaver.getPlayers().values());
         Set<ProxyPlayer> players = new HashSet<>();
         for (Player player : Bukkit.getOnlinePlayers()) {
-            players.add(new ProxyPlayer(player.getUniqueId(), player.getName(), player.getLocale(),null));
+            Locale locale;
+            if (MinecraftVersion.isPaper()) locale = player.locale();
+            else locale = Objects.requireNonNullElse(Translator.parseLocale(player.getLocale()), Locale.US);
+            players.add(new ProxyPlayer(player.getUniqueId(), player.getName(), locale,null));
         }
         return players;
     }
