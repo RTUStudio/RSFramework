@@ -6,6 +6,7 @@ import kr.rtuserver.protoweaver.api.protocol.Packet;
 import kr.rtuserver.protoweaver.api.protocol.internal.InternalPacket;
 import kr.rtuserver.protoweaver.api.proxy.ProxyPlayer;
 import kr.rtuserver.protoweaver.bukkit.api.nms.IProtoWeaver;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Map;
 import java.util.Set;
@@ -17,6 +18,7 @@ public interface BukkitProtoWeaver {
 
     IProtoWeaver getProtoWeaver();
 
+    @NotNull
     Map<UUID, ProxyPlayer> getPlayers();
 
     boolean isConnected();

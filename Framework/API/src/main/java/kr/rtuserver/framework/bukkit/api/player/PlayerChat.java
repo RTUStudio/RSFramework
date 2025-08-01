@@ -164,7 +164,7 @@ public class PlayerChat {
     }
 
     public static void announce(RSPlugin plugin, ProxyPlayer target, String minimessage) {
-        Player player = Bukkit.getPlayer(target.getUniqueId());
+        Player player = Bukkit.getPlayer(target.uniqueId());
         if (player == null) {
             SendMessage packet = new SendMessage(target, ComponentFormatter.mini(plugin.getPrefix()) + minimessage);
             framework().getProtoWeaver().sendPacket(packet);
@@ -172,7 +172,7 @@ public class PlayerChat {
     }
 
     public static void announce(RSPlugin plugin, ProxyPlayer target, Component component) {
-        Player player = Bukkit.getPlayer(target.getUniqueId());
+        Player player = Bukkit.getPlayer(target.uniqueId());
         if (player == null) {
             String message = ComponentFormatter.mini(plugin.getPrefix().append(component));
             framework().getProtoWeaver().sendPacket(new SendMessage(target, message));
@@ -180,14 +180,14 @@ public class PlayerChat {
     }
 
     public static void send(ProxyPlayer target, String minimessage) {
-        Player player = Bukkit.getPlayer(target.getUniqueId());
+        Player player = Bukkit.getPlayer(target.uniqueId());
         if (player == null) {
             framework().getProtoWeaver().sendPacket(new SendMessage(target, minimessage));
         } else PlayerChat.of(framework().getPlugin(), player).send(minimessage);
     }
 
     public static void send(ProxyPlayer target, Component component) {
-        Player player = Bukkit.getPlayer(target.getUniqueId());
+        Player player = Bukkit.getPlayer(target.uniqueId());
         if (player == null) {
             framework().getProtoWeaver().sendPacket(new SendMessage(target, ComponentFormatter.mini(component)));
         } else PlayerChat.of(framework().getPlugin(), player).send(component);

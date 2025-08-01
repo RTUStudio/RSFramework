@@ -164,9 +164,10 @@ public class VelocityProtoWeaver implements kr.rtuserver.protoweaver.velocity.ap
         for (Player player : server.getAllPlayers()) {
             Optional<ServerConnection> connection = player.getCurrentServer();
             if (connection.isEmpty()) continue;
+
             ServerInfo info = connection.get().getServerInfo();
             UUID uuid = player.getUniqueId();
-            ProxyPlayer pp = new ProxyPlayer(uuid, info.getName(), player.getUsername());
+            ProxyPlayer pp = new ProxyPlayer(uuid, player.getUsername(), player.getEffectiveLocale(), info.getName());
             players.put(uuid, pp);
         }
         VelocityProtoHandler.getServers().forEach(server -> server.send(new PlayerList(players)));
@@ -210,7 +211,7 @@ public class VelocityProtoWeaver implements kr.rtuserver.protoweaver.velocity.ap
         } else if (packet instanceof TeleportRequest request) {
             Optional<RegisteredServer> optionalServer = this.server.getServer(request.server());
             if (optionalServer.isEmpty()) return;
-            Optional<Player> optionalPlayer = this.server.getPlayer(request.player().getUniqueId());
+            Optional<Player> optionalPlayer = this.server.getPlayer(request.player().uniqueId());
             if (optionalPlayer.isEmpty()) return;
             RegisteredServer targetServer = optionalServer.get();
             Player targetPlayer = optionalPlayer.get();

@@ -122,11 +122,11 @@ public class BukkitProtoWeaver implements kr.rtuserver.protoweaver.bukkit.api.Bu
 
     public void onPacket(HandlerCallback.Packet data) {
         Object packet = data.packet();
-        if (packet instanceof PlayerList(Map<UUID, ProxyPlayer> players)) {
+        if (packet instanceof PlayerList(Map<UUID, ProxyPlayer> map)) {
             this.players.clear();
-            this.players.putAll(players);
+            this.players.putAll(map);
         } else if (packet instanceof TeleportRequest request) {
-            Player player = Bukkit.getPlayer(request.player().getUniqueId());
+            Player player = Bukkit.getPlayer(request.player().uniqueId());
             if (player == null) return;
             Location location = null;
             if (request instanceof LocationTeleport lt) {
@@ -136,7 +136,7 @@ public class BukkitProtoWeaver implements kr.rtuserver.protoweaver.bukkit.api.Bu
                 location = new Location(world, loc.x(), loc.y(), loc.z(), loc.yaw(), loc.pitch());
             } else if (request instanceof PlayerTeleport pt) {
                 ProxyPlayer loc = pt.target();
-                Player target = Bukkit.getPlayer(loc.getUniqueId());
+                Player target = Bukkit.getPlayer(loc.uniqueId());
                 if (target == null) return;
                 location = target.getLocation();
             }

@@ -139,7 +139,7 @@ public class BungeeProtoWeaver implements kr.rtuserver.protoweaver.bungee.api.Bu
             if (server == null) continue;
             ServerInfo info = server.getInfo();
             UUID uuid = player.getUniqueId();
-            ProxyPlayer pp = new ProxyPlayer(uuid, info.getName(), player.getName());
+            ProxyPlayer pp = new ProxyPlayer(uuid, player.getName(), player.getLocale(), info.getName());
             players.put(uuid, pp);
         }
         BungeeProtoHandler.getServers().forEach(server -> server.send(new PlayerList(players)));
@@ -164,7 +164,7 @@ public class BungeeProtoWeaver implements kr.rtuserver.protoweaver.bungee.api.Bu
         } else if (packet instanceof TeleportRequest request) {
             ServerInfo info = this.server.getServerInfo(request.server());
             if (info == null) return;
-            ProxiedPlayer player = this.server.getPlayer(request.player().getUniqueId());
+            ProxiedPlayer player = this.server.getPlayer(request.player().uniqueId());
             if (player == null) return;
             player.connect(info, (result, error) -> {
                 if (error != null) teleportRequests.remove(player.getUniqueId());

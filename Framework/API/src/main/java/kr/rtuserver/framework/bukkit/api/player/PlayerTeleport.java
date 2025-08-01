@@ -60,8 +60,8 @@ public class PlayerTeleport {
     }
 
     public CompletableFuture<Boolean> teleport(@NotNull ProxyPlayer target) {
-        if (server().equalsIgnoreCase(target.getServer())) {
-            Player targetPlayer = Bukkit.getPlayer(target.getUniqueId());
+        if (server().equalsIgnoreCase(target.server())) {
+            Player targetPlayer = Bukkit.getPlayer(target.uniqueId());
             if (targetPlayer == null) return CompletableFuture.completedFuture(false);
             return teleport(targetPlayer.getLocation());
         } else {

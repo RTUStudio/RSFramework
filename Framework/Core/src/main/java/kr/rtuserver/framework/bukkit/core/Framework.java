@@ -109,7 +109,7 @@ public class Framework implements kr.rtuserver.framework.bukkit.api.core.Framewo
         } else if (packet.packet() instanceof Broadcast(String minimessage)) {
             PlayerChat.broadcast(minimessage);
         } else if (packet.packet() instanceof SendMessage(ProxyPlayer target, String minimessage)) {
-            Player player = Bukkit.getPlayer(target.getUniqueId());
+            Player player = Bukkit.getPlayer(target.uniqueId());
             if (player != null) PlayerChat.of(plugin, player).send(minimessage);
         }
     }

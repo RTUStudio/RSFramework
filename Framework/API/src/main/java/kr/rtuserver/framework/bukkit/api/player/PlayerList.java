@@ -7,12 +7,12 @@ import kr.rtuserver.protoweaver.bukkit.api.BukkitProtoWeaver;
 import lombok.Getter;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.HashSet;
-import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 @Getter
 public class PlayerList {
@@ -24,17 +24,24 @@ public class PlayerList {
         return framework;
     }
 
+    @Nullable
     public static ProxyPlayer getPlayer(UUID uniqueId) {
-        return getPlayers().stream().filter(player -> player.getUniqueId().equals(uniqueId)).findFirst().orElse(null);
+        return getPlayers().stream().filter(player -> player.uniqueId().equals(uniqueId)).findFirst().orElse(null);
     }
 
+    @NotNull
     public static Set<ProxyPlayer> getPlayers() {
         return getPlayers(true);
     }
 
+    @NotNull
     public static Set<ProxyPlayer> getPlayers(boolean includeProxy) {
         BukkitProtoWeaver protoWeaver = framework().getProtoWeaver();
         if (protoWeaver.isConnected() && includeProxy) return new HashSet<>(protoWeaver.getPlayers().values());
-        return Bukkit.getOnlinePlayers().stream().map(player -> getPlayer(player.getUniqueId())).filter(Objects::nonNull).collect(Collectors.toSet());
+        Set<ProxyPlayer> players = new HashSet<>();
+        for (Player player : Bukkit.getOnlinePlayers()) {
+            players.add(new ProxyPlayer(player.getUniqueId(), player.getName(), player.getLocale(),null));
+        }
+        return players;
     }
 }
