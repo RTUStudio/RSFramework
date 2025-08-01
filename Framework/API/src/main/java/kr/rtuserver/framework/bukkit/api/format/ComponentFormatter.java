@@ -30,8 +30,8 @@ public class ComponentFormatter {
         return MiniMessage.miniMessage().serialize(component);
     }
 
-    public static Component parse(String msg) {
-        return parse(null, msg);
+    public static Component parse(String message) {
+        return parse(null, message);
     }
 
     public static Component parse(CommandSender sender, String miniMessage) {
@@ -44,6 +44,14 @@ public class ComponentFormatter {
 
     public static String legacy(char legacyCharacter, Component component) {
         return LegacyComponentSerializer.legacy(legacyCharacter).serialize(component);
+    }
+
+    public static Component legacy(String message) {
+        return legacy(LegacyComponentSerializer.SECTION_CHAR, message);
+    }
+
+    public static Component legacy(char legacyCharacter, String message) {
+        return LegacyComponentSerializer.legacy(legacyCharacter).deserialize(message);
     }
 
     public static Component system(CommandSender sender, String miniMessage) {
