@@ -19,6 +19,7 @@ import lombok.Setter;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
+import org.bukkit.command.CommandSender;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
 import org.bukkit.permissions.PermissionDefault;
@@ -147,8 +148,12 @@ public abstract class RSPlugin extends JavaPlugin {
         framework.registerCommand(command, reload);
     }
 
-    public void registerPermission(String name, PermissionDefault permissionDefault) {
-        framework.registerPermission(name, permissionDefault);
+    public boolean hasPermission(CommandSender sender, String permission) {
+        return sender.hasPermission(getName().toLowerCase() + "." + permission.toLowerCase());
+    }
+
+    public void registerPermission(String permission, PermissionDefault permissionDefault) {
+        framework.registerPermission(getName().toLowerCase() + permission.toLowerCase(), permissionDefault);
     }
 
     /**

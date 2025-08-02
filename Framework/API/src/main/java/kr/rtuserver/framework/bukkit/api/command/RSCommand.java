@@ -67,7 +67,7 @@ public abstract class RSCommand<T extends RSPlugin> extends Command {
         this.message = plugin.getConfigurations().getMessage();
         this.command = plugin.getConfigurations().getCommand();
         this.chat = PlayerChat.of(plugin);
-        super.setPermission(plugin.getName() + ".command." + getName());
+        super.setPermission(plugin.getName().toLowerCase() + ".command." + getName());
         List<String> aliases = new ArrayList<>(names.subList(1, names.size()));
         for (Translation translation : command.getMap().values()) {
             String name = translation.get(getName() + ".name");
@@ -123,7 +123,12 @@ public abstract class RSCommand<T extends RSPlugin> extends Command {
         return sender.isOp();
     }
 
-    public boolean hasPermission(String node) {
+    public boolean hasPermission(String permission) {
+        return plugin.hasPermission(sender, permission);
+    }
+    
+    private boolean hasCommandPermission(String node) {
+        if (node == null) return false;
         return sender.hasPermission(node);
     }
 
@@ -145,12 +150,12 @@ public abstract class RSCommand<T extends RSPlugin> extends Command {
         RSCommandData data = new RSCommandData(args);
         RSCommand<? extends RSPlugin> sub = findCommand(data.args(index));
         if (sub == null) {
-            if (hasPermission(getPermission())) {
+            if (hasCommandPermission(getPermission())) {
                 if (!execute(data)) wrongUsage();
             } else chat.announce(message.getCommon(player(), "noPermission"));
         } else {
             if (sub.getName().equalsIgnoreCase("reload")) reload(data);
-            if (hasPermission(sub.getPermission())) {
+            if (hasCommandPermission(sub.getPermission())) {
                 if (!sub.execute(sender, commandLabel, args)) sub.wrongUsage();
             } else chat.announce(message.getCommon(player(), "noPermission"));
         }
@@ -168,7 +173,9 @@ public abstract class RSCommand<T extends RSPlugin> extends Command {
         StringBuilder builder = new StringBuilder("<gradient:" + startGradient + ":" + endGradient + ">");
         for (int i = 0; i < list.size(); i++) {
             RSCommand<? extends RSPlugin> cmd = list.get(i);
-            if (!hasPermission(cmd.getPermission())) continue;
+            String permission = cmd.getPermission();
+            if (permission == null) continue;
+            if (!sender.hasPermission(permission)) continue;
             String usage = cmd.getLocalizedUsage(player());
             if (usage.isEmpty()) usage = "/" + cmd.getLocalizedCommand(player());
             if (i > 0) builder.append("\n");
@@ -184,9 +191,9 @@ public abstract class RSCommand<T extends RSPlugin> extends Command {
 
     public void registerCommand(RSCommand<? extends RSPlugin> command) {
         command.setParent(this);
-        String permission = plugin.getName() + ".command." + command.getQualifiedName();
-        command.setPermission(permission);
-        Bukkit.getPluginManager().addPermission(new Permission(permission, command.getPermissionDefault()));
+        String permission = "command." + command.getQualifiedName();
+        command.setPermission(plugin.getName().toLowerCase() + "." + permission);
+        plugin.registerPermission(permission, command.getPermissionDefault());
         commands.put(command.getName(), command);
     }
 
@@ -241,12 +248,12 @@ public abstract class RSCommand<T extends RSPlugin> extends Command {
         RSCommandData data = new RSCommandData(args);
         List<String> list = new ArrayList<>();
         if (data.length(index + 1)) for (RSCommand<? extends RSPlugin> cmd : commands.values()) {
-            if (hasPermission(cmd.getPermission())) list.add(cmd.getLocalizedName(player()));
+            if (hasCommandPermission(cmd.getPermission())) list.add(cmd.getLocalizedName(player()));
         }
         RSCommand<? extends RSPlugin> sub = findCommand(data.args(0));
         if (sub == null) {
-            if (hasPermission(getPermission())) list.addAll(tabComplete(data));
-        } else if (hasPermission(sub.getPermission())) {
+            if (hasCommandPermission(getPermission())) list.addAll(tabComplete(data));
+        } else if (hasCommandPermission(sub.getPermission())) {
             if (data.length() > sub.index) list.addAll(sub.tabComplete(sender, alias, args));
         }
         return list;
