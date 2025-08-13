@@ -7,9 +7,10 @@ import kr.rtuserver.framework.bukkit.api.platform.FileResource;
 import kr.rtuserver.framework.bukkit.api.scheduler.CraftScheduler;
 import lombok.Getter;
 import org.bukkit.Bukkit;
-import org.simpleyaml.configuration.ConfigurationSection;
-import org.simpleyaml.configuration.comments.CommentType;
-import org.simpleyaml.configuration.file.YamlFile;
+import org.spongepowered.configurate.CommentedConfigurationNode;
+import org.spongepowered.configurate.ConfigurationNode;
+import org.spongepowered.configurate.yaml.YamlConfigurationLoader;
+import org.yaml.snakeyaml.comments.CommentType;
 
 import java.io.File;
 import java.io.IOException;
@@ -41,8 +42,9 @@ public class RSConfiguration<T extends RSPlugin> {
     @Getter
     private final T plugin;
     private final File file;
+    private final YamlConfigurationLoader loader;
     @Getter
-    private final YamlFile config;
+    private final CommentedConfigurationNode config;
     @Getter
     private final int version;
     @Getter
@@ -56,28 +58,34 @@ public class RSConfiguration<T extends RSPlugin> {
     public RSConfiguration(T plugin, String folder, String name, Integer version) {
         this.plugin = plugin;
         this.file = FileResource.createFileCopy(plugin, folder, name);
-        this.config = new YamlFile(file);
+        if (file == null) throw new IllegalArgumentException("Could not find file " + folder + "/" + name);
+        this.loader = YamlConfigurationLoader.builder().file(file).build();
+        try {
+            config = loader.load();
+        } catch (IOException e) {
+            throw new IllegalArgumentException(e.getMessage());
+        }
         load();
         if (version != null) set("version", version);
         this.version = version != null ? version : 1;
         String id = plugin.getName();
         String author = String.join(" & ", plugin.getDescription().getAuthors());
         config.options().header(String.format(HEADER, id, author, id, author));
-        config.options().copyDefaults(true);
+        config.options().shouldCopyDefaults(true);
     }
 
-    protected static Map<String, Object> toMap(ConfigurationSection section) {
-        ImmutableMap.Builder<String, Object> builder = ImmutableMap.builder();
-        if (section != null) {
-            for (String key : section.getKeys(false)) {
-                Object obj = section.get(key);
-                if (obj != null) {
-                    builder.put(key, obj instanceof ConfigurationSection val ? toMap(val) : obj);
-                }
-            }
-        }
-        return builder.build();
-    }
+//    protected static Map<String, Object> toMap(ConfigurationNode section) {
+//        ImmutableMap.Builder<String, Object> builder = ImmutableMap.builder();
+//        if (section != null) {
+//            for (String key : section.getKeys(false)) {
+//                Object obj = section.get(key);
+//                if (obj != null) {
+//                    builder.put(key, obj instanceof ConfigurationSection val ? toMap(val) : obj);
+//                }
+//            }
+//        }
+//        return builder.build();
+//    }
 
     public void setup(RSConfiguration<T> instance) {
         this.instance = instance;
@@ -126,7 +134,7 @@ public class RSConfiguration<T extends RSPlugin> {
     }
 
     public void save() {
-        if (plugin.isEnabled()) CraftScheduler.runAsync(plugin, scheduledTask -> saveFile());
+        if (plugin.isEnabled()) CraftScheduler.async(plugin, scheduledTask -> saveFile());
         else saveFile();
     }
 

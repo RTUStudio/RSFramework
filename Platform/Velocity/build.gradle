@@ -33,8 +33,8 @@ processResources {
 
 tasks.withType(AbstractRun.class).configureEach {
     javaLauncher = javaToolchains.launcherFor {
-        vendor = JvmVendorSpec.JETBRAINS
-        languageVersion = JavaLanguageVersion.of(21)
+        languageVersion = JavaLanguageVersion.of(java_version as Integer)
     }
     jvmArgs("-XX:+AllowEnhancedClassRedefinition")
 }
+

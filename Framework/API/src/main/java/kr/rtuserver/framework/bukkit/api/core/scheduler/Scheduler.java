@@ -1,59 +1,52 @@
 package kr.rtuserver.framework.bukkit.api.core.scheduler;
 
-import kr.rtuserver.framework.bukkit.api.RSPlugin;
 import org.bukkit.Location;
 import org.bukkit.entity.Entity;
+import org.bukkit.plugin.Plugin;
 
 import java.util.function.Consumer;
 
 public interface Scheduler {
 
-    void run(RSPlugin plugin, Consumer<ScheduledTask> consumer);
+    void sync(Plugin plugin, Consumer<ScheduledTask> consumer);
 
-    ScheduledTask run(RSPlugin plugin, Runnable runnable);
+    ScheduledTask sync(Plugin plugin, Runnable runnable);
 
-    void runLater(RSPlugin plugin, Consumer<ScheduledTask> consumer, long delay);
+    void delay(Plugin plugin, Consumer<ScheduledTask> consumer, long delay, boolean async);
 
-    ScheduledTask runLater(RSPlugin plugin, Runnable runnable, long delay);
+    ScheduledTask delay(Plugin plugin, Runnable runnable, long delay, boolean async);
 
-    void runTimer(RSPlugin plugin, Consumer<ScheduledTask> consumer, long delay, long period);
+    void repeat(Plugin plugin, Consumer<ScheduledTask> consumer, long delay, long period, boolean async);
 
-    ScheduledTask runTimer(RSPlugin plugin, Runnable runnable, long delay, long period);
+    ScheduledTask repeat(Plugin plugin, Runnable runnable, long delay, long period, boolean async);
 
-    void runAsync(RSPlugin plugin, Consumer<ScheduledTask> consumer);
+    void async(Plugin plugin, Consumer<ScheduledTask> consumer);
 
-    ScheduledTask runAsync(RSPlugin plugin, Runnable runnable);
+    ScheduledTask async(Plugin plugin, Runnable runnable);
 
-    void runLaterAsync(RSPlugin plugin, Consumer<ScheduledTask> consumer, long delay);
+    void sync(Plugin plugin, Location location, Consumer<ScheduledTask> consumer);
 
-    ScheduledTask runLaterAsync(RSPlugin plugin, Runnable runnable, long delay);
+    ScheduledTask sync(Plugin plugin, Location location, Runnable runnable);
 
-    void runTimerAsync(RSPlugin plugin, Consumer<ScheduledTask> consumer, long delay, long period);
+    void delay(Plugin plugin, Location location, Consumer<ScheduledTask> consumer, long delay, boolean async);
 
-    ScheduledTask runTimerAsync(RSPlugin plugin, Runnable runnable, long delay, long period);
+    ScheduledTask delay(Plugin plugin, Location location, Runnable runnable, long delay, boolean async);
 
-    void run(RSPlugin plugin, Location location, Consumer<ScheduledTask> consumer);
+    void repeat(Plugin plugin, Location location, Consumer<ScheduledTask> consumer, long delay, long period, boolean async);
 
-    ScheduledTask run(RSPlugin plugin, Location location, Runnable runnable);
+    ScheduledTask repeat(Plugin plugin, Location location, Runnable runnable, long delay, long period, boolean async);
 
-    void runLater(RSPlugin plugin, Location location, Consumer<ScheduledTask> consumer, long delay);
+    void sync(Plugin plugin, Entity entity, Consumer<ScheduledTask> consumer);
 
-    ScheduledTask runLater(RSPlugin plugin, Location location, Runnable runnable, long delay);
+    ScheduledTask sync(Plugin plugin, Entity entity, Runnable runnable);
 
-    void runTimer(RSPlugin plugin, Location location, Consumer<ScheduledTask> consumer, long delay, long period);
+    void delay(Plugin plugin, Entity entity, Consumer<ScheduledTask> consumer, long delay, boolean async);
 
-    ScheduledTask runTimer(RSPlugin plugin, Location location, Runnable runnable, long delay, long period);
+    ScheduledTask delay(Plugin plugin, Entity entity, Runnable runnable, long delay, boolean async);
 
-    void run(RSPlugin plugin, Entity entity, Consumer<ScheduledTask> consumer);
+    void repeat(Plugin plugin, Entity entity, Consumer<ScheduledTask> consumer, long delay, long period, boolean async);
 
-    ScheduledTask run(RSPlugin plugin, Entity entity, Runnable runnable);
-
-    void runLater(RSPlugin plugin, Entity entity, Consumer<ScheduledTask> consumer, long delay);
-
-    ScheduledTask runLater(RSPlugin plugin, Entity entity, Runnable runnable, long delay);
-
-    void runTimer(RSPlugin plugin, Entity entity, Consumer<ScheduledTask> consumer, long delay, long period);
-
-    ScheduledTask runTimer(RSPlugin plugin, Entity entity, Runnable runnable, long delay, long period);
+    ScheduledTask repeat(Plugin plugin, Entity entity, Runnable runnable, long delay, long period, boolean async);
 
 }
+

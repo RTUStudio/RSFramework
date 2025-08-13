@@ -14,7 +14,7 @@ public class CommandLimit implements kr.rtuserver.framework.bukkit.api.core.inte
     private final Map<UUID, Integer> executeLimit = new ConcurrentHashMap<>();
 
     public CommandLimit(RSPlugin plugin) {
-        CraftScheduler.runTimerAsync(plugin, this, 0, 1);
+        CraftScheduler.repeatAsync(plugin, this, 0, 1);
     }
 
     @Override

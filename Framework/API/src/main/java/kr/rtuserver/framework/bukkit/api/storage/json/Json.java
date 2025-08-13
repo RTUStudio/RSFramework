@@ -106,9 +106,9 @@ public class Json implements Storage {
             this.plugin = plugin;
             this.file = file;
             this.data = data;
-            this.task = CraftScheduler.runTimerAsync(plugin, () -> {
+            this.task = CraftScheduler.repeatAsync(plugin, () -> {
                 if (!needSave.get()) return;
-                CraftScheduler.run(plugin, () -> {
+                CraftScheduler.sync(plugin, () -> {
                     save();
                     needSave.set(false);
                 });
