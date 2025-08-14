@@ -7,19 +7,20 @@ import kr.rtuserver.framework.bukkit.api.platform.FileResource;
 import kr.rtuserver.framework.bukkit.api.scheduler.CraftScheduler;
 import lombok.Getter;
 import org.bukkit.Bukkit;
+import org.jetbrains.annotations.NotNull;
 import org.spongepowered.configurate.CommentedConfigurationNode;
 import org.spongepowered.configurate.ConfigurationNode;
+import org.spongepowered.configurate.serialize.SerializationException;
 import org.spongepowered.configurate.yaml.YamlConfigurationLoader;
-import org.yaml.snakeyaml.comments.CommentType;
 
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.logging.Level;
+import java.util.stream.Collectors;
 
 @SuppressWarnings("unused")
 public class RSConfiguration<T extends RSPlugin> {
@@ -44,7 +45,7 @@ public class RSConfiguration<T extends RSPlugin> {
     private final File file;
     private final YamlConfigurationLoader loader;
     @Getter
-    private final CommentedConfigurationNode config;
+    private CommentedConfigurationNode config;
     @Getter
     private final int version;
     @Getter
@@ -62,10 +63,10 @@ public class RSConfiguration<T extends RSPlugin> {
         this.loader = YamlConfigurationLoader.builder().file(file).build();
         try {
             config = loader.load();
-        } catch (IOException e) {
-            throw new IllegalArgumentException(e.getMessage());
+        } catch (IOException ex) {
+            throw new IllegalArgumentException(ex.getMessage());
         }
-        load();
+        loadConfig();
         if (version != null) set("version", version);
         this.version = version != null ? version : 1;
         String id = plugin.getName();
@@ -74,40 +75,33 @@ public class RSConfiguration<T extends RSPlugin> {
         config.options().shouldCopyDefaults(true);
     }
 
-//    protected static Map<String, Object> toMap(ConfigurationNode section) {
-//        ImmutableMap.Builder<String, Object> builder = ImmutableMap.builder();
-//        if (section != null) {
-//            for (String key : section.getKeys(false)) {
-//                Object obj = section.get(key);
-//                if (obj != null) {
-//                    builder.put(key, obj instanceof ConfigurationSection val ? toMap(val) : obj);
-//                }
-//            }
-//        }
-//        return builder.build();
-//    }
+    protected Map<Object, Object> toMap(@NotNull ConfigurationNode node) {
+        ImmutableMap.Builder<Object, Object> builder = ImmutableMap.builder();
+        for (Map.Entry<Object, ? extends ConfigurationNode> entry : node.childrenMap().entrySet()) {
+            ConfigurationNode value = entry.getValue();
+            if (value == null) continue;
+            builder.put(entry.getKey(), value.isMap() ? toMap(value) : value);
+        }
+        return builder.build();
+    }
 
     public void setup(RSConfiguration<T> instance) {
         this.instance = instance;
-        init();
+        loadMethod();
         save();
     }
 
-    protected void log(Level level, String s) {
-        Bukkit.getLogger().log(level, s);
-    }
-
     public void reload() {
-        load();
-        init();
+        loadConfig();
+        loadMethod();
     }
 
-    public void load() {
+    private void loadConfig() {
         changed = false;
         try {
-            final String previous = config.dump();
-            config.loadWithComments();
-            String dump = config.dump();
+            final String previous = config.copy().getString();
+            config = loader.load();
+            String dump = config.copy().getString();
             if (!previous.isEmpty()) if (!previous.equalsIgnoreCase(dump)) changed = true;
         } catch (IOException ignore) {
         } catch (Exception ex) {
@@ -116,7 +110,7 @@ public class RSConfiguration<T extends RSPlugin> {
         }
     }
 
-    private void init() {
+    private void loadMethod() {
         for (Method method : getClass().getDeclaredMethods()) {
             if (Modifier.isPrivate(method.getModifiers())) {
                 if (method.getParameterTypes().length == 0 && method.getReturnType() == Void.TYPE) {
@@ -140,7 +134,7 @@ public class RSConfiguration<T extends RSPlugin> {
 
     private void saveFile() {
         try {
-            config.save(file);
+            loader.save(config);
         } catch (IOException ex) {
             Bukkit.getLogger().log(Level.SEVERE, "Could not save " + file, ex);
         }
@@ -170,8 +164,8 @@ public class RSConfiguration<T extends RSPlugin> {
         return getLong(path, def, new String[]{});
     }
 
-    protected <E> List<E> getList(String path, List<E> def) {
-        return getList(path, def, new String[]{});
+    protected <E> List<E> getList(String path, Class<E> type, List<E> def) {
+        return getList(path, type, def, new String[]{});
     }
 
     protected List<String> getStringList(String path, List<String> def) {
@@ -198,118 +192,126 @@ public class RSConfiguration<T extends RSPlugin> {
         return getLongList(path, def, new String[]{});
     }
 
-    protected Map<String, Object> getMap(String path, Map<String, Object> def) {
+    protected Map<Object, Object> getMap(String path, Map<Object, Object> def) {
         return getMap(path, def, new String[]{});
     }
 
-    public ConfigurationSection getConfigurationSection(String path) {
-        return getConfigurationSection(path, "");
-    }
-
-    protected void set(String path, Object val, String... comment) {
-        config.addDefault(path, val);
-        if (comment.length != 0) setComment(path, comment);
-        config.set(path, val);
+    protected CommentedConfigurationNode set(String path, Object val, String... comment) {
+        CommentedConfigurationNode node = pathToNode(path);
+        try {
+            node.set(val);
+            comment(node, comment);
+        } catch (SerializationException ex) {
+            Bukkit.getLogger().log(Level.SEVERE, "Could not set " + path, ex);
+        }
+        return node;
     }
 
     protected String getString(String path, String def, String... comment) {
-        config.addDefault(path, def);
-        if (comment.length != 0) setComment(path, comment);
-        return config.getString(path, config.getString(path));
+        CommentedConfigurationNode node = set(path, def, comment);
+        return node.getString(def);
     }
 
     protected boolean getBoolean(String path, boolean def, String... comment) {
-        config.addDefault(path, def);
-        if (comment.length != 0) setComment(path, comment);
-        return config.getBoolean(path, config.getBoolean(path));
+        CommentedConfigurationNode node = set(path, def, comment);
+        return node.getBoolean(def);
     }
 
     protected double getDouble(String path, double def, String... comment) {
-        config.addDefault(path, def);
-        if (comment.length != 0) setComment(path, comment);
-        return config.getDouble(path, config.getDouble(path));
+        CommentedConfigurationNode node = set(path, def, comment);
+        return node.getDouble(def);
     }
 
     protected int getInt(String path, int def, String... comment) {
-        config.addDefault(path, def);
-        if (comment.length != 0) setComment(path, comment);
-        return config.getInt(path, config.getInt(path));
+        CommentedConfigurationNode node = set(path, def, comment);
+        return node.getInt(def);
     }
 
     protected long getLong(String path, long def, String... comment) {
-        config.addDefault(path, def);
-        if (comment.length != 0) setComment(path, comment);
-        return config.getLong(path, config.getLong(path));
+        CommentedConfigurationNode node = set(path, def, comment);
+        return node.getLong(def);
     }
 
-    protected <E> List<E> getList(String path, List<E> def, String... comment) {
-        config.addDefault(path, def);
-        if (comment.length != 0) setComment(path, comment);
-        return (List<E>) config.getList(path, config.getList(path));
+    @NotNull
+    protected <E> List<E> getList(String path, Class<E> type, List<E> def, String... comment) {
+        CommentedConfigurationNode node = set(path, def, comment);
+        try {
+            return node.getList(type, def);
+        } catch (SerializationException ex) {
+            Throwables.throwIfUnchecked(ex);
+            return new ArrayList<>();
+        }
     }
 
     protected List<String> getStringList(String path, List<String> def, String... comment) {
-        config.addDefault(path, def);
-        if (comment.length != 0) setComment(path, comment);
-        List<String> result = config.getStringList(path);
-        return result != null ? result : def;
+        return getList(path, String.class, def, comment);
     }
 
     protected List<Boolean> getBooleanList(String path, List<Boolean> def, String... comment) {
-        config.addDefault(path, def);
-        if (comment.length != 0) setComment(path, comment);
-        List<Boolean> result = config.getBooleanList(path);
-        return result != null ? result : def;
+        return getList(path, Boolean.class, def, comment);
     }
 
     protected List<Float> getFloatList(String path, List<Float> def, String... comment) {
-        config.addDefault(path, def);
-        if (comment.length != 0) setComment(path, comment);
-        List<Float> result = config.getFloatList(path);
-        return result != null ? result : def;
+        return getList(path, Float.class, def, comment);
     }
 
     protected List<Double> getDoubleList(String path, List<Double> def, String... comment) {
-        config.addDefault(path, def);
-        if (comment.length != 0) setComment(path, comment);
-        List<Double> result = config.getDoubleList(path);
-        return result != null ? result : def;
+        return getList(path, Double.class, def, comment);
     }
 
     protected List<Integer> getIntegerList(String path, List<Integer> def, String... comment) {
-        config.addDefault(path, def);
-        if (comment.length != 0) setComment(path, comment);
-        List<Integer> result = config.getIntegerList(path);
-        return result != null ? result : def;
+        return getList(path, Integer.class, def, comment);
     }
 
     protected List<Long> getLongList(String path, List<Long> def, String... comment) {
-        config.addDefault(path, def);
-        if (comment.length != 0) setComment(path, comment);
-        List<Long> result = config.getLongList(path);
-        return result != null ? result : def;
+        return getList(path, Long.class, def, comment);
     }
 
-    protected Map<String, Object> getMap(String path, Map<String, Object> def, String... comment) {
-        if (def != null && config.getConfigurationSection(path) == null) {
-            config.addDefault(path, def);
-            if (comment.length != 0) setComment(path, comment);
-            return def;
+    protected Map<Object, Object> getMap(String path, Map<Object, Object> def, String... comment) {
+        CommentedConfigurationNode node = set(path, def, comment);
+        return toMap(node);
+    }
+
+    protected Set<String> keys() {
+        Set<Object> keys = config.childrenMap().keySet();
+        return keys.stream().map(Object::toString).collect(Collectors.toSet());
+    }
+
+    protected Set<String> keys(String path) {
+        return keys(path, new String[]{});
+    }
+
+    protected Set<String> keys(String path, String... comment) {
+        CommentedConfigurationNode node = pathToNode(path);
+        Set<Object> keys = node.childrenMap().keySet();
+        return keys.stream().map(Object::toString).collect(Collectors.toSet());
+
+    }
+
+    private void comment(CommentedConfigurationNode node, String... comment) {
+        if (comment.length == 0) return;
+        node.comment(String.join("\n", comment));
+    }
+
+    protected CommentedConfigurationNode pathToNode(String path) {
+        String[] split = path.split("\\.");
+        Object[] nodes = new Object[split.length];
+        for (int i = 0; i < split.length; i++) {
+            try {
+                nodes[i] = Long.parseLong(split[i]);
+            } catch (NumberFormatException e) {
+                nodes[i] = split[i];
+            }
         }
-        return toMap(config.getConfigurationSection(path));
+        return config.node(nodes);
     }
 
-    public ConfigurationSection getDefaultSection() {
-        return config.getDefaultSection();
-    }
-
-    public ConfigurationSection getConfigurationSection(String path, String... comment) {
-        if (comment.length != 0) setComment(path, comment);
-        return config.getConfigurationSection(path);
-    }
-
-    private void setComment(String path, String... comment) {
-        config.setComment(path, String.join("\n", comment), CommentType.BLOCK);
+    private Long parseLong(String s) {
+        try {
+            return Long.parseLong(s);
+        } catch (NumberFormatException e) {
+            return null;
+        }
     }
 
 }
