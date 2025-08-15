@@ -18,10 +18,10 @@ public class Translation extends RSConfiguration<RSPlugin> {
     }
 
     private void init() {
-        for (String key : getConfig().getKeys(true)) {
-            String result = getString(key, "");
-            if (result.isEmpty()) continue;
-            map.put(key, result);
+        for (String key : keys()) {
+//            String result = getString(key, "");
+//            if (result.isEmpty()) continue;
+//            map.put(key, result);
         }
     }
 

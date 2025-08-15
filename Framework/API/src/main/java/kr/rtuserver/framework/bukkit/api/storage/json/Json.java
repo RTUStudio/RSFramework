@@ -106,13 +106,13 @@ public class Json implements Storage {
             this.plugin = plugin;
             this.file = file;
             this.data = data;
-            this.task = CraftScheduler.repeatAsync(plugin, () -> {
+            this.task = CraftScheduler.repeat(plugin, () -> {
                 if (!needSave.get()) return;
                 CraftScheduler.sync(plugin, () -> {
                     save();
                     needSave.set(false);
                 });
-            }, savePeriod, savePeriod);
+            }, savePeriod, savePeriod, true);
         }
 
         private void debug(String type, String collection, String json) {

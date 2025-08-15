@@ -30,11 +30,4 @@ processResources {
     }
 }
 
-tasks.withType(AbstractRun.class).configureEach {
-    javaLauncher = javaToolchains.launcherFor {
-        languageVersion = JavaLanguageVersion.of(java_version as Integer)
-    }
-    jvmArgs("-XX:+AllowEnhancedClassRedefinition")
-}
-
 

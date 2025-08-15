@@ -9,8 +9,11 @@ import lombok.Getter;
 import org.bukkit.Bukkit;
 import org.jetbrains.annotations.NotNull;
 import org.spongepowered.configurate.CommentedConfigurationNode;
+import org.spongepowered.configurate.ConfigurateException;
 import org.spongepowered.configurate.ConfigurationNode;
+import org.spongepowered.configurate.loader.HeaderMode;
 import org.spongepowered.configurate.serialize.SerializationException;
+import org.spongepowered.configurate.yaml.NodeStyle;
 import org.spongepowered.configurate.yaml.YamlConfigurationLoader;
 
 import java.io.File;
@@ -60,7 +63,10 @@ public class RSConfiguration<T extends RSPlugin> {
         this.plugin = plugin;
         this.file = FileResource.createFileCopy(plugin, folder, name);
         if (file == null) throw new IllegalArgumentException("Could not find file " + folder + "/" + name);
-        this.loader = YamlConfigurationLoader.builder().file(file).build();
+        this.loader = YamlConfigurationLoader.builder().file(file)
+                .indent(2)
+                .nodeStyle(NodeStyle.BLOCK)
+                .headerMode(HeaderMode.PRESERVE).build();
         try {
             config = loader.load();
         } catch (IOException ex) {
@@ -98,9 +104,10 @@ public class RSConfiguration<T extends RSPlugin> {
 
     private void loadConfig() {
         changed = false;
-        try {
+        try { // TODO: 코드를 깔끔하게
             final String previous = config.copy().getString();
             config = loader.load();
+            if (previous == null) return;
             String dump = config.copy().getString();
             if (!previous.isEmpty()) if (!previous.equalsIgnoreCase(dump)) changed = true;
         } catch (IOException ignore) {
@@ -207,34 +214,48 @@ public class RSConfiguration<T extends RSPlugin> {
         return node;
     }
 
+    protected CommentedConfigurationNode addDefault(String path, Object val, String... comment) {
+        CommentedConfigurationNode node = pathToNode(path);
+        System.out.println(node.virtual());
+        if (node.virtual()) {
+            try {
+                node.set(val);
+            } catch (SerializationException ex) {
+                Bukkit.getLogger().log(Level.SEVERE, "Could not set " + path, ex);
+            }
+        }
+        comment(node, comment);
+        return node;
+    }
+
     protected String getString(String path, String def, String... comment) {
-        CommentedConfigurationNode node = set(path, def, comment);
+        CommentedConfigurationNode node = addDefault(path, def, comment);
         return node.getString(def);
     }
 
     protected boolean getBoolean(String path, boolean def, String... comment) {
-        CommentedConfigurationNode node = set(path, def, comment);
+        CommentedConfigurationNode node = addDefault(path, def, comment);
         return node.getBoolean(def);
     }
 
     protected double getDouble(String path, double def, String... comment) {
-        CommentedConfigurationNode node = set(path, def, comment);
+        CommentedConfigurationNode node = addDefault(path, def, comment);
         return node.getDouble(def);
     }
 
     protected int getInt(String path, int def, String... comment) {
-        CommentedConfigurationNode node = set(path, def, comment);
+        CommentedConfigurationNode node = addDefault(path, def, comment);
         return node.getInt(def);
     }
 
     protected long getLong(String path, long def, String... comment) {
-        CommentedConfigurationNode node = set(path, def, comment);
+        CommentedConfigurationNode node = addDefault(path, def, comment);
         return node.getLong(def);
     }
 
     @NotNull
     protected <E> List<E> getList(String path, Class<E> type, List<E> def, String... comment) {
-        CommentedConfigurationNode node = set(path, def, comment);
+        CommentedConfigurationNode node = addDefault(path, def, comment);
         try {
             return node.getList(type, def);
         } catch (SerializationException ex) {
@@ -268,7 +289,7 @@ public class RSConfiguration<T extends RSPlugin> {
     }
 
     protected Map<Object, Object> getMap(String path, Map<Object, Object> def, String... comment) {
-        CommentedConfigurationNode node = set(path, def, comment);
+        CommentedConfigurationNode node = addDefault(path, def, comment);
         return toMap(node);
     }
 
@@ -290,7 +311,13 @@ public class RSConfiguration<T extends RSPlugin> {
 
     private void comment(CommentedConfigurationNode node, String... comment) {
         if (comment.length == 0) return;
+        System.out.println("Comment: " + String.join("\n", comment) + "/" + node.path() + "/" + node.virtual());
         node.comment(String.join("\n", comment));
+        try {
+            loader.save(config);
+        } catch (ConfigurateException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     protected CommentedConfigurationNode pathToNode(String path) {
@@ -303,7 +330,9 @@ public class RSConfiguration<T extends RSPlugin> {
                 nodes[i] = split[i];
             }
         }
-        return config.node(nodes);
+        CommentedConfigurationNode node = config.node(nodes);
+        System.out.println(path + " / " + node.raw());
+        return node;
     }
 
     private Long parseLong(String s) {

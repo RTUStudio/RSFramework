@@ -17,7 +17,7 @@ Framework Bukkit Plugin for RSPlugin (Spigot/Paper/Folia/Velocity/Bungee/Hybrid)
 2. Proxy
     - `./gradlew runVelocity -p ./Platform/Velocity`
     - `./gradlew runWaterfall -p ./Platform/Bungee`
-3. `./gradlew runServer -p ./Platform/Bukkit`
+3. `./gradlew runServer -p ./Framework`
 4. Don't forget. You should setup config of Bukkit:`config/paper-global.yml` and Velocity:`velocity.toml`
 
 ## Supported Bukkit
