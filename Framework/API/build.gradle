@@ -13,7 +13,7 @@ dependencies {
     compileOnly "me.clip:placeholderapi:2.11.6"
     compileOnly "net.dmulloy2:ProtocolLib:5.1.0"
 
-    implementation "org.spongepowered:configurate-yaml:4.2.0"
+    implementation "org.spongepowered:configurate-yaml:4.2.0-GeyserMC-SNAPSHOT"
 }
 
 jar {
@@ -27,8 +27,9 @@ shadowJar {
 
     exclude "META-INF/**"
     exclude "classpath.index"
+
     relocate "com.alessiodp.libby", "kr.rtuserver.framework.libby"
-    relocate "org.simpleyaml", "kr.rtuserver.framework.yaml"
+    relocate "org.spongepowered.configurate", "kr.rtuserver.configurate"
     relocate "net.kyori.adventure.platform.bukkit", "kr.rtuserver.framework.bukkit.kyori"
     relocate "de.tr7zw.changeme.nbtapi", "kr.rtuserver.framework.bukkit.api.nbt"
 

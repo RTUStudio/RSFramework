@@ -216,7 +216,6 @@ public class RSConfiguration<T extends RSPlugin> {
 
     protected CommentedConfigurationNode addDefault(String path, Object val, String... comment) {
         CommentedConfigurationNode node = pathToNode(path);
-        System.out.println(node.virtual());
         if (node.virtual()) {
             try {
                 node.set(val);
@@ -311,12 +310,11 @@ public class RSConfiguration<T extends RSPlugin> {
 
     private void comment(CommentedConfigurationNode node, String... comment) {
         if (comment.length == 0) return;
-        System.out.println("Comment: " + String.join("\n", comment) + "/" + node.path() + "/" + node.virtual());
         node.comment(String.join("\n", comment));
         try {
             loader.save(config);
-        } catch (ConfigurateException e) {
-            throw new RuntimeException(e);
+        } catch (ConfigurateException ex) {
+            throw new RuntimeException(ex);
         }
     }
 
@@ -326,19 +324,18 @@ public class RSConfiguration<T extends RSPlugin> {
         for (int i = 0; i < split.length; i++) {
             try {
                 nodes[i] = Long.parseLong(split[i]);
-            } catch (NumberFormatException e) {
+            } catch (NumberFormatException ex) {
                 nodes[i] = split[i];
             }
         }
         CommentedConfigurationNode node = config.node(nodes);
-        System.out.println(path + " / " + node.raw());
         return node;
     }
 
     private Long parseLong(String s) {
         try {
             return Long.parseLong(s);
-        } catch (NumberFormatException e) {
+        } catch (NumberFormatException ex) {
             return null;
         }
     }

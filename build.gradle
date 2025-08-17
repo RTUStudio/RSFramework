@@ -67,10 +67,13 @@ allprojects {
         maven {
             url = "https://repo.dmulloy2.net/repository/public/"
         }
-
         maven {
             name = "essentialsx"
             url = uri("https://repo.essentialsx.net/releases")
+        }
+        maven {
+            name = "GeyserMC Fork of Sponge/Configurate"
+            url = "https://repo.opencollab.dev/maven-snapshots"
         }
     }
 
@@ -127,7 +130,7 @@ shadowJar {
     exclude "META-INF/**"
     exclude "classpath.index"
 
-    relocate "org.simpleyaml", "kr.rtuserver.framework.yaml"
+    relocate "org.spongepowered.configurate", "kr.rtuserver.configurate"
     relocate "net.kyori.adventure.platform.bukkit", "kr.rtuserver.framework.bukkit.kyori"
     relocate "de.tr7zw.changeme.nbtapi", "kr.rtuserver.framework.bukkit.api.nbt"
 

@@ -31,8 +31,8 @@ public class ProtoTrustManager {
             protected MessageDigest initialValue() {
                 try {
                     return MessageDigest.getInstance("SHA256");
-                } catch (NoSuchAlgorithmException e) {
-                    throw new IllegalArgumentException("Unsupported hash algorithm", e);
+                } catch (NoSuchAlgorithmException ex) {
+                    throw new IllegalArgumentException("Unsupported hash algorithm", ex);
                 }
             }
         };
@@ -88,8 +88,8 @@ public class ProtoTrustManager {
         try (BufferedReader reader = new BufferedReader(new FileReader(hostsFile))) {
             reader.lines().filter(l -> l.startsWith(host + ":" + port)).findFirst()
                     .ifPresent(l -> trusted = StringUtil.decodeHexDump(l.split("=")[1]));
-        } catch (IOException e) {
-            throw new RuntimeException(e);
+        } catch (IOException ex) {
+            throw new RuntimeException(ex);
         }
     }
 
