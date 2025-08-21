@@ -1,7 +1,6 @@
 package kr.rtuserver.framework.bukkit.api.core.provider.name;
 
 import kr.rtuserver.framework.bukkit.api.core.provider.Provider;
-import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -15,15 +14,11 @@ public interface NameProvider extends Provider {
 
     /**
      * Get all player names on current server
+     *
      * @return player names
      */
     default @NotNull List<String> names() {
         return names(Scope.CURRENT_SERVER);
-    }
-
-    enum Scope {
-        GLOBAL_SERVERS,
-        CURRENT_SERVER
     }
 
     @Nullable
@@ -31,5 +26,10 @@ public interface NameProvider extends Provider {
 
     @Nullable
     UUID getUniqueId(String name);
+
+    enum Scope {
+        GLOBAL_SERVERS,
+        CURRENT_SERVER
+    }
 
 }

@@ -54,7 +54,7 @@ public class MinecraftVersion {
     }
 
     public static boolean isPaper() {
-        return hasClass("com.destroystokyo.paper.PaperConfig") || hasClass("kr.rtuserver.framework.bukkit.api.configuration.paper.configuration.Configuration");
+        return hasClass("com.destroystokyo.paper.PaperConfig") || hasClass("kr.rtuserver.framework.bukkit.core.configuration.Configuration");
     }
 
     public static boolean isFolia() {

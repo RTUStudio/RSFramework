@@ -5,11 +5,13 @@ import kr.rtuserver.framework.bukkit.api.configuration.RSConfiguration;
 import lombok.Getter;
 
 @Getter
-public class JsonConfig extends RSConfiguration<RSPlugin> {
+@SuppressWarnings("unused")
+public class JsonConfig extends RSConfiguration.Wrapper<RSPlugin> {
+
     private int savePeriod = 10;
 
     public JsonConfig(RSPlugin plugin) {
-        super(plugin, "Configs/Storages", "Json.yml", null);
+        super(plugin, "Configs/Storages", "Json.yml");
         setup(this);
     }
 

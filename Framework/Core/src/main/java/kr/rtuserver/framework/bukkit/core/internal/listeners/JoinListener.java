@@ -26,7 +26,7 @@ public class JoinListener extends RSListener<RSPlugin> {
         Map<String, RSPlugin> plugins = framework.getPlugins();
         Audience audience = getPlugin().getAdventure().player(player);
         for (RSPlugin plugin : plugins.values()) {
-            if (!plugin.getConfigurations().getSetting().isWelcome()) continue;
+            if (!plugin.getConfiguration().getSetting().isWelcome()) continue;
             String name = gradient(plugin.getName());
             String author = String.join(" & ", plugin.getDescription().getAuthors());
             String str = "%s developed by %s".formatted(name, author);

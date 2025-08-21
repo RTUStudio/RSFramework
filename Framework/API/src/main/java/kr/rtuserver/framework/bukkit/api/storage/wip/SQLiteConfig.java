@@ -5,7 +5,9 @@ import kr.rtuserver.framework.bukkit.api.configuration.RSConfiguration;
 import lombok.Getter;
 
 @Getter
-public class SQLiteConfig extends RSConfiguration<RSPlugin> {
+@SuppressWarnings("unused")
+public class SQLiteConfig extends RSConfiguration.Wrapper<RSPlugin> {
+
     private String file = "./Data/SQLite.sql";
     private String database = "";
     private String username = "";

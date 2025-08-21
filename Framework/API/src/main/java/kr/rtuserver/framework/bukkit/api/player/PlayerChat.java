@@ -20,12 +20,6 @@ import java.util.function.Predicate;
 public class PlayerChat {
 
     static Framework framework;
-
-    static Framework framework() {
-        if (framework == null) framework = LightDI.getBean(Framework.class);
-        return framework;
-    }
-
     private final RSPlugin plugin;
     @Getter
     private Audience receiver;
@@ -33,6 +27,11 @@ public class PlayerChat {
     PlayerChat(RSPlugin plugin, Audience audience) {
         this.plugin = plugin;
         this.receiver = audience;
+    }
+
+    static Framework framework() {
+        if (framework == null) framework = LightDI.getBean(Framework.class);
+        return framework;
     }
 
     public static PlayerChat of(RSPlugin plugin) {
@@ -49,6 +48,68 @@ public class PlayerChat {
 
     public static PlayerChat of(RSPlugin plugin, Audience audience) {
         return new PlayerChat(plugin, audience);
+    }
+
+    public static void broadcast(String minimessage) {
+        broadcast(ComponentFormatter.mini(minimessage));
+    }
+
+    public static void broadcast(Component component) {
+        framework().getPlugin().getAdventure().all().sendMessage(component);
+    }
+
+    public static void broadcast(Predicate<CommandSender> filter, String minimessage) {
+        framework().getPlugin().getAdventure().filter(filter).sendMessage(ComponentFormatter.mini(minimessage));
+    }
+
+    public static void broadcast(Predicate<CommandSender> filter, Component component) {
+        broadcast(filter, ComponentFormatter.mini(component));
+    }
+
+    public static void broadcastAll(String minimessage) {
+        BukkitProtoWeaver pw = framework().getProtoWeaver();
+        if (pw.isConnected()) {
+            if (pw.sendPacket(new Broadcast(minimessage))) return;
+        }
+        broadcast(minimessage);
+    }
+
+    public static void broadcastAll(Component component) {
+        BukkitProtoWeaver pw = framework().getProtoWeaver();
+        if (pw.isConnected()) {
+            if (pw.sendPacket(new Broadcast(ComponentFormatter.mini(component)))) return;
+        }
+        broadcast(component);
+    }
+
+    public static void announce(RSPlugin plugin, ProxyPlayer target, String minimessage) {
+        Player player = Bukkit.getPlayer(target.uniqueId());
+        if (player == null) {
+            SendMessage packet = new SendMessage(target, ComponentFormatter.mini(plugin.getPrefix()) + minimessage);
+            framework().getProtoWeaver().sendPacket(packet);
+        } else PlayerChat.of(plugin, player).announce(minimessage);
+    }
+
+    public static void announce(RSPlugin plugin, ProxyPlayer target, Component component) {
+        Player player = Bukkit.getPlayer(target.uniqueId());
+        if (player == null) {
+            String message = ComponentFormatter.mini(plugin.getPrefix().append(component));
+            framework().getProtoWeaver().sendPacket(new SendMessage(target, message));
+        } else PlayerChat.of(plugin, player).announce(component);
+    }
+
+    public static void send(ProxyPlayer target, String minimessage) {
+        Player player = Bukkit.getPlayer(target.uniqueId());
+        if (player == null) {
+            framework().getProtoWeaver().sendPacket(new SendMessage(target, minimessage));
+        } else PlayerChat.of(framework().getPlugin(), player).send(minimessage);
+    }
+
+    public static void send(ProxyPlayer target, Component component) {
+        Player player = Bukkit.getPlayer(target.uniqueId());
+        if (player == null) {
+            framework().getProtoWeaver().sendPacket(new SendMessage(target, ComponentFormatter.mini(component)));
+        } else PlayerChat.of(framework().getPlugin(), player).send(component);
     }
 
     public void setReceiver(CommandSender sender) {
@@ -129,68 +190,6 @@ public class PlayerChat {
     public void announce(Audience audience, Component component) {
         Component prefix = plugin.getPrefix();
         audience.sendMessage(prefix.append(component));
-    }
-
-    public static void broadcast(String minimessage) {
-        broadcast(ComponentFormatter.mini(minimessage));
-    }
-
-    public static void broadcast(Component component) {
-        framework().getPlugin().getAdventure().all().sendMessage(component);
-    }
-
-    public static void broadcast(Predicate<CommandSender> filter, String minimessage) {
-        framework().getPlugin().getAdventure().filter(filter).sendMessage(ComponentFormatter.mini(minimessage));
-    }
-
-    public static void broadcast(Predicate<CommandSender> filter, Component component) {
-        broadcast(filter, ComponentFormatter.mini(component));
-    }
-
-    public static void broadcastAll(String minimessage) {
-        BukkitProtoWeaver pw = framework().getProtoWeaver();
-        if (pw.isConnected()) {
-            if (pw.sendPacket(new Broadcast(minimessage))) return;
-        }
-        broadcast(minimessage);
-    }
-
-    public static void broadcastAll(Component component) {
-        BukkitProtoWeaver pw = framework().getProtoWeaver();
-        if (pw.isConnected()) {
-            if (pw.sendPacket(new Broadcast(ComponentFormatter.mini(component)))) return;
-        }
-        broadcast(component);
-    }
-
-    public static void announce(RSPlugin plugin, ProxyPlayer target, String minimessage) {
-        Player player = Bukkit.getPlayer(target.uniqueId());
-        if (player == null) {
-            SendMessage packet = new SendMessage(target, ComponentFormatter.mini(plugin.getPrefix()) + minimessage);
-            framework().getProtoWeaver().sendPacket(packet);
-        } else PlayerChat.of(plugin, player).announce(minimessage);
-    }
-
-    public static void announce(RSPlugin plugin, ProxyPlayer target, Component component) {
-        Player player = Bukkit.getPlayer(target.uniqueId());
-        if (player == null) {
-            String message = ComponentFormatter.mini(plugin.getPrefix().append(component));
-            framework().getProtoWeaver().sendPacket(new SendMessage(target, message));
-        } else PlayerChat.of(plugin, player).announce(component);
-    }
-
-    public static void send(ProxyPlayer target, String minimessage) {
-        Player player = Bukkit.getPlayer(target.uniqueId());
-        if (player == null) {
-            framework().getProtoWeaver().sendPacket(new SendMessage(target, minimessage));
-        } else PlayerChat.of(framework().getPlugin(), player).send(minimessage);
-    }
-
-    public static void send(ProxyPlayer target, Component component) {
-        Player player = Bukkit.getPlayer(target.uniqueId());
-        if (player == null) {
-            framework().getProtoWeaver().sendPacket(new SendMessage(target, ComponentFormatter.mini(component)));
-        } else PlayerChat.of(framework().getPlugin(), player).send(component);
     }
 
 }

@@ -2,7 +2,7 @@ package kr.rtuserver.framework.bukkit.plugin.command.framework;
 
 import kr.rtuserver.framework.bukkit.api.command.RSCommand;
 import kr.rtuserver.framework.bukkit.api.command.RSCommandData;
-import kr.rtuserver.framework.bukkit.api.configuration.translation.message.MessageTranslation;
+import kr.rtuserver.framework.bukkit.api.configuration.internal.translation.message.MessageTranslation;
 import kr.rtuserver.framework.bukkit.api.core.provider.Providers;
 import kr.rtuserver.framework.bukkit.api.core.provider.name.NameProvider;
 import kr.rtuserver.framework.bukkit.api.format.ComponentFormatter;

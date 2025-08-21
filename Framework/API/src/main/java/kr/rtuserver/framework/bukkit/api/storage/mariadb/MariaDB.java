@@ -35,7 +35,7 @@ public class MariaDB implements Storage {
 
     public MariaDB(RSPlugin plugin, List<String> list) {
         this.plugin = plugin;
-        this.config = plugin.getConfigurations().getStorage().getMariadb();
+        this.config = plugin.getConfiguration().getStorage().getMariadb();
         this.prefix = config.getTablePrefix();
         HikariConfig hikariConfig = getHikariConfig(plugin);
         hikariDataSource = new HikariDataSource(hikariConfig);

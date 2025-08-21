@@ -3,7 +3,7 @@ package kr.rtuserver.framework.bukkit.core.command;
 import kr.rtuserver.framework.bukkit.api.RSPlugin;
 import kr.rtuserver.framework.bukkit.api.command.RSCommand;
 import kr.rtuserver.framework.bukkit.api.command.RSCommandData;
-import kr.rtuserver.framework.bukkit.api.configuration.translation.Translation;
+import kr.rtuserver.framework.bukkit.api.configuration.internal.translation.Translation;
 import kr.rtuserver.framework.bukkit.api.nms.NMSCommand;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -20,7 +20,7 @@ public class ReloadCommand extends RSCommand<RSPlugin> {
 
     @Override
     protected boolean execute(RSCommandData data) {
-        getPlugin().getConfigurations().reload();
+        getPlugin().getConfiguration().reloadInternal();
         NMSCommand nmsc = framework().getNMS().getCommand();
         for (RSCommand<? extends RSPlugin> rsc : getPlugin().getCommands()) {
             nmsc.unregister(rsc);

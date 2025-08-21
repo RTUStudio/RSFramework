@@ -2,7 +2,6 @@ common:
   reload:
     name: "구성"
     description: "플러그인 구성을 다시 불러옵니다"
-
 rsf:
   name: "프레임워크"
   commands:
@@ -10,11 +9,9 @@ rsf:
       name: "공지"
       description: "공지 메세지를 전송합니다"
       usage: "/프레임워크 공지 [메세지]"
-
     information:
       name: "정보"
       description: "서버의 소프트웨어 정보를 확인합니다"
-
     send:
       name: "전송"
       description: "플레이어에게 메세지를 전송합니다"

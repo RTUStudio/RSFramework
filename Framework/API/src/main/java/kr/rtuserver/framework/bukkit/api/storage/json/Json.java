@@ -26,7 +26,7 @@ public class Json implements Storage {
 
     public Json(RSPlugin plugin, File[] files) {
         this.plugin = plugin;
-        JsonConfig config = plugin.getConfigurations().getStorage().getJson();
+        JsonConfig config = plugin.getConfiguration().getStorage().getJson();
         for (File file : files) {
             try {
                 String name = Files.getNameWithoutExtension(file.getName());

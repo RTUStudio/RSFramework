@@ -23,13 +23,12 @@ import java.util.concurrent.CompletableFuture;
 public class PlayerTeleport {
 
     static Framework framework;
+    private final Player player;
 
     static Framework framework() {
         if (framework == null) framework = LightDI.getBean(Framework.class);
         return framework;
     }
-
-    private final Player player;
 
     public static PlayerTeleport of(Player player) {
         return new PlayerTeleport(player);

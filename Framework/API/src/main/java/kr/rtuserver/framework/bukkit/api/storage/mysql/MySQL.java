@@ -35,7 +35,7 @@ public class MySQL implements Storage {
 
     public MySQL(RSPlugin plugin, List<String> list) {
         this.plugin = plugin;
-        this.config = plugin.getConfigurations().getStorage().getMysql();
+        this.config = plugin.getConfiguration().getStorage().getMysql();
         this.prefix = config.getTablePrefix();
         HikariConfig hikariConfig = getHikariConfig(plugin);
         hikariDataSource = new HikariDataSource(hikariConfig);

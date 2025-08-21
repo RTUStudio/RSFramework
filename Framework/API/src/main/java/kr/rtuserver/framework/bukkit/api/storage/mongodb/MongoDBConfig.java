@@ -5,7 +5,9 @@ import kr.rtuserver.framework.bukkit.api.configuration.RSConfiguration;
 import lombok.Getter;
 
 @Getter
-public class MongoDBConfig extends RSConfiguration<RSPlugin> {
+@SuppressWarnings("unused")
+public class MongoDBConfig extends RSConfiguration.Wrapper<RSPlugin> {
+
     private String host = "127.0.0.1";
     private String port = "27017";
     private String database = "";

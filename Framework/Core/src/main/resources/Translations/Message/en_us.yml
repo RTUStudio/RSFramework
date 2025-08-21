@@ -10,13 +10,11 @@ common:
   error:
     inventory: "<red>Flaw was found in code using inventory click event!</red>"
     cooldown: "<red>Too Quickly! You must try again later</red>"
-
 dataNameType:
   black: "<red>You can't use this name</red>"
   all: "<red>All word of name is wrong format, You can use only English, Korean, Number and _</red>"
   wrong: "<red>Name contains wrong format, You can use only English, Korean, Number and _</red>"
   long: "<red>Max length of name is 15</red>"
   exist: "<red>This name is duplicated</red>"
-
 command:
   empty: "<red>Message is empty</red>"

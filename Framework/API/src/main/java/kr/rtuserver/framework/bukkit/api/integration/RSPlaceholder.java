@@ -2,9 +2,9 @@ package kr.rtuserver.framework.bukkit.api.integration;
 
 import kr.rtuserver.cdi.LightDI;
 import kr.rtuserver.framework.bukkit.api.RSPlugin;
-import kr.rtuserver.framework.bukkit.api.configuration.translation.TranslationConfiguration;
-import kr.rtuserver.framework.bukkit.api.configuration.translation.command.CommandTranslation;
-import kr.rtuserver.framework.bukkit.api.configuration.translation.message.MessageTranslation;
+import kr.rtuserver.framework.bukkit.api.configuration.internal.translation.TranslationConfiguration;
+import kr.rtuserver.framework.bukkit.api.configuration.internal.translation.command.CommandTranslation;
+import kr.rtuserver.framework.bukkit.api.configuration.internal.translation.message.MessageTranslation;
 import kr.rtuserver.framework.bukkit.api.core.Framework;
 import kr.rtuserver.framework.bukkit.api.player.PlayerChat;
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
@@ -22,8 +22,8 @@ public abstract class RSPlaceholder<T extends RSPlugin> extends PlaceholderExpan
 
     public RSPlaceholder(T plugin) {
         this.plugin = plugin;
-        this.message = plugin.getConfigurations().getMessage();
-        this.command = plugin.getConfigurations().getCommand();
+        this.message = plugin.getConfiguration().getMessage();
+        this.command = plugin.getConfiguration().getCommand();
         this.chat = PlayerChat.of(plugin);
     }
 

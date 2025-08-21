@@ -43,7 +43,7 @@ public class PlayerList {
             Locale locale;
             if (MinecraftVersion.isPaper()) locale = player.locale();
             else locale = Objects.requireNonNullElse(Translator.parseLocale(player.getLocale()), Locale.US);
-            players.add(new ProxyPlayer(player.getUniqueId(), player.getName(), locale,null));
+            players.add(new ProxyPlayer(player.getUniqueId(), player.getName(), locale, null));
         }
         return players;
     }

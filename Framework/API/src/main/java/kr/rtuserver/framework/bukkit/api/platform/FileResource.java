@@ -51,6 +51,26 @@ public class FileResource {
         return resultFile;
     }
 
+    public static File copyResource(Plugin plugin, String sourceFolder, String sourceFile) {
+        File targetFolder = createFolder(plugin.getDataFolder() + "/" + sourceFolder);
+        File resultFile = new File(targetFolder, sourceFile);
+        if (resultFile.exists()) return resultFile;
+        try {
+            InputStream in = plugin.getResource(sourceFolder + "/" + sourceFile);
+            if (in == null) return null;
+            if (resultFile.createNewFile()) {
+                OutputStream out = new FileOutputStream(resultFile);
+                ByteStreams.copy(in, out);
+                out.close();
+                in.close();
+                return resultFile;
+            } return null;
+        } catch (Exception e) {
+            Bukkit.getLogger().log(Level.WARNING, "Error copying file " + sourceFolder + "/" + sourceFile, e);
+            return null;
+        }
+    }
+
     public static File createFileCopy(Plugin plugin, String sourceFolder, String sourceFile) {
         File targetFolder = createFolder(plugin.getDataFolder() + "/" + sourceFolder);
         File resultFile = new File(targetFolder, sourceFile);

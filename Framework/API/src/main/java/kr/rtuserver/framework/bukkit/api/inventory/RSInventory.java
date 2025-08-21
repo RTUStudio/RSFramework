@@ -2,9 +2,9 @@ package kr.rtuserver.framework.bukkit.api.inventory;
 
 import kr.rtuserver.cdi.LightDI;
 import kr.rtuserver.framework.bukkit.api.RSPlugin;
-import kr.rtuserver.framework.bukkit.api.configuration.translation.TranslationConfiguration;
-import kr.rtuserver.framework.bukkit.api.configuration.translation.command.CommandTranslation;
-import kr.rtuserver.framework.bukkit.api.configuration.translation.message.MessageTranslation;
+import kr.rtuserver.framework.bukkit.api.configuration.internal.translation.TranslationConfiguration;
+import kr.rtuserver.framework.bukkit.api.configuration.internal.translation.command.CommandTranslation;
+import kr.rtuserver.framework.bukkit.api.configuration.internal.translation.message.MessageTranslation;
 import kr.rtuserver.framework.bukkit.api.core.Framework;
 import kr.rtuserver.framework.bukkit.api.format.ComponentFormatter;
 import kr.rtuserver.framework.bukkit.api.platform.MinecraftVersion;
@@ -33,8 +33,8 @@ public abstract class RSInventory<T extends RSPlugin> implements InventoryHolder
 
     public RSInventory(T plugin) {
         this.plugin = plugin;
-        this.message = plugin.getConfigurations().getMessage();
-        this.command = plugin.getConfigurations().getCommand();
+        this.message = plugin.getConfiguration().getMessage();
+        this.command = plugin.getConfiguration().getCommand();
         this.chat = PlayerChat.of(plugin);
     }
 

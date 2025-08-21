@@ -10,13 +10,11 @@ common:
   error:
     inventory: "<red>인벤토리 클릭 이벤트를 사용하는 코드에서 결함이 발견되었습니다!</red>"
     cooldown: "<red>너무 빠릅니다! 잠시 뒤에 시도해야합니다</red>"
-
 dataNameType:
   black: "<red>사용할 수 없는 이름입니다</red>"
   all: "<red>이름 전체가 잘못된 문자들로 이루어져있습니다 (한글, 영어, 숫자, _)만 사용가능합니다</red>"
   wrong: "<red>이름에 잘못된 문자가 포함되어 있습니다 (한글, 영어, 숫자, _)만 사용가능합니다</red>"
   long: "<red>이름은 15자를 넘을 수 없습니다</red>"
   exist: "<red>이미 사용중인 이름입니다</red>"
-
 command:
   empty: "<red>메세지가 비어있습니다</red>"

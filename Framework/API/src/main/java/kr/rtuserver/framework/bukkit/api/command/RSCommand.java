@@ -2,10 +2,10 @@ package kr.rtuserver.framework.bukkit.api.command;
 
 import kr.rtuserver.cdi.LightDI;
 import kr.rtuserver.framework.bukkit.api.RSPlugin;
-import kr.rtuserver.framework.bukkit.api.configuration.translation.Translation;
-import kr.rtuserver.framework.bukkit.api.configuration.translation.TranslationConfiguration;
-import kr.rtuserver.framework.bukkit.api.configuration.translation.command.CommandTranslation;
-import kr.rtuserver.framework.bukkit.api.configuration.translation.message.MessageTranslation;
+import kr.rtuserver.framework.bukkit.api.configuration.internal.translation.Translation;
+import kr.rtuserver.framework.bukkit.api.configuration.internal.translation.TranslationConfiguration;
+import kr.rtuserver.framework.bukkit.api.configuration.internal.translation.command.CommandTranslation;
+import kr.rtuserver.framework.bukkit.api.configuration.internal.translation.message.MessageTranslation;
 import kr.rtuserver.framework.bukkit.api.core.Framework;
 import kr.rtuserver.framework.bukkit.api.core.module.ThemeModule;
 import kr.rtuserver.framework.bukkit.api.core.provider.name.NameProvider;
@@ -13,11 +13,9 @@ import kr.rtuserver.framework.bukkit.api.player.PlayerChat;
 import lombok.Getter;
 import lombok.ToString;
 import net.kyori.adventure.audience.Audience;
-import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-import org.bukkit.permissions.Permission;
 import org.bukkit.permissions.PermissionDefault;
 import org.jetbrains.annotations.NotNull;
 
@@ -64,8 +62,8 @@ public abstract class RSCommand<T extends RSPlugin> extends Command {
         this.names = Collections.unmodifiableList(names);
         this.plugin = plugin;
         this.permissionDefault = permission;
-        this.message = plugin.getConfigurations().getMessage();
-        this.command = plugin.getConfigurations().getCommand();
+        this.message = plugin.getConfiguration().getMessage();
+        this.command = plugin.getConfiguration().getCommand();
         this.chat = PlayerChat.of(plugin);
         super.setPermission(plugin.getName().toLowerCase() + ".command." + getName());
         List<String> aliases = new ArrayList<>(names.subList(1, names.size()));
@@ -126,7 +124,7 @@ public abstract class RSCommand<T extends RSPlugin> extends Command {
     public boolean hasPermission(String permission) {
         return plugin.hasPermission(sender, permission);
     }
-    
+
     private boolean hasCommandPermission(String node) {
         if (node == null) return false;
         return sender.hasPermission(node);

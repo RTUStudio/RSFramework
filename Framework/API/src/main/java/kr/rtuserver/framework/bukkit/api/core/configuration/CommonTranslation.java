@@ -1,7 +1,6 @@
 package kr.rtuserver.framework.bukkit.api.core.configuration;
 
-import kr.rtuserver.framework.bukkit.api.configuration.translation.TranslationType;
-import org.bukkit.command.CommandSender;
+import kr.rtuserver.framework.bukkit.api.configuration.internal.translation.TranslationType;
 
 public interface CommonTranslation {
 

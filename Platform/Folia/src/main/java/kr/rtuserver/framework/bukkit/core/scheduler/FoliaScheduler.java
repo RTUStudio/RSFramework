@@ -104,7 +104,8 @@ public class FoliaScheduler implements Scheduler {
 
     @Override
     public void delay(Plugin plugin, Location location, Consumer<ScheduledTask> consumer, long delay, boolean async) {
-        if (isValid(location)) this.region.runDelayed(plugin, location, task -> consumer.accept(new FoliaTask(task)), delay);
+        if (isValid(location))
+            this.region.runDelayed(plugin, location, task -> consumer.accept(new FoliaTask(task)), delay);
     }
 
     @Override

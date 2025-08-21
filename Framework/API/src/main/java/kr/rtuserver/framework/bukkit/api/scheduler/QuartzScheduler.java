@@ -53,6 +53,7 @@ public class QuartzScheduler {
     /**
      * Get remain milliseconds to next fire
      * if scheduler is not running, return -1
+     *
      * @return remain milliseconds to next fire
      */
     public long getRemainMilliseconds() {

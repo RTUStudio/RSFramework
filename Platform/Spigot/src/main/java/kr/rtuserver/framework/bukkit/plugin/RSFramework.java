@@ -2,16 +2,12 @@ package kr.rtuserver.framework.bukkit.plugin;
 
 import kr.rtuserver.cdi.LightDI;
 import kr.rtuserver.framework.bukkit.api.RSPlugin;
-import kr.rtuserver.framework.bukkit.api.configuration.paper.configuration.GlobalConfiguration;
-import kr.rtuserver.framework.bukkit.api.configuration.paper.configuration.RSConfiguration;
-import kr.rtuserver.framework.bukkit.api.configuration.paper.configuration.TlConfiguration;
 import kr.rtuserver.framework.bukkit.plugin.command.FrameworkCommand;
 import lombok.Getter;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.Plugin;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 public class RSFramework extends RSPlugin {
@@ -59,20 +55,6 @@ public class RSFramework extends RSPlugin {
             if (plugin instanceof RSPlugin) list.add(plugin.getClass().getPackageName());
         }
         LightDI.init(list.toArray(new String[0]));
-
-        RSConfiguration<RSFramework> rsc = new RSConfiguration<>(this);
-        rsc.register(GlobalConfiguration.class, "Test", 1);
-        rsc.register(TlConfiguration.class, "Translations");
-        System.out.println(rsc.get(GlobalConfiguration.class));
-        System.out.println(rsc.get(TlConfiguration.class).map.keySet().stream().map(objects -> {
-            String[] result = new String[objects.length];
-            for (int i = 0; i < objects.length; i++) {
-                Object o = objects[i];
-                if (o instanceof String) result[i] = "'" + o + "'";
-                else result[i] = o.toString();
-            }
-            return Arrays.toString(result);
-        }).toList());
     }
 
     @Override

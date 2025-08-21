@@ -1,9 +1,8 @@
 package kr.rtuserver.framework.bukkit.core.configuration;
 
 import kr.rtuserver.framework.bukkit.api.RSPlugin;
-import kr.rtuserver.framework.bukkit.api.configuration.translation.TranslationType;
+import kr.rtuserver.framework.bukkit.api.configuration.internal.translation.TranslationType;
 import lombok.RequiredArgsConstructor;
-import org.bukkit.command.CommandSender;
 
 @RequiredArgsConstructor
 public class CommonTranslation implements kr.rtuserver.framework.bukkit.api.core.configuration.CommonTranslation {
@@ -24,11 +23,11 @@ public class CommonTranslation implements kr.rtuserver.framework.bukkit.api.core
     }
 
     private String getCommand(String locale, String key) {
-        return plugin.getConfigurations().getCommand().get(locale, "common." + key);
+        return plugin.getConfiguration().getCommand().get(locale, "common." + key);
     }
 
     private String getMessage(String locale, String key) {
-        return plugin.getConfigurations().getMessage().get(locale, "common." + key);
+        return plugin.getConfiguration().getMessage().get(locale, "common." + key);
     }
 
 }

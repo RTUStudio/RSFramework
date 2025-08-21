@@ -3,7 +3,7 @@ package kr.rtuserver.framework.bukkit.api;
 import com.google.gson.JsonObject;
 import kr.rtuserver.cdi.LightDI;
 import kr.rtuserver.framework.bukkit.api.command.RSCommand;
-import kr.rtuserver.framework.bukkit.api.configuration.Configurations;
+import kr.rtuserver.framework.bukkit.api.configuration.RSConfiguration;
 import kr.rtuserver.framework.bukkit.api.core.Framework;
 import kr.rtuserver.framework.bukkit.api.core.module.ThemeModule;
 import kr.rtuserver.framework.bukkit.api.format.ComponentFormatter;
@@ -41,7 +41,7 @@ public abstract class RSPlugin extends JavaPlugin {
     private Component prefix;
     private RSPlugin plugin;
     private BukkitAudiences adventure;
-    private Configurations configurations;
+    private RSConfiguration configuration;
     @Setter
     private Storage storage;
 
@@ -54,46 +54,47 @@ public abstract class RSPlugin extends JavaPlugin {
     }
 
     public Component getPrefix() {
-        String str = configurations.getSetting().getPrefix();
-        if (str.isEmpty()) return prefix;
+        String str = this.configuration.getSetting().getPrefix();
+        if (str.isEmpty()) return this.prefix;
         return ComponentFormatter.mini(str);
     }
 
     @Override
     public void onEnable() {
         if (MinecraftVersion.isSupport("1.17.1")) {
-            plugin = this;
-            adventure = BukkitAudiences.create(this);
+            this.plugin = this;
+            this.adventure = BukkitAudiences.create(this);
         } else {
             Bukkit.getLogger().warning("Server version is unsupported version (< 1.17.1), Disabling this plugin...");
             Bukkit.getLogger().warning("서버 버전이 지원되지 않는 버전입니다 (< 1.17.1), 플러그인을 비활성화합니다...");
             Bukkit.getPluginManager().disablePlugin(this);
             return;
         }
-        registerPermission(plugin.getName() + ".reload", PermissionDefault.OP);
-        for (String plugin : this.getDescription().getSoftDepend()) framework.hookDependency(plugin);
-        configurations = new Configurations(this);
+
+        registerPermission(this.plugin.getName() + ".reload", PermissionDefault.OP);
+        for (String plugin : this.getDescription().getSoftDepend()) this.framework.hookDependency(plugin);
         enable();
         console("<green>Enable!</green>");
-        framework.loadPlugin(this);
+        this.framework.loadPlugin(this);
     }
 
     @Override
     public void onDisable() {
-        integrations.forEach(Integration::unregister);
+        this.integrations.forEach(Integration::unregister);
         disable();
-        if (storage != null) storage.close();
-        framework.unloadPlugin(this);
+        if (this.storage != null) this.storage.close();
+        this.framework.unloadPlugin(this);
         console("<red>Disable!</red>");
-        if (adventure != null) {
-            adventure.close();
-            adventure = null;
+        if (this.adventure != null) {
+            this.adventure.close();
+            this.adventure = null;
         }
     }
 
     @Override
     public void onLoad() {
         this.framework = LightDI.getBean(Framework.class);
+        this.configuration = new RSConfiguration(this);
         initialize();
         ThemeModule theme = this.framework.getModules().getTheme();
         String text = String.format("<gradient:%s:%s>%s%s%s</gradient>",
@@ -107,7 +108,7 @@ public abstract class RSPlugin extends JavaPlugin {
     }
 
     public void verbose(Component message) {
-        if (configurations.getSetting().isVerbose()) console(message);
+        if (this.configuration.getSetting().isVerbose()) console(message);
     }
 
     public void verbose(String minimessage) {
@@ -128,7 +129,7 @@ public abstract class RSPlugin extends JavaPlugin {
     }
 
     public void registerEvents() {
-        for (Listener listener : listeners) {
+        for (Listener listener : this.listeners) {
             Bukkit.getPluginManager().registerEvents(listener, this);
         }
     }
@@ -145,7 +146,7 @@ public abstract class RSPlugin extends JavaPlugin {
 
     protected void registerCommand(RSCommand<? extends RSPlugin> command, boolean reload) {
         this.commands.add(command);
-        framework.registerCommand(command, reload);
+        this.framework.registerCommand(command, reload);
     }
 
     public boolean hasPermission(CommandSender sender, String permission) {
@@ -153,7 +154,7 @@ public abstract class RSPlugin extends JavaPlugin {
     }
 
     public void registerPermission(String permission, PermissionDefault permissionDefault) {
-        framework.registerPermission(getName().toLowerCase() + permission.toLowerCase(), permissionDefault);
+        this.framework.registerPermission(getName().toLowerCase() + permission.toLowerCase(), permissionDefault);
     }
 
     /**
@@ -166,7 +167,7 @@ public abstract class RSPlugin extends JavaPlugin {
      * @param callback        핸들러 외부에서 수신 이벤트를 받는 callback
      */
     protected void registerProtocol(String namespace, String key, Packet packet, Class<? extends ProtoConnectionHandler> protocolHandler, HandlerCallback callback) {
-        framework.registerProtocol(namespace, key, packet, protocolHandler, callback);
+        this.framework.registerProtocol(namespace, key, packet, protocolHandler, callback);
     }
 
     /**
@@ -174,12 +175,12 @@ public abstract class RSPlugin extends JavaPlugin {
      *
      * @param namespace       네임스페이스
      * @param key             키
-     * @param packets          패킷 정보
+     * @param packets         패킷 정보
      * @param protocolHandler 수신을 담당하는 핸들러
      * @param callback        핸들러 외부에서 수신 이벤트를 받는 callback
      */
     protected void registerProtocol(String namespace, String key, Set<Packet> packets, Class<? extends ProtoConnectionHandler> protocolHandler, HandlerCallback callback) {
-        framework.registerProtocol(namespace, key, packets, protocolHandler, callback);
+        this.framework.registerProtocol(namespace, key, packets, protocolHandler, callback);
     }
 
     protected void registerIntegration(Integration integrationWrapper) {

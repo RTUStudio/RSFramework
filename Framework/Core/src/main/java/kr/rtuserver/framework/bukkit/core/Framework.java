@@ -129,6 +129,7 @@ public class Framework implements kr.rtuserver.framework.bukkit.api.core.Framewo
             Bukkit.getPluginManager().disablePlugin(plugin);
         }
         loadNMS(plugin);
+
         modules = new Modules(this);
         providers = new Providers(this);
 

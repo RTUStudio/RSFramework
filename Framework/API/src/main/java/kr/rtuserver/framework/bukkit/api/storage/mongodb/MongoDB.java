@@ -37,7 +37,7 @@ public class MongoDB implements Storage {
 
     public MongoDB(RSPlugin plugin) {
         this.plugin = plugin;
-        this.config = plugin.getConfigurations().getStorage().getMongodb();
+        this.config = plugin.getConfiguration().getStorage().getMongodb();
         this.prefix = config.getTablePrefix();
         String serverHost = config.getHost() + ":" + config.getPort();
         String uri = "mongodb://";
