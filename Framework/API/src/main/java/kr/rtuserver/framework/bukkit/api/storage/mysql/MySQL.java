@@ -112,7 +112,7 @@ public class MySQL implements Storage {
                 PreparedStatement ps = getConnection().prepareStatement(query);
                 ps.setString(1, json);
                 debug("ADD", table, getDebugQuery(query, List.of(json)));
-                if (!ps.execute()) return false;
+                ps.execute();
                 sync(table, data);
                 return true;
             } catch (SQLException e) {
@@ -165,7 +165,7 @@ public class MySQL implements Storage {
                 PreparedStatement ps = getConnection().prepareStatement(query + ";");
                 setParameters(ps, values);
                 debug("SET", table, getDebugQuery(query + ";", values));
-                if (!ps.execute()) return false;
+                ps.execute();
                 sync(table, find);
                 return true;
             } catch (SQLException e) {

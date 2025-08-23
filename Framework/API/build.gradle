@@ -11,7 +11,7 @@ dependencies {
 //    compileOnly "org.postgresql:postgresql:42.7.3"
 
     compileOnly "me.clip:placeholderapi:2.11.6"
-    compileOnly "com.comphenix.protocol:ProtocolLib:5.1.0"
+    compileOnly "net.dmulloy2:ProtocolLib:5.1.0"
 
     implementation "com.github.Carleslc.Simple-YAML:Simple-Yaml:1.8.4"
 }

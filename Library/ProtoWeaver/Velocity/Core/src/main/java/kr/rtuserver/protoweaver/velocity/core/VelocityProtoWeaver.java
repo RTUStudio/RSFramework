@@ -63,6 +63,7 @@ public class VelocityProtoWeaver implements kr.rtuserver.protoweaver.velocity.ap
         protocol = Protocol.create("rsframework", "internal");
         protocol.setCompression(CompressionType.SNAPPY);
         protocol.setMaxPacketSize(67108864); // 64mb
+        protocol.addPacket(Packet.class);
         protocol.addPacket(ProtocolRegister.class);
         protocol.addPacket(StorageSync.class);
         protocol.addPacket(SendMessage.class);
