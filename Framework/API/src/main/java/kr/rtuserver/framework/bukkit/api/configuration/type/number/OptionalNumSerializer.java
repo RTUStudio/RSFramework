@@ -64,5 +64,5 @@ public abstract class OptionalNumSerializer<T, O> extends ScalarSerializer.Annot
     protected abstract O full(final Number num);
 
     protected abstract boolean belowZero(O value);
-    
+
 }

@@ -13,10 +13,10 @@ public class RSFramework extends Plugin {
     public RSFramework() {
         libraries = new Libraries(this);
 
-        libraries.load("org.apache.commons:commons-lang3:3.14.0");
-        libraries.load("com.google.code.gson:gson:2.10.1");
-        libraries.load("com.google.guava:guava:32.1.2-jre");
-        libraries.load("org.xerial.snappy:snappy-java:1.1.10.5");
+        libraries.load("org.apache.commons:commons-lang3:3.18.0");
+        libraries.load("com.google.code.gson:gson:2.13.1");
+        libraries.load("com.google.guava:guava:33.4.8-jre");
+        libraries.load("org.xerial.snappy:snappy-java:1.1.10.8");
 
         libraries.load("io.netty:netty-buffer:4.1.111.Final");
         libraries.load("io.netty:netty-transport:4.1.111.Final");
@@ -28,7 +28,6 @@ public class RSFramework extends Plugin {
         libraries.load("org.bouncycastle:bcprov-jdk18on:1.80");
         libraries.load("org.bouncycastle:bcutil-jdk18on:1.80");
         libraries.load("org.javassist:javassist:3.30.2-GA");
-        libraries.load("org.reflections:reflections:0.10.2");
     }
 
     @Override

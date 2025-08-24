@@ -138,7 +138,7 @@ public abstract class RSCommand<T extends RSPlugin> extends Command {
             int cooldown = framework.getModules().getCommand().getExecuteLimit();
             if (cooldown > 0) {
                 if (cooldownMap.containsKey(player.getUniqueId())) {
-                    chat.announce(message.getCommon(player, "error.cooldown"));
+                    chat.announce(message.getCommon(player, MessageTranslation.ERROR_COOLDOWN));
                     return true;
                 } else cooldownMap.put(player.getUniqueId(), cooldown);
             }
@@ -150,18 +150,18 @@ public abstract class RSCommand<T extends RSPlugin> extends Command {
         if (sub == null) {
             if (hasCommandPermission(getPermission())) {
                 if (!execute(data)) wrongUsage();
-            } else chat.announce(message.getCommon(player(), "noPermission"));
+            } else chat.announce(message.getCommon(player(), MessageTranslation.NO_PERMISSION));
         } else {
             if (sub.getName().equalsIgnoreCase("reload")) reload(data);
             if (hasCommandPermission(sub.getPermission())) {
                 if (!sub.execute(sender, commandLabel, args)) sub.wrongUsage();
-            } else chat.announce(message.getCommon(player(), "noPermission"));
+            } else chat.announce(message.getCommon(player(), MessageTranslation.NO_PERMISSION));
         }
         return true;
     }
 
     private void wrongUsage() {
-        chat.announce(message.getCommon(player(), "wrongUsage"));
+        chat.announce(message.getCommon(player(), MessageTranslation.WRONG_USAGE));
         ThemeModule module = framework.getModules().getTheme();
         String startGradient = module.getGradientStart();
         String endGradient = module.getGradientEnd();

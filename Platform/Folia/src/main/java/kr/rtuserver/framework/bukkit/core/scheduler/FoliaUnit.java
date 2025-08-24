@@ -1,14 +1,13 @@
 package kr.rtuserver.framework.bukkit.core.scheduler;
 
-import kr.rtuserver.framework.bukkit.api.core.scheduler.ScheduledTask;
+import kr.rtuserver.framework.bukkit.api.core.scheduler.ScheduledUnit;
 import org.bukkit.plugin.Plugin;
-import org.bukkit.scheduler.BukkitTask;
 
-public record SpigotTask(BukkitTask task) implements ScheduledTask {
+public record FoliaUnit(io.papermc.paper.threadedregions.scheduler.ScheduledTask task) implements ScheduledUnit {
 
     @Override
     public Plugin getPlugin() {
-        return task.getOwner();
+        return task.getOwningPlugin();
     }
 
     @Override

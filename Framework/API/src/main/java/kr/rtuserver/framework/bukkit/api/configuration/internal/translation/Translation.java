@@ -20,10 +20,9 @@ public class Translation extends RSConfiguration.Wrapper<RSPlugin> {
 
     private void init() {
         for (String key : keys()) {
-            System.out.println(key);
-//            String result = getString(key, "");
-//            if (result.isEmpty()) continue;
-//            map.put(key, result);
+            String result = getString(key, "");
+            if (result.isEmpty()) continue;
+            map.put(key, result);
         }
     }
 

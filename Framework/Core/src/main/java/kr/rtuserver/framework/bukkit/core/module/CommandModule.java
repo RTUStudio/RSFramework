@@ -15,7 +15,7 @@ public class CommandModule extends ConfigurationPart implements kr.rtuserver.fra
     }
 
     @Getter
-    public class Execute extends  ConfigurationPart {
+    public class Execute extends ConfigurationPart {
 
         @Comment("""
                 Command cooldown (tick)

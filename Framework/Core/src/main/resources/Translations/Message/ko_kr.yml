@@ -1,16 +1,16 @@
 common:
   reload: "<green>구성 파일을 다시 읽었습니다</green>"
-  noPermission: "<red>당신은 권한이 없습니다</red>"
-  wrongUsage: "<red>잘못된 사용</red>"
-  onlyPlayer: "<red>플레이어만 사용 가능한 명령어입니다</red>"
-  onlyConsole: "<red>콘솔에서만 사용 가능한 명령어입니다</red>"
-  notFound:
-    onlinePlayer: "<red>존재하지 않는 유저이거나 오프라인입니다</red>"
-    offlinePlayer: "<red>존재하지 않는 유저입니다</red>"
+  no-permission: "<red>당신은 권한이 없습니다</red>"
+  wrong-usage: "<red>잘못된 사용</red>"
+  only-player: "<red>플레이어만 사용 가능한 명령어입니다</red>"
+  only-console: "<red>콘솔에서만 사용 가능한 명령어입니다</red>"
+  not-found:
+    online-player: "<red>존재하지 않는 유저이거나 오프라인입니다</red>"
+    offline-player: "<red>존재하지 않는 유저입니다</red>"
   error:
     inventory: "<red>인벤토리 클릭 이벤트를 사용하는 코드에서 결함이 발견되었습니다!</red>"
     cooldown: "<red>너무 빠릅니다! 잠시 뒤에 시도해야합니다</red>"
-dataNameType:
+data-name-type:
   black: "<red>사용할 수 없는 이름입니다</red>"
   all: "<red>이름 전체가 잘못된 문자들로 이루어져있습니다 (한글, 영어, 숫자, _)만 사용가능합니다</red>"
   wrong: "<red>이름에 잘못된 문자가 포함되어 있습니다 (한글, 영어, 숫자, _)만 사용가능합니다</red>"

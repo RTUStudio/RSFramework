@@ -1,16 +1,16 @@
 common:
   reload: "<green>Completed reloading configuration</green>"
-  noPermission: "<red>You don't have permission</red>"
-  wrongUsage: "<red>Wrong Usage</red>"
-  onlyPlayer: "<red>Only players can use this command</red>"
-  onlyConsole: "<red>This command is only available on the console</red>"
-  notFound:
-    onlinePLayer: "<red>This adapter does not exist or offline</red>"
-    offlinePlayer: "<red>This adapter does not exist</red>"
+  no-permission: "<red>You don't have permission</red>"
+  wrong-usage: "<red>Wrong Usage</red>"
+  only-player: "<red>Only players can use this command</red>"
+  only-console: "<red>This command is only available on the console</red>"
+  not-found:
+    online-player: "<red>This adapter does not exist or offline</red>"
+    offline-player: "<red>This adapter does not exist</red>"
   error:
     inventory: "<red>Flaw was found in code using inventory click event!</red>"
     cooldown: "<red>Too Quickly! You must try again later</red>"
-dataNameType:
+data-name-type:
   black: "<red>You can't use this name</red>"
   all: "<red>All word of name is wrong format, You can use only English, Korean, Number and _</red>"
   wrong: "<red>Name contains wrong format, You can use only English, Korean, Number and _</red>"

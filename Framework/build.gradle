@@ -14,7 +14,7 @@ for (name in projects) project(":Framework:$name") {
         compileOnly "org.spigotmc:spigot-api:${api_version}-R0.1-SNAPSHOT"
         compileOnly "io.papermc.paper:paper-api:${api_version}-R0.1-SNAPSHOT"
 
-        implementation "net.kyori:adventure-platform-bukkit:4.3.4"
+        implementation "net.kyori:adventure-platform-bukkit:4.4.1"
         implementation "de.tr7zw:item-nbt-api:2.15.2-SNAPSHOT"
 
         compileOnly "com.github.LoneDev6:API-ItemsAdder:3.6.3-beta-14"
@@ -30,7 +30,7 @@ for (name in projects) project(":Framework:$name") {
         compileOnly "com.willfp:eco:6.75.2"
         compileOnly "com.willfp:libreforge:4.64.1"
 
-        compileOnly "org.spongepowered:configurate-yaml:4.2.0-GeyserMC-SNAPSHOT"
+        implementation "org.spongepowered:configurate-yaml:4.2.0-GeyserMC-SNAPSHOT"
     }
 }
 
@@ -44,18 +44,20 @@ jar {
     finalizedBy(shadowJar)
 }
 
+// runServer
 shadowJar {
-    setArchiveClassifier(null)
-    setArchiveBaseName(plugin_name)
-    setArchiveVersion(plugin_version)
+    archiveClassifier.set(null)
+    archiveBaseName.set(plugin_name)
+    archiveVersion.set(plugin_version)
 
     exclude "META-INF/**"
     exclude "classpath.index"
 
-    relocate "com.alessiodp.libby", "kr.rtuserver.framework.libby"
-    relocate "org.spongepowered.configurate", "kr.rtuserver.configurate"
+    relocate "org.reflections", "kr.rtuserver.cdi.reflections"
+    relocate "com.alessiodp.libby", "kr.rtuserver.libby"
     relocate "net.kyori.adventure.platform.bukkit", "kr.rtuserver.framework.bukkit.kyori"
     relocate "de.tr7zw.changeme.nbtapi", "kr.rtuserver.framework.bukkit.api.nbt"
+    relocate "org.spongepowered.configurate", "kr.rtuserver.configurate"
 }
 
 runServer {

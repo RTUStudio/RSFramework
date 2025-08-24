@@ -4,6 +4,7 @@ import com.google.common.io.Files;
 import com.google.gson.*;
 import kr.rtuserver.framework.bukkit.api.RSPlugin;
 import kr.rtuserver.framework.bukkit.api.core.scheduler.ScheduledTask;
+import kr.rtuserver.framework.bukkit.api.core.scheduler.ScheduledUnit;
 import kr.rtuserver.framework.bukkit.api.scheduler.CraftScheduler;
 import kr.rtuserver.framework.bukkit.api.storage.Storage;
 import lombok.Getter;
@@ -40,25 +41,25 @@ public class Json implements Storage {
     }
 
     @Override
-    public CompletableFuture<Boolean> add(@NotNull String name, @NotNull JsonObject data) {
+    public CompletableFuture<Result> add(@NotNull String name, @NotNull JsonObject data) {
         return CompletableFuture.supplyAsync(() -> {
-            if (data.isJsonNull()) return false;
+            if (data.isJsonNull()) return Result.FAILED;
             if (!map.containsKey(name)) {
                 plugin.console("<red>Can't load " + name + " data!</red>");
                 plugin.console("<red>" + name + " 파일을 불러오는 도중 오류가 발생하였습니다!</red>");
-                return false;
+                return Result.FAILED;
             }
             return map.get(name).add(data);
         });
     }
 
     @Override
-    public CompletableFuture<Boolean> set(@NotNull String name, @Nullable JsonObject find, @Nullable JsonObject data) {
+    public CompletableFuture<Result> set(@NotNull String name, @Nullable JsonObject find, @Nullable JsonObject data) {
         return CompletableFuture.supplyAsync(() -> {
             if (!map.containsKey(name)) {
                 plugin.console("<red>Can't load " + name + " data!</red>");
                 plugin.console("<red>" + name + " 파일을 불러오는 도중 오류가 발생하였습니다!</red>");
-                return false;
+                return Result.FAILED;
             }
             return map.get(name).set(find, data);
         });
@@ -94,7 +95,7 @@ public class Json implements Storage {
 
         private final RSPlugin plugin;
 
-        private final Gson gson = new Gson();
+        private final Gson gson = new GsonBuilder().setPrettyPrinting().create();
         private final File file;
         @Getter
         private final AtomicBoolean needSave = new AtomicBoolean(false);
@@ -106,9 +107,9 @@ public class Json implements Storage {
             this.plugin = plugin;
             this.file = file;
             this.data = data;
-            this.task = CraftScheduler.repeat(plugin, () -> {
+            this.task = CraftScheduler.repeat(plugin, s -> {
                 if (!needSave.get()) return;
-                CraftScheduler.sync(plugin, () -> {
+                CraftScheduler.sync(plugin, s2 -> {
                     save();
                     needSave.set(false);
                 });
@@ -120,57 +121,68 @@ public class Json implements Storage {
         }
 
         private boolean isNull(JsonObject json) {
-            return json == null || json.isEmpty() || json.isJsonNull();
+            return json == null || json.isJsonNull() || json.isEmpty();
         }
 
-        public boolean add(JsonObject value) {
+        public Result add(JsonObject value) {
             debug("ADD", file.getName(), value.toString());
-            if (isNull(value)) return false;
-            data.add(value);
+            if (isNull(value)) return Result.FAILED;
+            final boolean contains = data.contains(value);
+            if (!contains) data.add(value);
             needSave.lazySet(true);
-            return true;
+            return contains ? Result.UNCHANGED : Result.UPDATED;
         }
 
-        protected boolean set(JsonObject find, JsonObject value) {
+        protected Result set(JsonObject find, JsonObject value) {
             Map<Integer, JsonObject> list = find(find);
-            if (list.isEmpty()) return false;
-            final JsonArray backup = data;
+            if (list.isEmpty()) return Result.FAILED;
+            boolean changed = false;
+            final JsonArray backup = data.deepCopy();
             List<Integer> toRemove = new ArrayList<>();
+
             for (int key : list.keySet()) {
-                JsonElement resultValue = list.get(key);
-                if (resultValue == null || resultValue.isJsonNull()) return false;
-                JsonObject valObj = resultValue.getAsJsonObject();
-                if (isNull(value)) toRemove.add(key);
-                else {
-                    for (Map.Entry<String, JsonElement> entry : value.entrySet()) {
-                        String property = entry.getKey();
-                        JsonElement element = entry.getValue();
-                        if (element.isJsonNull()) valObj.remove(property);
-                        if (element.isJsonPrimitive()) {
-                            JsonPrimitive primitive = element.getAsJsonPrimitive();
-                            if (primitive.isNumber()) valObj.addProperty(property, primitive.getAsNumber());
-                            else if (primitive.isBoolean()) valObj.addProperty(property, primitive.getAsBoolean());
-                            else if (primitive.isString()) valObj.addProperty(property, primitive.getAsString());
-                            else {
-                                plugin.console("<red>Unsupported type of data tried to be saved! Only supports JsonElement, Number, Boolean and String</red>");
-                                plugin.console("<red>지원하지 않는 타입의 데이터가 저장되려고 했습니다! JsonElement, Number, Boolean, String만 지원합니다</red>");
-                                data = backup;
-                                return false;
-                            }
-                        } else valObj.add(property, element);
-                        if (data.contains(valObj)) data.set(key, valObj);
-                        else data.add(valObj);
+                JsonObject valObj = list.get(key);
+                if (valObj == null || valObj.isJsonNull()) return Result.FAILED;
+
+                if (isNull(value)) {
+                    toRemove.add(key);
+                    continue;
+                }
+
+                for (Map.Entry<String, JsonElement> entry : value.entrySet()) {
+                    String property = entry.getKey();
+                    JsonElement element = entry.getValue();
+
+                    if (element.isJsonNull()) {
+                        valObj.remove(property);
+                    } else if (element.isJsonPrimitive()) {
+                        JsonPrimitive primitive = element.getAsJsonPrimitive();
+                        if (primitive.isNumber()) valObj.addProperty(property, primitive.getAsNumber());
+                        else if (primitive.isBoolean()) valObj.addProperty(property, primitive.getAsBoolean());
+                        else if (primitive.isString()) valObj.addProperty(property, primitive.getAsString());
+                        else {
+                            plugin.console("<red>Unsupported type of data tried to be saved! Only supports JsonElement, Number, Boolean and String</red>");
+                            plugin.console("<red>지원하지 않는 타입의 데이터가 저장되려고 했습니다! JsonElement, Number, Boolean, String만 지원합니다</red>");
+                            data = backup;
+                            return Result.FAILED;
+                        }
+                    } else {
+                        valObj.add(property, element);
                     }
+
+                    data.set(key, valObj);
+                    changed = true;
                 }
             }
+
             for (int i = toRemove.size() - 1; i >= 0; i--) data.remove(toRemove.get(i));
+
             needSave.lazySet(true);
-            return true;
+            return changed ? Result.UPDATED : Result.UNCHANGED;
         }
 
         protected List<JsonObject> get(JsonObject find) {
-            Map<Integer, JsonObject> list = find(find);
-            return new ArrayList<>(list.values());
+            return new ArrayList<>(find(find).values());
         }
 
         public Map<Integer, JsonObject> find(JsonObject find) {
@@ -181,21 +193,28 @@ public class Json implements Storage {
             for (int i = 0; i < data.size(); i++) {
                 JsonElement element = data.get(i);
                 if (!element.isJsonObject()) continue;
-                JsonObject object = element.getAsJsonObject();
 
+                JsonObject object = element.getAsJsonObject();
                 boolean allMatch = true;
+
                 if (!isNull) {
                     for (Map.Entry<String, JsonElement> entry : find.entrySet()) {
                         String key = entry.getKey();
                         JsonElement value = entry.getValue();
                         JsonElement get = object.get(key);
-                        if (value == null) allMatch = false;
-                        else if (value.isJsonNull()) allMatch = get.isJsonNull();
-                        else if (value instanceof JsonObject vjo && get instanceof JsonObject gjo) {
-                            allMatch = vjo.equals(gjo);
-                        } else if (value instanceof JsonPrimitive vjp && get instanceof JsonPrimitive gjp) {
-                            allMatch = vjp.equals(gjp);
+
+                        if (value == null) {
+                            allMatch = false;
+                        } else if (value.isJsonNull()) {
+                            allMatch = get != null && get.isJsonNull();
+                        } else if (value.isJsonObject() && get instanceof JsonObject gjo) {
+                            allMatch = value.equals(gjo);
+                        } else if (value.isJsonPrimitive() && get instanceof JsonPrimitive gjp) {
+                            allMatch = value.equals(gjp);
+                        } else {
+                            allMatch = false;
                         }
+
                         if (!allMatch) break;
                     }
                 }
@@ -205,23 +224,24 @@ public class Json implements Storage {
         }
 
         public boolean sync() {
-            try {
-                JsonElement json = JsonParser.parseReader(new FileReader(file));
-                data = json != null && !json.isJsonNull() ? json.getAsJsonArray() : new JsonArray();
+            try (FileReader reader = new FileReader(file)) {
+                JsonElement json = JsonParser.parseReader(reader);
+                data = (json != null && !json.isJsonNull()) ? json.getAsJsonArray() : new JsonArray();
                 return true;
-            } catch (FileNotFoundException e) {
+            } catch (IOException e) {
                 plugin.console("<red>Error when sync " + file.getName() + "!</red>");
-                plugin.console("<red> " + file.getName() + " 파일과 동기화 도중 오류가 발생하였습니다!</red>");
+                plugin.console("<red>" + file.getName() + " 파일과 동기화 도중 오류가 발생하였습니다!</red>");
+                e.printStackTrace();
                 return false;
             }
         }
 
         private void save() {
             try (Writer writer = new FileWriter(file)) {
-                gson.newBuilder().setPrettyPrinting().create().toJson(data, writer);
+                gson.toJson(data, writer);
             } catch (IOException e) {
                 plugin.console("<red>Error when saving " + file.getName() + "!</red>");
-                plugin.console("<red> " + file.getName() + " 파일을 저장하는 도중 오류가 발생하였습니다!</red>");
+                plugin.console("<red>" + file.getName() + " 파일을 저장하는 도중 오류가 발생하였습니다!</red>");
             }
         }
 
@@ -230,5 +250,4 @@ public class Json implements Storage {
             save();
         }
     }
-
 }

@@ -12,7 +12,6 @@ import com.mongodb.client.result.DeleteResult;
 import com.mongodb.client.result.UpdateResult;
 import kr.rtuserver.framework.bukkit.api.RSPlugin;
 import kr.rtuserver.framework.bukkit.api.storage.Storage;
-import kr.rtuserver.protoweaver.api.protocol.internal.StorageSync;
 import org.bson.BsonDocument;
 import org.bson.Document;
 import org.bson.conversions.Bson;
@@ -38,7 +37,7 @@ public class MongoDB implements Storage {
     public MongoDB(RSPlugin plugin) {
         this.plugin = plugin;
         this.config = plugin.getConfiguration().getStorage().getMongodb();
-        this.prefix = config.getTablePrefix();
+        this.prefix = config.getCollectionPrefix();
         String serverHost = config.getHost() + ":" + config.getPort();
         String uri = "mongodb://";
         String username = config.getUsername();
@@ -71,20 +70,19 @@ public class MongoDB implements Storage {
     }
 
     @Override
-    public CompletableFuture<Boolean> add(@NotNull String collectionName, @NotNull JsonObject data) {
+    public CompletableFuture<Result> add(@NotNull String collectionName, @NotNull JsonObject data) {
         return CompletableFuture.supplyAsync(() -> {
-            if (isNull(data)) return false;
+            if (isNull(data)) return Result.FAILED;
             MongoCollection<Document> collection = database.getCollection(prefix + collectionName);
             Document document = Document.parse(gson.toJson(data));
             debug("ADD", collectionName, document.toJson());
-            if (!collection.insertOne(document).wasAcknowledged()) return false;
-            sync(collectionName, data);
-            return true;
+            if (collection.insertOne(document).wasAcknowledged()) return Result.UPDATED;
+            else return Result.FAILED;
         });
     }
 
     @Override
-    public CompletableFuture<Boolean> set(@NotNull String collectionName, @Nullable JsonObject find, @Nullable JsonObject data) {
+    public CompletableFuture<Result> set(@NotNull String collectionName, @Nullable JsonObject find, @Nullable JsonObject data) {
         return CompletableFuture.supplyAsync(() -> {
             MongoCollection<Document> collection = database.getCollection(prefix + collectionName);
             if (!isNull(find)) {
@@ -92,7 +90,10 @@ public class MongoDB implements Storage {
                 if (isNull(data)) {
                     debug("SET", collectionName, filter.toBsonDocument().toJson());
                     DeleteResult result = collection.deleteMany(filter);
-                    if (!result.wasAcknowledged()) return false;
+                    if (result.wasAcknowledged()) {
+                        if (result.getDeletedCount() > 0) return Result.UPDATED;
+                        else return Result.UNCHANGED;
+                    } else return Result.FAILED;
                 } else {
                     UpdateOptions options = new UpdateOptions().upsert(true);
                     BsonDocument update = new BsonDocument("$set", BsonDocument.parse(data.toString()));
@@ -101,16 +102,19 @@ public class MongoDB implements Storage {
                             .append("update", update.toBsonDocument());
                     debug("SET", collectionName, debug.toJson());
                     UpdateResult result = collection.updateMany(filter, update, options);
-                    if (!result.wasAcknowledged()) return false;
+                    if (result.wasAcknowledged()) {
+                        if (result.getModifiedCount() > 0) return Result.UPDATED;
+                        else return Result.UNCHANGED;
+                    } else return Result.FAILED;
                 }
-                sync(collectionName, find);
             } else {
                 debug("SET", collectionName, Filters.empty().toBsonDocument().toJson());
                 DeleteResult result = collection.deleteMany(Filters.empty());
-                if (!result.wasAcknowledged()) return false;
-                sync(collectionName, null);
+                if (result.wasAcknowledged()) {
+                    if (result.getDeletedCount() > 0) return Result.UPDATED;
+                    else return Result.UNCHANGED;
+                } else return Result.FAILED;
             }
-            return true;
         });
     }
 
@@ -148,11 +152,6 @@ public class MongoDB implements Storage {
         }
         if (filters.isEmpty()) return Filters.empty();
         else return Filters.and(filters);
-    }
-
-    private void sync(@NotNull String table, @Nullable JsonObject find) {
-        StorageSync sync = new StorageSync(plugin.getName(), table, find);
-        plugin.getFramework().getProtoWeaver().sendPacket(sync);
     }
 
     @Override

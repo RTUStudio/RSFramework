@@ -3,10 +3,10 @@ dependencies {
 
     compileOnly "com.alessiodp.libby:libby-bukkit:2.0.0-SNAPSHOT"
 
-    compileOnly "com.zaxxer:HikariCP:5.1.0"
-    compileOnly "org.mongodb:mongodb-driver-sync:5.4.0"
-    compileOnly "com.mysql:mysql-connector-j:9.1.0"
-    compileOnly "org.mariadb.jdbc:mariadb-java-client:3.3.3"
+    compileOnly "com.zaxxer:HikariCP:7.0.2"
+    compileOnly "org.mongodb:mongodb-driver-sync:5.5.1"
+    compileOnly "com.mysql:mysql-connector-j:9.4.0"
+    compileOnly "org.mariadb.jdbc:mariadb-java-client:3.5.5"
 //    compileOnly "org.xerial:sqlite-jdbc:3.45.3.0"
 //    compileOnly "org.postgresql:postgresql:42.7.3"
 
@@ -20,18 +20,19 @@ jar {
     finalizedBy(shadowJar)
 }
 
+
+// API Build
 shadowJar {
-    setArchiveClassifier(null)
-    setArchiveBaseName("api")
-    setArchiveVersion(plugin_version)
+    archiveClassifier.set(null)
+    archiveBaseName.set("api")
+    archiveVersion.set(plugin_version)
 
     exclude "META-INF/**"
     exclude "classpath.index"
 
-    relocate "com.alessiodp.libby", "kr.rtuserver.framework.libby"
-    relocate "org.spongepowered.configurate", "kr.rtuserver.configurate"
     relocate "net.kyori.adventure.platform.bukkit", "kr.rtuserver.framework.bukkit.kyori"
     relocate "de.tr7zw.changeme.nbtapi", "kr.rtuserver.framework.bukkit.api.nbt"
+    relocate "org.spongepowered.configurate", "kr.rtuserver.configurate"
 
     doLast {
         copy {
@@ -43,7 +44,7 @@ shadowJar {
 publishing {
     repositories {
         maven {
-            url = "https://repo.codemc.io/repository/rtuserver/"
+            url = uri("https://repo.codemc.io/repository/rtuserver/")
 
             credentials {
                 username = System.getenv("MAVEN_USERNAME")

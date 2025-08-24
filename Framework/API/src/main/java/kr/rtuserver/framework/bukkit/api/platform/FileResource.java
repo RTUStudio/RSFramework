@@ -64,7 +64,8 @@ public class FileResource {
                 out.close();
                 in.close();
                 return resultFile;
-            } return null;
+            }
+            return null;
         } catch (Exception e) {
             Bukkit.getLogger().log(Level.WARNING, "Error copying file " + sourceFolder + "/" + sourceFile, e);
             return null;

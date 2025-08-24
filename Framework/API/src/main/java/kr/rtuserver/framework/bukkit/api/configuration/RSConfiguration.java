@@ -33,7 +33,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
 import java.util.logging.Level;
-import java.util.stream.Collectors;
 
 @Slf4j
 public class RSConfiguration {
@@ -173,10 +172,7 @@ public class RSConfiguration {
                     .defaultOptions(co -> co.header(header).shouldCopyDefaults(true));
             final BufferedReader defaultConfig = configFromResource(folder, name);
             if (defaultConfig == null) this.loader = builder.build();
-            else {
-                System.out.println(folder + "/" + name);
-                this.loader = builder.source(() -> defaultConfig).build();
-            }
+            else this.loader = builder.source(() -> defaultConfig).build();
             this.version = version != null ? version : 0;
             try {
                 if (Files.notExists(path)) {
@@ -411,29 +407,37 @@ public class RSConfiguration {
             return toMap(node);
         }
 
-        // TODO: deep copy key list
-        protected Set<String> keys(ConfigurationNode node) {
-            List<String> result = new ArrayList<>();
-            Map<Object, ? extends ConfigurationNode> children = node.childrenMap();
-            for (Object key : children.keySet()) {
-                ConfigurationNode value = children.get(key);
-                if (value == null || value.virtual()) continue;
-                result.
-            }
-            return result;
-        }
-
-        private
-
         protected Set<String> keys(String path) {
-            return keys(path, new String[]{});
+            return keys(pathToNode(path));
         }
 
         protected Set<String> keys(String path, String... comment) {
-            CommentedConfigurationNode node = pathToNode(path);
-            Set<Object> keys = node.childrenMap().keySet();
-            return keys.stream().map(Object::toString).collect(Collectors.toSet());
+            return keys(pathToNode(path));
         }
+
+        protected Set<String> keys() {
+            return keys(config);
+        }
+
+        protected Set<String> keys(ConfigurationNode node) {
+            Set<String> out = new HashSet<>();
+            collectKeys(node, "", out);
+            return out;
+        }
+
+        private void collectKeys(ConfigurationNode node, String prefix, Set<String> out) {
+            if (node == null || node.virtual()) return;
+            Map<Object, ? extends ConfigurationNode> children = node.childrenMap();
+            if (children == null || children.isEmpty()) {
+                if (!prefix.isEmpty()) out.add(prefix);
+                return;
+            }
+            for (Map.Entry<Object, ? extends ConfigurationNode> e : children.entrySet()) {
+                String next = prefix.isEmpty() ? String.valueOf(e.getKey()) : prefix + "." + e.getKey();
+                collectKeys(e.getValue(), next, out);
+            }
+        }
+
 
         private void comment(CommentedConfigurationNode node, String... comment) {
             if (comment.length == 0) return;

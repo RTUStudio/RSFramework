@@ -10,7 +10,7 @@ public class MySQLConfig extends RSConfiguration.Wrapper<RSPlugin> {
 
     private String host = "127.0.0.1";
     private String port = "3306";
-    private String database = "";
+    private String database = "minecraft_rsplugin";
     private String username = "";
     private String password = "";
     private String tablePrefix = getPlugin().getName() + "_";
@@ -27,8 +27,8 @@ public class MySQLConfig extends RSConfiguration.Wrapper<RSPlugin> {
         database = getString("database", database);
         username = getString("username", username);
         password = getString("password", password);
-        tablePrefix = getString("tablePrefix", tablePrefix);
-        useArrowOperator = getBoolean("UseArrowOperator", useArrowOperator);
+        tablePrefix = getString("table-prefix", tablePrefix);
+        useArrowOperator = getBoolean("use-arrow-operator", useArrowOperator);
     }
 
 }

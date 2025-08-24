@@ -1,10 +1,8 @@
 package kr.rtuserver.framework.bukkit.core;
 
-import com.google.gson.JsonObject;
 import de.tr7zw.changeme.nbtapi.NBT;
 import kr.rtuserver.framework.bukkit.api.RSPlugin;
 import kr.rtuserver.framework.bukkit.api.command.RSCommand;
-import kr.rtuserver.framework.bukkit.api.core.scheduler.Scheduler;
 import kr.rtuserver.framework.bukkit.api.format.ComponentFormatter;
 import kr.rtuserver.framework.bukkit.api.listener.RSListener;
 import kr.rtuserver.framework.bukkit.api.platform.MinecraftVersion;
@@ -18,8 +16,7 @@ import kr.rtuserver.framework.bukkit.core.internal.runnable.CommandLimit;
 import kr.rtuserver.framework.bukkit.core.listener.*;
 import kr.rtuserver.framework.bukkit.core.module.Modules;
 import kr.rtuserver.framework.bukkit.core.provider.Providers;
-import kr.rtuserver.framework.bukkit.core.scheduler.FoliaScheduler;
-import kr.rtuserver.framework.bukkit.core.scheduler.SpigotScheduler;
+import kr.rtuserver.framework.bukkit.core.scheduler.Scheduler;
 import kr.rtuserver.framework.bukkit.nms.v1_17_r1.NMS_1_17_R1;
 import kr.rtuserver.framework.bukkit.nms.v1_18_r1.NMS_1_18_R1;
 import kr.rtuserver.framework.bukkit.nms.v1_18_r2.NMS_1_18_R2;
@@ -40,7 +37,6 @@ import kr.rtuserver.protoweaver.api.callback.HandlerCallback;
 import kr.rtuserver.protoweaver.api.protocol.Packet;
 import kr.rtuserver.protoweaver.api.protocol.internal.Broadcast;
 import kr.rtuserver.protoweaver.api.protocol.internal.SendMessage;
-import kr.rtuserver.protoweaver.api.protocol.internal.StorageSync;
 import kr.rtuserver.protoweaver.api.proxy.ProxyPlayer;
 import kr.rtuserver.protoweaver.bukkit.core.BukkitProtoWeaver;
 import lombok.Getter;
@@ -102,11 +98,7 @@ public class Framework implements kr.rtuserver.framework.bukkit.api.core.Framewo
 
     private void onPacket(HandlerCallback.Packet packet) {
         protoWeaver.onPacket(packet);
-        if (packet.packet() instanceof StorageSync(String plugin1, String name, JsonObject json)) {
-            RSPlugin plugin = plugins.get(plugin1);
-            if (plugin == null) return;
-            plugin.syncStorage(name, json);
-        } else if (packet.packet() instanceof Broadcast(String minimessage)) {
+        if (packet.packet() instanceof Broadcast(String minimessage)) {
             PlayerChat.broadcast(minimessage);
         } else if (packet.packet() instanceof SendMessage(ProxyPlayer target, String minimessage)) {
             Player player = Bukkit.getPlayer(target.uniqueId());
@@ -132,10 +124,7 @@ public class Framework implements kr.rtuserver.framework.bukkit.api.core.Framewo
 
         modules = new Modules(this);
         providers = new Providers(this);
-
-        if (MinecraftVersion.isFolia()) scheduler = new FoliaScheduler();
-        else if (MinecraftVersion.isPaper()) scheduler = new SpigotScheduler();
-        else scheduler = new SpigotScheduler();
+        scheduler = new Scheduler(plugin);
     }
 
     private void loadNMS(RSPlugin plugin) {

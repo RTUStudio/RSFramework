@@ -13,7 +13,7 @@ public class MongoDBConfig extends RSConfiguration.Wrapper<RSPlugin> {
     private String database = "";
     private String username = "";
     private String password = "";
-    private String tablePrefix = getPlugin().getName() + "_";
+    private String collectionPrefix = getPlugin().getName() + "_";
 
     public MongoDBConfig(RSPlugin plugin) {
         super(plugin, "Configs/Storages", "MongoDB.yml", null);
@@ -26,7 +26,7 @@ public class MongoDBConfig extends RSConfiguration.Wrapper<RSPlugin> {
         database = getString("database", database);
         username = getString("username", username);
         password = getString("password", password);
-        tablePrefix = getString("tablePrefix", tablePrefix);
+        collectionPrefix = getString("collection-prefix", collectionPrefix);
     }
 
 }

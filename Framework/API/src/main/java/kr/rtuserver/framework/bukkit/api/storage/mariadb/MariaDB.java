@@ -8,7 +8,6 @@ import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import kr.rtuserver.framework.bukkit.api.RSPlugin;
 import kr.rtuserver.framework.bukkit.api.storage.Storage;
-import kr.rtuserver.protoweaver.api.protocol.internal.StorageSync;
 import org.apache.commons.lang3.tuple.Pair;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -37,8 +36,7 @@ public class MariaDB implements Storage {
         this.plugin = plugin;
         this.config = plugin.getConfiguration().getStorage().getMariadb();
         this.prefix = config.getTablePrefix();
-        HikariConfig hikariConfig = getHikariConfig(plugin);
-        hikariDataSource = new HikariDataSource(hikariConfig);
+        hikariDataSource = new HikariDataSource(hikariConfig());
         hikariDataSource.setMaximumPoolSize(30);
         try {
             connection = hikariDataSource.getConnection();
@@ -68,7 +66,7 @@ public class MariaDB implements Storage {
     }
 
     @NotNull
-    private HikariConfig getHikariConfig(RSPlugin plugin) {
+    private HikariConfig hikariConfig() {
         String serverHost = config.getHost() + ":" + config.getPort();
         String url = "jdbc:mariadb://" + serverHost + "/" + config.getDatabase() + "?serverTimezone=UTC&useUniCode=yes&characterEncoding=UTF-8";
         HikariConfig hikariConfig = new HikariConfig();
@@ -103,27 +101,26 @@ public class MariaDB implements Storage {
     }
 
     @Override
-    public CompletableFuture<Boolean> add(@NotNull String table, @NotNull JsonObject data) {
+    public CompletableFuture<Result> add(@NotNull String table, @NotNull JsonObject data) {
         return CompletableFuture.supplyAsync(() -> {
-            if (isNull(data)) return false;
+            if (isNull(data)) return Result.FAILED;
             String json = gson.toJson(data);
             String query = "INSERT INTO " + prefix + table + " (data) VALUES (?);";
             try {
                 PreparedStatement ps = getConnection().prepareStatement(query);
                 ps.setString(1, json);
                 debug("ADD", table, getDebugQuery(query, List.of(json)));
-                if (!ps.execute()) return false;
-                sync(table, data);
-                return true;
+                if (ps.execute()) return Result.UPDATED;
+                else return Result.UNCHANGED;
             } catch (SQLException e) {
                 e.printStackTrace();
-                return false;
+                return Result.FAILED;
             }
         });
     }
 
     @Override
-    public CompletableFuture<Boolean> set(@NotNull String table, @Nullable JsonObject find, @Nullable JsonObject data) {
+    public CompletableFuture<Result> set(@NotNull String table, @Nullable JsonObject find, @Nullable JsonObject data) {
         return CompletableFuture.supplyAsync(() -> {
             StringBuilder query = new StringBuilder();
             List<Object> values = new ArrayList<>();
@@ -147,7 +144,7 @@ public class MariaDB implements Storage {
                         else {
                             plugin.console("<red>Unsupported type of data tried to be saved! Only supports JsonElement, Number, Boolean and String</red>");
                             plugin.console("<red>지원하지 않는 타입의 데이터가 저장되려고 했습니다! JsonElement, Number, Boolean, String만 지원합니다</red>");
-                            return false;
+                            return Result.FAILED;
                         }
                     } else {
                         jsonSetArgs.add("CAST(? AS JSON)");
@@ -165,13 +162,12 @@ public class MariaDB implements Storage {
                 PreparedStatement ps = getConnection().prepareStatement(query + ";");
                 setParameters(ps, values);
                 debug("SET", table, getDebugQuery(query + ";", values));
-                if (!ps.execute()) return false;
-                sync(table, find);
-                return true;
+                if (ps.execute()) return Result.UPDATED;
+                else return Result.UNCHANGED;
             } catch (SQLException e) {
                 e.printStackTrace();
+                return Result.FAILED;
             }
-            return false;
         });
     }
 
@@ -229,11 +225,6 @@ public class MariaDB implements Storage {
         for (int i = 0; i < values.size(); i++) {
             statement.setObject(i + 1, values.get(i));
         }
-    }
-
-    private void sync(@NotNull String table, @Nullable JsonObject find) {
-        StorageSync sync = new StorageSync(plugin.getName(), table, find);
-        plugin.getFramework().getProtoWeaver().sendPacket(sync);
     }
 
     @Override

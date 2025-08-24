@@ -27,8 +27,8 @@ public class MariaDBConfig extends RSConfiguration.Wrapper<RSPlugin> {
         database = getString("database", database);
         username = getString("username", username);
         password = getString("password", password);
-        tablePrefix = getString("tablePrefix", tablePrefix);
-        useArrowOperator = getBoolean("UseArrowOperator", useArrowOperator);
+        tablePrefix = getString("table-prefix", tablePrefix);
+        useArrowOperator = getBoolean("use-arrow-operator", useArrowOperator);
     }
 
 }

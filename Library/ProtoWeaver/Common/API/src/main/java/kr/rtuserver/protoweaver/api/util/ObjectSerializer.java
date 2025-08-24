@@ -19,7 +19,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-@Slf4j
 public class ObjectSerializer {
 
     private static final Gson GSON = new Gson();
@@ -41,7 +40,8 @@ public class ObjectSerializer {
     private final Set<Class<?>> customPackets = new HashSet<>();
 
     private void recursiveRegister(Class<?> type, List<Class<?>> registered) {
-        if (type == null || type == Object.class || registered.contains(type) || Modifier.isAbstract(type.getModifiers())) return;
+        if (type == null || type == Object.class || registered.contains(type) || Modifier.isAbstract(type.getModifiers()))
+            return;
         synchronized (fury) {
             fury.register(type);
         }
