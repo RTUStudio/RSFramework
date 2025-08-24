@@ -141,9 +141,7 @@ public class MapSerializer implements TypeSerializer.Annotated<Map<?, ?>> {
                     continue;
                 }
                 final Object keyObj = requireNonNull(keyNode.raw(), "Key must not be null!");
-//                if (!node.node(keyObj).virtual()) {
-//                    node.removeChild(keyObj);
-//                }
+//                if (!node.node(keyObj).virtual()) node.removeChild(keyObj);
                 final ConfigurationNode child = node.node(keyObj);
                 this.serialize(value.getType(), valueSerializer, ent.getValue(), "value", child, child.path());
                 unvisitedKeys.remove(keyObj);

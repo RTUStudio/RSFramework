@@ -1,8 +1,6 @@
 package kr.rtuserver.framework.bukkit.core.scheduler;
 
-import kr.rtuserver.cdi.LightDI;
 import kr.rtuserver.framework.bukkit.api.RSPlugin;
-import kr.rtuserver.framework.bukkit.api.core.Framework;
 import kr.rtuserver.framework.bukkit.api.core.scheduler.BukkitScheduler;
 import kr.rtuserver.framework.bukkit.api.core.scheduler.ScheduledUnit;
 import kr.rtuserver.framework.bukkit.api.platform.MinecraftVersion;

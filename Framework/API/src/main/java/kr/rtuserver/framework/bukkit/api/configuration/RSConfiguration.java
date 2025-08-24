@@ -13,12 +13,13 @@ import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.bukkit.Bukkit;
 import org.jetbrains.annotations.NotNull;
+import org.slf4j.LoggerFactory;
 import org.spongepowered.configurate.CommentedConfigurationNode;
 import org.spongepowered.configurate.ConfigurateException;
 import org.spongepowered.configurate.ConfigurationNode;
 import org.spongepowered.configurate.loader.HeaderMode;
+import org.spongepowered.configurate.loader.ParsingException;
 import org.spongepowered.configurate.serialize.SerializationException;
-import org.spongepowered.configurate.util.MapFactories;
 import org.spongepowered.configurate.yaml.NodeStyle;
 import org.spongepowered.configurate.yaml.YamlConfigurationLoader;
 
@@ -181,7 +182,16 @@ public class RSConfiguration {
                         this.config = CommentedConfigurationNode.root(this.loader.defaultOptions());
                     } else this.config = this.loader.load();
                     if (this.version > 0) this.config.node(Configuration.VERSION_FIELD).raw(version);
-                } else this.config = this.loader.load();
+                } else {
+                    try {
+                        this.config = this.loader.load();
+                    } catch (ParsingException e) {
+                        this.config = CommentedConfigurationNode.root(this.loader.defaultOptions());
+                        if (!(e.getCause() instanceof NullPointerException)) {
+                            LoggerFactory.getLogger(plugin.getName()).error("An error occurred {}", e.getCause().getMessage());
+                        }
+                    }
+                }
             } catch (Exception e) {
                 log.warn("Could not initialize {}", folder + "/" + name, e);
                 throw new RuntimeException(e);
