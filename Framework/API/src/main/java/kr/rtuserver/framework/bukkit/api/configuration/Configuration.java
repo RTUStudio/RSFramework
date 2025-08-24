@@ -84,7 +84,7 @@ public abstract class Configuration<T extends ConfigurationPart> {
                 .indent(2)
                 .nodeStyle(NodeStyle.BLOCK)
                 .headerMode(HeaderMode.PRESERVE)
-                .defaultOptions(options -> options.mapFactory(MapFactories.sortedNatural()));
+                .defaultOptions(options -> options.mapFactory(MapFactories.insertionOrdered()));
     }
 
     protected abstract boolean isConfigType(final Type type);
