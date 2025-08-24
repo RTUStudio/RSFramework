@@ -13,6 +13,7 @@ import kr.rtuserver.framework.bukkit.api.configuration.type.number.DoubleOr;
 import kr.rtuserver.framework.bukkit.api.configuration.type.number.IntOr;
 import org.spongepowered.configurate.ConfigurateException;
 import org.spongepowered.configurate.ConfigurationOptions;
+import org.spongepowered.configurate.util.MapFactories;
 import org.spongepowered.configurate.yaml.YamlConfigurationLoader;
 
 import java.io.BufferedReader;
@@ -65,7 +66,7 @@ public class PluginConfiguration<C extends ConfigurationPart> extends Configurat
                 .register(BooleanOrDefault.SERIALIZER)
                 .register(Duration.SERIALIZER)
                 .register(DurationOrDisabled.SERIALIZER)
-        );
+        ).mapFactory(MapFactories.insertionOrdered());
     }
 
     @Override
