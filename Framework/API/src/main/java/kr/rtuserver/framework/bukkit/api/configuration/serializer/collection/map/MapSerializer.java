@@ -128,8 +128,6 @@ public class MapSerializer implements TypeSerializer.Annotated<Map<?, ?>> {
         } else {
             final Set<Object> unvisitedKeys;
             if (node.empty()) {
-                //node.raw(new LinkedHashMap<>());
-                //or
                 node.raw(Collections.emptyMap());
                 unvisitedKeys = new HashSet<>();
             } else {
@@ -141,7 +139,6 @@ public class MapSerializer implements TypeSerializer.Annotated<Map<?, ?>> {
                     continue;
                 }
                 final Object keyObj = requireNonNull(keyNode.raw(), "Key must not be null!");
-//                if (!node.node(keyObj).virtual()) node.removeChild(keyObj);
                 final ConfigurationNode child = node.node(keyObj);
                 this.serialize(value.getType(), valueSerializer, ent.getValue(), "value", child, child.path());
                 unvisitedKeys.remove(keyObj);
@@ -173,5 +170,4 @@ public class MapSerializer implements TypeSerializer.Annotated<Map<?, ?>> {
         }
         return new LinkedHashMap<>();
     }
-
 }
