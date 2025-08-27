@@ -129,6 +129,10 @@ public abstract class RSPlugin extends JavaPlugin {
         return this.configuration.get(configuration);
     }
 
+    public boolean reloadConfiguration(Class<? extends ConfigurationPart> configuration) {
+        return this.configuration.reload(configuration);
+    }
+
     protected <T extends ConfigurationPart> T registerConfiguration(Class<T> configuration, String name) {
         return this.configuration.register(configuration, name);
     }
