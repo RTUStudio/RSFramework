@@ -137,6 +137,10 @@ public abstract class RSPlugin extends JavaPlugin {
         return this.configuration.register(configuration, name, version);
     }
 
+    public void registerStorage(String... storages) {
+        this.configuration.getStorage().init(storages);
+    }
+
     protected void registerEvent(RSListener<? extends RSPlugin> listener) {
         this.listeners.add(listener);
         Bukkit.getPluginManager().registerEvents(listener, this);
