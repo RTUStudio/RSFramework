@@ -55,6 +55,7 @@ public class PluginConfiguration<C extends ConfigurationPart> extends Configurat
 
         String header = String.format(HEADER, name, author, name, author);
         return options.header(header).serializers(builder -> builder
+                //.register(new TypeToken<Reference2ObjectMap<?, ?>>() {}, new FastutilMapSerializer.SomethingToSomething<Reference2ObjectMap<?, ?>>(Reference2ObjectOpenHashMap::new))
                 .register(FlattenedMapSerializer.TYPE, new FlattenedMapSerializer(false))
                 .register(MapSerializer.TYPE, new MapSerializer(false))
                 .register(new EnumValueSerializer())

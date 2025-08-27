@@ -62,19 +62,19 @@ public class RSConfiguration {
         this.command = new CommandTranslation(plugin, TranslationType.COMMAND, this.setting.getLocale());
     }
 
-    public void register(Class<? extends ConfigurationPart> configuration, String name) {
-        register(configuration, "Configs", name, null);
+    public <C extends ConfigurationPart> C register(Class<C> configuration, String name) {
+        return register(configuration, "Configs", name, null);
     }
 
-    public void register(Class<? extends ConfigurationPart> configuration, String name, Integer version) {
-        register(configuration, "Configs", name, version);
+    public <C extends ConfigurationPart> C register(Class<C> configuration, String name, Integer version) {
+        return register(configuration, "Configs", name, version);
     }
 
-    public void register(Class<? extends ConfigurationPart> configuration, String folder, String name) {
-        register(configuration, folder, name, null);
+    public <C extends ConfigurationPart> C register(Class<C> configuration, String folder, String name) {
+        return register(configuration, folder, name, null);
     }
 
-    public <C extends ConfigurationPart> void register(Class<C> configuration, String folder, String name, Integer version) {
+    public <C extends ConfigurationPart> C register(Class<C> configuration, String folder, String name, Integer version) {
         name = name.endsWith(".yml") ? name : name + ".yml";
         Path configFolder = plugin.getDataFolder().toPath().resolve(folder);
         Path configFile = configFolder.resolve(name);
@@ -93,6 +93,7 @@ public class RSConfiguration {
         C instance = pluginConfiguration.load();
         this.configuration.put(configuration, pluginConfiguration);
         this.instance.put(configuration, instance);
+        return instance;
     }
 
     @SuppressWarnings("unchecked")

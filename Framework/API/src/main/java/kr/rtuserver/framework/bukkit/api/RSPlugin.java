@@ -3,6 +3,7 @@ package kr.rtuserver.framework.bukkit.api;
 import com.google.gson.JsonObject;
 import kr.rtuserver.cdi.LightDI;
 import kr.rtuserver.framework.bukkit.api.command.RSCommand;
+import kr.rtuserver.framework.bukkit.api.configuration.ConfigurationPart;
 import kr.rtuserver.framework.bukkit.api.configuration.RSConfiguration;
 import kr.rtuserver.framework.bukkit.api.core.Framework;
 import kr.rtuserver.framework.bukkit.api.core.module.ThemeModule;
@@ -31,6 +32,7 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 
 @Getter
+@SuppressWarnings("unused")
 public abstract class RSPlugin extends JavaPlugin {
 
     private final Set<RSListener<? extends RSPlugin>> listeners = new HashSet<>();
@@ -121,6 +123,18 @@ public abstract class RSPlugin extends JavaPlugin {
 
     public void console(String minimessage) {
         console(ComponentFormatter.mini(minimessage));
+    }
+
+    public <T extends ConfigurationPart> T getConfiguration(Class<T> configuration) {
+        return this.configuration.get(configuration);
+    }
+
+    protected <T extends ConfigurationPart> T registerConfiguration(Class<T> configuration, String name) {
+        return this.configuration.register(configuration, name);
+    }
+
+    protected <T extends ConfigurationPart> T registerConfiguration(Class<T> configuration, String name, Integer version) {
+        return this.configuration.register(configuration, name, version);
     }
 
     protected void registerEvent(RSListener<? extends RSPlugin> listener) {
