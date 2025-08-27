@@ -137,7 +137,7 @@ public abstract class RSPlugin extends JavaPlugin {
         return this.configuration.register(configuration, name, version);
     }
 
-    public void registerStorage(String... storages) {
+    protected void initStorage(String... storages) {
         this.configuration.getStorage().init(storages);
     }
 
