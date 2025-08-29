@@ -2,7 +2,9 @@ package kr.rtuserver.framework.bukkit.api.nms;
 
 public interface NMS {
 
-    NMSBiome getBiome();
+    Item getItem();
 
-    NMSCommand getCommand();
+    Biome getBiome();
+
+    Command getCommand();
 }

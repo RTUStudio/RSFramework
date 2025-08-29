@@ -4,7 +4,7 @@ import kr.rtuserver.framework.bukkit.api.RSPlugin;
 import kr.rtuserver.framework.bukkit.api.command.RSCommand;
 import kr.rtuserver.framework.bukkit.api.command.RSCommandData;
 import kr.rtuserver.framework.bukkit.api.configuration.internal.translation.Translation;
-import kr.rtuserver.framework.bukkit.api.nms.NMSCommand;
+import kr.rtuserver.framework.bukkit.api.nms.Command;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,7 +22,7 @@ public class ReloadCommand extends RSCommand<RSPlugin> {
     @Override
     protected boolean execute(RSCommandData data) {
         getPlugin().getConfiguration().reloadInternal();
-        NMSCommand nmsc = framework().getNMS().getCommand();
+        Command nmsc = framework().getNMS().getCommand();
         for (RSCommand<? extends RSPlugin> rsc : getPlugin().getCommands()) {
             nmsc.unregister(rsc);
             List<String> aliases = new ArrayList<>(getNames().subList(1, getNames().size()));

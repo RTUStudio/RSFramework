@@ -27,9 +27,9 @@ public class CommandModule extends ConfigurationPart
 
         @Comment(
                 """
-                Command cooldown (tick)
-                명령어 재사용 대기 시간 (틱)
-                """)
+                        Command cooldown (tick)
+                        명령어 재사용 대기 시간 (틱)
+                        """)
         private int limit = 30;
     }
 }

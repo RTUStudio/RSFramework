@@ -186,8 +186,8 @@ publishing {
             groupId = "kr.rtuserver"
             artifactId = "framework-plugin"
             version = plugin_version
-=
-            from components.shadow
+                    =
+                    from components.shadow
         }
     }
 }
