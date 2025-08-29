@@ -25,10 +25,10 @@ public class ItemCommand extends RSCommand<RSFramework> {
             return true;
         }
         if (data.length(1)) {
-            String itemStr = data.args(1);
-            ItemStack itemStack = CustomItems.from(itemStr);
+            String id = data.args(1);
+            ItemStack itemStack = CustomItems.from(id);
             if (itemStack == null) {
-                chat().announce(message().get(player(), "command.item.not-found"));
+                chat().announce(message().getCommon(player(), MessageTranslation.NOT_FOUND_ITEM));
                 return true;
             }
             player().getInventory().addItem(itemStack);
@@ -37,9 +37,9 @@ public class ItemCommand extends RSCommand<RSFramework> {
             if (equipment != null) {
                 ItemStack itemStack = equipment.getItemInMainHand();
                 String id = CustomItems.to(itemStack);
-                chat().announce(message().get(player(), "command.item.id").replace("[item]", id));
+                chat().announce(message().get(player(), "command.item").replace("{id}", id));
             } else {
-                chat().announce(message().get(player(), "command.item.not-found"));
+                chat().announce(message().getCommon(player(), MessageTranslation.NOT_FOUND_ITEM));
                 return true;
             }
         }

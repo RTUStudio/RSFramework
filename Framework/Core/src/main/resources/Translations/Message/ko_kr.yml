@@ -7,6 +7,7 @@ common:
   not-found:
     online-player: "<red>존재하지 않는 유저이거나 오프라인입니다</red>"
     offline-player: "<red>존재하지 않는 유저입니다</red>"
+    item: "<red>존재하지 않는 아이템입니다</red>"
   error:
     inventory: "<red>인벤토리 클릭 이벤트를 사용하는 코드에서 결함이 발견되었습니다!</red>"
     cooldown: "<red>너무 빠릅니다! 잠시 뒤에 시도해야합니다</red>"
@@ -18,6 +19,4 @@ data-name-type:
   exist: "<red>이미 사용중인 이름입니다</red>"
 command:
   empty: "<red>메세지가 비어있습니다</red>"
-  item:
-    not-found: "<red>아이템을 찾을 수 없습니다</red>"
-    id: "<green>아이템 ID: [item]</green>"
+  item: "<white>아이템 ID: <aqua>{id}</aqua></white>"

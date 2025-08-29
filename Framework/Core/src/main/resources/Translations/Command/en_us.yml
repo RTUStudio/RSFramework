@@ -8,11 +8,15 @@ rsf:
     broadcast:
       name: "broadcast"
       description: "Send broadcast message"
-      usage: "/rsf broadcast [message]"
+      usage: "/rsf broadcast {message}"
     information:
       name: "information"
       description: "Check software information of server"
     send:
       name: "send"
       description: "Send message to player"
-      usage: "/rsf send [player] [message]"
+      usage: "/rsf send {player} {message}"
+    item:
+      name: "item"
+      description: "Check item information from id or item on hand"
+      usage: "/rsf item [ID]"

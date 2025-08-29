@@ -14,6 +14,7 @@ public class MessageTranslation extends TranslationConfiguration {
     public static String ONLY_CONSOLE = "only-console";
     public static String NOT_FOUND_ONLINE_PLAYER = "not-found.online-player";
     public static String NOT_FOUND_OFFLINE_PLAYER = "not-found.offline-player";
+    public static String NOT_FOUND_ITEM = "not-found.item";
     public static String ERROR_INVENTORY = "error.inventory";
     public static String ERROR_COOLDOWN = "error.cooldown";
 

@@ -7,6 +7,7 @@ common:
   not-found:
     online-player: "<red>This adapter does not exist or offline</red>"
     offline-player: "<red>This adapter does not exist</red>"
+    item: "<red>This item does not exist</red>"
   error:
     inventory: "<red>Flaw was found in code using inventory click event!</red>"
     cooldown: "<red>Too Quickly! You must try again later</red>"
@@ -18,6 +19,4 @@ data-name-type:
   exist: "<red>This name is duplicated</red>"
 command:
   empty: "<red>Message is empty</red>"
-  item:
-    not-found: "<red>Item not found</red>"
-    id: "<green>Item ID: [item]</green>"
+  item: "<white>Item ID: <aqua>{id}</aqua></white>"
