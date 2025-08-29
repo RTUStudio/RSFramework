@@ -18,3 +18,6 @@ data-name-type:
   exist: "<red>This name is duplicated</red>"
 command:
   empty: "<red>Message is empty</red>"
+  item:
+    not-found: "<red>Item not found</red>"
+    id: "<green>Item ID: [item]</green>"

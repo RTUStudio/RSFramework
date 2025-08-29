@@ -32,10 +32,4 @@ public class InfoCommand extends RSCommand<RSFramework> {
                                                 SystemEnvironment.getJDKVersion())));
         return true;
     }
-
-    private String now() {
-        long currentTimeMillis = System.currentTimeMillis();
-        double seconds = currentTimeMillis / 1000.0;
-        return "[" + String.format("%.2f", seconds) + "] ";
-    }
 }
