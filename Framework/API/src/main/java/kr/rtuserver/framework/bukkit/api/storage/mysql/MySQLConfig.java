@@ -30,6 +30,4 @@ public class MySQLConfig extends RSConfiguration.Wrapper<RSPlugin> {
         tablePrefix = getString("table-prefix", tablePrefix);
         useArrowOperator = getBoolean("use-arrow-operator", useArrowOperator);
     }
-
 }
-

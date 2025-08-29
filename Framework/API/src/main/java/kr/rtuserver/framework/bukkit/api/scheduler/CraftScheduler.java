@@ -7,14 +7,15 @@ import kr.rtuserver.framework.bukkit.api.core.scheduler.ScheduledTask;
 import kr.rtuserver.framework.bukkit.api.core.scheduler.ScheduledUnit;
 import lombok.AccessLevel;
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import org.bukkit.Location;
-import org.bukkit.entity.Entity;
+import lombok.NoArgsConstructor;
 
 import java.util.function.Consumer;
 
+import org.bukkit.Location;
+import org.bukkit.entity.Entity;
+
 @Getter
-@RequiredArgsConstructor(access = AccessLevel.PRIVATE)
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public abstract class CraftScheduler {
 
     private static Framework framework;
@@ -56,7 +57,8 @@ public abstract class CraftScheduler {
         return framework().getScheduler().async(runnable);
     }
 
-    public static ScheduledTask delay(RSPlugin plugin, Consumer<ScheduledUnit> consumer, long delay) {
+    public static ScheduledTask delay(
+            RSPlugin plugin, Consumer<ScheduledUnit> consumer, long delay) {
         return framework().getScheduler().plugin(plugin).delay(consumer, delay);
     }
 
@@ -72,11 +74,13 @@ public abstract class CraftScheduler {
         return framework().getScheduler().delay(runnable, delay);
     }
 
-    public static ScheduledTask delay(RSPlugin plugin, Consumer<ScheduledUnit> consumer, long delay, boolean async) {
+    public static ScheduledTask delay(
+            RSPlugin plugin, Consumer<ScheduledUnit> consumer, long delay, boolean async) {
         return framework().getScheduler().plugin(plugin).delay(consumer, delay, async);
     }
 
-    public static ScheduledTask delay(RSPlugin plugin, Runnable runnable, long delay, boolean async) {
+    public static ScheduledTask delay(
+            RSPlugin plugin, Runnable runnable, long delay, boolean async) {
         return framework().getScheduler().plugin(plugin).delay(runnable, delay, async);
     }
 
@@ -88,7 +92,8 @@ public abstract class CraftScheduler {
         return framework().getScheduler().delay(runnable, delay, async);
     }
 
-    public static ScheduledTask repeat(RSPlugin plugin, Consumer<ScheduledUnit> consumer, long period) {
+    public static ScheduledTask repeat(
+            RSPlugin plugin, Consumer<ScheduledUnit> consumer, long period) {
         return framework().getScheduler().plugin(plugin).repeat(consumer, period, period);
     }
 
@@ -96,27 +101,37 @@ public abstract class CraftScheduler {
         return framework().getScheduler().plugin(plugin).repeat(runnable, period, period);
     }
 
-    public static ScheduledTask repeat(RSPlugin plugin, Consumer<ScheduledUnit> consumer, long period, boolean async) {
+    public static ScheduledTask repeat(
+            RSPlugin plugin, Consumer<ScheduledUnit> consumer, long period, boolean async) {
         return framework().getScheduler().plugin(plugin).repeat(consumer, period, period, async);
     }
 
-    public static ScheduledTask repeat(RSPlugin plugin, Runnable runnable, long period, boolean async) {
+    public static ScheduledTask repeat(
+            RSPlugin plugin, Runnable runnable, long period, boolean async) {
         return framework().getScheduler().plugin(plugin).repeat(runnable, period, period, async);
     }
 
-    public static ScheduledTask repeat(RSPlugin plugin, Consumer<ScheduledUnit> consumer, long delay, long period) {
+    public static ScheduledTask repeat(
+            RSPlugin plugin, Consumer<ScheduledUnit> consumer, long delay, long period) {
         return framework().getScheduler().plugin(plugin).repeat(consumer, delay, period);
     }
 
-    public static ScheduledTask repeat(RSPlugin plugin, Runnable runnable, long delay, long period) {
+    public static ScheduledTask repeat(
+            RSPlugin plugin, Runnable runnable, long delay, long period) {
         return framework().getScheduler().plugin(plugin).repeat(runnable, delay, period);
     }
 
-    public static ScheduledTask repeat(RSPlugin plugin, Consumer<ScheduledUnit> consumer, long delay, long period, boolean async) {
+    public static ScheduledTask repeat(
+            RSPlugin plugin,
+            Consumer<ScheduledUnit> consumer,
+            long delay,
+            long period,
+            boolean async) {
         return framework().getScheduler().plugin(plugin).repeat(consumer, delay, period, async);
     }
 
-    public static ScheduledTask repeat(RSPlugin plugin, Runnable runnable, long delay, long period, boolean async) {
+    public static ScheduledTask repeat(
+            RSPlugin plugin, Runnable runnable, long delay, long period, boolean async) {
         return framework().getScheduler().plugin(plugin).repeat(runnable, delay, period, async);
     }
 
@@ -128,7 +143,8 @@ public abstract class CraftScheduler {
         return framework().getScheduler().repeat(runnable, period, period);
     }
 
-    public static ScheduledTask repeat(Consumer<ScheduledUnit> consumer, long period, boolean async) {
+    public static ScheduledTask repeat(
+            Consumer<ScheduledUnit> consumer, long period, boolean async) {
         return framework().getScheduler().repeat(consumer, period, period, async);
     }
 
@@ -144,7 +160,8 @@ public abstract class CraftScheduler {
         return framework().getScheduler().repeat(runnable, delay, period);
     }
 
-    public static ScheduledTask repeat(Consumer<ScheduledUnit> consumer, long delay, long period, boolean async) {
+    public static ScheduledTask repeat(
+            Consumer<ScheduledUnit> consumer, long delay, long period, boolean async) {
         return framework().getScheduler().repeat(consumer, delay, period, async);
     }
 
@@ -152,7 +169,8 @@ public abstract class CraftScheduler {
         return framework().getScheduler().repeat(runnable, delay, period, async);
     }
 
-    public static ScheduledTask sync(RSPlugin plugin, Location location, Consumer<ScheduledUnit> consumer) {
+    public static ScheduledTask sync(
+            RSPlugin plugin, Location location, Consumer<ScheduledUnit> consumer) {
         return framework().getScheduler().plugin(plugin).sync(location, consumer);
     }
 
@@ -168,15 +186,18 @@ public abstract class CraftScheduler {
         return framework().getScheduler().sync(location, runnable);
     }
 
-    public static ScheduledTask delay(RSPlugin plugin, Location location, Consumer<ScheduledUnit> consumer, long delay) {
+    public static ScheduledTask delay(
+            RSPlugin plugin, Location location, Consumer<ScheduledUnit> consumer, long delay) {
         return framework().getScheduler().plugin(plugin).delay(location, consumer, delay);
     }
 
-    public static ScheduledTask delay(RSPlugin plugin, Location location, Runnable runnable, long delay) {
+    public static ScheduledTask delay(
+            RSPlugin plugin, Location location, Runnable runnable, long delay) {
         return framework().getScheduler().plugin(plugin).delay(location, runnable, delay);
     }
 
-    public static ScheduledTask delay(Location location, Consumer<ScheduledUnit> consumer, long delay) {
+    public static ScheduledTask delay(
+            Location location, Consumer<ScheduledUnit> consumer, long delay) {
         return framework().getScheduler().delay(location, consumer, delay);
     }
 
@@ -184,23 +205,32 @@ public abstract class CraftScheduler {
         return framework().getScheduler().delay(location, runnable, delay);
     }
 
-    public static ScheduledTask repeat(RSPlugin plugin, Location location, Consumer<ScheduledUnit> consumer, long period) {
+    public static ScheduledTask repeat(
+            RSPlugin plugin, Location location, Consumer<ScheduledUnit> consumer, long period) {
         return framework().getScheduler().plugin(plugin).repeat(location, consumer, period, period);
     }
 
-    public static ScheduledTask repeat(RSPlugin plugin, Location location, Runnable runnable, long period) {
+    public static ScheduledTask repeat(
+            RSPlugin plugin, Location location, Runnable runnable, long period) {
         return framework().getScheduler().plugin(plugin).repeat(location, runnable, period, period);
     }
 
-    public static ScheduledTask repeat(RSPlugin plugin, Location location, Consumer<ScheduledUnit> consumer, long delay, long period) {
+    public static ScheduledTask repeat(
+            RSPlugin plugin,
+            Location location,
+            Consumer<ScheduledUnit> consumer,
+            long delay,
+            long period) {
         return framework().getScheduler().plugin(plugin).repeat(location, consumer, delay, period);
     }
 
-    public static ScheduledTask repeat(RSPlugin plugin, Location location, Runnable runnable, long delay, long period) {
+    public static ScheduledTask repeat(
+            RSPlugin plugin, Location location, Runnable runnable, long delay, long period) {
         return framework().getScheduler().plugin(plugin).repeat(location, runnable, delay, period);
     }
 
-    public static ScheduledTask repeat(Location location, Consumer<ScheduledUnit> consumer, long period) {
+    public static ScheduledTask repeat(
+            Location location, Consumer<ScheduledUnit> consumer, long period) {
         return framework().getScheduler().repeat(location, consumer, period, period);
     }
 
@@ -208,15 +238,18 @@ public abstract class CraftScheduler {
         return framework().getScheduler().repeat(location, runnable, period, period);
     }
 
-    public static ScheduledTask repeat(Location location, Consumer<ScheduledUnit> consumer, long delay, long period) {
+    public static ScheduledTask repeat(
+            Location location, Consumer<ScheduledUnit> consumer, long delay, long period) {
         return framework().getScheduler().repeat(location, consumer, delay, period);
     }
 
-    public static ScheduledTask repeat(Location location, Runnable runnable, long delay, long period) {
+    public static ScheduledTask repeat(
+            Location location, Runnable runnable, long delay, long period) {
         return framework().getScheduler().repeat(location, runnable, delay, period);
     }
 
-    public static ScheduledTask sync(RSPlugin plugin, Entity entity, Consumer<ScheduledUnit> consumer) {
+    public static ScheduledTask sync(
+            RSPlugin plugin, Entity entity, Consumer<ScheduledUnit> consumer) {
         return framework().getScheduler().plugin(plugin).sync(entity, consumer);
     }
 
@@ -232,11 +265,13 @@ public abstract class CraftScheduler {
         return framework().getScheduler().sync(entity, runnable);
     }
 
-    public static ScheduledTask delay(RSPlugin plugin, Entity entity, Consumer<ScheduledUnit> consumer, long delay) {
+    public static ScheduledTask delay(
+            RSPlugin plugin, Entity entity, Consumer<ScheduledUnit> consumer, long delay) {
         return framework().getScheduler().plugin(plugin).delay(entity, consumer, delay);
     }
 
-    public static ScheduledTask delay(RSPlugin plugin, Entity entity, Runnable runnable, long delay) {
+    public static ScheduledTask delay(
+            RSPlugin plugin, Entity entity, Runnable runnable, long delay) {
         return framework().getScheduler().plugin(plugin).delay(entity, runnable, delay);
     }
 
@@ -248,23 +283,32 @@ public abstract class CraftScheduler {
         return framework().getScheduler().delay(entity, runnable, delay);
     }
 
-    public static ScheduledTask repeat(RSPlugin plugin, Entity entity, Consumer<ScheduledUnit> consumer, long period) {
+    public static ScheduledTask repeat(
+            RSPlugin plugin, Entity entity, Consumer<ScheduledUnit> consumer, long period) {
         return framework().getScheduler().plugin(plugin).repeat(entity, consumer, period, period);
     }
 
-    public static ScheduledTask repeat(RSPlugin plugin, Entity entity, Runnable runnable, long period) {
+    public static ScheduledTask repeat(
+            RSPlugin plugin, Entity entity, Runnable runnable, long period) {
         return framework().getScheduler().plugin(plugin).repeat(entity, runnable, period, period);
     }
 
-    public static ScheduledTask repeat(RSPlugin plugin, Entity entity, Consumer<ScheduledUnit> consumer, long delay, long period) {
+    public static ScheduledTask repeat(
+            RSPlugin plugin,
+            Entity entity,
+            Consumer<ScheduledUnit> consumer,
+            long delay,
+            long period) {
         return framework().getScheduler().plugin(plugin).repeat(entity, consumer, delay, period);
     }
 
-    public static ScheduledTask repeat(RSPlugin plugin, Entity entity, Runnable runnable, long delay, long period) {
+    public static ScheduledTask repeat(
+            RSPlugin plugin, Entity entity, Runnable runnable, long delay, long period) {
         return framework().getScheduler().plugin(plugin).repeat(entity, runnable, delay, period);
     }
 
-    public static ScheduledTask repeat(Entity entity, Consumer<ScheduledUnit> consumer, long period) {
+    public static ScheduledTask repeat(
+            Entity entity, Consumer<ScheduledUnit> consumer, long period) {
         return framework().getScheduler().repeat(entity, consumer, period, period);
     }
 
@@ -272,12 +316,12 @@ public abstract class CraftScheduler {
         return framework().getScheduler().repeat(entity, runnable, period, period);
     }
 
-    public static ScheduledTask repeat(Entity entity, Consumer<ScheduledUnit> consumer, long delay, long period) {
+    public static ScheduledTask repeat(
+            Entity entity, Consumer<ScheduledUnit> consumer, long delay, long period) {
         return framework().getScheduler().repeat(entity, consumer, delay, period);
     }
 
     public static ScheduledTask repeat(Entity entity, Runnable runnable, long delay, long period) {
         return framework().getScheduler().repeat(entity, runnable, delay, period);
     }
-
 }

@@ -22,7 +22,17 @@ public interface BungeeProtoWeaver extends Listener, ProtoLogger.IProtoLogger, S
 
     void disable();
 
-    void registerProtocol(String namespace, String key, Packet packet, Class<? extends ProtoConnectionHandler> protocolHandler, HandlerCallback callback);
+    void registerProtocol(
+            String namespace,
+            String key,
+            Packet packet,
+            Class<? extends ProtoConnectionHandler> protocolHandler,
+            HandlerCallback callback);
 
-    void registerProtocol(String namespace, String key, Set<Packet> packets, Class<? extends ProtoConnectionHandler> protocolHandler, HandlerCallback callback);
+    void registerProtocol(
+            String namespace,
+            String key,
+            Set<Packet> packets,
+            Class<? extends ProtoConnectionHandler> protocolHandler,
+            HandlerCallback callback);
 }

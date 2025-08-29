@@ -10,12 +10,13 @@ import lombok.Getter;
 public class InternalConnectionHandler {
 
     @Getter
-    protected static final Protocol protocol = Protocol.create("rsframework", "protoweaver")
-            .setServerHandler(ServerConnectionHandler.class)
-            .setClientHandler(ClientConnectionHandler.class)
-            .addPacket(AuthStatus.class)
-            .addPacket(ProtocolStatus.class)
-            .load();
+    protected static final Protocol protocol =
+            Protocol.create("rsframework", "protoweaver")
+                    .setServerHandler(ServerConnectionHandler.class)
+                    .setClientHandler(ClientConnectionHandler.class)
+                    .addPacket(AuthStatus.class)
+                    .addPacket(ProtocolStatus.class)
+                    .load();
 
     protected boolean wasUpgraded(ProtoConnection connection) {
         return connection.getProtocol().toString().equals(protocol.toString());
@@ -35,9 +36,15 @@ public class InternalConnectionHandler {
     }
 
     protected void protocolNotLoaded(ProtoConnection connection, String name) {
-        //ProtoLogger.warn("Protocol: " + name + " is not loaded! Closing connection!");
-        Sender sender = connection.send(new ProtocolStatus(connection.getProtocol().toString(), name, new byte[]{}, ProtocolStatus.Status.MISSING));
-        //disconnectIfNeverUpgraded(connection, sender);
+        // ProtoLogger.warn("Protocol: " + name + " is not loaded! Closing
+        // connection!");
+        Sender sender =
+                connection.send(
+                        new ProtocolStatus(
+                                connection.getProtocol().toString(),
+                                name,
+                                new byte[] {},
+                                ProtocolStatus.Status.MISSING));
+        // disconnectIfNeverUpgraded(connection, sender);
     }
-
 }

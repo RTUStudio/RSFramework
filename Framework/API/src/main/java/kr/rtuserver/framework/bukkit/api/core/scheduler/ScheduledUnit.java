@@ -9,5 +9,4 @@ public interface ScheduledUnit {
     boolean isCancelled();
 
     void cancel();
-
 }

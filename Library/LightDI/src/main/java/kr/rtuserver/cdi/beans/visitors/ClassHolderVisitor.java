@@ -26,5 +26,4 @@ public abstract class ClassHolderVisitor {
     public abstract void visit(DefaultClassHolder defaultClassHolder);
 
     public abstract void visit(PrototypeFactoryClassHolder prototypeFactoryClassHolder);
-
 }

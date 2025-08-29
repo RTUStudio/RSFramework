@@ -10,5 +10,4 @@ public class NMS_1_20_R3 implements NMS {
 
     private final NMSBiome biome = new Biome();
     private final NMSCommand command = new Command();
-
 }

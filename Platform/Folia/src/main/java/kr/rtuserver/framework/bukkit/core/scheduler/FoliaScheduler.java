@@ -3,20 +3,21 @@ package kr.rtuserver.framework.bukkit.core.scheduler;
 import io.papermc.paper.threadedregions.scheduler.AsyncScheduler;
 import io.papermc.paper.threadedregions.scheduler.GlobalRegionScheduler;
 import io.papermc.paper.threadedregions.scheduler.RegionScheduler;
+import kr.rtuserver.framework.bukkit.api.core.scheduler.BukkitScheduler;
 import kr.rtuserver.framework.bukkit.api.core.scheduler.ScheduledTask;
 import kr.rtuserver.framework.bukkit.api.core.scheduler.ScheduledUnit;
-import kr.rtuserver.framework.bukkit.api.core.scheduler.BukkitScheduler;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+
+import java.util.concurrent.TimeUnit;
+import java.util.function.Consumer;
+
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Projectile;
 import org.bukkit.plugin.Plugin;
-
-import java.util.concurrent.TimeUnit;
-import java.util.function.Consumer;
 
 @Getter
 @RequiredArgsConstructor
@@ -25,6 +26,10 @@ public class FoliaScheduler implements BukkitScheduler {
     private final GlobalRegionScheduler global = Bukkit.getGlobalRegionScheduler();
     private final RegionScheduler region = Bukkit.getRegionScheduler();
     private final AsyncScheduler async = Bukkit.getAsyncScheduler();
+
+    private static ScheduledTask noop() {
+        return NoopScheduledTask.INSTANCE;
+    }
 
     private boolean isValid(Location location) {
         if (location == null) return false;
@@ -40,8 +45,189 @@ public class FoliaScheduler implements BukkitScheduler {
         return false;
     }
 
-    private static ScheduledTask noop() {
-        return NoopScheduledTask.INSTANCE;
+    @Override
+    public ScheduledTask sync(Plugin plugin, Consumer<ScheduledUnit> consumer) {
+        HandleScheduledTask h = new HandleScheduledTask();
+        this.global.run(
+                plugin,
+                task -> {
+                    h.set(task);
+                    consumer.accept(new FoliaUnit(task));
+                });
+        return h;
+    }
+
+    @Override
+    public ScheduledTask async(Plugin plugin, Consumer<ScheduledUnit> consumer) {
+        HandleScheduledTask h = new HandleScheduledTask();
+        this.async.runNow(
+                plugin,
+                task -> {
+                    h.set(task);
+                    consumer.accept(new FoliaUnit(task));
+                });
+        return h;
+    }
+
+    @Override
+    public ScheduledTask delay(
+            Plugin plugin, Consumer<ScheduledUnit> consumer, long delay, boolean async) {
+        HandleScheduledTask h = new HandleScheduledTask();
+        if (async) {
+            this.async.runDelayed(
+                    plugin,
+                    task -> {
+                        h.set(task);
+                        consumer.accept(new FoliaUnit(task));
+                    },
+                    delay * 50,
+                    TimeUnit.MILLISECONDS);
+        } else {
+            this.global.runDelayed(
+                    plugin,
+                    task -> {
+                        h.set(task);
+                        consumer.accept(new FoliaUnit(task));
+                    },
+                    delay);
+        }
+        return h;
+    }
+
+    @Override
+    public ScheduledTask repeat(
+            Plugin plugin,
+            Consumer<ScheduledUnit> consumer,
+            long delay,
+            long period,
+            boolean async) {
+        HandleScheduledTask h = new HandleScheduledTask();
+        if (async) {
+            this.async.runAtFixedRate(
+                    plugin,
+                    task -> {
+                        h.set(task);
+                        consumer.accept(new FoliaUnit(task));
+                    },
+                    delay * 50,
+                    period * 50,
+                    TimeUnit.MILLISECONDS);
+        } else {
+            this.global.runAtFixedRate(
+                    plugin,
+                    task -> {
+                        h.set(task);
+                        consumer.accept(new FoliaUnit(task));
+                    },
+                    delay,
+                    period);
+        }
+        return h;
+    }
+
+    @Override
+    public ScheduledTask sync(Plugin plugin, Location location, Consumer<ScheduledUnit> consumer) {
+        if (!isValid(location)) return noop();
+        HandleScheduledTask h = new HandleScheduledTask();
+        this.region.run(
+                plugin,
+                location,
+                task -> {
+                    h.set(task);
+                    consumer.accept(new FoliaUnit(task));
+                });
+        return h;
+    }
+
+    @Override
+    public ScheduledTask delay(
+            Plugin plugin, Location location, Consumer<ScheduledUnit> consumer, long delay) {
+        if (!isValid(location)) return noop();
+        HandleScheduledTask h = new HandleScheduledTask();
+        this.region.runDelayed(
+                plugin,
+                location,
+                task -> {
+                    h.set(task);
+                    consumer.accept(new FoliaUnit(task));
+                },
+                delay);
+        return h;
+    }
+
+    @Override
+    public ScheduledTask repeat(
+            Plugin plugin,
+            Location location,
+            Consumer<ScheduledUnit> consumer,
+            long delay,
+            long period) {
+        if (!isValid(location)) return noop();
+        HandleScheduledTask h = new HandleScheduledTask();
+        this.region.runAtFixedRate(
+                plugin,
+                location,
+                task -> {
+                    h.set(task);
+                    consumer.accept(new FoliaUnit(task));
+                },
+                delay,
+                period);
+        return h;
+    }
+
+    @Override
+    public ScheduledTask sync(Plugin plugin, Entity entity, Consumer<ScheduledUnit> consumer) {
+        if (!isValid(entity)) return noop();
+        HandleScheduledTask h = new HandleScheduledTask();
+        entity.getScheduler()
+                .run(
+                        plugin,
+                        task -> {
+                            h.set(task);
+                            consumer.accept(new FoliaUnit(task));
+                        },
+                        null);
+        return h;
+    }
+
+    @Override
+    public ScheduledTask delay(
+            Plugin plugin, Entity entity, Consumer<ScheduledUnit> consumer, long delay) {
+        if (!isValid(entity)) return noop();
+        HandleScheduledTask h = new HandleScheduledTask();
+        entity.getScheduler()
+                .runDelayed(
+                        plugin,
+                        task -> {
+                            h.set(task);
+                            consumer.accept(new FoliaUnit(task));
+                        },
+                        null,
+                        delay);
+        return h;
+    }
+
+    @Override
+    public ScheduledTask repeat(
+            Plugin plugin,
+            Entity entity,
+            Consumer<ScheduledUnit> consumer,
+            long delay,
+            long period) {
+        if (!isValid(entity)) return noop();
+        HandleScheduledTask h = new HandleScheduledTask();
+        entity.getScheduler()
+                .runAtFixedRate(
+                        plugin,
+                        task -> {
+                            h.set(task);
+                            consumer.accept(new FoliaUnit(task));
+                        },
+                        null,
+                        delay,
+                        period);
+        return h;
     }
 
     private static final class NoopScheduledTask implements ScheduledTask {
@@ -53,7 +239,9 @@ public class FoliaScheduler implements BukkitScheduler {
         }
 
         @Override
-        public ScheduledTask delay(Runnable task, long delay) { return this; }
+        public ScheduledTask delay(Runnable task, long delay) {
+            return this;
+        }
 
         @Override
         public ScheduledTask delay(Consumer<ScheduledUnit> task, long delay, boolean async) {
@@ -61,7 +249,9 @@ public class FoliaScheduler implements BukkitScheduler {
         }
 
         @Override
-        public ScheduledTask delay(Runnable task, long delay, boolean async) { return this; }
+        public ScheduledTask delay(Runnable task, long delay, boolean async) {
+            return this;
+        }
 
         @Override
         public ScheduledTask repeat(Consumer<ScheduledUnit> task, long delay, long period) {
@@ -69,15 +259,20 @@ public class FoliaScheduler implements BukkitScheduler {
         }
 
         @Override
-        public ScheduledTask repeat(Runnable task, long delay, long period) { return this; }
-
-        @Override
-        public ScheduledTask repeat(Consumer<ScheduledUnit> task, long delay, long period, boolean async) {
+        public ScheduledTask repeat(Runnable task, long delay, long period) {
             return this;
         }
 
         @Override
-        public ScheduledTask repeat(Runnable task, long delay, long period, boolean async) { return this; }
+        public ScheduledTask repeat(
+                Consumer<ScheduledUnit> task, long delay, long period, boolean async) {
+            return this;
+        }
+
+        @Override
+        public ScheduledTask repeat(Runnable task, long delay, long period, boolean async) {
+            return this;
+        }
 
         @Override
         public ScheduledTask sync(Location location, Consumer<ScheduledUnit> task) {
@@ -85,7 +280,9 @@ public class FoliaScheduler implements BukkitScheduler {
         }
 
         @Override
-        public ScheduledTask sync(Location location, Runnable task) { return this; }
+        public ScheduledTask sync(Location location, Runnable task) {
+            return this;
+        }
 
         @Override
         public ScheduledTask sync(Entity entity, Consumer<ScheduledUnit> task) {
@@ -93,7 +290,9 @@ public class FoliaScheduler implements BukkitScheduler {
         }
 
         @Override
-        public ScheduledTask sync(Entity entity, Runnable task) { return this; }
+        public ScheduledTask sync(Entity entity, Runnable task) {
+            return this;
+        }
 
         @Override
         public ScheduledTask delay(Location location, Consumer<ScheduledUnit> task, long delay) {
@@ -101,7 +300,9 @@ public class FoliaScheduler implements BukkitScheduler {
         }
 
         @Override
-        public ScheduledTask delay(Location location, Runnable task, long delay) { return this; }
+        public ScheduledTask delay(Location location, Runnable task, long delay) {
+            return this;
+        }
 
         @Override
         public ScheduledTask delay(Entity entity, Consumer<ScheduledUnit> task, long delay) {
@@ -109,38 +310,56 @@ public class FoliaScheduler implements BukkitScheduler {
         }
 
         @Override
-        public ScheduledTask delay(Entity entity, Runnable task, long delay) { return this; }
-
-        @Override
-        public ScheduledTask repeat(Location location, Consumer<ScheduledUnit> task, long delay, long period) {
+        public ScheduledTask delay(Entity entity, Runnable task, long delay) {
             return this;
         }
 
         @Override
-        public ScheduledTask repeat(Location location, Runnable task, long delay, long period) { return this; }
-
-        @Override
-        public ScheduledTask repeat(Entity entity, Consumer<ScheduledUnit> task, long delay, long period) {
+        public ScheduledTask repeat(
+                Location location, Consumer<ScheduledUnit> task, long delay, long period) {
             return this;
         }
 
         @Override
-        public ScheduledTask repeat(Entity entity, Runnable task, long delay, long period) { return this; }
+        public ScheduledTask repeat(Location location, Runnable task, long delay, long period) {
+            return this;
+        }
 
         @Override
-        public ScheduledTask sync(Consumer<ScheduledUnit> task) { return this; }
+        public ScheduledTask repeat(
+                Entity entity, Consumer<ScheduledUnit> task, long delay, long period) {
+            return this;
+        }
 
         @Override
-        public ScheduledTask sync(Runnable task) { return this; }
+        public ScheduledTask repeat(Entity entity, Runnable task, long delay, long period) {
+            return this;
+        }
 
         @Override
-        public ScheduledTask async(Consumer<ScheduledUnit> task) { return this; }
+        public ScheduledTask sync(Consumer<ScheduledUnit> task) {
+            return this;
+        }
 
         @Override
-        public ScheduledTask async(Runnable task) { return this; }
+        public ScheduledTask sync(Runnable task) {
+            return this;
+        }
 
         @Override
-        public void cancel() { /* no-op */ }
+        public ScheduledTask async(Consumer<ScheduledUnit> task) {
+            return this;
+        }
+
+        @Override
+        public ScheduledTask async(Runnable task) {
+            return this;
+        }
+
+        @Override
+        public void cancel() {
+            /* no-op */
+        }
     }
 
     private static final class FoliaUnit implements ScheduledUnit {
@@ -169,117 +388,136 @@ public class FoliaScheduler implements BukkitScheduler {
     private static final class HandleScheduledTask implements ScheduledTask {
         private io.papermc.paper.threadedregions.scheduler.ScheduledTask handle;
 
-        private void set(io.papermc.paper.threadedregions.scheduler.ScheduledTask h) { this.handle = h; }
-
-        @Override public ScheduledTask delay(Consumer<ScheduledUnit> task, long delay) { return this; }
-        @Override public ScheduledTask delay(Runnable task, long delay) { return this; }
-        @Override public ScheduledTask delay(Consumer<ScheduledUnit> task, long delay, boolean async) { return this; }
-        @Override public ScheduledTask delay(Runnable task, long delay, boolean async) { return this; }
-        @Override public ScheduledTask repeat(Consumer<ScheduledUnit> task, long delay, long period) { return this; }
-        @Override public ScheduledTask repeat(Runnable task, long delay, long period) { return this; }
-        @Override public ScheduledTask repeat(Consumer<ScheduledUnit> task, long delay, long period, boolean async) { return this; }
-        @Override public ScheduledTask repeat(Runnable task, long delay, long period, boolean async) { return this; }
-        @Override public ScheduledTask sync(Location location, Consumer<ScheduledUnit> task) { return this; }
-        @Override public ScheduledTask sync(Location location, Runnable task) { return this; }
-        @Override public ScheduledTask sync(Entity entity, Consumer<ScheduledUnit> task) { return this; }
-        @Override public ScheduledTask sync(Entity entity, Runnable task) { return this; }
-        @Override public ScheduledTask delay(Location location, Consumer<ScheduledUnit> task, long delay) { return this; }
-        @Override public ScheduledTask delay(Location location, Runnable task, long delay) { return this; }
-        @Override public ScheduledTask delay(Entity entity, Consumer<ScheduledUnit> task, long delay) { return this; }
-        @Override public ScheduledTask delay(Entity entity, Runnable task, long delay) { return this; }
-        @Override public ScheduledTask repeat(Location location, Consumer<ScheduledUnit> task, long delay, long period) { return this; }
-        @Override public ScheduledTask repeat(Location location, Runnable task, long delay, long period) { return this; }
-        @Override public ScheduledTask repeat(Entity entity, Consumer<ScheduledUnit> task, long delay, long period) { return this; }
-        @Override public ScheduledTask repeat(Entity entity, Runnable task, long delay, long period) { return this; }
-        @Override public ScheduledTask sync(Consumer<ScheduledUnit> task) { return this; }
-        @Override public ScheduledTask sync(Runnable task) { return this; }
-        @Override public ScheduledTask async(Consumer<ScheduledUnit> task) { return this; }
-        @Override public ScheduledTask async(Runnable task) { return this; }
-        @Override public void cancel() { if (handle != null) handle.cancel(); }
-    }
-
-    @Override
-    public ScheduledTask sync(Plugin plugin, Consumer<ScheduledUnit> consumer) {
-        HandleScheduledTask h = new HandleScheduledTask();
-        this.global.run(plugin, task -> { h.set(task); consumer.accept(new FoliaUnit(task)); });
-        return h;
-    }
-
-    @Override
-    public ScheduledTask async(Plugin plugin, Consumer<ScheduledUnit> consumer) {
-        HandleScheduledTask h = new HandleScheduledTask();
-        this.async.runNow(plugin, task -> { h.set(task); consumer.accept(new FoliaUnit(task)); });
-        return h;
-    }
-
-    @Override
-    public ScheduledTask delay(Plugin plugin, Consumer<ScheduledUnit> consumer, long delay, boolean async) {
-        HandleScheduledTask h = new HandleScheduledTask();
-        if (async) {
-            this.async.runDelayed(plugin, task -> { h.set(task); consumer.accept(new FoliaUnit(task)); }, delay * 50, TimeUnit.MILLISECONDS);
-        } else {
-            this.global.runDelayed(plugin, task -> { h.set(task); consumer.accept(new FoliaUnit(task)); }, delay);
+        private void set(io.papermc.paper.threadedregions.scheduler.ScheduledTask h) {
+            this.handle = h;
         }
-        return h;
-    }
 
-    @Override
-    public ScheduledTask repeat(Plugin plugin, Consumer<ScheduledUnit> consumer, long delay, long period, boolean async) {
-        HandleScheduledTask h = new HandleScheduledTask();
-        if (async) {
-            this.async.runAtFixedRate(plugin, task -> { h.set(task); consumer.accept(new FoliaUnit(task)); }, delay * 50, period * 50, TimeUnit.MILLISECONDS);
-        } else {
-            this.global.runAtFixedRate(plugin, task -> { h.set(task); consumer.accept(new FoliaUnit(task)); }, delay, period);
+        @Override
+        public ScheduledTask delay(Consumer<ScheduledUnit> task, long delay) {
+            return this;
         }
-        return h;
-    }
 
-    @Override
-    public ScheduledTask sync(Plugin plugin, Location location, Consumer<ScheduledUnit> consumer) {
-        if (!isValid(location)) return noop();
-        HandleScheduledTask h = new HandleScheduledTask();
-        this.region.run(plugin, location, task -> { h.set(task); consumer.accept(new FoliaUnit(task)); });
-        return h;
-    }
+        @Override
+        public ScheduledTask delay(Runnable task, long delay) {
+            return this;
+        }
 
-    @Override
-    public ScheduledTask delay(Plugin plugin, Location location, Consumer<ScheduledUnit> consumer, long delay) {
-        if (!isValid(location)) return noop();
-        HandleScheduledTask h = new HandleScheduledTask();
-        this.region.runDelayed(plugin, location, task -> { h.set(task); consumer.accept(new FoliaUnit(task)); }, delay);
-        return h;
-    }
+        @Override
+        public ScheduledTask delay(Consumer<ScheduledUnit> task, long delay, boolean async) {
+            return this;
+        }
 
-    @Override
-    public ScheduledTask repeat(Plugin plugin, Location location, Consumer<ScheduledUnit> consumer, long delay, long period) {
-        if (!isValid(location)) return noop();
-        HandleScheduledTask h = new HandleScheduledTask();
-        this.region.runAtFixedRate(plugin, location, task -> { h.set(task); consumer.accept(new FoliaUnit(task)); }, delay, period);
-        return h;
-    }
+        @Override
+        public ScheduledTask delay(Runnable task, long delay, boolean async) {
+            return this;
+        }
 
-    @Override
-    public ScheduledTask sync(Plugin plugin, Entity entity, Consumer<ScheduledUnit> consumer) {
-        if (!isValid(entity)) return noop();
-        HandleScheduledTask h = new HandleScheduledTask();
-        entity.getScheduler().run(plugin, task -> { h.set(task); consumer.accept(new FoliaUnit(task)); }, null);
-        return h;
-    }
+        @Override
+        public ScheduledTask repeat(Consumer<ScheduledUnit> task, long delay, long period) {
+            return this;
+        }
 
-    @Override
-    public ScheduledTask delay(Plugin plugin, Entity entity, Consumer<ScheduledUnit> consumer, long delay) {
-        if (!isValid(entity)) return noop();
-        HandleScheduledTask h = new HandleScheduledTask();
-        entity.getScheduler().runDelayed(plugin, task -> { h.set(task); consumer.accept(new FoliaUnit(task)); }, null, delay);
-        return h;
-    }
+        @Override
+        public ScheduledTask repeat(Runnable task, long delay, long period) {
+            return this;
+        }
 
-    @Override
-    public ScheduledTask repeat(Plugin plugin, Entity entity, Consumer<ScheduledUnit> consumer, long delay, long period) {
-        if (!isValid(entity)) return noop();
-        HandleScheduledTask h = new HandleScheduledTask();
-        entity.getScheduler().runAtFixedRate(plugin, task -> { h.set(task); consumer.accept(new FoliaUnit(task)); }, null, delay, period);
-        return h;
-    }
+        @Override
+        public ScheduledTask repeat(
+                Consumer<ScheduledUnit> task, long delay, long period, boolean async) {
+            return this;
+        }
 
+        @Override
+        public ScheduledTask repeat(Runnable task, long delay, long period, boolean async) {
+            return this;
+        }
+
+        @Override
+        public ScheduledTask sync(Location location, Consumer<ScheduledUnit> task) {
+            return this;
+        }
+
+        @Override
+        public ScheduledTask sync(Location location, Runnable task) {
+            return this;
+        }
+
+        @Override
+        public ScheduledTask sync(Entity entity, Consumer<ScheduledUnit> task) {
+            return this;
+        }
+
+        @Override
+        public ScheduledTask sync(Entity entity, Runnable task) {
+            return this;
+        }
+
+        @Override
+        public ScheduledTask delay(Location location, Consumer<ScheduledUnit> task, long delay) {
+            return this;
+        }
+
+        @Override
+        public ScheduledTask delay(Location location, Runnable task, long delay) {
+            return this;
+        }
+
+        @Override
+        public ScheduledTask delay(Entity entity, Consumer<ScheduledUnit> task, long delay) {
+            return this;
+        }
+
+        @Override
+        public ScheduledTask delay(Entity entity, Runnable task, long delay) {
+            return this;
+        }
+
+        @Override
+        public ScheduledTask repeat(
+                Location location, Consumer<ScheduledUnit> task, long delay, long period) {
+            return this;
+        }
+
+        @Override
+        public ScheduledTask repeat(Location location, Runnable task, long delay, long period) {
+            return this;
+        }
+
+        @Override
+        public ScheduledTask repeat(
+                Entity entity, Consumer<ScheduledUnit> task, long delay, long period) {
+            return this;
+        }
+
+        @Override
+        public ScheduledTask repeat(Entity entity, Runnable task, long delay, long period) {
+            return this;
+        }
+
+        @Override
+        public ScheduledTask sync(Consumer<ScheduledUnit> task) {
+            return this;
+        }
+
+        @Override
+        public ScheduledTask sync(Runnable task) {
+            return this;
+        }
+
+        @Override
+        public ScheduledTask async(Consumer<ScheduledUnit> task) {
+            return this;
+        }
+
+        @Override
+        public ScheduledTask async(Runnable task) {
+            return this;
+        }
+
+        @Override
+        public void cancel() {
+            if (handle != null) handle.cancel();
+        }
+    }
 }

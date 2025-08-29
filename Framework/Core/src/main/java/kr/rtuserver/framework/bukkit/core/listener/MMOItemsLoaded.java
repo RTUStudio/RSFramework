@@ -4,6 +4,7 @@ import kr.rtuserver.framework.bukkit.api.RSPlugin;
 import kr.rtuserver.framework.bukkit.api.event.CustomRegistryLoadedEvent;
 import kr.rtuserver.framework.bukkit.api.listener.RSListener;
 import net.Indyuce.mmoitems.api.event.MMOItemsReloadEvent;
+
 import org.bukkit.Bukkit;
 import org.bukkit.event.EventHandler;
 
@@ -15,7 +16,7 @@ public class MMOItemsLoaded extends RSListener<RSPlugin> {
 
     @EventHandler
     public void onLoad(MMOItemsReloadEvent e) {
-        Bukkit.getPluginManager().callEvent(new CustomRegistryLoadedEvent(CustomRegistryLoadedEvent.Type.MMOItems));
+        Bukkit.getPluginManager()
+                .callEvent(new CustomRegistryLoadedEvent(CustomRegistryLoadedEvent.Type.MMOItems));
     }
-
 }

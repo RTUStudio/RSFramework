@@ -16,5 +16,4 @@ public @interface Component {
     String name() default "";
 
     Scope scope() default Scope.SINGLETON;
-
 }

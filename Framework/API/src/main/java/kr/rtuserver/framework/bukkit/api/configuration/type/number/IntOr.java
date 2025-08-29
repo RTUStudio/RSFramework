@@ -1,14 +1,15 @@
 package kr.rtuserver.framework.bukkit.api.configuration.type.number;
 
-import com.google.common.base.Preconditions;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.spongepowered.configurate.serialize.ScalarSerializer;
-
 import java.util.OptionalInt;
 import java.util.function.Function;
 import java.util.function.IntPredicate;
 import java.util.function.Predicate;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.spongepowered.configurate.serialize.ScalarSerializer;
+
+import com.google.common.base.Preconditions;
 
 public interface IntOr {
 
@@ -31,13 +32,15 @@ public interface IntOr {
     record Default(OptionalInt value) implements IntOr {
         public static final Default USE_DEFAULT = new Default(OptionalInt.empty());
         private static final String DEFAULT_VALUE = "default";
-        public static final ScalarSerializer<Default> SERIALIZER = new Serializer<>(Default.class, Default::new, DEFAULT_VALUE, USE_DEFAULT);
+        public static final ScalarSerializer<Default> SERIALIZER =
+                new Serializer<>(Default.class, Default::new, DEFAULT_VALUE, USE_DEFAULT);
     }
 
     record Disabled(OptionalInt value) implements IntOr {
         public static final Disabled DISABLED = new Disabled(OptionalInt.empty());
         private static final String DISABLED_VALUE = "disabled";
-        public static final ScalarSerializer<Disabled> SERIALIZER = new Serializer<>(Disabled.class, Disabled::new, DISABLED_VALUE, DISABLED);
+        public static final ScalarSerializer<Disabled> SERIALIZER =
+                new Serializer<>(Disabled.class, Disabled::new, DISABLED_VALUE, DISABLED);
 
         public boolean test(final IntPredicate predicate) {
             return this.value.isPresent() && predicate.test(this.value.getAsInt());
@@ -50,8 +53,19 @@ public interface IntOr {
 
     final class Serializer<T extends IntOr> extends OptionalNumSerializer<T, OptionalInt> {
 
-        private Serializer(final Class<T> classOfT, final Function<OptionalInt, T> factory, final String emptySerializedValue, final T emptyValue) {
-            super(classOfT, emptySerializedValue, emptyValue, OptionalInt::empty, OptionalInt::isEmpty, factory, int.class);
+        private Serializer(
+                final Class<T> classOfT,
+                final Function<OptionalInt, T> factory,
+                final String emptySerializedValue,
+                final T emptyValue) {
+            super(
+                    classOfT,
+                    emptySerializedValue,
+                    emptyValue,
+                    OptionalInt::empty,
+                    OptionalInt::isEmpty,
+                    factory,
+                    int.class);
         }
 
         @Override
@@ -62,7 +76,8 @@ public interface IntOr {
         @Override
         protected OptionalInt full(final Number num) {
             if (num.intValue() != num.doubleValue() || num.intValue() != num.longValue()) {
-                LOGGER.error("{} cannot be converted to an integer without losing information", num);
+                LOGGER.error(
+                        "{} cannot be converted to an integer without losing information", num);
             }
             return OptionalInt.of(num.intValue());
         }

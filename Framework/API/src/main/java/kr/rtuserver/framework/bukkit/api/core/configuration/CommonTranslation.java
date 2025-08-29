@@ -7,5 +7,4 @@ public interface CommonTranslation {
     String get(TranslationType type, String key);
 
     String get(TranslationType type, String locale, String key);
-
 }

@@ -23,8 +23,8 @@ public class BeanHolderFactoryImpl implements BeanHolderFactory {
             case PROTOTYPE:
                 return new PrototypeHolder(instanceSupplier);
             default:
-                throw new IllegalArgumentException("No factory found for the given class: " + clazz.getSimpleName());
+                throw new IllegalArgumentException(
+                        "No factory found for the given class: " + clazz.getSimpleName());
         }
     }
-
 }

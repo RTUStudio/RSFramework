@@ -7,5 +7,4 @@ public interface Provider {
 
     @Nullable
     Plugin getPlugin();
-
 }

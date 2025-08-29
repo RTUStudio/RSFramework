@@ -1,10 +1,10 @@
 package kr.rtuserver.framework.bukkit.api.core.scheduler;
 
+import java.util.function.Consumer;
+
 import org.bukkit.Location;
 import org.bukkit.entity.Entity;
 import org.bukkit.plugin.Plugin;
-
-import java.util.function.Consumer;
 
 public interface BukkitScheduler {
 
@@ -35,9 +35,15 @@ public interface BukkitScheduler {
         return delay(plugin, runnable, delay, false);
     }
 
-    ScheduledTask repeat(Plugin plugin, Consumer<ScheduledUnit> consumer, long delay, long period, boolean async);
+    ScheduledTask repeat(
+            Plugin plugin,
+            Consumer<ScheduledUnit> consumer,
+            long delay,
+            long period,
+            boolean async);
 
-    default ScheduledTask repeat(Plugin plugin, Runnable runnable, long delay, long period, boolean async) {
+    default ScheduledTask repeat(
+            Plugin plugin, Runnable runnable, long delay, long period, boolean async) {
         return repeat(plugin, unit -> runnable.run(), delay, period, async);
     }
 
@@ -49,7 +55,8 @@ public interface BukkitScheduler {
         return repeat(plugin, runnable, period, period, false);
     }
 
-    default ScheduledTask repeat(Plugin plugin, Consumer<ScheduledUnit> consumer, long period, boolean async) {
+    default ScheduledTask repeat(
+            Plugin plugin, Consumer<ScheduledUnit> consumer, long period, boolean async) {
         return repeat(plugin, consumer, period, period, async);
     }
 
@@ -64,19 +71,27 @@ public interface BukkitScheduler {
         return sync(plugin, location, unit -> runnable.run());
     }
 
-    ScheduledTask delay(Plugin plugin, Location location, Consumer<ScheduledUnit> consumer, long delay);
+    ScheduledTask delay(
+            Plugin plugin, Location location, Consumer<ScheduledUnit> consumer, long delay);
 
     default ScheduledTask delay(Plugin plugin, Location location, Runnable runnable, long delay) {
         return delay(plugin, location, unit -> runnable.run(), delay);
     }
 
-    ScheduledTask repeat(Plugin plugin, Location location, Consumer<ScheduledUnit> consumer, long delay, long period);
+    ScheduledTask repeat(
+            Plugin plugin,
+            Location location,
+            Consumer<ScheduledUnit> consumer,
+            long delay,
+            long period);
 
-    default ScheduledTask repeat(Plugin plugin, Location location, Runnable runnable, long delay, long period) {
+    default ScheduledTask repeat(
+            Plugin plugin, Location location, Runnable runnable, long delay, long period) {
         return repeat(plugin, location, unit -> runnable.run(), delay, period);
     }
 
-    default ScheduledTask repeat(Plugin plugin, Location location, Consumer<ScheduledUnit> consumer, long period) {
+    default ScheduledTask repeat(
+            Plugin plugin, Location location, Consumer<ScheduledUnit> consumer, long period) {
         return repeat(plugin, location, consumer, period, period);
     }
 
@@ -97,18 +112,24 @@ public interface BukkitScheduler {
         return delay(plugin, entity, unit -> runnable.run(), delay);
     }
 
-    ScheduledTask repeat(Plugin plugin, Entity entity, Consumer<ScheduledUnit> consumer, long delay, long period);
+    ScheduledTask repeat(
+            Plugin plugin,
+            Entity entity,
+            Consumer<ScheduledUnit> consumer,
+            long delay,
+            long period);
 
-    default ScheduledTask repeat(Plugin plugin, Entity entity, Runnable runnable, long delay, long period) {
+    default ScheduledTask repeat(
+            Plugin plugin, Entity entity, Runnable runnable, long delay, long period) {
         return repeat(plugin, entity, unit -> runnable.run(), delay, period);
     }
 
-    default ScheduledTask repeat(Plugin plugin, Entity entity, Consumer<ScheduledUnit> consumer, long period) {
+    default ScheduledTask repeat(
+            Plugin plugin, Entity entity, Consumer<ScheduledUnit> consumer, long period) {
         return repeat(plugin, entity, consumer, period, period);
     }
 
     default ScheduledTask repeat(Plugin plugin, Entity entity, Runnable runnable, long period) {
         return repeat(plugin, entity, runnable, period, period);
     }
-
 }

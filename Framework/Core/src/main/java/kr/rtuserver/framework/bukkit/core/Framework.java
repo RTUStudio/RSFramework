@@ -42,45 +42,37 @@ import kr.rtuserver.protoweaver.bukkit.core.BukkitProtoWeaver;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import net.kyori.adventure.text.Component;
-import org.bukkit.Bukkit;
-import org.bukkit.entity.Player;
-import org.bukkit.permissions.Permission;
-import org.bukkit.permissions.PermissionDefault;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.bukkit.Bukkit;
+import org.bukkit.entity.Player;
+import org.bukkit.permissions.Permission;
+import org.bukkit.permissions.PermissionDefault;
+
 @Slf4j(topic = "RSFramework")
 @kr.rtuserver.cdi.annotations.Component
 public class Framework implements kr.rtuserver.framework.bukkit.api.core.Framework {
 
     @Getter
-    private final Component prefix = ComponentFormatter.mini("<gradient:#2979FF:#7C4DFF>RSFramework » </gradient>");
-    @Getter
-    private final Map<String, RSPlugin> plugins = new HashMap<>();
-    @Getter
-    private final Map<String, Boolean> hooks = new HashMap<>();
-    @Getter
-    private RSPlugin plugin;
-    @Getter
-    private kr.rtuserver.framework.bukkit.api.nms.NMS NMS;
-    @Getter
-    private BukkitProtoWeaver protoWeaver;
+    private final Component prefix =
+            ComponentFormatter.mini("<gradient:#2979FF:#7C4DFF>RSFramework » </gradient>");
+
+    @Getter private final Map<String, RSPlugin> plugins = new HashMap<>();
+    @Getter private final Map<String, Boolean> hooks = new HashMap<>();
+    @Getter private RSPlugin plugin;
+    @Getter private kr.rtuserver.framework.bukkit.api.nms.NMS NMS;
+    @Getter private BukkitProtoWeaver protoWeaver;
     private final HandlerCallback callback = new HandlerCallback(this::onReady, this::onPacket);
-    @Getter
-    private String NMSVersion;
-    @Getter
-    private CommandLimit commandLimit;
-    @Getter
-    private CommonTranslation commonTranslation;
-    @Getter
-    private Modules modules;
-    @Getter
-    private Providers providers;
-    @Getter
-    private Scheduler scheduler;
+    @Getter private String NMSVersion;
+    @Getter private CommandLimit commandLimit;
+    @Getter private CommonTranslation commonTranslation;
+    @Getter private Modules modules;
+    @Getter private Providers providers;
+    @Getter private Scheduler scheduler;
 
     public void loadPlugin(RSPlugin plugin) {
         log.info("loading RSPlugin: {}", plugin.getName());
@@ -159,8 +151,7 @@ public class Framework implements kr.rtuserver.framework.bukkit.api.core.Framewo
         registerInternal(plugin);
     }
 
-    public void disable(RSPlugin plugin) {
-    }
+    public void disable(RSPlugin plugin) {}
 
     private void registerInternal(RSPlugin plugin) {
         registerInternalRegistry(plugin);
@@ -190,21 +181,31 @@ public class Framework implements kr.rtuserver.framework.bukkit.api.core.Framewo
     }
 
     private void printStartUp(RSPlugin plugin) {
-        List<String> list = List.of(
-                "╔ <gray>Developed by</gray> ════════════════════════════════════╗",
-                "║ ░█▀▄░░▀█▀░░█░█░░░░░█▀▀░░▀█▀░░█░█░░█▀▄░░▀█▀░░█▀█░ ║",
-                "║ ░█▀▄░░░█░░░█░█░░░░░▀▀█░░░█░░░█░█░░█░█░░░█░░░█░█░ ║",
-                "║ ░▀░▀░░░▀░░░▀▀▀░░░░░▀▀▀░░░▀░░░▀▀▀░░▀▀░░░▀▀▀░░▀▀▀░ ║",
-                "╚══════════════════════════════════════════════════╝"
-        );
-        plugin.getAdventure().console().sendMessage(ComponentFormatter.mini(
-                "%s | NMS %s | %s | JDK %s"
-                        .formatted(Bukkit.getName() + "-" + MinecraftVersion.getAsText()
-                                , NMSVersion
-                                , SystemEnvironment.getOS()
-                                , SystemEnvironment.getJDKVersion())));
+        List<String> list =
+                List.of(
+                        "╔ <gray>Developed by</gray> ════════════════════════════════════╗",
+                        "║ ░█▀▄░░▀█▀░░█░█░░░░░█▀▀░░▀█▀░░█░█░░█▀▄░░▀█▀░░█▀█░ ║",
+                        "║ ░█▀▄░░░█░░░█░█░░░░░▀▀█░░░█░░░█░█░░█░█░░░█░░░█░█░ ║",
+                        "║ ░▀░▀░░░▀░░░▀▀▀░░░░░▀▀▀░░░▀░░░▀▀▀░░▀▀░░░▀▀▀░░▀▀▀░ ║",
+                        "╚══════════════════════════════════════════════════╝");
+        plugin.getAdventure()
+                .console()
+                .sendMessage(
+                        ComponentFormatter.mini(
+                                "%s | NMS %s | %s | JDK %s"
+                                        .formatted(
+                                                Bukkit.getName()
+                                                        + "-"
+                                                        + MinecraftVersion.getAsText(),
+                                                NMSVersion,
+                                                SystemEnvironment.getOS(),
+                                                SystemEnvironment.getJDKVersion())));
         for (String message : list)
-            plugin.getAdventure().console().sendMessage(ComponentFormatter.mini("<gradient:#2979FF:#7C4DFF>" + message + "</gradient>"));
+            plugin.getAdventure()
+                    .console()
+                    .sendMessage(
+                            ComponentFormatter.mini(
+                                    "<gradient:#2979FF:#7C4DFF>" + message + "</gradient>"));
     }
 
     public void registerEvent(RSListener<? extends RSPlugin> listener) {
@@ -214,7 +215,8 @@ public class Framework implements kr.rtuserver.framework.bukkit.api.core.Framewo
     public void registerCommand(RSCommand<? extends RSPlugin> command, boolean reload) {
         if (reload) command.registerCommand(new ReloadCommand(command.getPlugin()));
         if (command.getPermission() != null) {
-            Permission permission = new Permission(command.getPermission(), command.getPermissionDefault());
+            Permission permission =
+                    new Permission(command.getPermission(), command.getPermissionDefault());
             Bukkit.getPluginManager().addPermission(permission);
         }
         NMS.getCommand().getCommandMap().register(command.getName(), command);
@@ -224,12 +226,21 @@ public class Framework implements kr.rtuserver.framework.bukkit.api.core.Framewo
         Bukkit.getPluginManager().addPermission(new Permission(name, permissionDefault));
     }
 
-    public void registerProtocol(String namespace, String key, Packet packet, Class<? extends ProtoConnectionHandler> protocolHandler, HandlerCallback callback) {
+    public void registerProtocol(
+            String namespace,
+            String key,
+            Packet packet,
+            Class<? extends ProtoConnectionHandler> protocolHandler,
+            HandlerCallback callback) {
         protoWeaver.registerProtocol(namespace, key, packet, protocolHandler, callback);
     }
 
-    public void registerProtocol(String namespace, String key, Set<Packet> packets, Class<? extends ProtoConnectionHandler> protocolHandler, HandlerCallback callback) {
+    public void registerProtocol(
+            String namespace,
+            String key,
+            Set<Packet> packets,
+            Class<? extends ProtoConnectionHandler> protocolHandler,
+            HandlerCallback callback) {
         protoWeaver.registerProtocol(namespace, key, packets, protocolHandler, callback);
     }
-
 }

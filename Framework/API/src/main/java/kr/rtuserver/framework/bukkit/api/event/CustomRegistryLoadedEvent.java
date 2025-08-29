@@ -1,6 +1,7 @@
 package kr.rtuserver.framework.bukkit.api.event;
 
 import lombok.Getter;
+
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
 import org.jetbrains.annotations.NotNull;
@@ -31,6 +32,4 @@ public class CustomRegistryLoadedEvent extends Event {
         MMOItems,
         Vanilla
     }
-
-
 }

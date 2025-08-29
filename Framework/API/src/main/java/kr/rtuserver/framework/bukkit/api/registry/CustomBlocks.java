@@ -1,18 +1,20 @@
 package kr.rtuserver.framework.bukkit.api.registry;
 
-import com.nexomc.nexo.api.NexoBlocks;
 import dev.lone.itemsadder.api.CustomBlock;
 import io.th0rgal.oraxen.api.OraxenBlocks;
 import kr.rtuserver.cdi.LightDI;
 import kr.rtuserver.framework.bukkit.api.core.Framework;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
+
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.data.BlockData;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
+import com.nexomc.nexo.api.NexoBlocks;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class CustomBlocks {
@@ -82,7 +84,8 @@ public class CustomBlocks {
             }
             case "oraxen" -> {
                 if (framework().isEnabledDependency("Oraxen")) {
-                    if (OraxenBlocks.isOraxenBlock(split[1])) OraxenBlocks.place(split[1], location);
+                    if (OraxenBlocks.isOraxenBlock(split[1]))
+                        OraxenBlocks.place(split[1], location);
                     else return false;
                 } else return false;
                 return true;
@@ -97,11 +100,11 @@ public class CustomBlocks {
             }
             default -> {
                 Material material = Material.matchMaterial(namespacedID.toLowerCase());
-                if (material != null) location.getWorld().setBlockData(location, material.createBlockData());
+                if (material != null)
+                    location.getWorld().setBlockData(location, material.createBlockData());
                 else return false;
                 return true;
             }
         }
     }
-
 }

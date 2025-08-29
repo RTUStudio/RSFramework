@@ -7,12 +7,13 @@ import kr.rtuserver.cdi.beans.classholders.impl.*;
 import kr.rtuserver.cdi.beans.visitors.ClassHolderVisitor;
 import kr.rtuserver.cdi.factories.impl.ClassHolderFactory;
 import kr.rtuserver.cdi.utils.ClassHierarchyLoader;
-import org.reflections.Reflections;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.util.*;
 import java.util.stream.Collectors;
+
+import org.reflections.Reflections;
 
 /**
  * @author Mihai Alexandru
@@ -26,7 +27,8 @@ public class BeanDependenciesVisitor extends ClassHolderVisitor {
 
     private Reflections reflections;
 
-    public BeanDependenciesVisitor(BeanStore beanStore, ClassHolderFactory classHolderFactory, Reflections reflections) {
+    public BeanDependenciesVisitor(
+            BeanStore beanStore, ClassHolderFactory classHolderFactory, Reflections reflections) {
         super(beanStore);
         this.classHolderFactory = classHolderFactory;
         this.reflections = reflections;
@@ -39,23 +41,28 @@ public class BeanDependenciesVisitor extends ClassHolderVisitor {
         dependencies = Collections.unmodifiableList(subtypesClassHolders);
     }
 
-
     @Override
     public void visit(PrototypeFactoryClassHolder prototypeFactoryClassHolder) {
-        classHolderFactory.getClassHolder(prototypeFactoryClassHolder.getBeanClass()).ifPresent(ch -> {
-            dependencies = Collections.singletonList(ch);
-        });
+        classHolderFactory
+                .getClassHolder(prototypeFactoryClassHolder.getBeanClass())
+                .ifPresent(
+                        ch -> {
+                            dependencies = Collections.singletonList(ch);
+                        });
     }
 
     @Override
     public void visit(FieldInjectNamedBeanClassHolder fieldInjectNamedBeanClassHolder) {
         var subtypes = getSubtypesIncludingActualType(fieldInjectNamedBeanClassHolder);
-        dependencies = getSubTypesHolders(subtypes)
-                .stream()
-                .filter(st -> isSubtTypeNamedBean(st, fieldInjectNamedBeanClassHolder.getBeanName()))
-                .findFirst()
-                .map(Collections::singletonList)
-                .orElse(Collections.emptyList());
+        dependencies =
+                getSubTypesHolders(subtypes).stream()
+                        .filter(
+                                st ->
+                                        isSubtTypeNamedBean(
+                                                st, fieldInjectNamedBeanClassHolder.getBeanName()))
+                        .findFirst()
+                        .map(Collections::singletonList)
+                        .orElse(Collections.emptyList());
     }
 
     @Override
@@ -79,7 +86,11 @@ public class BeanDependenciesVisitor extends ClassHolderVisitor {
     }
 
     private List<ClassHolder> getSubTypesHolders(Set<? extends Class<?>> subtypes) {
-        return subtypes.stream().map(classHolderFactory::getClassHolder).filter(Optional::isPresent).map(Optional::get).collect(Collectors.toList());
+        return subtypes.stream()
+                .map(classHolderFactory::getClassHolder)
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .collect(Collectors.toList());
     }
 
     private void initClassDependencies(ClassHolder ch) {
@@ -107,6 +118,4 @@ public class BeanDependenciesVisitor extends ClassHolderVisitor {
         types.addAll(reflections.getSubTypesOf(ch.getBeanClass()));
         return types;
     }
-
-
 }

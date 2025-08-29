@@ -1,5 +1,19 @@
 package kr.rtuserver.framework.bukkit.api.storage.mongodb;
 
+import kr.rtuserver.framework.bukkit.api.RSPlugin;
+import kr.rtuserver.framework.bukkit.api.storage.Storage;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.CompletableFuture;
+
+import org.bson.BsonDocument;
+import org.bson.Document;
+import org.bson.conversions.Bson;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
 import com.google.gson.*;
 import com.mongodb.ConnectionString;
 import com.mongodb.MongoClientSettings;
@@ -10,18 +24,6 @@ import com.mongodb.client.model.Filters;
 import com.mongodb.client.model.UpdateOptions;
 import com.mongodb.client.result.DeleteResult;
 import com.mongodb.client.result.UpdateResult;
-import kr.rtuserver.framework.bukkit.api.RSPlugin;
-import kr.rtuserver.framework.bukkit.api.storage.Storage;
-import org.bson.BsonDocument;
-import org.bson.Document;
-import org.bson.conversions.Bson;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.CompletableFuture;
 
 public class MongoDB implements Storage {
 
@@ -49,13 +51,12 @@ public class MongoDB implements Storage {
         }
         uri += serverHost;
         // Construct a ServerApi instance using the ServerApi.builder() method
-        ServerApi serverApi = ServerApi.builder()
-                .version(ServerApiVersion.V1)
-                .build();
-        MongoClientSettings settings = MongoClientSettings.builder()
-                .applyConnectionString(new ConnectionString(uri))
-                .serverApi(serverApi)
-                .build();
+        ServerApi serverApi = ServerApi.builder().version(ServerApiVersion.V1).build();
+        MongoClientSettings settings =
+                MongoClientSettings.builder()
+                        .applyConnectionString(new ConnectionString(uri))
+                        .serverApi(serverApi)
+                        .build();
         // Create a new client and connect to the server
         this.client = MongoClients.create(settings);
         this.database = client.getDatabase(config.getDatabase());
@@ -71,69 +72,78 @@ public class MongoDB implements Storage {
 
     @Override
     public CompletableFuture<Result> add(@NotNull String collectionName, @NotNull JsonObject data) {
-        return CompletableFuture.supplyAsync(() -> {
-            if (isNull(data)) return Result.FAILED;
-            MongoCollection<Document> collection = database.getCollection(prefix + collectionName);
-            Document document = Document.parse(gson.toJson(data));
-            debug("ADD", collectionName, document.toJson());
-            if (collection.insertOne(document).wasAcknowledged()) return Result.UPDATED;
-            else return Result.FAILED;
-        });
+        return CompletableFuture.supplyAsync(
+                () -> {
+                    if (isNull(data)) return Result.FAILED;
+                    MongoCollection<Document> collection =
+                            database.getCollection(prefix + collectionName);
+                    Document document = Document.parse(gson.toJson(data));
+                    debug("ADD", collectionName, document.toJson());
+                    if (collection.insertOne(document).wasAcknowledged()) return Result.UPDATED;
+                    else return Result.FAILED;
+                });
     }
 
     @Override
-    public CompletableFuture<Result> set(@NotNull String collectionName, @Nullable JsonObject find, @Nullable JsonObject data) {
-        return CompletableFuture.supplyAsync(() -> {
-            MongoCollection<Document> collection = database.getCollection(prefix + collectionName);
-            if (!isNull(find)) {
-                Bson filter = filter(find);
-                if (isNull(data)) {
-                    debug("SET", collectionName, filter.toBsonDocument().toJson());
-                    DeleteResult result = collection.deleteMany(filter);
-                    if (result.wasAcknowledged()) {
-                        if (result.getDeletedCount() > 0) return Result.UPDATED;
-                        else return Result.UNCHANGED;
-                    } else return Result.FAILED;
-                } else {
-                    UpdateOptions options = new UpdateOptions().upsert(true);
-                    BsonDocument update = new BsonDocument("$set", BsonDocument.parse(data.toString()));
-                    BsonDocument debug = new BsonDocument()
-                            .append("filter", filter.toBsonDocument())
-                            .append("update", update.toBsonDocument());
-                    debug("SET", collectionName, debug.toJson());
-                    UpdateResult result = collection.updateMany(filter, update, options);
-                    if (result.wasAcknowledged()) {
-                        if (result.getModifiedCount() > 0) return Result.UPDATED;
-                        else return Result.UNCHANGED;
-                    } else return Result.FAILED;
-                }
-            } else {
-                debug("SET", collectionName, Filters.empty().toBsonDocument().toJson());
-                DeleteResult result = collection.deleteMany(Filters.empty());
-                if (result.wasAcknowledged()) {
-                    if (result.getDeletedCount() > 0) return Result.UPDATED;
-                    else return Result.UNCHANGED;
-                } else return Result.FAILED;
-            }
-        });
+    public CompletableFuture<Result> set(
+            @NotNull String collectionName, @Nullable JsonObject find, @Nullable JsonObject data) {
+        return CompletableFuture.supplyAsync(
+                () -> {
+                    MongoCollection<Document> collection =
+                            database.getCollection(prefix + collectionName);
+                    if (!isNull(find)) {
+                        Bson filter = filter(find);
+                        if (isNull(data)) {
+                            debug("SET", collectionName, filter.toBsonDocument().toJson());
+                            DeleteResult result = collection.deleteMany(filter);
+                            if (result.wasAcknowledged()) {
+                                if (result.getDeletedCount() > 0) return Result.UPDATED;
+                                else return Result.UNCHANGED;
+                            } else return Result.FAILED;
+                        } else {
+                            UpdateOptions options = new UpdateOptions().upsert(true);
+                            BsonDocument update =
+                                    new BsonDocument("$set", BsonDocument.parse(data.toString()));
+                            BsonDocument debug =
+                                    new BsonDocument()
+                                            .append("filter", filter.toBsonDocument())
+                                            .append("update", update.toBsonDocument());
+                            debug("SET", collectionName, debug.toJson());
+                            UpdateResult result = collection.updateMany(filter, update, options);
+                            if (result.wasAcknowledged()) {
+                                if (result.getModifiedCount() > 0) return Result.UPDATED;
+                                else return Result.UNCHANGED;
+                            } else return Result.FAILED;
+                        }
+                    } else {
+                        debug("SET", collectionName, Filters.empty().toBsonDocument().toJson());
+                        DeleteResult result = collection.deleteMany(Filters.empty());
+                        if (result.wasAcknowledged()) {
+                            if (result.getDeletedCount() > 0) return Result.UPDATED;
+                            else return Result.UNCHANGED;
+                        } else return Result.FAILED;
+                    }
+                });
     }
 
-
     @Override
-    public CompletableFuture<List<JsonObject>> get(@NotNull String collectionName, @NotNull JsonObject find) {
-        return CompletableFuture.supplyAsync(() -> {
-            MongoCollection<Document> collection = database.getCollection(prefix + collectionName);
-            Bson filter = filter(find);
-            debug("GET", collectionName, filter.toBsonDocument().toJson());
-            FindIterable<Document> documents = collection.find(filter);
-            List<JsonObject> result = new ArrayList<>();
-            for (Document document : documents) {
-                if (document != null && !document.isEmpty()) {
-                    result.add(JsonParser.parseString(document.toJson()).getAsJsonObject());
-                }
-            }
-            return result;
-        });
+    public CompletableFuture<List<JsonObject>> get(
+            @NotNull String collectionName, @NotNull JsonObject find) {
+        return CompletableFuture.supplyAsync(
+                () -> {
+                    MongoCollection<Document> collection =
+                            database.getCollection(prefix + collectionName);
+                    Bson filter = filter(find);
+                    debug("GET", collectionName, filter.toBsonDocument().toJson());
+                    FindIterable<Document> documents = collection.find(filter);
+                    List<JsonObject> result = new ArrayList<>();
+                    for (Document document : documents) {
+                        if (document != null && !document.isEmpty()) {
+                            result.add(JsonParser.parseString(document.toJson()).getAsJsonObject());
+                        }
+                    }
+                    return result;
+                });
     }
 
     private Bson filter(JsonObject find) {
@@ -144,10 +154,16 @@ public class MongoDB implements Storage {
                 if (entry.getValue().isJsonNull()) {
                     filters.add(Filters.eq(entry.getKey(), null));
                 } else if (entry.getValue() instanceof JsonPrimitive primitive) {
-                    if (primitive.isBoolean()) filters.add(Filters.eq(entry.getKey(), primitive.getAsBoolean()));
-                    else if (primitive.isNumber()) filters.add(Filters.eq(entry.getKey(), primitive.getAsNumber()));
-                    else if (primitive.isString()) filters.add(Filters.eq(entry.getKey(), primitive.getAsString()));
-                } else filters.add(Filters.eq(entry.getKey(), Document.parse(entry.getValue().toString())));
+                    if (primitive.isBoolean())
+                        filters.add(Filters.eq(entry.getKey(), primitive.getAsBoolean()));
+                    else if (primitive.isNumber())
+                        filters.add(Filters.eq(entry.getKey(), primitive.getAsNumber()));
+                    else if (primitive.isString())
+                        filters.add(Filters.eq(entry.getKey(), primitive.getAsString()));
+                } else
+                    filters.add(
+                            Filters.eq(
+                                    entry.getKey(), Document.parse(entry.getValue().toString())));
             }
         }
         if (filters.isEmpty()) return Filters.empty();
@@ -158,5 +174,4 @@ public class MongoDB implements Storage {
     public void close() {
         client.close();
     }
-
 }

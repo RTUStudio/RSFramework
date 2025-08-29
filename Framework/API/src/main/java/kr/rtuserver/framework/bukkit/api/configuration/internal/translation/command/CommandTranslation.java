@@ -13,5 +13,4 @@ public class CommandTranslation extends TranslationConfiguration {
     public CommandTranslation(RSPlugin plugin, TranslationType type, String defaultLocale) {
         super(plugin, type, defaultLocale);
     }
-
 }

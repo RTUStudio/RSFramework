@@ -1,7 +1,6 @@
 package kr.rtuserver.framework.bukkit.api.configuration.type;
 
 public enum StorageType {
-
     JSON,
     MYSQL,
     MONGODB,
@@ -14,5 +13,4 @@ public enum StorageType {
             return StorageType.JSON;
         }
     }
-
 }

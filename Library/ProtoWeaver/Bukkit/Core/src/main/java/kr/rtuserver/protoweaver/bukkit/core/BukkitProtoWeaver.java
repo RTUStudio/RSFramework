@@ -34,12 +34,13 @@ import kr.rtuserver.protoweaver.bukkit.core.nms.v1_21_r5.ProtoWeaver_1_21_R5;
 import kr.rtuserver.protoweaver.core.protocol.protoweaver.ProxyPacketHandler;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
+
+import java.util.*;
+
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
-
-import java.util.*;
 
 @Slf4j(topic = "RSF/ProtoWeaver")
 @Getter
@@ -55,24 +56,25 @@ public class BukkitProtoWeaver implements kr.rtuserver.protoweaver.bukkit.api.Bu
     private ProtoConnection connection;
 
     public BukkitProtoWeaver(String sslFolder, String nmsVersion, HandlerCallback callback) {
-        this.protoWeaver = switch (nmsVersion) {
-            case "v1_17_R1" -> new ProtoWeaver_1_17_R1(sslFolder);
-            case "v1_18_R1" -> new ProtoWeaver_1_18_R1(sslFolder);
-            case "v1_18_R2" -> new ProtoWeaver_1_18_R2(sslFolder);
-            case "v1_19_R1" -> new ProtoWeaver_1_19_R1(sslFolder);
-            case "v1_19_R2" -> new ProtoWeaver_1_19_R2(sslFolder);
-            case "v1_19_R3" -> new ProtoWeaver_1_19_R3(sslFolder);
-            case "v1_20_R1" -> new ProtoWeaver_1_20_R1(sslFolder);
-            case "v1_20_R2" -> new ProtoWeaver_1_20_R2(sslFolder);
-            case "v1_20_R3" -> new ProtoWeaver_1_20_R3(sslFolder);
-            case "v1_20_R4" -> new ProtoWeaver_1_20_R4(sslFolder);
-            case "v1_21_R1" -> new ProtoWeaver_1_21_R1(sslFolder);
-            case "v1_21_R2" -> new ProtoWeaver_1_21_R2(sslFolder);
-            case "v1_21_R3" -> new ProtoWeaver_1_21_R3(sslFolder);
-            case "v1_21_R4" -> new ProtoWeaver_1_21_R4(sslFolder);
-            case "v1_21_R5" -> new ProtoWeaver_1_21_R5(sslFolder);
-            default -> throw new IllegalStateException();
-        };
+        this.protoWeaver =
+                switch (nmsVersion) {
+                    case "v1_17_R1" -> new ProtoWeaver_1_17_R1(sslFolder);
+                    case "v1_18_R1" -> new ProtoWeaver_1_18_R1(sslFolder);
+                    case "v1_18_R2" -> new ProtoWeaver_1_18_R2(sslFolder);
+                    case "v1_19_R1" -> new ProtoWeaver_1_19_R1(sslFolder);
+                    case "v1_19_R2" -> new ProtoWeaver_1_19_R2(sslFolder);
+                    case "v1_19_R3" -> new ProtoWeaver_1_19_R3(sslFolder);
+                    case "v1_20_R1" -> new ProtoWeaver_1_20_R1(sslFolder);
+                    case "v1_20_R2" -> new ProtoWeaver_1_20_R2(sslFolder);
+                    case "v1_20_R3" -> new ProtoWeaver_1_20_R3(sslFolder);
+                    case "v1_20_R4" -> new ProtoWeaver_1_20_R4(sslFolder);
+                    case "v1_21_R1" -> new ProtoWeaver_1_21_R1(sslFolder);
+                    case "v1_21_R2" -> new ProtoWeaver_1_21_R2(sslFolder);
+                    case "v1_21_R3" -> new ProtoWeaver_1_21_R3(sslFolder);
+                    case "v1_21_R4" -> new ProtoWeaver_1_21_R4(sslFolder);
+                    case "v1_21_R5" -> new ProtoWeaver_1_21_R5(sslFolder);
+                    default -> throw new IllegalStateException();
+                };
         protoWeaver.setup();
         this.callback = callback;
         this.isModernProxy = protoWeaver.isModernProxy();
@@ -102,7 +104,6 @@ public class BukkitProtoWeaver implements kr.rtuserver.protoweaver.bukkit.api.Bu
         if (connection == null) return false;
         return connection.send(packet).isSuccess();
     }
-
 
     public void onReady(HandlerCallback.Ready data) {
         if (connection != null) {
@@ -148,11 +149,21 @@ public class BukkitProtoWeaver implements kr.rtuserver.protoweaver.bukkit.api.Bu
         }
     }
 
-    public void registerProtocol(String namespace, String key, Packet packet, Class<? extends ProtoConnectionHandler> protocolHandler, HandlerCallback callback) {
+    public void registerProtocol(
+            String namespace,
+            String key,
+            Packet packet,
+            Class<? extends ProtoConnectionHandler> protocolHandler,
+            HandlerCallback callback) {
         registerProtocol(namespace, key, Set.of(packet), protocolHandler, callback);
     }
 
-    public void registerProtocol(String namespace, String key, Set<Packet> packets, Class<? extends ProtoConnectionHandler> protocolHandler, HandlerCallback callback) {
+    public void registerProtocol(
+            String namespace,
+            String key,
+            Set<Packet> packets,
+            Class<? extends ProtoConnectionHandler> protocolHandler,
+            HandlerCallback callback) {
         Protocol.Builder protocol = Protocol.create(namespace, key);
         protocol.setCompression(CompressionType.SNAPPY);
         protocol.setMaxPacketSize(67108864); // 64mb
@@ -180,5 +191,4 @@ public class BukkitProtoWeaver implements kr.rtuserver.protoweaver.bukkit.api.Bu
             if (!sender.isSuccess()) unregistered.add(registry);
         } else unregistered.add(registry);
     }
-
 }

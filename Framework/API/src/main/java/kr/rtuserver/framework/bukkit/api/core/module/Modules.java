@@ -7,5 +7,4 @@ public interface Modules {
     ThemeModule getTheme();
 
     void reload();
-
 }

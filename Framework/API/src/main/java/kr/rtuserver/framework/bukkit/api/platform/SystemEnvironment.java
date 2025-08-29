@@ -13,5 +13,4 @@ public class SystemEnvironment {
     public static String getJDKVersion() {
         return System.getProperty("java.version");
     }
-
 }

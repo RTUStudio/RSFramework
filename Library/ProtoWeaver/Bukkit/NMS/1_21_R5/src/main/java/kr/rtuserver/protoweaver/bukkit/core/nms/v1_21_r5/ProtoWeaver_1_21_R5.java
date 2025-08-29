@@ -1,8 +1,8 @@
 package kr.rtuserver.protoweaver.bukkit.core.nms.v1_21_r5;
 
 import io.papermc.paper.configuration.GlobalConfiguration;
-import kr.rtuserver.protoweaver.bukkit.api.nms.IProtoWeaver;
 import kr.rtuserver.protoweaver.api.util.ProtoLogger;
+import kr.rtuserver.protoweaver.bukkit.api.nms.IProtoWeaver;
 import kr.rtuserver.protoweaver.core.loader.netty.SSLContext;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -23,7 +23,7 @@ public class ProtoWeaver_1_21_R5 implements IProtoWeaver {
 
     @Override
     public boolean isModernProxy() {
-        if (!isPaper()) return false; //TODO: Fabric, Forge, Arclight 등의 Velocity 지원 확장을 고려해야함
+        if (!isPaper()) return false; // TODO: Fabric, Forge, Arclight 등의 Velocity 지원 확장을 고려해야함
         boolean enabled = GlobalConfiguration.get().proxies.velocity.enabled;
         if (!enabled) return false;
         String secret = GlobalConfiguration.get().proxies.velocity.secret;
@@ -44,5 +44,4 @@ public class ProtoWeaver_1_21_R5 implements IProtoWeaver {
     public void err(String message) {
         log.error(message);
     }
-
 }

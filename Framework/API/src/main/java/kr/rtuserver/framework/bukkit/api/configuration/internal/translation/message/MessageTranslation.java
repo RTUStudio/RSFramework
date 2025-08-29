@@ -20,5 +20,4 @@ public class MessageTranslation extends TranslationConfiguration {
     public MessageTranslation(RSPlugin plugin, TranslationType type, String defaultLocale) {
         super(plugin, type, defaultLocale);
     }
-
 }

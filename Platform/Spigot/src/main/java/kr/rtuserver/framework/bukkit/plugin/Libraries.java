@@ -1,9 +1,11 @@
 package kr.rtuserver.framework.bukkit.plugin;
 
+import kr.rtuserver.framework.bukkit.api.RSPlugin;
+
+import org.jetbrains.annotations.NotNull;
+
 import com.alessiodp.libby.BukkitLibraryManager;
 import com.alessiodp.libby.Library;
-import kr.rtuserver.framework.bukkit.api.RSPlugin;
-import org.jetbrains.annotations.NotNull;
 
 class Libraries {
 
@@ -21,26 +23,24 @@ class Libraries {
         String groupId = split[0];
         String artifactId = split[1];
         String version = split[2];
-        Library lib = Library.builder()
-                .groupId(groupId)
-                .artifactId(artifactId)
-                .version(version)
-                .build();
+        Library lib =
+                Library.builder().groupId(groupId).artifactId(artifactId).version(version).build();
         manager.loadLibrary(lib);
     }
 
-    public void load(@NotNull String dependency, @NotNull String pattern, @NotNull String relocatedPattern) {
+    public void load(
+            @NotNull String dependency, @NotNull String pattern, @NotNull String relocatedPattern) {
         String[] split = dependency.split(":");
         String groupId = split[0];
         String artifactId = split[1];
         String version = split[2];
-        Library lib = Library.builder()
-                .groupId(groupId)
-                .artifactId(artifactId)
-                .version(version)
-                .relocate(pattern, relocatedPattern)
-                .build();
+        Library lib =
+                Library.builder()
+                        .groupId(groupId)
+                        .artifactId(artifactId)
+                        .version(version)
+                        .relocate(pattern, relocatedPattern)
+                        .build();
         manager.loadLibrary(lib);
     }
-
 }

@@ -11,7 +11,10 @@ public class DrunkenBishop {
         for (int j = 0; j < fingerprint.length(); j += 2) {
             String bit = String.valueOf(fingerprint.charAt(j)) + fingerprint.charAt(j + 1);
 
-            for (bit = Integer.toString(Integer.parseInt(bit, 16), 2), i = 4; i-- > 0; m[x -= s < 2 ? x > 0 ? 1 : 0 : x / 8 - 1][y -= s % 2 > 0 ? y / 16 - 1 : y > 0 ? 1 : 0]++)
+            for (bit = Integer.toString(Integer.parseInt(bit, 16), 2), i = 4;
+                    i-- > 0;
+                    m[x -= s < 2 ? x > 0 ? 1 : 0 : x / 8 - 1][
+                            y -= s % 2 > 0 ? y / 16 - 1 : y > 0 ? 1 : 0]++)
                 s = Integer.decode(("0".repeat(8 - bit.length()) + bit).split("(?<=\\G..)")[i]);
         }
 
@@ -32,5 +35,4 @@ public class DrunkenBishop {
         }
         return inlined.toString();
     }
-
 }

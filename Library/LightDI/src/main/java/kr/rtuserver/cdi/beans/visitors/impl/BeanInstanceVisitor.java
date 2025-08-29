@@ -10,7 +10,6 @@ import kr.rtuserver.cdi.exceptions.BeanInstantiationException;
 import kr.rtuserver.cdi.exceptions.BeanNotFoundException;
 import kr.rtuserver.cdi.factories.impl.ClassHolderFactory;
 import kr.rtuserver.cdi.utils.ClassHierarchyLoader;
-import org.reflections.ReflectionUtils;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
@@ -20,6 +19,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
+
+import org.reflections.ReflectionUtils;
 
 /**
  * @author Mihai Alexandru
@@ -46,19 +47,36 @@ public class BeanInstanceVisitor extends ClassHolderVisitor {
     @Override
     public void visit(PrototypeFactoryClassHolder prototypeFactoryClassHolder) {
         var beanClass = prototypeFactoryClassHolder.getBeanClass();
-        Supplier<?> beanSupplier = () -> beanStore.getBean(beanClass).orElseThrow(() -> new BeanNotFoundException(beanClass));
+        Supplier<?> beanSupplier =
+                () ->
+                        beanStore
+                                .getBean(beanClass)
+                                .orElseThrow(() -> new BeanNotFoundException(beanClass));
         instanceSupplier = () -> (new PrototypeFactory<>(beanSupplier));
     }
 
     @Override
     public void visit(FieldInjectNamedBeanClassHolder fieldInjectNamedBeanClassHolder) {
         String beanName = fieldInjectNamedBeanClassHolder.getBeanName();
-        instanceSupplier = () -> beanStore.getBean(beanName, fieldInjectNamedBeanClassHolder.getBeanClass()).orElseThrow(() -> new BeanNotFoundException(beanName));
+        instanceSupplier =
+                () ->
+                        beanStore
+                                .getBean(beanName, fieldInjectNamedBeanClassHolder.getBeanClass())
+                                .orElseThrow(() -> new BeanNotFoundException(beanName));
     }
 
     @Override
     public void visit(ConstructorInjectClassHolder constructorInjectClassHolder) {
-        instanceSupplier = () -> beanStore.getBean(constructorInjectClassHolder.getBeanClass()).orElseThrow(() -> new BeanNotFoundException(constructorInjectClassHolder.getBeanClass().getSimpleName()));
+        instanceSupplier =
+                () ->
+                        beanStore
+                                .getBean(constructorInjectClassHolder.getBeanClass())
+                                .orElseThrow(
+                                        () ->
+                                                new BeanNotFoundException(
+                                                        constructorInjectClassHolder
+                                                                .getBeanClass()
+                                                                .getSimpleName()));
     }
 
     @Override
@@ -66,27 +84,24 @@ public class BeanInstanceVisitor extends ClassHolderVisitor {
         initBean(namedBeanClassVisitor.getBeanClass());
     }
 
-
     @Override
     public void visit(DefaultClassHolder defaultClassHolder) {
         initBean(defaultClassHolder.getBeanClass());
     }
 
-
     public Supplier<Object> getInstanceSupplier() {
         return instanceSupplier;
     }
 
-
     // ---------------------------------------------------------------------------
 
-
     private void initBean(Class<?> componentClass) {
-        instanceSupplier = () -> {
-            Object beanInstance = initObject(componentClass);
-            initFields(beanInstance);
-            return beanInstance;
-        };
+        instanceSupplier =
+                () -> {
+                    Object beanInstance = initObject(componentClass);
+                    initFields(beanInstance);
+                    return beanInstance;
+                };
     }
 
     @SuppressWarnings("unchecked")
@@ -98,7 +113,8 @@ public class BeanInstanceVisitor extends ClassHolderVisitor {
         if (onlyOneConstructorWithMultipleParams(constructors)) {
             Constructor<?> constructor = constructors.iterator().next();
             checkInjectAnnotationPresent(constructor);
-            return createInstanceFromConstructor(constructor, classHolderFactory.getClassHolders(constructor));
+            return createInstanceFromConstructor(
+                    constructor, classHolderFactory.getClassHolders(constructor));
         }
         throw new BeanInstantiationException("No valid constructors found.");
     }
@@ -107,10 +123,19 @@ public class BeanInstanceVisitor extends ClassHolderVisitor {
         for (var clazz : ClassHierarchyLoader.getParents(instance.getClass())) {
             Field[] fields = clazz.getDeclaredFields();
             for (Field f : fields) {
-                classHolderFactory.getClassHolder(f).ifPresent(ch -> {
-                    Object fieldBean = beanStore.getBean(ch).orElseThrow(() -> new BeanNotFoundException(ch.getBeanClass()));
-                    setFieldValue(f, instance, fieldBean);
-                });
+                classHolderFactory
+                        .getClassHolder(f)
+                        .ifPresent(
+                                ch -> {
+                                    Object fieldBean =
+                                            beanStore
+                                                    .getBean(ch)
+                                                    .orElseThrow(
+                                                            () ->
+                                                                    new BeanNotFoundException(
+                                                                            ch.getBeanClass()));
+                                    setFieldValue(f, instance, fieldBean);
+                                });
             }
         }
     }
@@ -137,11 +162,19 @@ public class BeanInstanceVisitor extends ClassHolderVisitor {
         }
     }
 
-    private Object createInstanceFromConstructor(Constructor constructor, List<ClassHolder> params) {
-        List<Object> contructorParamsInstances = params
-                .stream()
-                .map(ch -> beanStore.getBean(ch).orElseThrow(() -> new BeanNotFoundException(ch.getBeanClass())))
-                .collect(Collectors.toList());
+    private Object createInstanceFromConstructor(
+            Constructor constructor, List<ClassHolder> params) {
+        List<Object> contructorParamsInstances =
+                params.stream()
+                        .map(
+                                ch ->
+                                        beanStore
+                                                .getBean(ch)
+                                                .orElseThrow(
+                                                        () ->
+                                                                new BeanNotFoundException(
+                                                                        ch.getBeanClass())))
+                        .collect(Collectors.toList());
         try {
             return constructor.newInstance(contructorParamsInstances.toArray());
         } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
@@ -157,6 +190,4 @@ public class BeanInstanceVisitor extends ClassHolderVisitor {
             throw new BeanInstantiationException(e);
         }
     }
-
-
 }

@@ -28,5 +28,4 @@ public class PostgreSQLConfig extends RSConfiguration.Wrapper<RSPlugin> {
         password = getString("password", password);
         tablePrefix = getString("tablePrefix", tablePrefix);
     }
-
 }

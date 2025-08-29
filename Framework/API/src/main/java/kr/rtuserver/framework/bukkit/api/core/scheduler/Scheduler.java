@@ -1,10 +1,11 @@
 package kr.rtuserver.framework.bukkit.api.core.scheduler;
 
 import kr.rtuserver.framework.bukkit.api.RSPlugin;
-import org.bukkit.Location;
-import org.bukkit.entity.Entity;
 
 import java.util.function.Consumer;
+
+import org.bukkit.Location;
+import org.bukkit.entity.Entity;
 
 public interface Scheduler {
 
@@ -86,7 +87,8 @@ public interface Scheduler {
         return repeat(location, runnable, period, period);
     }
 
-    ScheduledTask repeat(Location location, Consumer<ScheduledUnit> consumer, long delay, long period);
+    ScheduledTask repeat(
+            Location location, Consumer<ScheduledUnit> consumer, long delay, long period);
 
     default ScheduledTask repeat(Location location, Runnable runnable, long delay, long period) {
         return repeat(location, unit -> runnable.run(), delay, period);
@@ -117,5 +119,4 @@ public interface Scheduler {
     default ScheduledTask repeat(Entity entity, Runnable runnable, long delay, long period) {
         return repeat(entity, unit -> runnable.run(), delay, period);
     }
-
 }

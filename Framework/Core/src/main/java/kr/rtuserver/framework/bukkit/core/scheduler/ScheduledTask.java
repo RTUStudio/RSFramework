@@ -4,9 +4,6 @@ import kr.rtuserver.framework.bukkit.api.RSPlugin;
 import kr.rtuserver.framework.bukkit.api.core.scheduler.BukkitScheduler;
 import kr.rtuserver.framework.bukkit.api.core.scheduler.ScheduledUnit;
 import kr.rtuserver.framework.bukkit.api.platform.MinecraftVersion;
-import org.bukkit.Location;
-import org.bukkit.entity.Entity;
-import org.bukkit.plugin.Plugin;
 
 import java.util.ArrayDeque;
 import java.util.Deque;
@@ -15,8 +12,12 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 
+import org.bukkit.Location;
+import org.bukkit.entity.Entity;
+import org.bukkit.plugin.Plugin;
 
-public final class ScheduledTask implements kr.rtuserver.framework.bukkit.api.core.scheduler.ScheduledTask {
+public final class ScheduledTask
+        implements kr.rtuserver.framework.bukkit.api.core.scheduler.ScheduledTask {
 
     private final RSPlugin plugin;
 
@@ -25,7 +26,8 @@ public final class ScheduledTask implements kr.rtuserver.framework.bukkit.api.co
     private final Deque<Runnable> steps = new ArrayDeque<>();
     private final AtomicBoolean cancelled = new AtomicBoolean(false);
     private final AtomicBoolean running = new AtomicBoolean(false);
-    private final AtomicReference<kr.rtuserver.framework.bukkit.api.core.scheduler.ScheduledTask> active = new AtomicReference<>(null);
+    private final AtomicReference<kr.rtuserver.framework.bukkit.api.core.scheduler.ScheduledTask>
+            active = new AtomicReference<>(null);
 
     ScheduledTask(RSPlugin plugin) {
         this.plugin = Objects.requireNonNull(plugin, "plugin");
@@ -35,55 +37,64 @@ public final class ScheduledTask implements kr.rtuserver.framework.bukkit.api.co
     }
 
     @Override
-    public kr.rtuserver.framework.bukkit.api.core.scheduler.ScheduledTask delay(Consumer<ScheduledUnit> task, long delay) {
+    public kr.rtuserver.framework.bukkit.api.core.scheduler.ScheduledTask delay(
+            Consumer<ScheduledUnit> task, long delay) {
         return delay(task, delay, false);
     }
 
     @Override
-    public kr.rtuserver.framework.bukkit.api.core.scheduler.ScheduledTask delay(Runnable task, long delay) {
+    public kr.rtuserver.framework.bukkit.api.core.scheduler.ScheduledTask delay(
+            Runnable task, long delay) {
         Objects.requireNonNull(task, "task");
         return delay(unit -> task.run(), delay, false);
     }
 
     @Override
-    public kr.rtuserver.framework.bukkit.api.core.scheduler.ScheduledTask delay(Consumer<ScheduledUnit> task, long delay, boolean async) {
+    public kr.rtuserver.framework.bukkit.api.core.scheduler.ScheduledTask delay(
+            Consumer<ScheduledUnit> task, long delay, boolean async) {
         Objects.requireNonNull(task, "task");
         enqueue(() -> scheduleOnce(task, delay, async, this::onStepComplete));
         return this;
     }
 
     @Override
-    public kr.rtuserver.framework.bukkit.api.core.scheduler.ScheduledTask delay(Runnable task, long delay, boolean async) {
+    public kr.rtuserver.framework.bukkit.api.core.scheduler.ScheduledTask delay(
+            Runnable task, long delay, boolean async) {
         Objects.requireNonNull(task, "task");
         return delay(unit -> task.run(), delay, async);
     }
 
     @Override
-    public kr.rtuserver.framework.bukkit.api.core.scheduler.ScheduledTask repeat(Consumer<ScheduledUnit> task, long delay, long period) {
+    public kr.rtuserver.framework.bukkit.api.core.scheduler.ScheduledTask repeat(
+            Consumer<ScheduledUnit> task, long delay, long period) {
         return repeat(task, delay, period, false);
     }
 
     @Override
-    public kr.rtuserver.framework.bukkit.api.core.scheduler.ScheduledTask repeat(Consumer<ScheduledUnit> task, long delay, long period, boolean async) {
+    public kr.rtuserver.framework.bukkit.api.core.scheduler.ScheduledTask repeat(
+            Consumer<ScheduledUnit> task, long delay, long period, boolean async) {
         Objects.requireNonNull(task, "task");
         enqueue(() -> scheduleRepeat(task, delay, period, async));
         return this;
     }
 
     @Override
-    public kr.rtuserver.framework.bukkit.api.core.scheduler.ScheduledTask repeat(Runnable task, long delay, long period) {
+    public kr.rtuserver.framework.bukkit.api.core.scheduler.ScheduledTask repeat(
+            Runnable task, long delay, long period) {
         Objects.requireNonNull(task, "task");
         return repeat(unit -> task.run(), delay, period, false);
     }
 
     @Override
-    public kr.rtuserver.framework.bukkit.api.core.scheduler.ScheduledTask repeat(Runnable task, long delay, long period, boolean async) {
+    public kr.rtuserver.framework.bukkit.api.core.scheduler.ScheduledTask repeat(
+            Runnable task, long delay, long period, boolean async) {
         Objects.requireNonNull(task, "task");
         return repeat(unit -> task.run(), delay, period, async);
     }
 
     @Override
-    public kr.rtuserver.framework.bukkit.api.core.scheduler.ScheduledTask sync(Location location, Consumer<ScheduledUnit> task) {
+    public kr.rtuserver.framework.bukkit.api.core.scheduler.ScheduledTask sync(
+            Location location, Consumer<ScheduledUnit> task) {
         Objects.requireNonNull(location, "location");
         Objects.requireNonNull(task, "task");
         enqueue(() -> scheduleOnceAt(location, task, 0L));
@@ -91,13 +102,15 @@ public final class ScheduledTask implements kr.rtuserver.framework.bukkit.api.co
     }
 
     @Override
-    public kr.rtuserver.framework.bukkit.api.core.scheduler.ScheduledTask sync(Location location, Runnable task) {
+    public kr.rtuserver.framework.bukkit.api.core.scheduler.ScheduledTask sync(
+            Location location, Runnable task) {
         Objects.requireNonNull(task, "task");
         return sync(location, unit -> task.run());
     }
 
     @Override
-    public kr.rtuserver.framework.bukkit.api.core.scheduler.ScheduledTask sync(Entity entity, Consumer<ScheduledUnit> task) {
+    public kr.rtuserver.framework.bukkit.api.core.scheduler.ScheduledTask sync(
+            Entity entity, Consumer<ScheduledUnit> task) {
         Objects.requireNonNull(entity, "entity");
         Objects.requireNonNull(task, "task");
         enqueue(() -> scheduleOnceAt(entity, task, 0L));
@@ -105,13 +118,15 @@ public final class ScheduledTask implements kr.rtuserver.framework.bukkit.api.co
     }
 
     @Override
-    public kr.rtuserver.framework.bukkit.api.core.scheduler.ScheduledTask sync(Entity entity, Runnable task) {
+    public kr.rtuserver.framework.bukkit.api.core.scheduler.ScheduledTask sync(
+            Entity entity, Runnable task) {
         Objects.requireNonNull(task, "task");
         return sync(entity, unit -> task.run());
     }
 
     @Override
-    public kr.rtuserver.framework.bukkit.api.core.scheduler.ScheduledTask delay(Location location, Consumer<ScheduledUnit> task, long delay) {
+    public kr.rtuserver.framework.bukkit.api.core.scheduler.ScheduledTask delay(
+            Location location, Consumer<ScheduledUnit> task, long delay) {
         Objects.requireNonNull(location, "location");
         Objects.requireNonNull(task, "task");
         enqueue(() -> scheduleOnceAt(location, task, delay));
@@ -119,13 +134,15 @@ public final class ScheduledTask implements kr.rtuserver.framework.bukkit.api.co
     }
 
     @Override
-    public kr.rtuserver.framework.bukkit.api.core.scheduler.ScheduledTask delay(Location location, Runnable task, long delay) {
+    public kr.rtuserver.framework.bukkit.api.core.scheduler.ScheduledTask delay(
+            Location location, Runnable task, long delay) {
         Objects.requireNonNull(task, "task");
         return delay(location, unit -> task.run(), delay);
     }
 
     @Override
-    public kr.rtuserver.framework.bukkit.api.core.scheduler.ScheduledTask delay(Entity entity, Consumer<ScheduledUnit> task, long delay) {
+    public kr.rtuserver.framework.bukkit.api.core.scheduler.ScheduledTask delay(
+            Entity entity, Consumer<ScheduledUnit> task, long delay) {
         Objects.requireNonNull(entity, "entity");
         Objects.requireNonNull(task, "task");
         enqueue(() -> scheduleOnceAt(entity, task, delay));
@@ -133,13 +150,15 @@ public final class ScheduledTask implements kr.rtuserver.framework.bukkit.api.co
     }
 
     @Override
-    public kr.rtuserver.framework.bukkit.api.core.scheduler.ScheduledTask delay(Entity entity, Runnable task, long delay) {
+    public kr.rtuserver.framework.bukkit.api.core.scheduler.ScheduledTask delay(
+            Entity entity, Runnable task, long delay) {
         Objects.requireNonNull(task, "task");
         return delay(entity, unit -> task.run(), delay);
     }
 
     @Override
-    public kr.rtuserver.framework.bukkit.api.core.scheduler.ScheduledTask repeat(Location location, Consumer<ScheduledUnit> task, long delay, long period) {
+    public kr.rtuserver.framework.bukkit.api.core.scheduler.ScheduledTask repeat(
+            Location location, Consumer<ScheduledUnit> task, long delay, long period) {
         Objects.requireNonNull(location, "location");
         Objects.requireNonNull(task, "task");
         enqueue(() -> scheduleRepeatAt(location, task, delay, period));
@@ -147,13 +166,15 @@ public final class ScheduledTask implements kr.rtuserver.framework.bukkit.api.co
     }
 
     @Override
-    public kr.rtuserver.framework.bukkit.api.core.scheduler.ScheduledTask repeat(Location location, Runnable task, long delay, long period) {
+    public kr.rtuserver.framework.bukkit.api.core.scheduler.ScheduledTask repeat(
+            Location location, Runnable task, long delay, long period) {
         Objects.requireNonNull(task, "task");
         return repeat(location, unit -> task.run(), delay, period);
     }
 
     @Override
-    public kr.rtuserver.framework.bukkit.api.core.scheduler.ScheduledTask repeat(Entity entity, Consumer<ScheduledUnit> task, long delay, long period) {
+    public kr.rtuserver.framework.bukkit.api.core.scheduler.ScheduledTask repeat(
+            Entity entity, Consumer<ScheduledUnit> task, long delay, long period) {
         Objects.requireNonNull(entity, "entity");
         Objects.requireNonNull(task, "task");
         enqueue(() -> scheduleRepeatAt(entity, task, delay, period));
@@ -161,13 +182,15 @@ public final class ScheduledTask implements kr.rtuserver.framework.bukkit.api.co
     }
 
     @Override
-    public kr.rtuserver.framework.bukkit.api.core.scheduler.ScheduledTask repeat(Entity entity, Runnable task, long delay, long period) {
+    public kr.rtuserver.framework.bukkit.api.core.scheduler.ScheduledTask repeat(
+            Entity entity, Runnable task, long delay, long period) {
         Objects.requireNonNull(task, "task");
         return repeat(entity, unit -> task.run(), delay, period);
     }
 
     @Override
-    public kr.rtuserver.framework.bukkit.api.core.scheduler.ScheduledTask sync(Consumer<ScheduledUnit> task) {
+    public kr.rtuserver.framework.bukkit.api.core.scheduler.ScheduledTask sync(
+            Consumer<ScheduledUnit> task) {
         Objects.requireNonNull(task, "task");
         enqueue(() -> scheduleImmediate(task, false, this::onStepComplete));
         return this;
@@ -180,7 +203,8 @@ public final class ScheduledTask implements kr.rtuserver.framework.bukkit.api.co
     }
 
     @Override
-    public kr.rtuserver.framework.bukkit.api.core.scheduler.ScheduledTask async(Consumer<ScheduledUnit> task) {
+    public kr.rtuserver.framework.bukkit.api.core.scheduler.ScheduledTask async(
+            Consumer<ScheduledUnit> task) {
         Objects.requireNonNull(task, "task");
         enqueue(() -> scheduleImmediate(task, true, this::onStepComplete));
         return this;
@@ -212,89 +236,106 @@ public final class ScheduledTask implements kr.rtuserver.framework.bukkit.api.co
         } else running.set(false);
     }
 
-    private void scheduleOnce(Consumer<ScheduledUnit> task, long delay, boolean async, Runnable onComplete) {
+    private void scheduleOnce(
+            Consumer<ScheduledUnit> task, long delay, boolean async, Runnable onComplete) {
         if (cancelled.get()) return;
-        Consumer<ScheduledUnit> callback = st -> {
-            if (cancelled.get()) return;
-            task.accept(st);
-            onComplete.run();
-        };
+        Consumer<ScheduledUnit> callback =
+                st -> {
+                    if (cancelled.get()) return;
+                    task.accept(st);
+                    onComplete.run();
+                };
         long d = Math.max(0L, delay);
-        kr.rtuserver.framework.bukkit.api.core.scheduler.ScheduledTask handle = scheduler.delay(plugin, callback, d, async);
+        kr.rtuserver.framework.bukkit.api.core.scheduler.ScheduledTask handle =
+                scheduler.delay(plugin, callback, d, async);
         active.set(handle);
     }
 
-    private void scheduleImmediate(Consumer<ScheduledUnit> task, boolean async, Runnable onComplete) {
+    private void scheduleImmediate(
+            Consumer<ScheduledUnit> task, boolean async, Runnable onComplete) {
         if (cancelled.get()) return;
-        Consumer<ScheduledUnit> callback = st -> {
-            if (cancelled.get()) return;
-            task.accept(st);
-            onComplete.run();
-        };
-        kr.rtuserver.framework.bukkit.api.core.scheduler.ScheduledTask handle = async
-                ? scheduler.async(plugin, callback)
-                : scheduler.sync(plugin, callback);
+        Consumer<ScheduledUnit> callback =
+                st -> {
+                    if (cancelled.get()) return;
+                    task.accept(st);
+                    onComplete.run();
+                };
+        kr.rtuserver.framework.bukkit.api.core.scheduler.ScheduledTask handle =
+                async ? scheduler.async(plugin, callback) : scheduler.sync(plugin, callback);
         active.set(handle);
     }
 
     private void scheduleOnceAt(Location location, Consumer<ScheduledUnit> task, long delay) {
         if (cancelled.get()) return;
-        Consumer<ScheduledUnit> callback = st -> {
-            if (cancelled.get()) return;
-            task.accept(st);
-            onStepComplete();
-        };
-        kr.rtuserver.framework.bukkit.api.core.scheduler.ScheduledTask handle = scheduler.delay(plugin, location, callback, Math.max(0L, delay));
+        Consumer<ScheduledUnit> callback =
+                st -> {
+                    if (cancelled.get()) return;
+                    task.accept(st);
+                    onStepComplete();
+                };
+        kr.rtuserver.framework.bukkit.api.core.scheduler.ScheduledTask handle =
+                scheduler.delay(plugin, location, callback, Math.max(0L, delay));
         active.set(handle);
     }
 
     private void scheduleOnceAt(Entity entity, Consumer<ScheduledUnit> task, long delay) {
         if (cancelled.get()) return;
-        Consumer<ScheduledUnit> callback = st -> {
-            if (cancelled.get()) return;
-            task.accept(st);
-            onStepComplete();
-        };
-        kr.rtuserver.framework.bukkit.api.core.scheduler.ScheduledTask handle = scheduler.delay(plugin, entity, callback, Math.max(0L, delay));
+        Consumer<ScheduledUnit> callback =
+                st -> {
+                    if (cancelled.get()) return;
+                    task.accept(st);
+                    onStepComplete();
+                };
+        kr.rtuserver.framework.bukkit.api.core.scheduler.ScheduledTask handle =
+                scheduler.delay(plugin, entity, callback, Math.max(0L, delay));
         active.set(handle);
     }
 
-    private void scheduleRepeat(Consumer<ScheduledUnit> task, long delay, long period, boolean async) {
+    private void scheduleRepeat(
+            Consumer<ScheduledUnit> task, long delay, long period, boolean async) {
         if (cancelled.get()) return;
         AtomicBoolean explicitCancel = new AtomicBoolean(false);
-        Consumer<ScheduledUnit> wrapper = underlying -> {
-            ScheduledUnit wrapped = new RepeatHandle(underlying, explicitCancel);
-            task.accept(wrapped);
-        };
+        Consumer<ScheduledUnit> wrapper =
+                underlying -> {
+                    ScheduledUnit wrapped = new RepeatHandle(underlying, explicitCancel);
+                    task.accept(wrapped);
+                };
         long d = Math.max(0L, delay);
         long p = Math.max(1L, period);
-        kr.rtuserver.framework.bukkit.api.core.scheduler.ScheduledTask handle = scheduler.repeat(plugin, wrapper, d, p, async);
+        kr.rtuserver.framework.bukkit.api.core.scheduler.ScheduledTask handle =
+                scheduler.repeat(plugin, wrapper, d, p, async);
         active.set(handle);
     }
 
-    private void scheduleRepeatAt(Location location, Consumer<ScheduledUnit> task, long delay, long period) {
+    private void scheduleRepeatAt(
+            Location location, Consumer<ScheduledUnit> task, long delay, long period) {
         if (cancelled.get()) return;
         AtomicBoolean explicitCancel = new AtomicBoolean(false);
-        Consumer<ScheduledUnit> wrapper = underlying -> {
-            ScheduledUnit wrapped = new RepeatHandle(underlying, explicitCancel);
-            task.accept(wrapped);
-        };
+        Consumer<ScheduledUnit> wrapper =
+                underlying -> {
+                    ScheduledUnit wrapped = new RepeatHandle(underlying, explicitCancel);
+                    task.accept(wrapped);
+                };
         long d = Math.max(0L, delay);
         long p = Math.max(1L, period);
-        kr.rtuserver.framework.bukkit.api.core.scheduler.ScheduledTask handle = scheduler.repeat(plugin, location, wrapper, d, p);
+        kr.rtuserver.framework.bukkit.api.core.scheduler.ScheduledTask handle =
+                scheduler.repeat(plugin, location, wrapper, d, p);
         active.set(handle);
     }
 
-    private void scheduleRepeatAt(Entity entity, Consumer<ScheduledUnit> task, long delay, long period) {
+    private void scheduleRepeatAt(
+            Entity entity, Consumer<ScheduledUnit> task, long delay, long period) {
         if (cancelled.get()) return;
         AtomicBoolean explicitCancel = new AtomicBoolean(false);
-        Consumer<ScheduledUnit> wrapper = underlying -> {
-            ScheduledUnit wrapped = new RepeatHandle(underlying, explicitCancel);
-            task.accept(wrapped);
-        };
+        Consumer<ScheduledUnit> wrapper =
+                underlying -> {
+                    ScheduledUnit wrapped = new RepeatHandle(underlying, explicitCancel);
+                    task.accept(wrapped);
+                };
         long d = Math.max(0L, delay);
         long p = Math.max(1L, period);
-        kr.rtuserver.framework.bukkit.api.core.scheduler.ScheduledTask handle = scheduler.repeat(plugin, entity, wrapper, d, p);
+        kr.rtuserver.framework.bukkit.api.core.scheduler.ScheduledTask handle =
+                scheduler.repeat(plugin, entity, wrapper, d, p);
         active.set(handle);
     }
 
@@ -309,11 +350,13 @@ public final class ScheduledTask implements kr.rtuserver.framework.bukkit.api.co
     public void cancel() {
         if (cancelled.compareAndSet(false, true)) {
             steps.clear();
-            kr.rtuserver.framework.bukkit.api.core.scheduler.ScheduledTask handle = active.getAndSet(null);
-            if (handle != null) try {
-                handle.cancel();
-            } catch (Throwable ignored) {
-            }
+            kr.rtuserver.framework.bukkit.api.core.scheduler.ScheduledTask handle =
+                    active.getAndSet(null);
+            if (handle != null)
+                try {
+                    handle.cancel();
+                } catch (Throwable ignored) {
+                }
             running.set(false);
         }
     }
@@ -347,5 +390,4 @@ public final class ScheduledTask implements kr.rtuserver.framework.bukkit.api.co
             }
         }
     }
-
 }

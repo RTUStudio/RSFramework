@@ -39,7 +39,7 @@ public class BeanValidatorVisitor extends ClassHolderVisitor {
 
     @Override
     public void visit(PrototypeFactoryClassHolder prototypeFactoryClassHolder) {
-        //do nothing
+        // do nothing
     }
 
     @Override
@@ -58,8 +58,8 @@ public class BeanValidatorVisitor extends ClassHolderVisitor {
 
     private void validateClass(ClassHolder classHolder) {
         if (!classesInChain.add(classHolder.getBeanClass())) {
-            throw new BeanInstantiationException("Circular integration found for class: " + classHolder.getBeanClass());
+            throw new BeanInstantiationException(
+                    "Circular integration found for class: " + classHolder.getBeanClass());
         }
     }
-
 }

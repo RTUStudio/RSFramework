@@ -5,5 +5,4 @@ public interface NMS {
     NMSBiome getBiome();
 
     NMSCommand getCommand();
-
 }

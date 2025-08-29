@@ -24,5 +24,4 @@ public class ConstructorInjectClassHolder implements ClassHolder {
     public Class<?> getBeanClass() {
         return beanClass;
     }
-
 }

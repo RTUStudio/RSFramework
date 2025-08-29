@@ -26,5 +26,4 @@ public class SQLiteConfig extends RSConfiguration.Wrapper<RSPlugin> {
         password = getString("password", password);
         tablePrefix = getString("tablePrefix", tablePrefix);
     }
-
 }

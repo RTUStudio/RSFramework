@@ -4,6 +4,7 @@ import dev.lone.itemsadder.api.Events.ItemsAdderLoadDataEvent;
 import kr.rtuserver.framework.bukkit.api.RSPlugin;
 import kr.rtuserver.framework.bukkit.api.event.CustomRegistryLoadedEvent;
 import kr.rtuserver.framework.bukkit.api.listener.RSListener;
+
 import org.bukkit.Bukkit;
 import org.bukkit.event.EventHandler;
 
@@ -15,7 +16,8 @@ public class ItemsAdderLoaded extends RSListener<RSPlugin> {
 
     @EventHandler
     public void onLoad(ItemsAdderLoadDataEvent e) {
-        Bukkit.getPluginManager().callEvent(new CustomRegistryLoadedEvent(CustomRegistryLoadedEvent.Type.ItemsAdder));
+        Bukkit.getPluginManager()
+                .callEvent(
+                        new CustomRegistryLoadedEvent(CustomRegistryLoadedEvent.Type.ItemsAdder));
     }
-
 }

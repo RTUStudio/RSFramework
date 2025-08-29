@@ -1,13 +1,13 @@
 package kr.rtuserver.framework.bukkit.api.configuration.type.number;
 
-import org.apache.commons.lang3.math.NumberUtils;
-import org.spongepowered.configurate.serialize.ScalarSerializer;
-import org.spongepowered.configurate.serialize.SerializationException;
-
 import java.lang.reflect.AnnotatedType;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
+
+import org.apache.commons.lang3.math.NumberUtils;
+import org.spongepowered.configurate.serialize.ScalarSerializer;
+import org.spongepowered.configurate.serialize.SerializationException;
 
 public abstract class OptionalNumSerializer<T, O> extends ScalarSerializer.Annotated<T> {
 
@@ -25,8 +25,7 @@ public abstract class OptionalNumSerializer<T, O> extends ScalarSerializer.Annot
             final Supplier<O> empty,
             final Predicate<O> isEmpty,
             final Function<O, T> factory,
-            final Class<?> number
-    ) {
+            final Class<?> number) {
         super(classOfT);
         this.emptySerializedValue = emptySerializedValue;
         this.emptyValue = emptyValue;
@@ -37,7 +36,8 @@ public abstract class OptionalNumSerializer<T, O> extends ScalarSerializer.Annot
     }
 
     @Override
-    public final T deserialize(final AnnotatedType type, final Object obj) throws SerializationException {
+    public final T deserialize(final AnnotatedType type, final Object obj)
+            throws SerializationException {
         final O value;
         if (obj instanceof final String string) {
             if (this.emptySerializedValue.equalsIgnoreCase(string)) {
@@ -45,14 +45,27 @@ public abstract class OptionalNumSerializer<T, O> extends ScalarSerializer.Annot
             } else if (NumberUtils.isParsable(string)) {
                 value = this.full(string);
             } else {
-                throw new SerializationException("%s (%s) is not a(n) %s or '%s'".formatted(obj, type, this.number.getSimpleName(), this.emptySerializedValue));
+                throw new SerializationException(
+                        "%s (%s) is not a(n) %s or '%s'"
+                                .formatted(
+                                        obj,
+                                        type,
+                                        this.number.getSimpleName(),
+                                        this.emptySerializedValue));
             }
         } else if (obj instanceof final Number num) {
             value = this.full(num);
         } else {
-            throw new SerializationException("%s (%s) is not a(n) %s or '%s'".formatted(obj, type, this.number.getSimpleName(), this.emptySerializedValue));
+            throw new SerializationException(
+                    "%s (%s) is not a(n) %s or '%s'"
+                            .formatted(
+                                    obj,
+                                    type,
+                                    this.number.getSimpleName(),
+                                    this.emptySerializedValue));
         }
-        if (this.isEmpty.test(value) || (type.isAnnotationPresent(BelowZeroToEmpty.class) && this.belowZero(value))) {
+        if (this.isEmpty.test(value)
+                || (type.isAnnotationPresent(BelowZeroToEmpty.class) && this.belowZero(value))) {
             return this.emptyValue;
         } else {
             return this.factory.apply(value);
@@ -64,5 +77,4 @@ public abstract class OptionalNumSerializer<T, O> extends ScalarSerializer.Annot
     protected abstract O full(final Number num);
 
     protected abstract boolean belowZero(O value);
-
 }

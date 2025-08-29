@@ -1,23 +1,24 @@
 package kr.rtuserver.protoweaver.api.util;
 
-import com.google.gson.Gson;
 import kr.rtuserver.protoweaver.api.protocol.internal.CustomPacket;
 import kr.rtuserver.protoweaver.api.serializer.CustomPacketSerializer;
 import kr.rtuserver.protoweaver.api.serializer.ProtoSerializer;
 import kr.rtuserver.protoweaver.api.serializer.ProtoSerializerAdapter;
 import lombok.SneakyThrows;
-import lombok.extern.slf4j.Slf4j;
-import org.apache.fury.Fury;
-import org.apache.fury.config.CompatibleMode;
-import org.apache.fury.config.Language;
-import org.apache.fury.exception.InsecureException;
-import org.apache.fury.logging.LoggerFactory;
 
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+
+import org.apache.fury.Fury;
+import org.apache.fury.config.CompatibleMode;
+import org.apache.fury.config.Language;
+import org.apache.fury.exception.InsecureException;
+import org.apache.fury.logging.LoggerFactory;
+
+import com.google.gson.Gson;
 
 public class ObjectSerializer {
 
@@ -28,26 +29,30 @@ public class ObjectSerializer {
         LoggerFactory.disableLogging();
     }
 
-    private final Fury fury = Fury.builder()
-            .withJdkClassSerializableCheck(false)
-            .withDeserializeNonexistentClass(false)
-            .withLanguage(Language.JAVA)
-            .withCompatibleMode(CompatibleMode.COMPATIBLE)
-            .withAsyncCompilation(true)
-            .withClassLoader(ProtoSerializer.class.getClassLoader())
-            .build();
+    private final Fury fury =
+            Fury.builder()
+                    .withJdkClassSerializableCheck(false)
+                    .withDeserializeNonexistentClass(false)
+                    .withLanguage(Language.JAVA)
+                    .withCompatibleMode(CompatibleMode.COMPATIBLE)
+                    .withAsyncCompilation(true)
+                    .withClassLoader(ProtoSerializer.class.getClassLoader())
+                    .build();
 
     private final Set<Class<?>> customPackets = new HashSet<>();
 
     private void recursiveRegister(Class<?> type, List<Class<?>> registered) {
-        if (type == null || type == Object.class || registered.contains(type) || Modifier.isAbstract(type.getModifiers()))
-            return;
+        if (type == null
+                || type == Object.class
+                || registered.contains(type)
+                || Modifier.isAbstract(type.getModifiers())) return;
         synchronized (fury) {
             fury.register(type);
         }
         registered.add(type);
 
-        List.of(type.getDeclaredFields()).forEach(field -> recursiveRegister(field.getType(), registered));
+        List.of(type.getDeclaredFields())
+                .forEach(field -> recursiveRegister(field.getType(), registered));
         List.of(ReflectionUtil.of(type).generics()).forEach(t -> recursiveRegister(t, registered));
         if (!type.isEnum()) recursiveRegister(type.getSuperclass(), registered);
     }
@@ -59,8 +64,11 @@ public class ObjectSerializer {
     @SneakyThrows
     public void register(Class<?> type, Class<? extends ProtoSerializer<?>> serializer) {
         synchronized (fury) {
-            if (type != CustomPacket.class && serializer == CustomPacketSerializer.class) customPackets.add(type);
-            fury.registerSerializer(CustomPacket.class, new ProtoSerializerAdapter<>(fury, CustomPacket.class, serializer));
+            if (type != CustomPacket.class && serializer == CustomPacketSerializer.class)
+                customPackets.add(type);
+            fury.registerSerializer(
+                    CustomPacket.class,
+                    new ProtoSerializerAdapter<>(fury, CustomPacket.class, serializer));
         }
     }
 
@@ -71,7 +79,8 @@ public class ObjectSerializer {
                     return fury.serialize(new CustomPacket(object));
                 } else return fury.serialize(object);
             } catch (InsecureException e) {
-                throw new IllegalArgumentException("unregistered object: " + object.getClass().getName());
+                throw new IllegalArgumentException(
+                        "unregistered object: " + object.getClass().getName());
             }
         }
     }
@@ -89,10 +98,10 @@ public class ObjectSerializer {
                 }
                 return result;
             } catch (InsecureException e) {
-                String packetName = e.getMessage().replace("class ", "").split(" is not registered")[0];
+                String packetName =
+                        e.getMessage().replace("class ", "").split(" is not registered")[0];
                 throw new IllegalArgumentException("unregistered object: " + packetName, e);
             }
         }
     }
-
 }

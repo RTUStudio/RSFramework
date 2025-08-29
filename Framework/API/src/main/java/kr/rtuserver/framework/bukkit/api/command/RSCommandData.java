@@ -1,9 +1,9 @@
 package kr.rtuserver.framework.bukkit.api.command;
 
+import java.util.Arrays;
+
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Range;
-
-import java.util.Arrays;
 
 public record RSCommandData(String[] args) {
 
@@ -50,5 +50,4 @@ public record RSCommandData(String[] args) {
     public String toString() {
         return String.join(" ", args);
     }
-
 }

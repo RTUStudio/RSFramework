@@ -1,6 +1,5 @@
 package kr.rtuserver.protoweaver.velocity.core;
 
-import com.google.common.collect.ImmutableList;
 import kr.rtuserver.protoweaver.api.ProtoConnectionHandler;
 import kr.rtuserver.protoweaver.api.callback.HandlerCallback;
 import kr.rtuserver.protoweaver.api.netty.ProtoConnection;
@@ -11,6 +10,8 @@ import lombok.extern.slf4j.Slf4j;
 import java.net.SocketAddress;
 import java.util.ArrayList;
 import java.util.List;
+
+import com.google.common.collect.ImmutableList;
 
 @Slf4j(topic = "RSF/ProtoHandler")
 @NoArgsConstructor(force = true)
@@ -48,7 +49,7 @@ public class VelocityProtoHandler implements ProtoConnectionHandler {
     @Override
     public void handlePacket(ProtoConnection protoConnection, Object packet) {
         if (callable != null) callable.handlePacket(protoConnection, packet);
-        if (protoConnection.getProtocol().isGlobal(packet)) getServers().forEach(connection -> connection.send(packet));
+        if (protoConnection.getProtocol().isGlobal(packet))
+            getServers().forEach(connection -> connection.send(packet));
     }
-
 }

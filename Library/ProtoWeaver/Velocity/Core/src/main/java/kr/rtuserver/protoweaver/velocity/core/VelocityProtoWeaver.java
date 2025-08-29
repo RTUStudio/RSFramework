@@ -1,18 +1,5 @@
 package kr.rtuserver.protoweaver.velocity.core;
 
-import com.moandjiezana.toml.Toml;
-import com.velocitypowered.api.event.Subscribe;
-import com.velocitypowered.api.event.connection.DisconnectEvent;
-import com.velocitypowered.api.event.player.KickedFromServerEvent;
-import com.velocitypowered.api.event.player.ServerPostConnectEvent;
-import com.velocitypowered.api.event.proxy.ProxyShutdownEvent;
-import com.velocitypowered.api.event.proxy.server.ServerRegisteredEvent;
-import com.velocitypowered.api.event.proxy.server.ServerUnregisteredEvent;
-import com.velocitypowered.api.proxy.Player;
-import com.velocitypowered.api.proxy.ProxyServer;
-import com.velocitypowered.api.proxy.ServerConnection;
-import com.velocitypowered.api.proxy.server.RegisteredServer;
-import com.velocitypowered.api.proxy.server.ServerInfo;
 import kr.rtuserver.protoweaver.api.ProtoConnectionHandler;
 import kr.rtuserver.protoweaver.api.callback.HandlerCallback;
 import kr.rtuserver.protoweaver.api.netty.ProtoConnection;
@@ -40,9 +27,24 @@ import java.nio.file.Path;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
+import com.moandjiezana.toml.Toml;
+import com.velocitypowered.api.event.Subscribe;
+import com.velocitypowered.api.event.connection.DisconnectEvent;
+import com.velocitypowered.api.event.player.KickedFromServerEvent;
+import com.velocitypowered.api.event.player.ServerPostConnectEvent;
+import com.velocitypowered.api.event.proxy.ProxyShutdownEvent;
+import com.velocitypowered.api.event.proxy.server.ServerRegisteredEvent;
+import com.velocitypowered.api.event.proxy.server.ServerUnregisteredEvent;
+import com.velocitypowered.api.proxy.Player;
+import com.velocitypowered.api.proxy.ProxyServer;
+import com.velocitypowered.api.proxy.ServerConnection;
+import com.velocitypowered.api.proxy.server.RegisteredServer;
+import com.velocitypowered.api.proxy.server.ServerInfo;
+
 @Slf4j(topic = "RSF/ProtoWeaver")
 @Getter
-public class VelocityProtoWeaver implements kr.rtuserver.protoweaver.velocity.api.VelocityProtoWeaver {
+public class VelocityProtoWeaver
+        implements kr.rtuserver.protoweaver.velocity.api.VelocityProtoWeaver {
 
     private final ProxyServer server;
     private final Protocol.Builder protocol;
@@ -51,7 +53,8 @@ public class VelocityProtoWeaver implements kr.rtuserver.protoweaver.velocity.ap
     private final Path dir;
 
     private final ProtoProxy protoProxy;
-    private final ConcurrentHashMap<UUID, TeleportRequest> teleportRequests = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<UUID, TeleportRequest> teleportRequests =
+            new ConcurrentHashMap<>();
     private final HandlerCallback callable = new HandlerCallback(this::onReady, this::onPacket);
 
     public VelocityProtoWeaver(ProxyServer server, Path dir) {
@@ -78,11 +81,21 @@ public class VelocityProtoWeaver implements kr.rtuserver.protoweaver.velocity.ap
         protocol.setClientHandler(VelocityProtoHandler.class, callable).load();
     }
 
-    public void registerProtocol(String namespace, String key, Packet packet, Class<? extends ProtoConnectionHandler> protocolHandler, HandlerCallback callback) {
+    public void registerProtocol(
+            String namespace,
+            String key,
+            Packet packet,
+            Class<? extends ProtoConnectionHandler> protocolHandler,
+            HandlerCallback callback) {
         registerProtocol(namespace, key, Set.of(packet), protocolHandler, callback);
     }
 
-    public void registerProtocol(String namespace, String key, Set<Packet> packets, Class<? extends ProtoConnectionHandler> protocolHandler, HandlerCallback callback) {
+    public void registerProtocol(
+            String namespace,
+            String key,
+            Set<Packet> packets,
+            Class<? extends ProtoConnectionHandler> protocolHandler,
+            HandlerCallback callback) {
         Protocol.Builder protocol = Protocol.create(namespace, key);
         protocol.setCompression(CompressionType.SNAPPY);
         protocol.setMaxPacketSize(67108864); // 64mb
@@ -128,7 +141,8 @@ public class VelocityProtoWeaver implements kr.rtuserver.protoweaver.velocity.ap
 
     @Subscribe
     public void onProxyShutdown(ProxyShutdownEvent event) {
-        VelocityProtoHandler.getServers().forEach(server -> server.send(new ServerName("Standalone Server")));
+        VelocityProtoHandler.getServers()
+                .forEach(server -> server.send(new ServerName("Standalone Server")));
         protoProxy.shutdown();
     }
 
@@ -167,7 +181,12 @@ public class VelocityProtoWeaver implements kr.rtuserver.protoweaver.velocity.ap
 
             ServerInfo info = connection.get().getServerInfo();
             UUID uuid = player.getUniqueId();
-            ProxyPlayer pp = new ProxyPlayer(uuid, player.getUsername(), player.getEffectiveLocale(), info.getName());
+            ProxyPlayer pp =
+                    new ProxyPlayer(
+                            uuid,
+                            player.getUsername(),
+                            player.getEffectiveLocale(),
+                            info.getName());
             players.put(uuid, pp);
         }
         VelocityProtoHandler.getServers().forEach(server -> server.send(new PlayerList(players)));
@@ -175,7 +194,13 @@ public class VelocityProtoWeaver implements kr.rtuserver.protoweaver.velocity.ap
 
     @Override
     public List<ProtoServer> getServers() {
-        return server.getAllServers().stream().map(server -> new ProtoServer(server.getServerInfo().getName(), server.getServerInfo().getAddress())).toList();
+        return server.getAllServers().stream()
+                .map(
+                        server ->
+                                new ProtoServer(
+                                        server.getServerInfo().getName(),
+                                        server.getServerInfo().getAddress()))
+                .toList();
     }
 
     @Override
@@ -216,11 +241,16 @@ public class VelocityProtoWeaver implements kr.rtuserver.protoweaver.velocity.ap
             RegisteredServer targetServer = optionalServer.get();
             Player targetPlayer = optionalPlayer.get();
             teleportRequests.put(targetPlayer.getUniqueId(), request);
-            targetPlayer.createConnectionRequest(targetServer).connectWithIndication().whenComplete((result, throwable) -> {
-                if (throwable != null) teleportRequests.remove(targetPlayer.getUniqueId());
-                else if (!result) teleportRequests.remove(targetPlayer.getUniqueId());
-            });
+            targetPlayer
+                    .createConnectionRequest(targetServer)
+                    .connectWithIndication()
+                    .whenComplete(
+                            (result, throwable) -> {
+                                if (throwable != null)
+                                    teleportRequests.remove(targetPlayer.getUniqueId());
+                                else if (!result)
+                                    teleportRequests.remove(targetPlayer.getUniqueId());
+                            });
         }
     }
-
 }

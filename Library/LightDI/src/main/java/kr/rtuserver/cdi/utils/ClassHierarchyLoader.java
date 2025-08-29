@@ -9,8 +9,7 @@ import java.util.Set;
  */
 public final class ClassHierarchyLoader {
 
-    private ClassHierarchyLoader() {
-    }
+    private ClassHierarchyLoader() {}
 
     public static Set<Class<?>> getParents(Class<?> clazz) {
         Set<Class<?>> parents = new HashSet<>();
@@ -31,5 +30,4 @@ public final class ClassHierarchyLoader {
             getParents(i, parents);
         }
     }
-
 }

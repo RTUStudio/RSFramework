@@ -1,6 +1,5 @@
 package kr.rtuserver.protoweaver.core.protocol.protoweaver;
 
-import com.google.common.collect.ImmutableList;
 import kr.rtuserver.protoweaver.api.ProtoConnectionHandler;
 import kr.rtuserver.protoweaver.api.callback.HandlerCallback;
 import kr.rtuserver.protoweaver.api.netty.ProtoConnection;
@@ -10,6 +9,8 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import com.google.common.collect.ImmutableList;
 
 @Slf4j(topic = "RSF/ProtoHandler")
 @RequiredArgsConstructor
@@ -44,10 +45,12 @@ public class ServerPacketHandler implements ProtoConnectionHandler {
         if (callable != null) callable.handlePacket(protoConnection, packet);
         Protocol protocol = protoConnection.getProtocol();
         if (protocol.isGlobal(packet)) {
-            getServers().forEach(connection -> {
-                if (protocol.equals(connection.getProtocol())) connection.send(packet);
-            });
+            getServers()
+                    .forEach(
+                            connection -> {
+                                if (protocol.equals(connection.getProtocol()))
+                                    connection.send(packet);
+                            });
         }
     }
-
 }

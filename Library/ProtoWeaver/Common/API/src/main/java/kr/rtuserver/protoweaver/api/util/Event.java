@@ -27,11 +27,11 @@ public class Event<T> {
         private boolean canceled = false;
 
         /**
-         * Cancels the current event from happening as well as all future handlers of the current event.
+         * Cancels the current event from happening as well as all future handlers of the current
+         * event.
          */
         public void cancel() {
             canceled = true;
         }
     }
-
 }

@@ -18,6 +18,4 @@ public class JsonConfig extends RSConfiguration.Wrapper<RSPlugin> {
     private void init() {
         savePeriod = getInt("save-period", savePeriod);
     }
-
-
 }

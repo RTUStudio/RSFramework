@@ -30,5 +30,4 @@ public class MariaDBConfig extends RSConfiguration.Wrapper<RSPlugin> {
         tablePrefix = getString("table-prefix", tablePrefix);
         useArrowOperator = getBoolean("use-arrow-operator", useArrowOperator);
     }
-
 }

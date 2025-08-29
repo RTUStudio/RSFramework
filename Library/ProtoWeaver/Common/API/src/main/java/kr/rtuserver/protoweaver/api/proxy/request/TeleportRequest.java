@@ -7,6 +7,4 @@ public interface TeleportRequest extends Request {
     ProxyPlayer player();
 
     String server();
-
 }
-

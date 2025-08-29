@@ -58,6 +58,7 @@ shadowJar {
     relocate "net.kyori.adventure.platform.bukkit", "kr.rtuserver.framework.bukkit.kyori"
     relocate "de.tr7zw.changeme.nbtapi", "kr.rtuserver.framework.bukkit.api.nbt"
     relocate "org.spongepowered.configurate", "kr.rtuserver.configurate"
+    relocate "org.bstats", "kr.rtuserver.framework.bstats"
 }
 
 runServer {

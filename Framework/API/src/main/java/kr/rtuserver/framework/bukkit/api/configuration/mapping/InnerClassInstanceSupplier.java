@@ -1,10 +1,8 @@
 package kr.rtuserver.framework.bukkit.api.configuration.mapping;
 
+import static io.leangen.geantyref.GenericTypeReflector.erase;
+
 import kr.rtuserver.framework.bukkit.api.configuration.ConfigurationPart;
-import org.jetbrains.annotations.Nullable;
-import org.spongepowered.configurate.serialize.SerializationException;
-import org.spongepowered.configurate.util.CheckedFunction;
-import org.spongepowered.configurate.util.CheckedSupplier;
 
 import java.lang.reflect.AnnotatedType;
 import java.lang.reflect.Constructor;
@@ -13,14 +11,19 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Supplier;
 
-import static io.leangen.geantyref.GenericTypeReflector.erase;
+import org.jetbrains.annotations.Nullable;
+import org.spongepowered.configurate.serialize.SerializationException;
+import org.spongepowered.configurate.util.CheckedFunction;
+import org.spongepowered.configurate.util.CheckedSupplier;
 
 /**
- * This instance factory handles creating non-static inner classes by tracking all instances of objects that extend
- * {@link ConfigurationPart}. Only 1 instance of each {@link ConfigurationPart} should be present for each instance
- * of the field discoverer this is used in.
+ * This instance factory handles creating non-static inner classes by tracking all instances of
+ * objects that extend {@link ConfigurationPart}. Only 1 instance of each {@link ConfigurationPart}
+ * should be present for each instance of the field discoverer this is used in.
  */
-final class InnerClassInstanceSupplier implements CheckedFunction<AnnotatedType, @Nullable Supplier<Object>, SerializationException> {
+final class InnerClassInstanceSupplier
+        implements CheckedFunction<
+                AnnotatedType, @Nullable Supplier<Object>, SerializationException> {
 
     private final Map<Class<?>, Object> instanceMap = new HashMap<>();
     private final Map<Class<?>, Object> initialOverrides;
@@ -46,7 +49,11 @@ final class InnerClassInstanceSupplier implements CheckedFunction<AnnotatedType,
                 if (type.getEnclosingClass() != null && !Modifier.isStatic(type.getModifiers())) {
                     final Object instance = this.instanceMap.get(type.getEnclosingClass());
                     if (instance == null) {
-                        throw new SerializationException("Cannot create a new instance of an inner class " + type.getName() + " without an instance of its enclosing class " + type.getEnclosingClass().getName());
+                        throw new SerializationException(
+                                "Cannot create a new instance of an inner class "
+                                        + type.getName()
+                                        + " without an instance of its enclosing class "
+                                        + type.getEnclosingClass().getName());
                     }
                     constructor = type.getDeclaredConstructor(type.getEnclosingClass());
                     instanceSupplier = () -> constructor.newInstance(instance);
@@ -60,7 +67,8 @@ final class InnerClassInstanceSupplier implements CheckedFunction<AnnotatedType,
                 return () -> instance;
             } catch (final ReflectiveOperationException e) {
                 e.printStackTrace();
-                throw new SerializationException(ConfigurationPart.class, target + " must be a valid ConfigurationPart", e);
+                throw new SerializationException(
+                        ConfigurationPart.class, target + " must be a valid ConfigurationPart", e);
             }
         } else {
             throw new SerializationException(target + " must be a valid ConfigurationPart");
@@ -70,5 +78,4 @@ final class InnerClassInstanceSupplier implements CheckedFunction<AnnotatedType,
     Map<Class<?>, Object> instanceMap() {
         return this.instanceMap;
     }
-
 }

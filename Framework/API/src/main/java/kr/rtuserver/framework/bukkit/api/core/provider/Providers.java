@@ -7,5 +7,4 @@ public interface Providers {
     NameProvider getName();
 
     void setName(NameProvider provider);
-
 }

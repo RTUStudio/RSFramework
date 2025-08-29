@@ -1,21 +1,23 @@
 package kr.rtuserver.framework.bukkit.api.configuration.internal.translation;
 
-import com.google.common.io.Files;
 import kr.rtuserver.cdi.LightDI;
 import kr.rtuserver.framework.bukkit.api.RSPlugin;
 import kr.rtuserver.framework.bukkit.api.core.Framework;
 import kr.rtuserver.framework.bukkit.api.platform.FileResource;
 import kr.rtuserver.protoweaver.api.proxy.ProxyPlayer;
 import lombok.Getter;
-import org.bukkit.command.CommandSender;
-import org.bukkit.entity.Player;
-import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+
+import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
+import org.jetbrains.annotations.NotNull;
+
+import com.google.common.io.Files;
 
 @Getter
 public class TranslationConfiguration {
@@ -58,7 +60,8 @@ public class TranslationConfiguration {
     @NotNull
     public String get(ProxyPlayer player, String key) {
         if (player != null && player.locale() != null) {
-            Translation translation = map.getOrDefault(player.locale().toString(), map.get(defaultLocale));
+            Translation translation =
+                    map.getOrDefault(player.locale().toString(), map.get(defaultLocale));
             if (translation == null) return "";
             return translation.get(key);
         }
@@ -79,12 +82,17 @@ public class TranslationConfiguration {
     }
 
     public void reload() {
-        File[] files = FileResource.createFolder(getPlugin().getDataFolder() + "/Translations/" + type.getName()).listFiles();
+        File[] files =
+                FileResource.createFolder(
+                                getPlugin().getDataFolder() + "/Translations/" + type.getName())
+                        .listFiles();
         if (files == null) return;
         Set<String> list = plugin.getLanguages();
-        list.addAll(Arrays.stream(files).map(file -> Files.getNameWithoutExtension(file.getName())).toList());
+        list.addAll(
+                Arrays.stream(files)
+                        .map(file -> Files.getNameWithoutExtension(file.getName()))
+                        .toList());
         list.add(defaultLocale);
         for (String lang : list) map.put(lang, new Translation(plugin, type.getName(), lang));
     }
-
 }

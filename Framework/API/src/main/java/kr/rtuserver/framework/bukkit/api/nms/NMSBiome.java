@@ -1,8 +1,8 @@
 package kr.rtuserver.framework.bukkit.api.nms;
 
-import org.bukkit.Location;
-
 import java.util.List;
+
+import org.bukkit.Location;
 
 public interface NMSBiome {
 
@@ -11,5 +11,4 @@ public interface NMSBiome {
     List<String> getList();
 
     List<String> getTag(String tag);
-
 }

@@ -1,14 +1,11 @@
 package kr.rtuserver.framework.bukkit.api.core.scheduler;
 
+import java.util.function.Consumer;
+
 import org.bukkit.Location;
 import org.bukkit.entity.Entity;
 
-import java.util.function.Consumer;
-
-/**
- * Fluent, chainable scheduler pipeline for tasks.
- * Naming aligned with Paper's Task semantics.
- */
+/** Fluent, chainable scheduler pipeline for tasks. Naming aligned with Paper's Task semantics. */
 public interface ScheduledTask {
 
     ScheduledTask sync(Consumer<ScheduledUnit> task);
@@ -61,5 +58,4 @@ public interface ScheduledTask {
     ScheduledTask repeat(Entity entity, Runnable task, long delay, long period);
 
     void cancel();
-
 }

@@ -31,5 +31,4 @@ public class FieldInjectNamedBeanClassHolder implements ClassHolder {
     public String getBeanName() {
         return beanName;
     }
-
 }

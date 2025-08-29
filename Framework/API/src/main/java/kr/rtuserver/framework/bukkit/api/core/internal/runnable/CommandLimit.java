@@ -6,5 +6,4 @@ import java.util.UUID;
 public interface CommandLimit extends Runnable {
 
     Map<UUID, Integer> getExecuteLimit();
-
 }

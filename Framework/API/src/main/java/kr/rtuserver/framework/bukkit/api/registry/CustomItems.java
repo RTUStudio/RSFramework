@@ -1,10 +1,5 @@
 package kr.rtuserver.framework.bukkit.api.registry;
 
-import com.google.gson.*;
-import com.nexomc.nexo.api.NexoItems;
-import com.willfp.ecoitems.items.EcoItem;
-import com.willfp.ecoitems.items.EcoItems;
-import com.willfp.ecoitems.items.ItemUtilsKt;
 import de.tr7zw.changeme.nbtapi.*;
 import de.tr7zw.changeme.nbtapi.iface.ReadWriteNBT;
 import de.tr7zw.changeme.nbtapi.iface.ReadWriteNBTCompoundList;
@@ -16,6 +11,11 @@ import kr.rtuserver.framework.bukkit.api.core.Framework;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import net.Indyuce.mmoitems.MMOItems;
+
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.Base64;
+
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -23,14 +23,16 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.xerial.snappy.Snappy;
 
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.Base64;
+import com.google.gson.*;
+import com.nexomc.nexo.api.NexoItems;
+import com.willfp.ecoitems.items.EcoItem;
+import com.willfp.ecoitems.items.EcoItems;
+import com.willfp.ecoitems.items.ItemUtilsKt;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class CustomItems {
 
-    private final static Gson GSON = new Gson();
+    private static final Gson GSON = new Gson();
 
     static Framework framework;
 
@@ -61,7 +63,8 @@ public class CustomItems {
             case "oraxen" -> {
                 if (split.length != 2) return null;
                 if (framework().isEnabledDependency("Oraxen")) {
-                    io.th0rgal.oraxen.items.ItemBuilder itemBuilder = OraxenItems.getItemById(split[1]);
+                    io.th0rgal.oraxen.items.ItemBuilder itemBuilder =
+                            OraxenItems.getItemById(split[1]);
                     return itemBuilder != null ? itemBuilder.build() : null;
                 } else return null;
             }
@@ -123,14 +126,17 @@ public class CustomItems {
         ItemMeta itemMeta = itemStack.getItemMeta();
         if (itemMeta == null) return result;
         if (itemMeta.hasCustomModelData()) {
-            return "custom:" + itemStack.getType().toString().toLowerCase() + itemMeta.getCustomModelData();
+            return "custom:"
+                    + itemStack.getType().toString().toLowerCase()
+                    + itemMeta.getCustomModelData();
         } else return result;
     }
 
     public static boolean isSimilar(ItemStack stack1, ItemStack stack2) {
         String id1 = to(stack1);
         String id2 = to(stack2);
-        if (id1.startsWith("minecraft:") || id2.startsWith("minecraft:")) return stack1.isSimilar(stack2);
+        if (id1.startsWith("minecraft:") || id2.startsWith("minecraft:"))
+            return stack1.isSimilar(stack2);
         if (id1.startsWith("custom:") || id2.startsWith("custom:")) return stack1.isSimilar(stack2);
         return id1.equalsIgnoreCase(id2);
     }
@@ -268,7 +274,7 @@ public class CustomItems {
 
     @NotNull
     public static ItemStack[] fromNBTArray(@NotNull ReadWriteNBT nbt) {
-        if (!nbt.hasTag("size")) return new ItemStack[]{};
+        if (!nbt.hasTag("size")) return new ItemStack[] {};
         ItemStack[] rebuild = new ItemStack[nbt.getInteger("size")];
         for (int i = 0; i < rebuild.length; i++) rebuild[i] = new ItemStack(Material.AIR);
         if (!nbt.hasTag("items")) return rebuild;
@@ -286,9 +292,12 @@ public class CustomItems {
         ReadWriteNBT result = NBT.createNBTObject();
         for (String key : target.getKeys()) {
             if (!original.hasTag(key)) setNBT(result, target, key);
-            else if (original.getType(key) == NBTType.NBTTagCompound && target.getType(key) == NBTType.NBTTagCompound) {
-                ReadWriteNBT nestedDiff = extractDifferenceNBT(original.getCompound(key), target.getCompound(key));
-                if (!nestedDiff.getKeys().isEmpty()) result.getOrCreateCompound(key).mergeCompound(nestedDiff);
+            else if (original.getType(key) == NBTType.NBTTagCompound
+                    && target.getType(key) == NBTType.NBTTagCompound) {
+                ReadWriteNBT nestedDiff =
+                        extractDifferenceNBT(original.getCompound(key), target.getCompound(key));
+                if (!nestedDiff.getKeys().isEmpty())
+                    result.getOrCreateCompound(key).mergeCompound(nestedDiff);
             } else if (!equalsNBT(original, target, key)) setNBT(result, target, key);
         }
         return result;
@@ -301,13 +310,19 @@ public class CustomItems {
                 NBTType type = source.getType(key);
                 boolean sameType = source.getType(key) == override.getType(key);
                 if (sameType && type == NBTType.NBTTagCompound) {
-                    ReadWriteNBT nestedDiff = mergeNBT(source.getCompound(key), override.getCompound(key));
-                    if (!nestedDiff.getKeys().isEmpty()) result.getOrCreateCompound(key).mergeCompound(nestedDiff);
+                    ReadWriteNBT nestedDiff =
+                            mergeNBT(source.getCompound(key), override.getCompound(key));
+                    if (!nestedDiff.getKeys().isEmpty())
+                        result.getOrCreateCompound(key).mergeCompound(nestedDiff);
                 } else if (sameType && type == NBTType.NBTTagString) {
                     try {
                         JsonElement sourceJson = JsonParser.parseString(source.getString(key));
                         JsonElement overrideJson = JsonParser.parseString(override.getString(key));
-                        String json = GSON.toJson(mergeJson(sourceJson.getAsJsonObject(), overrideJson.getAsJsonObject()));
+                        String json =
+                                GSON.toJson(
+                                        mergeJson(
+                                                sourceJson.getAsJsonObject(),
+                                                overrideJson.getAsJsonObject()));
                         result.setString(key, json);
                     } catch (JsonSyntaxException e) {
                         result.setString(key, override.getString(key));
@@ -322,13 +337,17 @@ public class CustomItems {
         switch (target.getType(key)) {
             case NBTTagByte -> result.setByte(key, target.getByte(key));
             case NBTTagByteArray -> result.setByteArray(key, target.getByteArray(key));
-            case NBTTagCompound -> result.getOrCreateCompound(key).mergeCompound(target.getCompound(key));
+            case NBTTagCompound ->
+                    result.getOrCreateCompound(key).mergeCompound(target.getCompound(key));
             case NBTTagDouble -> result.setDouble(key, target.getDouble(key));
             case NBTTagFloat -> result.setFloat(key, target.getFloat(key));
             case NBTTagInt -> result.setInteger(key, target.getInteger(key));
             case NBTTagIntArray -> result.setIntArray(key, target.getIntArray(key));
             case NBTTagList ->
-                    NBTReflectionUtil.set((NBTCompound) result, key, NBTReflectionUtil.getEntry((NBTCompound) target, key));
+                    NBTReflectionUtil.set(
+                            (NBTCompound) result,
+                            key,
+                            NBTReflectionUtil.getEntry((NBTCompound) target, key));
             case NBTTagLong -> result.setLong(key, target.getLong(key));
             case NBTTagShort -> result.setShort(key, target.getShort(key));
             case NBTTagString -> result.setString(key, target.getString(key));
@@ -346,8 +365,12 @@ public class CustomItems {
             case NBTTagFloat -> compA.getFloat(key).equals(compB.getFloat(key));
             case NBTTagInt -> compA.getInteger(key).equals(compB.getInteger(key));
             case NBTTagIntArray -> Arrays.equals(compA.getIntArray(key), compB.getIntArray(key));
-            case NBTTagList -> NBTReflectionUtil.getEntry((NBTCompound) compA, key).toString()
-                    .equals(NBTReflectionUtil.getEntry((NBTCompound) compB, key).toString());
+            case NBTTagList ->
+                    NBTReflectionUtil.getEntry((NBTCompound) compA, key)
+                            .toString()
+                            .equals(
+                                    NBTReflectionUtil.getEntry((NBTCompound) compB, key)
+                                            .toString());
             case NBTTagLong -> compA.getLong(key).equals(compB.getLong(key));
             case NBTTagShort -> compA.getShort(key).equals(compB.getShort(key));
             case NBTTagString -> compA.getString(key).equals(compB.getString(key));
@@ -356,7 +379,6 @@ public class CustomItems {
         };
     }
 
-
     private static JsonObject mergeJson(JsonObject source, JsonObject override) {
         JsonObject result = source.deepCopy();
         for (String key : override.keySet()) {
@@ -364,11 +386,12 @@ public class CustomItems {
             if (result.has(key)) {
                 JsonElement sourceVal = result.get(key);
                 if (sourceVal.isJsonObject() && overrideVal.isJsonObject()) {
-                    result.add(key, mergeJson(sourceVal.getAsJsonObject(), overrideVal.getAsJsonObject()));
+                    result.add(
+                            key,
+                            mergeJson(sourceVal.getAsJsonObject(), overrideVal.getAsJsonObject()));
                 } else result.add(key, overrideVal);
             } else result.add(key, overrideVal);
         }
         return result;
     }
-
 }

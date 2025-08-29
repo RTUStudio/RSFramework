@@ -24,46 +24,35 @@ import java.util.Set;
 import java.util.logging.Level;
 
 /**
- * Stores all the registered packets, settings and additional configuration of a {@link ProtoWeaver} protocol.
+ * Stores all the registered packets, settings and additional configuration of a {@link ProtoWeaver}
+ * protocol.
  */
 @EqualsAndHashCode
 public class Protocol {
 
-    @EqualsAndHashCode.Exclude
-    private final ObjectSerializer serializer = new ObjectSerializer();
-    @Getter
-    private final MessageDigest packetMD = MessageDigest.getInstance("SHA-1");
-    @Getter
-    private final String namespace;
-    @Getter
-    private final String key;
-    @Getter
-    private CompressionType compression = CompressionType.NONE;
-    @Getter
-    private int compressionLevel = -37;
-    @Getter
-    private int maxPacketSize = 16384;
-    @Getter
-    private int maxConnections = -1;
-    @Getter
-    private Level loggingLevel = Level.ALL;
+    @EqualsAndHashCode.Exclude private final ObjectSerializer serializer = new ObjectSerializer();
+    @Getter private final MessageDigest packetMD = MessageDigest.getInstance("SHA-1");
+    @Getter private final String namespace;
+    @Getter private final String key;
+    @Getter private CompressionType compression = CompressionType.NONE;
+    @Getter private int compressionLevel = -37;
+    @Getter private int maxPacketSize = 16384;
+    @Getter private int maxConnections = -1;
+    @Getter private Level loggingLevel = Level.ALL;
 
     @EqualsAndHashCode.Exclude
     private Constructor<? extends ProtoConnectionHandler> serverConnectionHandler;
-    @EqualsAndHashCode.Exclude
-    private Object[] serverConnectionHandlerArgs = new Object[0];
+
+    @EqualsAndHashCode.Exclude private Object[] serverConnectionHandlerArgs = new Object[0];
+
     @EqualsAndHashCode.Exclude
     private Constructor<? extends ProtoConnectionHandler> clientConnectionHandler;
-    @EqualsAndHashCode.Exclude
-    private Object[] clientConnectionHandlerArgs = new Object[0];
-    @EqualsAndHashCode.Exclude
-    private Constructor<? extends ServerAuthHandler> serverAuthHandler;
-    @EqualsAndHashCode.Exclude
-    private Object[] serverAuthHandlerArgs = new Object[0];
-    @EqualsAndHashCode.Exclude
-    private Constructor<? extends ClientAuthHandler> clientAuthHandler;
-    @EqualsAndHashCode.Exclude
-    private Object[] clientAuthHandlerArgs = new Object[0];
+
+    @EqualsAndHashCode.Exclude private Object[] clientConnectionHandlerArgs = new Object[0];
+    @EqualsAndHashCode.Exclude private Constructor<? extends ServerAuthHandler> serverAuthHandler;
+    @EqualsAndHashCode.Exclude private Object[] serverAuthHandlerArgs = new Object[0];
+    @EqualsAndHashCode.Exclude private Constructor<? extends ClientAuthHandler> clientAuthHandler;
+    @EqualsAndHashCode.Exclude private Object[] clientAuthHandlerArgs = new Object[0];
 
     private Protocol(String namespace, String name) throws NoSuchAlgorithmException {
         this.namespace = namespace;
@@ -71,12 +60,13 @@ public class Protocol {
     }
 
     /**
-     * <p>Creates a new protocol builder. A good rule of thumb for naming that ensures maximum compatibility is to use
-     * your mod id or project id for the namespace and to give the name something unique.</p>
-     * <br>For example: "protoweaver:proto-message"</br>
+     * Creates a new protocol builder. A good rule of thumb for naming that ensures maximum
+     * compatibility is to use your mod id or project id for the namespace and to give the name
+     * something unique. <br>
+     * For example: "protoweaver:proto-message"</br>
      *
      * @param namespace Usually should be set to your mod id or project id
-     * @param name      The name of your protocol.
+     * @param name The name of your protocol.
      */
     @SneakyThrows
     public static Builder create(@NonNull String namespace, @NonNull String name) {
@@ -92,10 +82,10 @@ public class Protocol {
     }
 
     /**
-     * Allows you to create modify an existing {@link Protocol}. The {@link Protocol} object returned from
-     * {@link Builder#build()} will be the same object as the one that this method was called on (not a copy). In
-     * theory this means you can modify a protocol without reloading it, or while its currently active. Here be dragons,
-     * so use with caution.
+     * Allows you to create modify an existing {@link Protocol}. The {@link Protocol} object
+     * returned from {@link Builder#build()} will be the same object as the one that this method was
+     * called on (not a copy). In theory this means you can modify a protocol without reloading it,
+     * or while its currently active. Here be dragons, so use with caution.
      */
     public Builder modify() {
         return new Builder(this);
@@ -106,12 +96,14 @@ public class Protocol {
         return switch (side) {
             case CLIENT -> {
                 if (clientConnectionHandler == null)
-                    throw new RuntimeException("No client connection handler set for protocol: " + this);
+                    throw new RuntimeException(
+                            "No client connection handler set for protocol: " + this);
                 yield clientConnectionHandler.newInstance(clientConnectionHandlerArgs);
             }
             case SERVER -> {
                 if (serverConnectionHandler == null)
-                    throw new RuntimeException("No server connection handler set for protocol: " + this);
+                    throw new RuntimeException(
+                            "No server connection handler set for protocol: " + this);
                 yield serverConnectionHandler.newInstance(serverConnectionHandlerArgs);
             }
         };
@@ -119,13 +111,15 @@ public class Protocol {
 
     @SneakyThrows
     public ServerAuthHandler newServerAuthHandler() {
-        if (serverAuthHandler == null) throw new RuntimeException("No server auth handler set for protocol: " + this);
+        if (serverAuthHandler == null)
+            throw new RuntimeException("No server auth handler set for protocol: " + this);
         return serverAuthHandler.newInstance(serverAuthHandlerArgs);
     }
 
     @SneakyThrows
     public ClientAuthHandler newClientAuthHandler() {
-        if (clientAuthHandler == null) throw new RuntimeException("No client auth handler set for protocol: " + this);
+        if (clientAuthHandler == null)
+            throw new RuntimeException("No client auth handler set for protocol: " + this);
         return clientAuthHandler.newInstance(clientAuthHandlerArgs);
     }
 
@@ -141,11 +135,12 @@ public class Protocol {
     public byte[] getSHA1() {
         MessageDigest md = (MessageDigest) this.packetMD.clone();
         md.update(toString().getBytes(StandardCharsets.UTF_8));
-        md.update(ByteBuffer.allocate(12)
-                .putInt(compressionLevel)
-                .putInt(compression.ordinal())
-                .putInt(maxPacketSize)
-                .array());
+        md.update(
+                ByteBuffer.allocate(12)
+                        .putInt(compressionLevel)
+                        .putInt(compression.ordinal())
+                        .putInt(maxPacketSize)
+                        .array());
         return md.digest();
     }
 
@@ -157,7 +152,8 @@ public class Protocol {
     }
 
     /**
-     * Determine if a side requires auth by checking to see if an auth handler was set for the given side.
+     * Determine if a side requires auth by checking to see if an auth handler was set for the given
+     * side.
      *
      * @param side The {@link Side} to check for an auth handler.
      */
@@ -167,15 +163,18 @@ public class Protocol {
     }
 
     public void logInfo(@NonNull String message) {
-        if (loggingLevel.intValue() <= Level.INFO.intValue()) ProtoLogger.info("[" + this + "] " + message);
+        if (loggingLevel.intValue() <= Level.INFO.intValue())
+            ProtoLogger.info("[" + this + "] " + message);
     }
 
     public void logWarn(@NonNull String message) {
-        if (loggingLevel.intValue() <= Level.WARNING.intValue()) ProtoLogger.warn("[" + this + "] " + message);
+        if (loggingLevel.intValue() <= Level.WARNING.intValue())
+            ProtoLogger.warn("[" + this + "] " + message);
     }
 
     public void logErr(@NonNull String message) {
-        if (loggingLevel.intValue() <= Level.SEVERE.intValue()) ProtoLogger.err("[" + this + "] " + message);
+        if (loggingLevel.intValue() <= Level.SEVERE.intValue())
+            ProtoLogger.err("[" + this + "] " + message);
     }
 
     @Override
@@ -202,7 +201,8 @@ public class Protocol {
          * @param handler The class of the packets handler.
          */
         @SneakyThrows
-        public Builder setServerHandler(Class<? extends ProtoConnectionHandler> handler, Object... args) {
+        public Builder setServerHandler(
+                Class<? extends ProtoConnectionHandler> handler, Object... args) {
             if (Modifier.isAbstract(handler.getModifiers()))
                 throw new IllegalArgumentException("Handler class cannot be abstract: " + handler);
             protocol.serverConnectionHandler = handler.getDeclaredConstructor(getArgTypes(args));
@@ -216,7 +216,8 @@ public class Protocol {
          * @param handler The class of the packets handler.
          */
         @SneakyThrows
-        public Builder setClientHandler(Class<? extends ProtoConnectionHandler> handler, Object... args) {
+        public Builder setClientHandler(
+                Class<? extends ProtoConnectionHandler> handler, Object... args) {
             if (Modifier.isAbstract(handler.getModifiers()))
                 throw new IllegalArgumentException("Handler class cannot be abstract: " + handler);
             protocol.clientConnectionHandler = handler.getDeclaredConstructor(getArgTypes(args));
@@ -230,7 +231,8 @@ public class Protocol {
          * @param handler The class of the auth handler.
          */
         @SneakyThrows
-        public Builder setServerAuthHandler(Class<? extends ServerAuthHandler> handler, Object... args) {
+        public Builder setServerAuthHandler(
+                Class<? extends ServerAuthHandler> handler, Object... args) {
             if (Modifier.isAbstract(handler.getModifiers()))
                 throw new IllegalArgumentException("Handler class cannot be abstract: " + handler);
             protocol.serverAuthHandler = handler.getDeclaredConstructor(getArgTypes(args));
@@ -239,12 +241,14 @@ public class Protocol {
         }
 
         /**
-         * Set the auth handler that the client will use to get the secret that will be sent to the server.
+         * Set the auth handler that the client will use to get the secret that will be sent to the
+         * server.
          *
          * @param handler The class of the auth handler.
          */
         @SneakyThrows
-        public Builder setClientAuthHandler(Class<? extends ClientAuthHandler> handler, Object... args) {
+        public Builder setClientAuthHandler(
+                Class<? extends ClientAuthHandler> handler, Object... args) {
             if (Modifier.isAbstract(handler.getModifiers()))
                 throw new IllegalArgumentException("Handler class cannot be abstract: " + handler);
             protocol.clientAuthHandler = handler.getDeclaredConstructor(getArgTypes(args));
@@ -253,7 +257,8 @@ public class Protocol {
         }
 
         /**
-         * Register a class to the {@link Protocol}. Does nothing if the class has already been registered.
+         * Register a class to the {@link Protocol}. Does nothing if the class has already been
+         * registered.
          *
          * @param packet The packets to register.
          */
@@ -267,13 +272,16 @@ public class Protocol {
         }
 
         /**
-         * Register a class to the {@link Protocol} with a custom serializer. Does nothing if the class has already been registered.
+         * Register a class to the {@link Protocol} with a custom serializer. Does nothing if the
+         * class has already been registered.
          *
-         * @param packet     The packet to register.
+         * @param packet The packet to register.
          * @param serializer The custom serializer to register.
          */
-        public Builder addPacket(@NonNull Class<?> packet, @NonNull Class<? extends ProtoSerializer<?>> serializer) {
-            Class<?> type = (serializer == CustomPacketSerializer.class) ? CustomPacket.class : packet;
+        public Builder addPacket(
+                @NonNull Class<?> packet, @NonNull Class<? extends ProtoSerializer<?>> serializer) {
+            Class<?> type =
+                    (serializer == CustomPacketSerializer.class) ? CustomPacket.class : packet;
             protocol.serializer.register(packet, serializer);
             if (!packets.contains(type)) {
                 protocol.packetMD.update(type.getName().getBytes(StandardCharsets.UTF_8));
@@ -283,7 +291,8 @@ public class Protocol {
         }
 
         /**
-         * Enables compression on the {@link Protocol}. The compression type by defaults is set to {@link CompressionType#NONE}.
+         * Enables compression on the {@link Protocol}. The compression type by defaults is set to
+         * {@link CompressionType#NONE}.
          *
          * @param type The type of compression to enable.
          */
@@ -293,8 +302,8 @@ public class Protocol {
         }
 
         /**
-         * Set the compression level if compression is enabled. Be sure to check the supported level for each type of
-         * compression online.
+         * Set the compression level if compression is enabled. Be sure to check the supported level
+         * for each type of compression online.
          *
          * @param level The compression level to set.
          */
@@ -304,8 +313,9 @@ public class Protocol {
         }
 
         /**
-         * Set the maximum packets size this {@link Protocol} can handle. The higher the value, the more ram will be
-         * allocated when sending and receiving packets. The maximum packets size defaults to 16kb.
+         * Set the maximum packets size this {@link Protocol} can handle. The higher the value, the
+         * more ram will be allocated when sending and receiving packets. The maximum packets size
+         * defaults to 16kb.
          *
          * @param maxPacketSize The maximum size a packets can be in bytes.
          */
@@ -315,8 +325,9 @@ public class Protocol {
         }
 
         /**
-         * Set the number of maximum concurrent connections this {@link Protocol} will allow. Any connections over this limit
-         * will be disconnected. The maximum connections defaults to -1 and allows any number of connections.
+         * Set the number of maximum concurrent connections this {@link Protocol} will allow. Any
+         * connections over this limit will be disconnected. The maximum connections defaults to -1
+         * and allows any number of connections.
          *
          * @param maxConnections The maximum concurrent connections.
          */
@@ -325,9 +336,7 @@ public class Protocol {
             return this;
         }
 
-        /**
-         * Sets the logging level for this {@link Protocol}.
-         */
+        /** Sets the logging level for this {@link Protocol}. */
         public Builder setLoggingLevel(Level level) {
             protocol.loggingLevel = level;
             return this;
@@ -354,5 +363,4 @@ public class Protocol {
             return protocol;
         }
     }
-
 }

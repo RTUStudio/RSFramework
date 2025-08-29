@@ -16,5 +16,4 @@ public enum CompressionType {
     CompressionType() {
         this.defaultLevel = -1;
     }
-
 }

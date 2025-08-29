@@ -13,5 +13,4 @@ public class BeanNotFoundException extends RuntimeException {
     public BeanNotFoundException(Class<?> clazz) {
         super("No bean found for given class: " + clazz.getSimpleName());
     }
-
 }

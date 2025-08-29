@@ -29,5 +29,4 @@ public class Translation extends RSConfiguration.Wrapper<RSPlugin> {
     public String get(String key) {
         return map.getOrDefault(key, "");
     }
-
 }

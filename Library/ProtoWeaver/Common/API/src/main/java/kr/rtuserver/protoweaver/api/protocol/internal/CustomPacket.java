@@ -10,5 +10,4 @@ public record CustomPacket(String classType, String json) implements GlobalPacke
     public CustomPacket(Object packet) {
         this(packet.getClass().getName(), GSON.toJson(packet));
     }
-
 }

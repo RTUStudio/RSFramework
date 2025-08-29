@@ -8,7 +8,6 @@ import kr.rtuserver.protoweaver.api.proxy.ProtoServer;
 import kr.rtuserver.protoweaver.api.proxy.ServerSupplier;
 import lombok.NonNull;
 import lombok.Setter;
-import org.jetbrains.annotations.ApiStatus;
 
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
@@ -18,15 +17,16 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.jetbrains.annotations.ApiStatus;
+
 public class ProtoProxy {
 
-    private static final ConcurrentHashMap<ProtoServer, ArrayList<ProtoClient>> servers = new ConcurrentHashMap<>();
+    private static final ConcurrentHashMap<ProtoServer, ArrayList<ProtoClient>> servers =
+            new ConcurrentHashMap<>();
 
-    /**
-     * Sets the polling rate of servers that are disconnected. Defaults to 5 seconds
-     */
-    @Setter
-    private static int serverPollRate = 5000;
+    /** Sets the polling rate of servers that are disconnected. Defaults to 5 seconds */
+    @Setter private static int serverPollRate = 5000;
+
     private final String hostsFile;
 
     @ApiStatus.Internal
@@ -66,64 +66,83 @@ public class ProtoProxy {
     public static List<ProtoServer> getConnectedServers(@NonNull Protocol protocol) {
         List<ProtoServer> connected = new ArrayList<>();
 
-        servers.forEach((server, clients) -> clients.stream()
-                .filter(c -> protocol.equals(c.getCurrentProtocol()) || c.isConnected())
-                .findFirst().ifPresent(c -> connected.add(server)));
+        servers.forEach(
+                (server, clients) ->
+                        clients.stream()
+                                .filter(
+                                        c ->
+                                                protocol.equals(c.getCurrentProtocol())
+                                                        || c.isConnected())
+                                .findFirst()
+                                .ifPresent(c -> connected.add(server)));
         return connected;
     }
 
-//    /**
-//     * Returns a {@link ProtoServer} with a matching {@link ProtoConnection}.
-//     *
-//     * @param connection the connection to match.
-//     */
-//    public static Optional<ProtoServer> getConnectedServer(ProtoConnection connection) {
-//        return getConnectedServers(connection.getProtocol()).stream()
-//                .filter(server -> server.getConnection(connection.getProtocol()).map(con -> Objects.equals(con, connection)).orElse(false))
-//                .findFirst();
-//    }
+    // /**
+    // * Returns a {@link ProtoServer} with a matching {@link ProtoConnection}.
+    // *
+    // * @param connection the connection to match.
+    // */
+    // public static Optional<ProtoServer> getConnectedServer(ProtoConnection
+    // connection) {
+    // return getConnectedServers(connection.getProtocol()).stream()
+    // .filter(server -> server.getConnection(connection.getProtocol()).map(con ->
+    // Objects.equals(con, connection)).orElse(false))
+    // .findFirst();
+    // }
 
     /**
      * Returns a {@link ProtoServer} connected on the supplied {@link Protocol}.
      *
      * @param protocol the protocol to check for.
-     * @param name     the name of the server.
+     * @param name the name of the server.
      */
-    public static Optional<ProtoServer> getConnectedServer(@NonNull Protocol protocol, String name) {
-        return getConnectedServers(protocol).stream().filter(s -> s.name().equals(name)).findFirst();
+    public static Optional<ProtoServer> getConnectedServer(
+            @NonNull Protocol protocol, String name) {
+        return getConnectedServers(protocol).stream()
+                .filter(s -> s.name().equals(name))
+                .findFirst();
     }
 
     /**
      * Returns a {@link ProtoServer} connected on the supplied {@link Protocol}.
      *
      * @param protocol the protocol to check for.
-     * @param address  the address of the server.
+     * @param address the address of the server.
      */
-    public static Optional<ProtoServer> getConnectedServer(@NonNull Protocol protocol, SocketAddress address) {
-        return getConnectedServers(protocol).stream().filter(s -> s.address().equals(address)).findFirst();
+    public static Optional<ProtoServer> getConnectedServer(
+            @NonNull Protocol protocol, SocketAddress address) {
+        return getConnectedServers(protocol).stream()
+                .filter(s -> s.address().equals(address))
+                .findFirst();
     }
 
     private void startProtocol(Protocol protocol) {
         if (protocol.toString().equals("rsframework:protoweaver")) return;
-        servers.forEach((server, clients) -> {
-            for (ProtoClient client : clients) {
-                // Don't start a new connection if one already exists for this protocol
-                if (client.getCurrentProtocol().toString().equals(protocol.toString())) return;
-            }
-            //ReflectionUtil.of(server).set("clients", clients);
-            connectClient(protocol, server, clients);
-        });
+        servers.forEach(
+                (server, clients) -> {
+                    for (ProtoClient client : clients) {
+                        // Don't start a new connection if one already exists for this protocol
+                        if (client.getCurrentProtocol().toString().equals(protocol.toString()))
+                            return;
+                    }
+                    // ReflectionUtil.of(server).set("clients", clients);
+                    connectClient(protocol, server, clients);
+                });
     }
 
-    private void connectClient(Protocol protocol, ProtoServer server, ArrayList<ProtoClient> clients) {
+    private void connectClient(
+            Protocol protocol, ProtoServer server, ArrayList<ProtoClient> clients) {
         ProtoClient client = new ProtoClient((InetSocketAddress) server.address(), hostsFile);
-        client.connect(protocol).onConnectionLost(connection -> {
-            clients.remove(client);
+        client.connect(protocol)
+                .onConnectionLost(
+                        connection -> {
+                            clients.remove(client);
 
-            if (connection.getDisconnecter().equals(Side.CLIENT)) return;
-            Thread.sleep(serverPollRate);
-            connectClient(protocol, server, clients);
-        });
+                            if (connection.getDisconnecter().equals(Side.CLIENT)) return;
+                            Thread.sleep(serverPollRate);
+                            connectClient(protocol, server, clients);
+                        });
         clients.add(client);
     }
 
@@ -141,7 +160,7 @@ public class ProtoProxy {
 
     @ApiStatus.Internal
     public void unregister(ProtoServer server) {
-        Optional.ofNullable(servers.remove(server)).ifPresent(clients -> clients.forEach(ProtoClient::disconnect));
+        Optional.ofNullable(servers.remove(server))
+                .ifPresent(clients -> clients.forEach(ProtoClient::disconnect));
     }
-
 }

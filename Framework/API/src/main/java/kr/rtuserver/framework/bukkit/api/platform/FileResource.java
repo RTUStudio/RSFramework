@@ -1,16 +1,18 @@
 package kr.rtuserver.framework.bukkit.api.platform;
 
-import com.google.common.io.ByteStreams;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
-import org.bukkit.Bukkit;
-import org.bukkit.plugin.Plugin;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.logging.Level;
+
+import org.bukkit.Bukkit;
+import org.bukkit.plugin.Plugin;
+
+import com.google.common.io.ByteStreams;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class FileResource {
@@ -45,7 +47,11 @@ public class FileResource {
                 out.close();
                 in.close();
             } catch (Exception e) {
-                Bukkit.getLogger().log(Level.WARNING, "Error copying file " + sourceFolder + "/" + sourceFile, e);
+                Bukkit.getLogger()
+                        .log(
+                                Level.WARNING,
+                                "Error copying file " + sourceFolder + "/" + sourceFile,
+                                e);
             }
         }
         return resultFile;
@@ -67,7 +73,8 @@ public class FileResource {
             }
             return null;
         } catch (Exception e) {
-            Bukkit.getLogger().log(Level.WARNING, "Error copying file " + sourceFolder + "/" + sourceFile, e);
+            Bukkit.getLogger()
+                    .log(Level.WARNING, "Error copying file " + sourceFolder + "/" + sourceFile, e);
             return null;
         }
     }
@@ -86,7 +93,8 @@ public class FileResource {
             in.close();
             return resultFile;
         } catch (Exception e) {
-            Bukkit.getLogger().log(Level.WARNING, "Error copying file " + sourceFolder + "/" + sourceFile, e);
+            Bukkit.getLogger()
+                    .log(Level.WARNING, "Error copying file " + sourceFolder + "/" + sourceFile, e);
             return null;
         }
     }
@@ -161,5 +169,4 @@ public class FileResource {
         }
         return resourceFile;
     }
-
 }

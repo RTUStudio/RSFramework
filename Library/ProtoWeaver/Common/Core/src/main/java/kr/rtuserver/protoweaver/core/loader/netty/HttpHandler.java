@@ -22,7 +22,11 @@ public class HttpHandler extends SimpleChannelInboundHandler<Object> {
             HttpRequest request = this.request = (HttpRequest) msg;
 
             if (HttpUtil.is100ContinueExpected(request)) {
-                FullHttpResponse response = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.CONTINUE, Unpooled.EMPTY_BUFFER);
+                FullHttpResponse response =
+                        new DefaultFullHttpResponse(
+                                HttpVersion.HTTP_1_1,
+                                HttpResponseStatus.CONTINUE,
+                                Unpooled.EMPTY_BUFFER);
                 ctx.write(response);
             }
         }
@@ -35,7 +39,8 @@ public class HttpHandler extends SimpleChannelInboundHandler<Object> {
 
                 if (!writeResponse(lastHttpContent, ctx)) {
                     // If keep-alive is off, close the connection once the content is fully written.
-                    ctx.writeAndFlush(Unpooled.EMPTY_BUFFER).addListener(ChannelFutureListener.CLOSE);
+                    ctx.writeAndFlush(Unpooled.EMPTY_BUFFER)
+                            .addListener(ChannelFutureListener.CLOSE);
                 }
             }
         }
@@ -45,22 +50,28 @@ public class HttpHandler extends SimpleChannelInboundHandler<Object> {
         // Decide whether to close the connection or not.
         boolean keepAlive = HttpUtil.isKeepAlive(request);
         // Build the response object.
-        FullHttpResponse response = new DefaultFullHttpResponse(
-                HttpVersion.HTTP_1_1, currentObj.decoderResult().isSuccess() ? HttpResponseStatus.OK : HttpResponseStatus.BAD_REQUEST,
-                Unpooled.copiedBuffer("", CharsetUtil.UTF_8));
+        FullHttpResponse response =
+                new DefaultFullHttpResponse(
+                        HttpVersion.HTTP_1_1,
+                        currentObj.decoderResult().isSuccess()
+                                ? HttpResponseStatus.OK
+                                : HttpResponseStatus.BAD_REQUEST,
+                        Unpooled.copiedBuffer("", CharsetUtil.UTF_8));
 
-        //response.headers().set(HttpHeaderNames.CONTENT_TYPE, "text/plain; charset=UTF-8");
+        // response.headers().set(HttpHeaderNames.CONTENT_TYPE, "text/plain;
+        // charset=UTF-8");
 
         if (keepAlive) {
             // Add 'Content-Length' header only for a keep-alive connection.
-            response.headers().setInt(HttpHeaderNames.CONTENT_LENGTH, response.content().readableBytes());
+            response.headers()
+                    .setInt(HttpHeaderNames.CONTENT_LENGTH, response.content().readableBytes());
             // Add keep alive header as per:
-            // - https://www.w3.org/Protocols/HTTP/1.1/draft-ietf-http-v11-spec-01.html#Connection
+            // -
+            // https://www.w3.org/Protocols/HTTP/1.1/draft-ietf-http-v11-spec-01.html#Connection
             response.headers().set(HttpHeaderNames.CONNECTION, HttpHeaderValues.KEEP_ALIVE);
         }
 
         ctx.write(response);
         return keepAlive;
     }
-
 }

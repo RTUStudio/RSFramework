@@ -1,9 +1,10 @@
 package kr.rtuserver.protoweaver.api.serializer;
 
 import kr.rtuserver.protoweaver.api.protocol.internal.CustomPacket;
-import org.apache.fury.memory.Platform;
 
 import java.io.*;
+
+import org.apache.fury.memory.Platform;
 
 public class CustomPacketSerializer extends ProtoSerializer<CustomPacket> {
 
@@ -20,14 +21,10 @@ public class CustomPacketSerializer extends ProtoSerializer<CustomPacket> {
     @Override
     public CustomPacket read(ByteArrayInputStream buffer) {
         try (DataInputStream dis = new DataInputStream(buffer)) {
-            return new CustomPacket(
-                    dis.readUTF(),
-                    dis.readUTF()
-            );
+            return new CustomPacket(dis.readUTF(), dis.readUTF());
         } catch (IOException e) {
             Platform.throwException(e);
             throw new RuntimeException(e);
         }
     }
-
 }

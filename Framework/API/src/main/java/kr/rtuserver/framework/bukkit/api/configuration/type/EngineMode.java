@@ -2,12 +2,14 @@ package kr.rtuserver.framework.bukkit.api.configuration.type;
 
 import kr.rtuserver.framework.bukkit.api.configuration.serializer.EngineModeSerializer;
 import lombok.Getter;
+
 import org.spongepowered.configurate.serialize.ScalarSerializer;
 
 @Getter
 public enum EngineMode {
-
-    HIDE(1, "hide ores"), OBFUSCATE(2, "obfuscate"), OBFUSCATE_LAYER(3, "obfuscate layer");
+    HIDE(1, "hide ores"),
+    OBFUSCATE(2, "obfuscate"),
+    OBFUSCATE_LAYER(3, "obfuscate layer");
 
     public static final ScalarSerializer<EngineMode> SERIALIZER = new EngineModeSerializer();
 
@@ -28,5 +30,4 @@ public enum EngineMode {
 
         throw new IllegalArgumentException("No enum constant with id " + id);
     }
-
 }

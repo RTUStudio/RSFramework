@@ -23,7 +23,7 @@ public class ProtoWeaver_1_19_R1 implements IProtoWeaver {
 
     @Override
     public boolean isModernProxy() {
-        if (!isPaper()) return false; //TODO: Fabric, Forge, Arclight 등의 Velocity 지원 확장을 고려해야함
+        if (!isPaper()) return false; // TODO: Fabric, Forge, Arclight 등의 Velocity 지원 확장을 고려해야함
         boolean enabled = GlobalConfiguration.get().proxies.velocity.enabled;
         if (!enabled) return false;
         String secret = GlobalConfiguration.get().proxies.velocity.secret;
@@ -44,5 +44,4 @@ public class ProtoWeaver_1_19_R1 implements IProtoWeaver {
     public void err(String message) {
         log.error(message);
     }
-
 }

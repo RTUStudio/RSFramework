@@ -1,12 +1,12 @@
 package kr.rtuserver.framework.bukkit.api.registry;
 
-import com.nexomc.nexo.api.NexoFurniture;
 import dev.lone.itemsadder.api.CustomFurniture;
 import io.th0rgal.oraxen.api.OraxenFurniture;
 import kr.rtuserver.cdi.LightDI;
 import kr.rtuserver.framework.bukkit.api.core.Framework;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
+
 import org.bukkit.Location;
 import org.bukkit.Rotation;
 import org.bukkit.block.Block;
@@ -14,6 +14,8 @@ import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Entity;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
+import com.nexomc.nexo.api.NexoFurniture;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class CustomFurnitures {
@@ -28,7 +30,8 @@ public class CustomFurnitures {
     @Nullable
     public static String to(@NotNull Entity entity) {
         if (framework().isEnabledDependency("Nexo")) {
-            if (NexoFurniture.isFurniture(entity)) return "nexo:" + NexoFurniture.furnitureMechanic(entity).getItemID();
+            if (NexoFurniture.isFurniture(entity))
+                return "nexo:" + NexoFurniture.furnitureMechanic(entity).getItemID();
         }
         if (framework().isEnabledDependency("Oraxen")) {
             if (OraxenFurniture.isFurniture(entity))
@@ -66,7 +69,8 @@ public class CustomFurnitures {
         }
         if (framework().isEnabledDependency("Oraxen")) {
             if (OraxenFurniture.isFurniture(location.getBlock()))
-                return "oraxen:" + OraxenFurniture.getFurnitureMechanic(location.getBlock()).getItemID();
+                return "oraxen:"
+                        + OraxenFurniture.getFurnitureMechanic(location.getBlock()).getItemID();
         }
         if (framework().isEnabledDependency("ItemsAdder")) {
             CustomFurniture furniture = CustomFurniture.byAlreadySpawned(location.getBlock());
@@ -98,7 +102,8 @@ public class CustomFurnitures {
             case "itemsadder" -> {
                 if (framework().isEnabledDependency("ItemsAdder")) {
                     String block = split[1] + ":" + split[2];
-                    if (CustomFurniture.isInRegistry(block)) CustomFurniture.spawn(block, location.getBlock());
+                    if (CustomFurniture.isInRegistry(block))
+                        CustomFurniture.spawn(block, location.getBlock());
                     else return false;
                 } else return false;
                 return true;
@@ -111,8 +116,7 @@ public class CustomFurnitures {
 
     public static boolean remove(@NotNull Location location) {
         if (framework().isEnabledDependency("Nexo")) {
-            if (NexoFurniture.isFurniture(location))
-                return NexoFurniture.remove(location);
+            if (NexoFurniture.isFurniture(location)) return NexoFurniture.remove(location);
         }
         if (framework().isEnabledDependency("Oraxen")) {
             if (OraxenFurniture.isFurniture(location.getBlock()))
@@ -126,5 +130,4 @@ public class CustomFurnitures {
         }
         return true;
     }
-
 }

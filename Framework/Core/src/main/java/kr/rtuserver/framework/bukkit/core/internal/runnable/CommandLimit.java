@@ -9,7 +9,8 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Getter
-public class CommandLimit implements kr.rtuserver.framework.bukkit.api.core.internal.runnable.CommandLimit {
+public class CommandLimit
+        implements kr.rtuserver.framework.bukkit.api.core.internal.runnable.CommandLimit {
 
     private final Map<UUID, Integer> executeLimit = new ConcurrentHashMap<>();
 
@@ -24,5 +25,4 @@ public class CommandLimit implements kr.rtuserver.framework.bukkit.api.core.inte
             else executeLimit.remove(uuid);
         }
     }
-
 }

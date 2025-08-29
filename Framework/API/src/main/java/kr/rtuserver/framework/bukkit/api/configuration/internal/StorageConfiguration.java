@@ -26,14 +26,10 @@ public class StorageConfiguration {
 
     private final List<String> list = new ArrayList<>();
 
-    @Getter
-    private JsonConfig json;
-    @Getter
-    private MariaDBConfig mariadb;
-    @Getter
-    private MongoDBConfig mongodb;
-    @Getter
-    private MySQLConfig mysql;
+    @Getter private JsonConfig json;
+    @Getter private MariaDBConfig mariadb;
+    @Getter private MongoDBConfig mongodb;
+    @Getter private MySQLConfig mysql;
 
     public void init(String... list) {
         this.init(List.of(list));
@@ -55,8 +51,10 @@ public class StorageConfiguration {
         switch (type) {
             case JSON -> {
                 if (!(storage instanceof Json) || json.isChanged()) {
-                    for (String name : list) FileResource.createFile(plugin.getDataFolder() + "/Data", name + ".json");
-                    File[] files = FileResource.createFolder(plugin.getDataFolder() + "/Data").listFiles();
+                    for (String name : list)
+                        FileResource.createFile(plugin.getDataFolder() + "/Data", name + ".json");
+                    File[] files =
+                            FileResource.createFolder(plugin.getDataFolder() + "/Data").listFiles();
                     assert files != null;
                     if (storage != null) storage.close();
                     plugin.setStorage(new Json(plugin, files));
@@ -95,5 +93,4 @@ public class StorageConfiguration {
         if (mysql != null) mysql.reload();
         load();
     }
-
 }

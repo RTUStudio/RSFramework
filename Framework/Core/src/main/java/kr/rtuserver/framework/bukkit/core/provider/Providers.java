@@ -19,5 +19,4 @@ public class Providers implements kr.rtuserver.framework.bukkit.api.core.provide
         if (name == null) return new VanillaNameProvider();
         return name;
     }
-
 }

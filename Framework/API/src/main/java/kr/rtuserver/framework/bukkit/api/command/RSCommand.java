@@ -13,27 +13,25 @@ import kr.rtuserver.framework.bukkit.api.player.PlayerChat;
 import lombok.Getter;
 import lombok.ToString;
 import net.kyori.adventure.audience.Audience;
+
+import java.util.*;
+
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.permissions.PermissionDefault;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.*;
-
 @ToString(exclude = "commands")
 public abstract class RSCommand<T extends RSPlugin> extends Command {
 
     private final Map<String, RSCommand<? extends RSPlugin>> commands = new HashMap<>();
 
-    @Getter
-    private final T plugin;
+    @Getter private final T plugin;
 
-    @Getter
-    private final PermissionDefault permissionDefault;
+    @Getter private final PermissionDefault permissionDefault;
 
-    @Getter
-    private final List<String> names;
+    @Getter private final List<String> names;
 
     private final MessageTranslation message;
     private final CommandTranslation command;
@@ -131,7 +129,8 @@ public abstract class RSCommand<T extends RSPlugin> extends Command {
     }
 
     @Override
-    public boolean execute(@NotNull CommandSender sender, @NotNull String commandLabel, @NotNull String[] args) {
+    public boolean execute(
+            @NotNull CommandSender sender, @NotNull String commandLabel, @NotNull String[] args) {
         chat.setReceiver(sender);
         if (parent == null && (sender instanceof Player player)) {
             Map<UUID, Integer> cooldownMap = framework.getCommandLimit().getExecuteLimit();
@@ -168,7 +167,8 @@ public abstract class RSCommand<T extends RSPlugin> extends Command {
         List<RSCommand<? extends RSPlugin>> list = new ArrayList<>(commands.values());
         if (list.isEmpty()) return;
         boolean empty = true;
-        StringBuilder builder = new StringBuilder("<gradient:" + startGradient + ":" + endGradient + ">");
+        StringBuilder builder =
+                new StringBuilder("<gradient:" + startGradient + ":" + endGradient + ">");
         for (int i = 0; i < list.size(); i++) {
             RSCommand<? extends RSPlugin> cmd = list.get(i);
             String permission = cmd.getPermission();
@@ -239,15 +239,18 @@ public abstract class RSCommand<T extends RSPlugin> extends Command {
     }
 
     @Override
-    public @NotNull List<String> tabComplete(@NotNull CommandSender sender, @NotNull String alias, @NotNull String[] args) {
+    public @NotNull List<String> tabComplete(
+            @NotNull CommandSender sender, @NotNull String alias, @NotNull String[] args) {
         chat.setReceiver(sender);
         this.sender = sender;
         this.audience = plugin.getAdventure().sender(sender);
         RSCommandData data = new RSCommandData(args);
         List<String> list = new ArrayList<>();
-        if (data.length(index + 1)) for (RSCommand<? extends RSPlugin> cmd : commands.values()) {
-            if (hasCommandPermission(cmd.getPermission())) list.add(cmd.getLocalizedName(player()));
-        }
+        if (data.length(index + 1))
+            for (RSCommand<? extends RSPlugin> cmd : commands.values()) {
+                if (hasCommandPermission(cmd.getPermission()))
+                    list.add(cmd.getLocalizedName(player()));
+            }
         RSCommand<? extends RSPlugin> sub = findCommand(data.args(0));
         if (sub == null) {
             if (hasCommandPermission(getPermission())) list.addAll(tabComplete(data));
@@ -265,7 +268,5 @@ public abstract class RSCommand<T extends RSPlugin> extends Command {
         return List.of();
     }
 
-    protected void reload(RSCommandData data) {
-    }
-
+    protected void reload(RSCommandData data) {}
 }

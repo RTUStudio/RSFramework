@@ -1,7 +1,5 @@
 package kr.rtuserver.framework.bukkit.api.configuration;
 
-import com.google.common.base.Throwables;
-import com.google.common.collect.ImmutableMap;
 import kr.rtuserver.framework.bukkit.api.RSPlugin;
 import kr.rtuserver.framework.bukkit.api.configuration.internal.SettingConfiguration;
 import kr.rtuserver.framework.bukkit.api.configuration.internal.StorageConfiguration;
@@ -11,17 +9,6 @@ import kr.rtuserver.framework.bukkit.api.configuration.internal.translation.mess
 import kr.rtuserver.framework.bukkit.api.scheduler.CraftScheduler;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
-import org.bukkit.Bukkit;
-import org.jetbrains.annotations.NotNull;
-import org.slf4j.LoggerFactory;
-import org.spongepowered.configurate.CommentedConfigurationNode;
-import org.spongepowered.configurate.ConfigurateException;
-import org.spongepowered.configurate.ConfigurationNode;
-import org.spongepowered.configurate.loader.HeaderMode;
-import org.spongepowered.configurate.loader.ParsingException;
-import org.spongepowered.configurate.serialize.SerializationException;
-import org.spongepowered.configurate.yaml.NodeStyle;
-import org.spongepowered.configurate.yaml.YamlConfigurationLoader;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -36,57 +23,81 @@ import java.nio.file.Path;
 import java.util.*;
 import java.util.logging.Level;
 
+import org.bukkit.Bukkit;
+import org.jetbrains.annotations.NotNull;
+import org.slf4j.LoggerFactory;
+import org.spongepowered.configurate.CommentedConfigurationNode;
+import org.spongepowered.configurate.ConfigurateException;
+import org.spongepowered.configurate.ConfigurationNode;
+import org.spongepowered.configurate.loader.HeaderMode;
+import org.spongepowered.configurate.loader.ParsingException;
+import org.spongepowered.configurate.serialize.SerializationException;
+import org.spongepowered.configurate.yaml.NodeStyle;
+import org.spongepowered.configurate.yaml.YamlConfigurationLoader;
+
+import com.google.common.base.Throwables;
+import com.google.common.collect.ImmutableMap;
+
 @Slf4j
 public class RSConfiguration {
 
     private final RSPlugin plugin;
 
-    private final Map<Class<? extends ConfigurationPart>, PluginConfiguration<? extends ConfigurationPart>> configuration = new HashMap<>();
-    private final Map<Class<? extends ConfigurationPart>, ConfigurationPart> instance = new HashMap<>();
+    private final Map<
+                    Class<? extends ConfigurationPart>,
+                    PluginConfiguration<? extends ConfigurationPart>>
+            configuration = new HashMap<>();
+    private final Map<Class<? extends ConfigurationPart>, ConfigurationPart> instance =
+            new HashMap<>();
 
-    @Getter
-    private final SettingConfiguration setting;
-    @Getter
-    private final StorageConfiguration storage;
+    @Getter private final SettingConfiguration setting;
+    @Getter private final StorageConfiguration storage;
 
-    @Getter
-    private MessageTranslation message;
-    @Getter
-    private CommandTranslation command;
+    @Getter private MessageTranslation message;
+    @Getter private CommandTranslation command;
 
     public RSConfiguration(RSPlugin plugin) {
         this.plugin = plugin;
         this.setting = new SettingConfiguration(plugin);
         this.storage = new StorageConfiguration(plugin);
-        this.message = new MessageTranslation(plugin, TranslationType.MESSAGE, this.setting.getLocale());
-        this.command = new CommandTranslation(plugin, TranslationType.COMMAND, this.setting.getLocale());
+        this.message =
+                new MessageTranslation(plugin, TranslationType.MESSAGE, this.setting.getLocale());
+        this.command =
+                new CommandTranslation(plugin, TranslationType.COMMAND, this.setting.getLocale());
     }
 
     public <C extends ConfigurationPart> C register(Class<C> configuration, String name) {
         return register(configuration, "Configs", name, null);
     }
 
-    public <C extends ConfigurationPart> C register(Class<C> configuration, String name, Integer version) {
+    public <C extends ConfigurationPart> C register(
+            Class<C> configuration, String name, Integer version) {
         return register(configuration, "Configs", name, version);
     }
 
-    public <C extends ConfigurationPart> C register(Class<C> configuration, String folder, String name) {
+    public <C extends ConfigurationPart> C register(
+            Class<C> configuration, String folder, String name) {
         return register(configuration, folder, name, null);
     }
 
-    public <C extends ConfigurationPart> C register(Class<C> configuration, String folder, String name, Integer version) {
+    public <C extends ConfigurationPart> C register(
+            Class<C> configuration, String folder, String name, Integer version) {
         name = name.endsWith(".yml") ? name : name + ".yml";
         Path configFolder = plugin.getDataFolder().toPath().resolve(folder);
         Path configFile = configFolder.resolve(name);
         BufferedReader defaultConfig = null;
         try {
             InputStream in = plugin.getResource(folder + "/" + name);
-            if (in != null) defaultConfig = new BufferedReader(new InputStreamReader(in, StandardCharsets.UTF_8));
+            if (in != null)
+                defaultConfig =
+                        new BufferedReader(new InputStreamReader(in, StandardCharsets.UTF_8));
         } catch (Exception ignored) {
         }
         PluginConfiguration<C> pluginConfiguration;
         try {
-            pluginConfiguration = new PluginConfiguration<>(plugin, configuration, configFile, defaultConfig, version);
+            pluginConfiguration =
+                    new PluginConfiguration<>(
+                            plugin, configuration, configFile, defaultConfig, version);
         } catch (ConfigurateException e) {
             throw new RuntimeException(e);
         }
@@ -117,14 +128,16 @@ public class RSConfiguration {
     }
 
     public void reloadAll() {
-        for (Class<? extends ConfigurationPart> configuration : instance.keySet()) reload(configuration);
+        for (Class<? extends ConfigurationPart> configuration : instance.keySet())
+            reload(configuration);
     }
 
     @SuppressWarnings("unchecked")
     public <C extends ConfigurationPart> boolean reload(Class<C> configuration) {
         C instance = get(configuration);
         if (instance == null) return false;
-        PluginConfiguration<? extends ConfigurationPart> impl = this.configuration.get(configuration);
+        PluginConfiguration<? extends ConfigurationPart> impl =
+                this.configuration.get(configuration);
         if (impl == null) return false;
         try {
             ((PluginConfiguration<C>) impl).reload(instance);
@@ -138,16 +151,12 @@ public class RSConfiguration {
     @SuppressWarnings("unused")
     public static class Wrapper<T extends RSPlugin> {
 
-        @Getter
-        private final T plugin;
+        @Getter private final T plugin;
         private final Path path;
         private final YamlConfigurationLoader loader;
-        @Getter
-        private final int version;
-        @Getter
-        private CommentedConfigurationNode config;
-        @Getter
-        private boolean changed;
+        @Getter private final int version;
+        @Getter private CommentedConfigurationNode config;
+        @Getter private boolean changed;
         private Wrapper<T> instance;
 
         public Wrapper(T plugin, String name) {
@@ -167,12 +176,21 @@ public class RSConfiguration {
             String id = plugin.getName();
             String author = String.join(" & ", plugin.getDescription().getAuthors());
             String header = String.format(PluginConfiguration.HEADER, id, author, id, author);
-            this.path = plugin.getDataFolder().toPath().resolve(folder).resolve(name.endsWith(".yml") ? name : name + ".yml");
-            YamlConfigurationLoader.Builder builder = YamlConfigurationLoader.builder()
-                    .path(path).indent(2)
-                    .nodeStyle(NodeStyle.BLOCK)
-                    .headerMode(HeaderMode.PRESERVE)
-                    .defaultOptions(co -> co.header(header).shouldCopyDefaults(true));
+            this.path =
+                    plugin.getDataFolder()
+                            .toPath()
+                            .resolve(folder)
+                            .resolve(name.endsWith(".yml") ? name : name + ".yml");
+            YamlConfigurationLoader.Builder builder =
+                    YamlConfigurationLoader.builder()
+                            .path(path)
+                            .indent(2)
+                            .nodeStyle(NodeStyle.BLOCK)
+                            .headerMode(HeaderMode.PRESERVE)
+                            .defaultOptions(
+                                    co ->
+                                            ConfigurationSerializer.apply(
+                                                    co.header(header).shouldCopyDefaults(true)));
             final BufferedReader defaultConfig = configFromResource(folder, name);
             if (defaultConfig == null) this.loader = builder.build();
             else this.loader = builder.source(() -> defaultConfig).build();
@@ -182,14 +200,16 @@ public class RSConfiguration {
                     if (defaultConfig == null) {
                         this.config = CommentedConfigurationNode.root(this.loader.defaultOptions());
                     } else this.config = this.loader.load();
-                    if (this.version > 0) this.config.node(Configuration.VERSION_FIELD).raw(version);
+                    if (this.version > 0)
+                        this.config.node(Configuration.VERSION_FIELD).raw(version);
                 } else {
                     try {
                         this.config = this.loader.load();
                     } catch (ParsingException e) {
                         this.config = CommentedConfigurationNode.root(this.loader.defaultOptions());
                         if (!(e.getCause() instanceof NullPointerException)) {
-                            LoggerFactory.getLogger(plugin.getName()).error("An error occurred {}", e.getCause().getMessage());
+                            LoggerFactory.getLogger(plugin.getName())
+                                    .error("An error occurred {}", e.getCause().getMessage());
                         }
                     }
                 }
@@ -203,7 +223,8 @@ public class RSConfiguration {
             BufferedReader result = null;
             try {
                 InputStream in = plugin.getResource(folder + "/" + name);
-                if (in != null) result = new BufferedReader(new InputStreamReader(in, StandardCharsets.UTF_8));
+                if (in != null)
+                    result = new BufferedReader(new InputStreamReader(in, StandardCharsets.UTF_8));
             } catch (Exception ignored) {
             }
             return result;
@@ -211,7 +232,8 @@ public class RSConfiguration {
 
         protected Map<Object, Object> toMap(@NotNull ConfigurationNode node) {
             ImmutableMap.Builder<Object, Object> builder = ImmutableMap.builder();
-            for (Map.Entry<Object, ? extends ConfigurationNode> entry : node.childrenMap().entrySet()) {
+            for (Map.Entry<Object, ? extends ConfigurationNode> entry :
+                    node.childrenMap().entrySet()) {
                 ConfigurationNode value = entry.getValue();
                 if (value == null) continue;
                 builder.put(entry.getKey(), value.isMap() ? toMap(value) : value);
@@ -240,14 +262,18 @@ public class RSConfiguration {
                 if (!previous.isEmpty()) if (!previous.equalsIgnoreCase(dump)) changed = true;
             } catch (IOException ignore) {
             } catch (Exception ex) {
-                log.warn("Could not load {}, please correct your syntax errors", path.getFileName(), ex);
+                log.warn(
+                        "Could not load {}, please correct your syntax errors",
+                        path.getFileName(),
+                        ex);
             }
         }
 
         private void loadMethod() {
             for (Method method : getClass().getDeclaredMethods()) {
                 if (Modifier.isPrivate(method.getModifiers())) {
-                    if (method.getParameterTypes().length == 0 && method.getReturnType() == Void.TYPE) {
+                    if (method.getParameterTypes().length == 0
+                            && method.getReturnType() == Void.TYPE) {
                         try {
                             method.setAccessible(true);
                             method.invoke(instance);
@@ -279,55 +305,55 @@ public class RSConfiguration {
         }
 
         protected String getString(String path, String def) {
-            return getString(path, def, new String[]{});
+            return getString(path, def, new String[] {});
         }
 
         protected boolean getBoolean(String path, boolean def) {
-            return getBoolean(path, def, new String[]{});
+            return getBoolean(path, def, new String[] {});
         }
 
         protected double getDouble(String path, double def) {
-            return getDouble(path, def, new String[]{});
+            return getDouble(path, def, new String[] {});
         }
 
         protected int getInt(String path, int def) {
-            return getInt(path, def, new String[]{});
+            return getInt(path, def, new String[] {});
         }
 
         protected long getLong(String path, long def) {
-            return getLong(path, def, new String[]{});
+            return getLong(path, def, new String[] {});
         }
 
         protected <E> List<E> getList(String path, Class<E> type, List<E> def) {
-            return getList(path, type, def, new String[]{});
+            return getList(path, type, def, new String[] {});
         }
 
         protected List<String> getStringList(String path, List<String> def) {
-            return getStringList(path, def, new String[]{});
+            return getStringList(path, def, new String[] {});
         }
 
         protected List<Boolean> getBooleanList(String path, List<Boolean> def) {
-            return getBooleanList(path, def, new String[]{});
+            return getBooleanList(path, def, new String[] {});
         }
 
         protected List<Float> getFloatList(String path, List<Float> def) {
-            return getFloatList(path, def, new String[]{});
+            return getFloatList(path, def, new String[] {});
         }
 
         protected List<Double> getDoubleList(String path, List<Double> def) {
-            return getDoubleList(path, def, new String[]{});
+            return getDoubleList(path, def, new String[] {});
         }
 
         protected List<Integer> getIntegerList(String path, List<Integer> def) {
-            return getIntegerList(path, def, new String[]{});
+            return getIntegerList(path, def, new String[] {});
         }
 
         protected List<Long> getLongList(String path, List<Long> def) {
-            return getLongList(path, def, new String[]{});
+            return getLongList(path, def, new String[] {});
         }
 
         protected Map<Object, Object> getMap(String path, Map<Object, Object> def) {
-            return getMap(path, def, new String[]{});
+            return getMap(path, def, new String[] {});
         }
 
         protected CommentedConfigurationNode set(String path, Object val, String... comment) {
@@ -341,7 +367,8 @@ public class RSConfiguration {
             return node;
         }
 
-        protected CommentedConfigurationNode addDefault(String path, Object val, String... comment) {
+        protected CommentedConfigurationNode addDefault(
+                String path, Object val, String... comment) {
             CommentedConfigurationNode node = pathToNode(path);
             if (node.virtual()) {
                 try {
@@ -414,7 +441,8 @@ public class RSConfiguration {
             return getList(path, Long.class, def, comment);
         }
 
-        protected Map<Object, Object> getMap(String path, Map<Object, Object> def, String... comment) {
+        protected Map<Object, Object> getMap(
+                String path, Map<Object, Object> def, String... comment) {
             CommentedConfigurationNode node = addDefault(path, def, comment);
             return toMap(node);
         }
@@ -445,11 +473,11 @@ public class RSConfiguration {
                 return;
             }
             for (Map.Entry<Object, ? extends ConfigurationNode> e : children.entrySet()) {
-                String next = prefix.isEmpty() ? String.valueOf(e.getKey()) : prefix + "." + e.getKey();
+                String next =
+                        prefix.isEmpty() ? String.valueOf(e.getKey()) : prefix + "." + e.getKey();
                 collectKeys(e.getValue(), next, out);
             }
         }
-
 
         private void comment(CommentedConfigurationNode node, String... comment) {
             if (comment.length == 0) return;
@@ -481,6 +509,5 @@ public class RSConfiguration {
                 return null;
             }
         }
-
     }
 }

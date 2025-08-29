@@ -1,8 +1,5 @@
 package kr.rtuserver.framework.bukkit.api.integration;
 
-import com.comphenix.protocol.ProtocolLibrary;
-import com.comphenix.protocol.events.PacketAdapter;
-import com.comphenix.protocol.events.PacketEvent;
 import kr.rtuserver.cdi.LightDI;
 import kr.rtuserver.framework.bukkit.api.RSPlugin;
 import kr.rtuserver.framework.bukkit.api.configuration.internal.translation.TranslationConfiguration;
@@ -11,12 +8,16 @@ import kr.rtuserver.framework.bukkit.api.configuration.internal.translation.mess
 import kr.rtuserver.framework.bukkit.api.core.Framework;
 import kr.rtuserver.framework.bukkit.api.player.PlayerChat;
 import lombok.Getter;
+
 import org.bukkit.entity.Player;
+
+import com.comphenix.protocol.ProtocolLibrary;
+import com.comphenix.protocol.events.PacketAdapter;
+import com.comphenix.protocol.events.PacketEvent;
 
 public class RSPacketListener<T extends RSPlugin> extends PacketAdapter implements Integration {
 
-    @Getter
-    private final T plugin;
+    @Getter private final T plugin;
 
     private final MessageTranslation message;
     private final CommandTranslation command;
@@ -61,11 +62,9 @@ public class RSPacketListener<T extends RSPlugin> extends PacketAdapter implemen
         receive(event);
     }
 
-    public void send(PacketEvent event) {
-    }
+    public void send(PacketEvent event) {}
 
-    public void receive(PacketEvent event) {
-    }
+    public void receive(PacketEvent event) {}
 
     @Override
     public boolean isAvailable() {
@@ -87,5 +86,4 @@ public class RSPacketListener<T extends RSPlugin> extends PacketAdapter implemen
             return true;
         } else return false;
     }
-
 }

@@ -6,7 +6,8 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 /**
- * A wrapper that allows for closing the connection after the previously sent packets is done sending.
+ * A wrapper that allows for closing the connection after the previously sent packets is done
+ * sending.
  */
 @RequiredArgsConstructor
 public class Sender {
@@ -15,14 +16,11 @@ public class Sender {
 
     private final ProtoConnection connection;
     private final ChannelFuture future;
-    @Getter
-    private final boolean success;
+    @Getter private final boolean success;
 
-    /**
-     * Closes the connection after the previously sent packets is done sending.
-     */
+    /** Closes the connection after the previously sent packets is done sending. */
     public void disconnect() {
-        if (future != null) future.addListener((ChannelFutureListener) channelFuture -> connection.disconnect());
+        if (future != null)
+            future.addListener((ChannelFutureListener) channelFuture -> connection.disconnect());
     }
-
 }

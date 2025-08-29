@@ -21,10 +21,7 @@ public class HandlerCallback {
         void run(T data);
     }
 
-    public record Ready(ProtoConnection protoConnection) {
-    }
+    public record Ready(ProtoConnection protoConnection) {}
 
-    public record Packet(ProtoConnection protoConnection, Object packet) {
-    }
-
+    public record Packet(ProtoConnection protoConnection, Object packet) {}
 }

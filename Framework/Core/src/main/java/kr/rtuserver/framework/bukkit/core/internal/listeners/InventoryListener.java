@@ -5,6 +5,7 @@ import kr.rtuserver.framework.bukkit.api.format.ComponentFormatter;
 import kr.rtuserver.framework.bukkit.api.inventory.RSInventory;
 import kr.rtuserver.framework.bukkit.api.listener.RSListener;
 import net.kyori.adventure.text.Component;
+
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.inventory.InventoryClickEvent;
@@ -27,14 +28,17 @@ public class InventoryListener extends RSListener<RSPlugin> {
 
         if (holder instanceof RSInventory<? extends RSPlugin> rsInv) {
             boolean isPlayerInventory = inv != null && !(inv.getHolder() instanceof RSInventory);
-            RSInventory.Event<InventoryClickEvent> event = new RSInventory.Event<>(e, inv, player, isPlayerInventory);
-            RSInventory.Click click = new RSInventory.Click(e.getSlot(), e.getSlotType(), e.getClick());
+            RSInventory.Event<InventoryClickEvent> event =
+                    new RSInventory.Event<>(e, inv, player, isPlayerInventory);
+            RSInventory.Click click =
+                    new RSInventory.Click(e.getSlot(), e.getSlotType(), e.getClick());
             try {
                 rsInv.chat().setReceiver(player);
                 e.setCancelled(!rsInv.onClick(event, click));
             } catch (Exception ex) {
                 e.setCancelled(true);
-                Component errorMessage = ComponentFormatter.mini(getMessage().get(player, "error.inventory"));
+                Component errorMessage =
+                        ComponentFormatter.mini(getMessage().get(player, "error.inventory"));
                 getPlugin().console(errorMessage);
                 getPlugin().getAdventure().player(player).sendMessage(errorMessage);
                 ex.printStackTrace();
@@ -50,14 +54,18 @@ public class InventoryListener extends RSListener<RSPlugin> {
 
         if (holder instanceof RSInventory<? extends RSPlugin> rsInv) {
             boolean isPlayerInventory = !(inv.getHolder() instanceof RSInventory);
-            RSInventory.Event<InventoryDragEvent> holderEvent = new RSInventory.Event<>(e, inv, player, isPlayerInventory);
-            RSInventory.Drag drag = new RSInventory.Drag(e.getNewItems(), e.getCursor(), e.getOldCursor(), e.getType());
+            RSInventory.Event<InventoryDragEvent> holderEvent =
+                    new RSInventory.Event<>(e, inv, player, isPlayerInventory);
+            RSInventory.Drag drag =
+                    new RSInventory.Drag(
+                            e.getNewItems(), e.getCursor(), e.getOldCursor(), e.getType());
             try {
                 rsInv.chat().setReceiver(player);
                 e.setCancelled(!rsInv.onDrag(holderEvent, drag));
             } catch (Exception ex) {
                 e.setCancelled(true);
-                Component errorMessage = ComponentFormatter.mini(getMessage().get(player, "error.inventory"));
+                Component errorMessage =
+                        ComponentFormatter.mini(getMessage().get(player, "error.inventory"));
                 getPlugin().console(errorMessage);
                 getPlugin().getAdventure().player(player).sendMessage(errorMessage);
                 ex.printStackTrace();
@@ -73,17 +81,18 @@ public class InventoryListener extends RSListener<RSPlugin> {
 
         if (holder instanceof RSInventory<? extends RSPlugin> rsInv) {
             boolean isPlayerInventory = !(inv.getHolder() instanceof RSInventory);
-            RSInventory.Event<InventoryCloseEvent> holderEvent = new RSInventory.Event<>(e, inv, player, isPlayerInventory);
+            RSInventory.Event<InventoryCloseEvent> holderEvent =
+                    new RSInventory.Event<>(e, inv, player, isPlayerInventory);
             try {
                 rsInv.chat().setReceiver(player);
                 rsInv.onClose(holderEvent);
             } catch (Exception ex) {
-                Component errorMessage = ComponentFormatter.mini(getMessage().get(player, "error.inventory"));
+                Component errorMessage =
+                        ComponentFormatter.mini(getMessage().get(player, "error.inventory"));
                 getPlugin().console(errorMessage);
                 getPlugin().getAdventure().player(player).sendMessage(errorMessage);
                 ex.printStackTrace();
             }
         }
     }
-
 }

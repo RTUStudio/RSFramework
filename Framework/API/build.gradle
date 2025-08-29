@@ -59,7 +59,7 @@ publishing {
             artifactId = "framework-api"
             version = plugin_version
 
-            project.shadow.component(publication)
+            from components.shadow
         }
     }
 }

@@ -31,5 +31,4 @@ public class ProxyPacketHandler implements ProtoConnectionHandler {
     public void handlePacket(ProtoConnection protoConnection, Object packet) {
         if (callable != null) callable.handlePacket(protoConnection, packet);
     }
-
 }

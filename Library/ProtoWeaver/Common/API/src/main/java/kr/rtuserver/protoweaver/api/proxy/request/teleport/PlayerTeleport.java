@@ -8,5 +8,4 @@ public record PlayerTeleport(ProxyPlayer player, ProxyPlayer target) implements 
     public String server() {
         return target.server();
     }
-
 }

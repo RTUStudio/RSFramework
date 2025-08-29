@@ -1,6 +1,7 @@
 package kr.rtuserver.cdi.factories.impl;
 
-import com.google.common.base.Strings;
+import static java.util.Optional.ofNullable;
+
 import kr.rtuserver.cdi.annotations.Component;
 import kr.rtuserver.cdi.annotations.Inject;
 import kr.rtuserver.cdi.beans.classholders.ClassHolder;
@@ -17,7 +18,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
 
-import static java.util.Optional.ofNullable;
+import com.google.common.base.Strings;
 
 /**
  * @author Mihai Alexandru
@@ -42,7 +43,8 @@ public class ClassHolderFactory {
         }
 
         if (PrototypeFactory.class.isAssignableFrom(fieldClass)) {
-            return Optional.of(getClassHolder(field.getGenericType(), PrototypeFactoryClassHolder::new));
+            return Optional.of(
+                    getClassHolder(field.getGenericType(), PrototypeFactoryClassHolder::new));
         }
 
         return getFieldClassHolder(fieldClass, fieldBeanName);
@@ -74,7 +76,8 @@ public class ClassHolderFactory {
 
     /**
      * @param beanClass
-     * @return {@link ClassHolder}s for the given class. Returns empty if the class is not {@link Component} annotated.
+     * @return {@link ClassHolder}s for the given class. Returns empty if the class is not {@link
+     *     Component} annotated.
      */
     public Optional<ClassHolder> getClassHolder(Class<?> beanClass) {
         if (!beanClass.isAnnotationPresent(Component.class)) {
@@ -106,7 +109,8 @@ public class ClassHolderFactory {
         return Optional.of(new DefaultClassHolder(beanClass));
     }
 
-    private ClassHolder getClassHolder(Type type, Function<Class<?>, ClassHolder> classHolderFunction) {
+    private ClassHolder getClassHolder(
+            Type type, Function<Class<?>, ClassHolder> classHolderFunction) {
         ParameterizedType parameterizedListType = (ParameterizedType) type;
         Class<?> genericClassType = (Class<?>) parameterizedListType.getActualTypeArguments()[0];
         return classHolderFunction.apply(genericClassType);
@@ -124,7 +128,6 @@ public class ClassHolderFactory {
         return !Strings.isNullOrEmpty(getBeanName(fieldClass));
     }
 
-
     private String getBeanName(Class<?> beanClass) {
         return beanClass.getAnnotation(Component.class).name();
     }
@@ -137,6 +140,4 @@ public class ClassHolderFactory {
         ParameterizedType parameterizedType = (ParameterizedType) type;
         return Optional.of((Class<?>) parameterizedType.getRawType());
     }
-
-
 }

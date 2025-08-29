@@ -2,10 +2,11 @@ package kr.rtuserver.framework.bukkit.api.nms;
 
 import kr.rtuserver.framework.bukkit.api.RSPlugin;
 import kr.rtuserver.framework.bukkit.api.command.RSCommand;
-import org.bukkit.command.Command;
-import org.bukkit.command.SimpleCommandMap;
 
 import java.util.Map;
+
+import org.bukkit.command.Command;
+import org.bukkit.command.SimpleCommandMap;
 
 public interface NMSCommand {
 
@@ -16,5 +17,4 @@ public interface NMSCommand {
     boolean register(RSCommand<? extends RSPlugin> command);
 
     boolean unregister(RSCommand<? extends RSPlugin> command);
-
 }

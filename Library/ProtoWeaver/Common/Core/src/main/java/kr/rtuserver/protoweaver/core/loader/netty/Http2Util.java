@@ -14,14 +14,13 @@ public class Http2Util {
             protected void configurePipeline(ChannelHandlerContext ctx, String protocol) {
                 if (ApplicationProtocolNames.HTTP_2.equals(protocol)) {
                     ctx.pipeline()
-                            .addLast(Http2FrameCodecBuilder.forServer()
-                                    .build(), new Http2ServerResponseHandler());
+                            .addLast(
+                                    Http2FrameCodecBuilder.forServer().build(),
+                                    new Http2ServerResponseHandler());
                     return;
                 }
                 throw new IllegalStateException("Protocol: " + protocol + " not supported");
             }
         };
-
     }
-
 }

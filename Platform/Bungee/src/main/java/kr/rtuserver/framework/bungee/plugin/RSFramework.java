@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import net.md_5.bungee.api.plugin.Plugin;
 
 @Slf4j(topic = "RSFramework")
+@SuppressWarnings("unused")
 public class RSFramework extends Plugin {
 
     private final Libraries libraries;
@@ -23,7 +24,10 @@ public class RSFramework extends Plugin {
         libraries.load("io.netty:netty-handler:4.1.111.Final");
         libraries.load("io.netty:netty-codec-http:4.1.111.Final");
         libraries.load("io.netty:netty-codec-http2:4.1.111.Final");
-        libraries.load("org.apache.fury:fury-core:0.10.3", "org.apache.fury", "kr.rtuserver.protoweaver.fury");
+        libraries.load(
+                "org.apache.fury:fury-core:0.10.3",
+                "org.apache.fury",
+                "kr.rtuserver.protoweaver.fury");
         libraries.load("org.bouncycastle:bcpkix-jdk18on:1.80");
         libraries.load("org.bouncycastle:bcprov-jdk18on:1.80");
         libraries.load("org.bouncycastle:bcutil-jdk18on:1.80");
@@ -33,7 +37,9 @@ public class RSFramework extends Plugin {
     @Override
     public void onEnable() {
         log.info("RSFramework Bungee loaded.");
-        protoWeaver = new kr.rtuserver.protoweaver.bungee.core.BungeeProtoWeaver(getProxy(), getDataFolder().toPath());
+        protoWeaver =
+                new kr.rtuserver.protoweaver.bungee.core.BungeeProtoWeaver(
+                        getProxy(), getDataFolder().toPath());
         getProxy().getPluginManager().registerListener(this, protoWeaver);
     }
 
@@ -41,5 +47,4 @@ public class RSFramework extends Plugin {
     public void onDisable() {
         protoWeaver.disable();
     }
-
 }

@@ -28,6 +28,4 @@ public class ListClassHolder implements ClassHolder {
     public Class<?> getGenericTypeClass() {
         return genericTypeClass;
     }
-
-
 }

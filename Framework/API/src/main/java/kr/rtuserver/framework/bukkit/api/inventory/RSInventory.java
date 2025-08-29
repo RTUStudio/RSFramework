@@ -11,6 +11,9 @@ import kr.rtuserver.framework.bukkit.api.platform.MinecraftVersion;
 import kr.rtuserver.framework.bukkit.api.player.PlayerChat;
 import lombok.Getter;
 import net.kyori.adventure.text.Component;
+
+import java.util.Map;
+
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.*;
@@ -18,13 +21,9 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
 
-import java.util.Map;
-
-
 public abstract class RSInventory<T extends RSPlugin> implements InventoryHolder {
 
-    @Getter
-    private final T plugin;
+    @Getter private final T plugin;
 
     private final MessageTranslation message;
     private final CommandTranslation command;
@@ -72,16 +71,13 @@ public abstract class RSInventory<T extends RSPlugin> implements InventoryHolder
         return true;
     }
 
-    public void onClose(Event<InventoryCloseEvent> event) {
-    }
+    public void onClose(Event<InventoryCloseEvent> event) {}
 
-    public record Event<T extends InventoryEvent>(T event, Inventory inventory, Player player, boolean isInventory) {
-    }
+    public record Event<T extends InventoryEvent>(
+            T event, Inventory inventory, Player player, boolean isInventory) {}
 
-    public record Drag(Map<Integer, ItemStack> items, ItemStack cursor, ItemStack oldCursor, DragType type) {
-    }
+    public record Drag(
+            Map<Integer, ItemStack> items, ItemStack cursor, ItemStack oldCursor, DragType type) {}
 
-    public record Click(int slot, InventoryType.SlotType slotType, ClickType type) {
-    }
-
+    public record Click(int slot, InventoryType.SlotType slotType, ClickType type) {}
 }

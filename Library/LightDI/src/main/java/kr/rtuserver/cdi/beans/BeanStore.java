@@ -1,5 +1,6 @@
 package kr.rtuserver.cdi.beans;
 
+import static java.util.Objects.isNull;
 
 import kr.rtuserver.cdi.beans.classholders.ClassHolder;
 import kr.rtuserver.cdi.beans.visitors.impl.*;
@@ -8,13 +9,12 @@ import kr.rtuserver.cdi.factories.impl.BeanHolderFactoryImpl;
 import kr.rtuserver.cdi.factories.impl.ClassHolderFactory;
 import kr.rtuserver.cdi.objects.BeanNameKey;
 import kr.rtuserver.cdi.utils.ClassHierarchyLoader;
-import org.reflections.Reflections;
 
 import java.util.*;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
-import static java.util.Objects.isNull;
+import org.reflections.Reflections;
 
 /**
  * @author Mihai Alexandru
@@ -41,7 +41,8 @@ public class BeanStore {
      * @param clazz
      * @param <T>
      * @return the given bean implementation for the class.
-     * @throws IllegalArgumentException if more than one bean is found for the given class. In this case the method {@link BeanStore#getBean(String, Class)} should be used.
+     * @throws IllegalArgumentException if more than one bean is found for the given class. In this
+     *     case the method {@link BeanStore#getBean(String, Class)} should be used.
      */
     public <T> Optional<T> getBean(Class<T> clazz) {
         var clazzBeans = beanMap.get(clazz);
@@ -56,9 +57,10 @@ public class BeanStore {
 
     /**
      * @param beanName The name of the bean
-     * @param clazz    the class of the bean
-     * @param <T>      Type or supertype of the desired bean.
-     * @return empty optional if no bean found in the store. Optional of bean T if the bean was found in the store.
+     * @param clazz the class of the bean
+     * @param <T> Type or supertype of the desired bean.
+     * @return empty optional if no bean found in the store. Optional of bean T if the bean was
+     *     found in the store.
      */
     public <T> Optional<T> getBean(String beanName, Class<T> clazz) {
         var clazzBeans = beanMap.get(clazz);
@@ -85,16 +87,19 @@ public class BeanStore {
     /**
      * @param clazz
      * @param <T>
-     * @return list of bean implementation for the given class. Returns empty list if no bean implementation found for the given class
+     * @return list of bean implementation for the given class. Returns empty list if no bean
+     *     implementation found for the given class
      */
     public <T> List<T> getBeans(Class<T> clazz) {
         var clazzBeansMap = beanMap.get(clazz);
         if (clazzBeansMap != null) {
-            return (List<T>) clazzBeansMap.values().stream().map(BeanHolder::get).collect(Collectors.toList());
+            return (List<T>)
+                    clazzBeansMap.values().stream()
+                            .map(BeanHolder::get)
+                            .collect(Collectors.toList());
         }
         return Collections.emptyList();
     }
-
 
     // ----------------------------------------------------------------------------------------
 
@@ -104,17 +109,17 @@ public class BeanStore {
      * @param classes
      */
     public void init(Collection<Class<?>> classes) {
-        var classHolders = classes.stream()
-                .map(classHolderFactory::getClassHolder)
-                .filter(Optional::isPresent)
-                .map(Optional::get)
-                .collect(Collectors.toList());
+        var classHolders =
+                classes.stream()
+                        .map(classHolderFactory::getClassHolder)
+                        .filter(Optional::isPresent)
+                        .map(Optional::get)
+                        .collect(Collectors.toList());
 
         for (ClassHolder ch : classHolders) {
             processComponent(ch, new HashSet<>());
         }
     }
-
 
     // ------------------------------------------------------------------------------
     private void processComponent(ClassHolder classHolder, Set<Class<?>> classesInChain) {
@@ -141,9 +146,9 @@ public class BeanStore {
         classesInChain.addAll(validatorVisitor.getUpdatedClassesInChain());
     }
 
-
     private List<ClassHolder> getDependencies(ClassHolder ch) {
-        BeanDependenciesVisitor dependenciesVisitor = new BeanDependenciesVisitor(this, classHolderFactory, reflections);
+        BeanDependenciesVisitor dependenciesVisitor =
+                new BeanDependenciesVisitor(this, classHolderFactory, reflections);
         ch.accept(dependenciesVisitor);
         return dependenciesVisitor.getDependencies();
     }
@@ -154,13 +159,12 @@ public class BeanStore {
         return beanInstanceVisitor.getInstanceSupplier();
     }
 
-
     private Optional<BeanHolder> getBeanHolder(ClassHolder ch, Supplier<Object> instanceSupplier) {
-        BeanInstanceHolderVisitor beanInstanceHolderVisitor = new BeanInstanceHolderVisitor(this, beanHolderFactory, instanceSupplier);
+        BeanInstanceHolderVisitor beanInstanceHolderVisitor =
+                new BeanInstanceHolderVisitor(this, beanHolderFactory, instanceSupplier);
         ch.accept(beanInstanceHolderVisitor);
         return beanInstanceHolderVisitor.getBeanHolder();
     }
-
 
     private void addBean(ClassHolder classHolder, BeanHolder beanHolder) {
         BeanNameKey key = new BeanNameKey(classHolder.getBeanClass());
@@ -173,5 +177,4 @@ public class BeanStore {
             classBeans.put(key, beanHolder);
         }
     }
-
 }

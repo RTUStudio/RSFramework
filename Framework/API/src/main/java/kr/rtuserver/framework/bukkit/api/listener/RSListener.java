@@ -8,14 +8,13 @@ import kr.rtuserver.framework.bukkit.api.configuration.internal.translation.mess
 import kr.rtuserver.framework.bukkit.api.core.Framework;
 import kr.rtuserver.framework.bukkit.api.player.PlayerChat;
 import lombok.Getter;
-import org.bukkit.event.Listener;
 
+import org.bukkit.event.Listener;
 
 @Getter
 public abstract class RSListener<T extends RSPlugin> implements Listener {
 
-    @Getter
-    private final T plugin;
+    @Getter private final T plugin;
 
     private final MessageTranslation message;
     private final CommandTranslation command;
@@ -44,5 +43,4 @@ public abstract class RSListener<T extends RSPlugin> implements Listener {
     protected PlayerChat chat() {
         return chat;
     }
-
 }

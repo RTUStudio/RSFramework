@@ -1,14 +1,10 @@
 package kr.rtuserver.framework.bukkit.api.storage.json;
 
-import com.google.common.io.Files;
-import com.google.gson.*;
 import kr.rtuserver.framework.bukkit.api.RSPlugin;
 import kr.rtuserver.framework.bukkit.api.core.scheduler.ScheduledTask;
 import kr.rtuserver.framework.bukkit.api.scheduler.CraftScheduler;
 import kr.rtuserver.framework.bukkit.api.storage.Storage;
 import lombok.Getter;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.io.*;
 import java.util.ArrayList;
@@ -17,6 +13,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicBoolean;
+
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
+import com.google.common.io.Files;
+import com.google.gson.*;
 
 public class Json implements Storage {
 
@@ -31,8 +33,15 @@ public class Json implements Storage {
             try {
                 String name = Files.getNameWithoutExtension(file.getName());
                 JsonElement json = JsonParser.parseReader(new FileReader(file));
-                map.put(name, new JsonFile(plugin, file, json != null && !json.isJsonNull() ? json.getAsJsonArray() : new JsonArray(),
-                        config.getSavePeriod()));
+                map.put(
+                        name,
+                        new JsonFile(
+                                plugin,
+                                file,
+                                json != null && !json.isJsonNull()
+                                        ? json.getAsJsonArray()
+                                        : new JsonArray(),
+                                config.getSavePeriod()));
             } catch (FileNotFoundException e) {
                 throw new RuntimeException(e);
             }
@@ -41,39 +50,43 @@ public class Json implements Storage {
 
     @Override
     public CompletableFuture<Result> add(@NotNull String name, @NotNull JsonObject data) {
-        return CompletableFuture.supplyAsync(() -> {
-            if (data.isJsonNull()) return Result.FAILED;
-            if (!map.containsKey(name)) {
-                plugin.console("<red>Can't load " + name + " data!</red>");
-                plugin.console("<red>" + name + " 파일을 불러오는 도중 오류가 발생하였습니다!</red>");
-                return Result.FAILED;
-            }
-            return map.get(name).add(data);
-        });
+        return CompletableFuture.supplyAsync(
+                () -> {
+                    if (data.isJsonNull()) return Result.FAILED;
+                    if (!map.containsKey(name)) {
+                        plugin.console("<red>Can't load " + name + " data!</red>");
+                        plugin.console("<red>" + name + " 파일을 불러오는 도중 오류가 발생하였습니다!</red>");
+                        return Result.FAILED;
+                    }
+                    return map.get(name).add(data);
+                });
     }
 
     @Override
-    public CompletableFuture<Result> set(@NotNull String name, @Nullable JsonObject find, @Nullable JsonObject data) {
-        return CompletableFuture.supplyAsync(() -> {
-            if (!map.containsKey(name)) {
-                plugin.console("<red>Can't load " + name + " data!</red>");
-                plugin.console("<red>" + name + " 파일을 불러오는 도중 오류가 발생하였습니다!</red>");
-                return Result.FAILED;
-            }
-            return map.get(name).set(find, data);
-        });
+    public CompletableFuture<Result> set(
+            @NotNull String name, @Nullable JsonObject find, @Nullable JsonObject data) {
+        return CompletableFuture.supplyAsync(
+                () -> {
+                    if (!map.containsKey(name)) {
+                        plugin.console("<red>Can't load " + name + " data!</red>");
+                        plugin.console("<red>" + name + " 파일을 불러오는 도중 오류가 발생하였습니다!</red>");
+                        return Result.FAILED;
+                    }
+                    return map.get(name).set(find, data);
+                });
     }
 
     @Override
     public CompletableFuture<List<JsonObject>> get(@NotNull String name, @NotNull JsonObject find) {
-        return CompletableFuture.supplyAsync(() -> {
-            if (!map.containsKey(name)) {
-                plugin.console("<red>Can't load " + name + " data!</red>");
-                plugin.console("<red>" + name + " 파일을 불러오는 도중 오류가 발생하였습니다!</red>");
-                return null;
-            }
-            return map.get(name).get(find);
-        });
+        return CompletableFuture.supplyAsync(
+                () -> {
+                    if (!map.containsKey(name)) {
+                        plugin.console("<red>Can't load " + name + " data!</red>");
+                        plugin.console("<red>" + name + " 파일을 불러오는 도중 오류가 발생하였습니다!</red>");
+                        return null;
+                    }
+                    return map.get(name).get(find);
+                });
     }
 
     public boolean sync(String name) {
@@ -96,23 +109,29 @@ public class Json implements Storage {
 
         private final Gson gson = new GsonBuilder().setPrettyPrinting().create();
         private final File file;
-        @Getter
-        private final AtomicBoolean needSave = new AtomicBoolean(false);
+        @Getter private final AtomicBoolean needSave = new AtomicBoolean(false);
         private final ScheduledTask task;
-        @Getter
-        private JsonArray data;
+        @Getter private JsonArray data;
 
         protected JsonFile(RSPlugin plugin, File file, JsonArray data, int savePeriod) {
             this.plugin = plugin;
             this.file = file;
             this.data = data;
-            this.task = CraftScheduler.repeat(plugin, s -> {
-                if (!needSave.get()) return;
-                CraftScheduler.sync(plugin, s2 -> {
-                    save();
-                    needSave.set(false);
-                });
-            }, savePeriod, savePeriod, true);
+            this.task =
+                    CraftScheduler.repeat(
+                            plugin,
+                            s -> {
+                                if (!needSave.get()) return;
+                                CraftScheduler.sync(
+                                        plugin,
+                                        s2 -> {
+                                            save();
+                                            needSave.set(false);
+                                        });
+                            },
+                            savePeriod,
+                            savePeriod,
+                            true);
         }
 
         private void debug(String type, String collection, String json) {
@@ -156,12 +175,17 @@ public class Json implements Storage {
                         valObj.remove(property);
                     } else if (element.isJsonPrimitive()) {
                         JsonPrimitive primitive = element.getAsJsonPrimitive();
-                        if (primitive.isNumber()) valObj.addProperty(property, primitive.getAsNumber());
-                        else if (primitive.isBoolean()) valObj.addProperty(property, primitive.getAsBoolean());
-                        else if (primitive.isString()) valObj.addProperty(property, primitive.getAsString());
+                        if (primitive.isNumber())
+                            valObj.addProperty(property, primitive.getAsNumber());
+                        else if (primitive.isBoolean())
+                            valObj.addProperty(property, primitive.getAsBoolean());
+                        else if (primitive.isString())
+                            valObj.addProperty(property, primitive.getAsString());
                         else {
-                            plugin.console("<red>Unsupported type of data tried to be saved! Only supports JsonElement, Number, Boolean and String</red>");
-                            plugin.console("<red>지원하지 않는 타입의 데이터가 저장되려고 했습니다! JsonElement, Number, Boolean, String만 지원합니다</red>");
+                            plugin.console(
+                                    "<red>Unsupported type of data tried to be saved! Only supports JsonElement, Number, Boolean and String</red>");
+                            plugin.console(
+                                    "<red>지원하지 않는 타입의 데이터가 저장되려고 했습니다! JsonElement, Number, Boolean, String만 지원합니다</red>");
                             data = backup;
                             return Result.FAILED;
                         }
@@ -225,7 +249,10 @@ public class Json implements Storage {
         public boolean sync() {
             try (FileReader reader = new FileReader(file)) {
                 JsonElement json = JsonParser.parseReader(reader);
-                data = (json != null && !json.isJsonNull()) ? json.getAsJsonArray() : new JsonArray();
+                data =
+                        (json != null && !json.isJsonNull())
+                                ? json.getAsJsonArray()
+                                : new JsonArray();
                 return true;
             } catch (IOException e) {
                 plugin.console("<red>Error when sync " + file.getName() + "!</red>");

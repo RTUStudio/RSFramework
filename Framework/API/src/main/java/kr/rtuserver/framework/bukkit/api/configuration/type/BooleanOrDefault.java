@@ -1,13 +1,13 @@
 package kr.rtuserver.framework.bukkit.api.configuration.type;
 
+import java.lang.reflect.AnnotatedType;
+import java.util.Locale;
+import java.util.function.Predicate;
+
 import org.apache.commons.lang3.BooleanUtils;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.configurate.serialize.ScalarSerializer;
 import org.spongepowered.configurate.serialize.SerializationException;
-
-import java.lang.reflect.AnnotatedType;
-import java.util.Locale;
-import java.util.function.Predicate;
 
 public record BooleanOrDefault(@Nullable Boolean value) {
 
@@ -25,24 +25,33 @@ public record BooleanOrDefault(@Nullable Boolean value) {
         }
 
         @Override
-        public BooleanOrDefault deserialize(final AnnotatedType type, final Object obj) throws SerializationException {
+        public BooleanOrDefault deserialize(final AnnotatedType type, final Object obj)
+                throws SerializationException {
             if (obj instanceof final String string) {
                 if (DEFAULT_VALUE.equalsIgnoreCase(string)) {
                     return USE_DEFAULT;
                 }
                 try {
-                    return new BooleanOrDefault(BooleanUtils.toBoolean(string.toLowerCase(Locale.ROOT), "true", "false"));
+                    return new BooleanOrDefault(
+                            BooleanUtils.toBoolean(
+                                    string.toLowerCase(Locale.ROOT), "true", "false"));
                 } catch (final IllegalArgumentException ex) {
-                    throw new SerializationException(BooleanOrDefault.class, obj + "(" + type + ") is not a boolean or '" + DEFAULT_VALUE + "'", ex);
+                    throw new SerializationException(
+                            BooleanOrDefault.class,
+                            obj + "(" + type + ") is not a boolean or '" + DEFAULT_VALUE + "'",
+                            ex);
                 }
             } else if (obj instanceof final Boolean bool) {
                 return new BooleanOrDefault(bool);
             }
-            throw new SerializationException(BooleanOrDefault.class, obj + "(" + type + ") is not a boolean or '" + DEFAULT_VALUE + "'");
+            throw new SerializationException(
+                    BooleanOrDefault.class,
+                    obj + "(" + type + ") is not a boolean or '" + DEFAULT_VALUE + "'");
         }
 
         @Override
-        protected Object serialize(final BooleanOrDefault item, final Predicate<Class<?>> typeSupported) {
+        protected Object serialize(
+                final BooleanOrDefault item, final Predicate<Class<?>> typeSupported) {
             final Boolean value = item.value;
             if (value != null) {
                 return value.toString();
@@ -51,5 +60,4 @@ public record BooleanOrDefault(@Nullable Boolean value) {
             }
         }
     }
-
 }

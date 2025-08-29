@@ -22,7 +22,10 @@ public class BeanInstanceHolderVisitor extends ClassHolderVisitor {
 
     private Supplier<Object> instanceSupplier;
 
-    public BeanInstanceHolderVisitor(BeanStore beanStore, BeanHolderFactory beanHolderFactory, Supplier<Object> instanceSupplier) {
+    public BeanInstanceHolderVisitor(
+            BeanStore beanStore,
+            BeanHolderFactory beanHolderFactory,
+            Supplier<Object> instanceSupplier) {
         super(beanStore);
         this.beanHolderFactory = beanHolderFactory;
         this.instanceSupplier = instanceSupplier;
@@ -34,22 +37,22 @@ public class BeanInstanceHolderVisitor extends ClassHolderVisitor {
 
     @Override
     public void visit(ListClassHolder listClassHolder) {
-        //do nothing.
+        // do nothing.
     }
 
     @Override
     public void visit(FieldInjectNamedBeanClassHolder fieldInjectNamedBeanClassHolder) {
-        //do nothing.
+        // do nothing.
     }
 
     @Override
     public void visit(ConstructorInjectClassHolder constructorInjectClassHolder) {
-        //do nothing
+        // do nothing
     }
 
     @Override
     public void visit(PrototypeFactoryClassHolder prototypeFactoryClassHolder) {
-        //do nothing.
+        // do nothing.
     }
 
     @Override
@@ -62,15 +65,11 @@ public class BeanInstanceHolderVisitor extends ClassHolderVisitor {
         initBeanHolder(defaultClassHolder);
     }
 
-
     private void initBeanHolder(ClassHolder ch) {
         beanHolder = beanHolderFactory.getBeanHolder(ch.getBeanClass(), instanceSupplier);
     }
 
-
     public Optional<BeanHolder> getBeanHolder() {
         return Optional.ofNullable(beanHolder);
     }
-
-
 }

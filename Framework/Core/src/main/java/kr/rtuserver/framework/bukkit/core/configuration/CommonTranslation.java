@@ -5,7 +5,8 @@ import kr.rtuserver.framework.bukkit.api.configuration.internal.translation.Tran
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
-public class CommonTranslation implements kr.rtuserver.framework.bukkit.api.core.configuration.CommonTranslation {
+public class CommonTranslation
+        implements kr.rtuserver.framework.bukkit.api.core.configuration.CommonTranslation {
 
     private final RSPlugin plugin;
 
@@ -29,5 +30,4 @@ public class CommonTranslation implements kr.rtuserver.framework.bukkit.api.core
     private String getMessage(String locale, String key) {
         return plugin.getConfiguration().getMessage().get(locale, "common." + key);
     }
-
 }

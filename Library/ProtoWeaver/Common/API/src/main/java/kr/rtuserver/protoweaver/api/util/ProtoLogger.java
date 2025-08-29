@@ -4,8 +4,7 @@ import lombok.Setter;
 
 public class ProtoLogger {
 
-    @Setter
-    private static IProtoLogger logger;
+    @Setter private static IProtoLogger logger;
 
     public static void info(String message) {
         if (logger != null) logger.info(message);
@@ -29,5 +28,4 @@ public class ProtoLogger {
 
         void err(String message);
     }
-
 }

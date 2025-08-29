@@ -24,5 +24,4 @@ public class ProtocolStatus implements InternalPacket {
         START,
         UPGRADE
     }
-
 }

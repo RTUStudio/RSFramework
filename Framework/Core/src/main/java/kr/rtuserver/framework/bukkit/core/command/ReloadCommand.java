@@ -5,12 +5,13 @@ import kr.rtuserver.framework.bukkit.api.command.RSCommand;
 import kr.rtuserver.framework.bukkit.api.command.RSCommandData;
 import kr.rtuserver.framework.bukkit.api.configuration.internal.translation.Translation;
 import kr.rtuserver.framework.bukkit.api.nms.NMSCommand;
-import org.bukkit.Bukkit;
-import org.bukkit.entity.Player;
-import org.bukkit.permissions.PermissionDefault;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import org.bukkit.Bukkit;
+import org.bukkit.entity.Player;
+import org.bukkit.permissions.PermissionDefault;
 
 public class ReloadCommand extends RSCommand<RSPlugin> {
 
@@ -52,5 +53,4 @@ public class ReloadCommand extends RSCommand<RSPlugin> {
     protected String getLocalizedName(Player player) {
         return command().getCommon(player, getName() + ".name");
     }
-
 }

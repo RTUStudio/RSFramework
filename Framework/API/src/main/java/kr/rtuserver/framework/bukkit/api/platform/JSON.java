@@ -1,10 +1,12 @@
 package kr.rtuserver.framework.bukkit.api.platform;
 
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
+import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
-@NoArgsConstructor
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class JSON {
 
     private final JsonObject json = new JsonObject();
@@ -61,5 +63,4 @@ public class JSON {
     public JsonObject get() {
         return json;
     }
-
 }

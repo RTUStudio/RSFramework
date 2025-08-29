@@ -1,13 +1,13 @@
 package kr.rtuserver.framework.bukkit.api.configuration.type;
 
-import org.jetbrains.annotations.Nullable;
-import org.spongepowered.configurate.serialize.ScalarSerializer;
-import org.spongepowered.configurate.serialize.SerializationException;
-
 import java.lang.reflect.Type;
 import java.util.Objects;
 import java.util.function.Predicate;
 import java.util.regex.Pattern;
+
+import org.jetbrains.annotations.Nullable;
+import org.spongepowered.configurate.serialize.ScalarSerializer;
+import org.spongepowered.configurate.serialize.SerializationException;
 
 public final class Duration {
 
@@ -80,10 +80,7 @@ public final class Duration {
 
     @Override
     public String toString() {
-        return "Duration{" +
-                "seconds=" + this.seconds +
-                ", value='" + this.value + '\'' +
-                '}';
+        return "Duration{" + "seconds=" + this.seconds + ", value='" + this.value + '\'' + '}';
     }
 
     static final class Serializer extends ScalarSerializer<Duration> {
@@ -101,5 +98,4 @@ public final class Duration {
             return item.value();
         }
     }
-
 }

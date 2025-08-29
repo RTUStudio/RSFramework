@@ -3,8 +3,6 @@ package kr.rtuserver.framework.bukkit.api.scheduler;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import org.quartz.*;
-import org.quartz.impl.StdSchedulerFactory;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
@@ -12,20 +10,27 @@ import java.time.ZoneId;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.quartz.*;
+import org.quartz.impl.StdSchedulerFactory;
+
 @Getter
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 public class QuartzScheduler {
 
-    private final static Map<JobKey, JobDetail> jobs = new HashMap<>();
+    private static final Map<JobKey, JobDetail> jobs = new HashMap<>();
     private static Scheduler scheduler;
     private final Trigger trigger;
 
-    public QuartzScheduler(String name, String cron, Class<? extends Job> job) throws SchedulerException {
+    public QuartzScheduler(String name, String cron, Class<? extends Job> job)
+            throws SchedulerException {
         JobDetail detail = createOrGet(job);
-        this.trigger = TriggerBuilder.newTrigger()
-                .withIdentity("rsframework", name)
-                .withSchedule(CronScheduleBuilder.cronSchedule(cron))
-                .forJob(detail).startNow().build();
+        this.trigger =
+                TriggerBuilder.newTrigger()
+                        .withIdentity("rsframework", name)
+                        .withSchedule(CronScheduleBuilder.cronSchedule(cron))
+                        .forJob(detail)
+                        .startNow()
+                        .build();
         scheduler().scheduleJob(trigger);
     }
 
@@ -51,8 +56,7 @@ public class QuartzScheduler {
     }
 
     /**
-     * Get remain milliseconds to next fire
-     * if scheduler is not running, return -1
+     * Get remain milliseconds to next fire if scheduler is not running, return -1
      *
      * @return remain milliseconds to next fire
      */
@@ -60,7 +64,11 @@ public class QuartzScheduler {
         try {
             Trigger trigger = scheduler().getTrigger(this.trigger.getKey());
             LocalDateTime now = LocalDateTime.now();
-            LocalDateTime nextFireTime = trigger.getNextFireTime().toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
+            LocalDateTime nextFireTime =
+                    trigger.getNextFireTime()
+                            .toInstant()
+                            .atZone(ZoneId.systemDefault())
+                            .toLocalDateTime();
             Duration duration = Duration.between(now, nextFireTime);
             return duration.toMillis();
         } catch (SchedulerException e) {
@@ -72,12 +80,17 @@ public class QuartzScheduler {
         try {
             Trigger trigger = scheduler().getTrigger(this.trigger.getKey());
             LocalDateTime now = LocalDateTime.now();
-            LocalDateTime nextFireTime = trigger.getNextFireTime().toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
+            LocalDateTime nextFireTime =
+                    trigger.getNextFireTime()
+                            .toInstant()
+                            .atZone(ZoneId.systemDefault())
+                            .toLocalDateTime();
             Duration duration = Duration.between(now, nextFireTime);
             long days = duration.toDays();
             long hours = duration.toHours() - days * 24;
             long minutes = duration.toMinutes() - days * 24 * 60 - hours * 60;
-            long seconds = duration.toSeconds() - days * 24 * 60 * 60 - hours * 60 * 60 - minutes * 60;
+            long seconds =
+                    duration.toSeconds() - days * 24 * 60 * 60 - hours * 60 * 60 - minutes * 60;
             return new Time(hours, minutes, seconds);
         } catch (SchedulerException e) {
             return null;
@@ -103,8 +116,5 @@ public class QuartzScheduler {
         }
     }
 
-    public record Time(long hours, long minutes, long seconds) {
-
-    }
-
+    public record Time(long hours, long minutes, long seconds) {}
 }

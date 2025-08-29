@@ -1,6 +1,5 @@
 package kr.rtuserver.framework.bukkit.api;
 
-import com.google.gson.JsonObject;
 import kr.rtuserver.cdi.LightDI;
 import kr.rtuserver.framework.bukkit.api.command.RSCommand;
 import kr.rtuserver.framework.bukkit.api.configuration.ConfigurationPart;
@@ -19,6 +18,12 @@ import lombok.Getter;
 import lombok.Setter;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import net.kyori.adventure.text.Component;
+
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
+import java.util.Set;
+
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.event.HandlerList;
@@ -26,10 +31,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.permissions.PermissionDefault;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.LinkedHashSet;
-import java.util.Set;
+import com.google.gson.JsonObject;
 
 @Getter
 @SuppressWarnings("unused")
@@ -44,8 +46,7 @@ public abstract class RSPlugin extends JavaPlugin {
     private RSPlugin plugin;
     private BukkitAudiences adventure;
     private RSConfiguration configuration;
-    @Setter
-    private Storage storage;
+    @Setter private Storage storage;
 
     public RSPlugin() {
         this("en_us", "ko_kr");
@@ -67,14 +68,17 @@ public abstract class RSPlugin extends JavaPlugin {
             this.plugin = this;
             this.adventure = BukkitAudiences.create(this);
         } else {
-            Bukkit.getLogger().warning("Server version is unsupported version (< 1.17.1), Disabling this plugin...");
+            Bukkit.getLogger()
+                    .warning(
+                            "Server version is unsupported version (< 1.17.1), Disabling this plugin...");
             Bukkit.getLogger().warning("서버 버전이 지원되지 않는 버전입니다 (< 1.17.1), 플러그인을 비활성화합니다...");
             Bukkit.getPluginManager().disablePlugin(this);
             return;
         }
 
         registerPermission(this.plugin.getName() + ".reload", PermissionDefault.OP);
-        for (String plugin : this.getDescription().getSoftDepend()) this.framework.hookDependency(plugin);
+        for (String plugin : this.getDescription().getSoftDepend())
+            this.framework.hookDependency(plugin);
         enable();
         console("<green>Enable!</green>");
         this.framework.loadPlugin(this);
@@ -99,12 +103,14 @@ public abstract class RSPlugin extends JavaPlugin {
         this.configuration = new RSConfiguration(this);
         initialize();
         ThemeModule theme = this.framework.getModules().getTheme();
-        String text = String.format("<gradient:%s:%s>%s%s%s</gradient>",
-                theme.getGradientStart(),
-                theme.getGradientEnd(),
-                theme.getPrefix(),
-                getName(),
-                theme.getSuffix());
+        String text =
+                String.format(
+                        "<gradient:%s:%s>%s%s%s</gradient>",
+                        theme.getGradientStart(),
+                        theme.getGradientEnd(),
+                        theme.getPrefix(),
+                        getName(),
+                        theme.getSuffix());
         this.prefix = ComponentFormatter.mini(text);
         load();
     }
@@ -133,11 +139,13 @@ public abstract class RSPlugin extends JavaPlugin {
         return this.configuration.reload(configuration);
     }
 
-    protected <T extends ConfigurationPart> T registerConfiguration(Class<T> configuration, String name) {
+    protected <T extends ConfigurationPart> T registerConfiguration(
+            Class<T> configuration, String name) {
         return this.configuration.register(configuration, name);
     }
 
-    protected <T extends ConfigurationPart> T registerConfiguration(Class<T> configuration, String name, Integer version) {
+    protected <T extends ConfigurationPart> T registerConfiguration(
+            Class<T> configuration, String name, Integer version) {
         return this.configuration.register(configuration, name, version);
     }
 
@@ -176,32 +184,43 @@ public abstract class RSPlugin extends JavaPlugin {
     }
 
     public void registerPermission(String permission, PermissionDefault permissionDefault) {
-        this.framework.registerPermission(getName().toLowerCase() + permission.toLowerCase(), permissionDefault);
+        this.framework.registerPermission(
+                getName().toLowerCase() + permission.toLowerCase(), permissionDefault);
     }
 
     /**
      * 프록시의 RSFramework와 통신을 위한 프로토콜 등록
      *
-     * @param namespace       네임스페이스
-     * @param key             키
-     * @param packet          패킷 정보
+     * @param namespace 네임스페이스
+     * @param key 키
+     * @param packet 패킷 정보
      * @param protocolHandler 수신을 담당하는 핸들러
-     * @param callback        핸들러 외부에서 수신 이벤트를 받는 callback
+     * @param callback 핸들러 외부에서 수신 이벤트를 받는 callback
      */
-    protected void registerProtocol(String namespace, String key, Packet packet, Class<? extends ProtoConnectionHandler> protocolHandler, HandlerCallback callback) {
+    protected void registerProtocol(
+            String namespace,
+            String key,
+            Packet packet,
+            Class<? extends ProtoConnectionHandler> protocolHandler,
+            HandlerCallback callback) {
         this.framework.registerProtocol(namespace, key, packet, protocolHandler, callback);
     }
 
     /**
      * 프록시의 RSFramework와 통신을 위한 프로토콜 등록
      *
-     * @param namespace       네임스페이스
-     * @param key             키
-     * @param packets         패킷 정보
+     * @param namespace 네임스페이스
+     * @param key 키
+     * @param packets 패킷 정보
      * @param protocolHandler 수신을 담당하는 핸들러
-     * @param callback        핸들러 외부에서 수신 이벤트를 받는 callback
+     * @param callback 핸들러 외부에서 수신 이벤트를 받는 callback
      */
-    protected void registerProtocol(String namespace, String key, Set<Packet> packets, Class<? extends ProtoConnectionHandler> protocolHandler, HandlerCallback callback) {
+    protected void registerProtocol(
+            String namespace,
+            String key,
+            Set<Packet> packets,
+            Class<? extends ProtoConnectionHandler> protocolHandler,
+            HandlerCallback callback) {
         this.framework.registerProtocol(namespace, key, packets, protocolHandler, callback);
     }
 
@@ -211,19 +230,13 @@ public abstract class RSPlugin extends JavaPlugin {
         integrationWrapper.register();
     }
 
-    protected void initialize() {
-    }
+    protected void initialize() {}
 
-    protected void load() {
-    }
+    protected void load() {}
 
-    protected void enable() {
-    }
+    protected void enable() {}
 
-    protected void disable() {
-    }
+    protected void disable() {}
 
-    public void syncStorage(String name, JsonObject json) {
-    }
-
+    public void syncStorage(String name, JsonObject json) {}
 }

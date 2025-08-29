@@ -1,6 +1,10 @@
 package kr.rtuserver.framework.bukkit.api.configuration.serializer.collection.map;
 
 import io.leangen.geantyref.TypeToken;
+
+import java.lang.reflect.AnnotatedType;
+import java.util.*;
+
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -9,27 +13,20 @@ import org.spongepowered.configurate.ConfigurationOptions;
 import org.spongepowered.configurate.serialize.SerializationException;
 import org.spongepowered.configurate.serialize.TypeSerializer;
 
-import java.lang.reflect.AnnotatedType;
-import java.util.*;
-
 /**
  * Serializer for Map<Object[], Object>.
- * <p>
- * This class flattens nested YAML/Configuration structures into
- * path arrays like {["a", "b", 1] = "value"} and restores them back.
- * The key order is preserved using LinkedHashMap, so the original
- * YAML order will not be lost.
- * <p>
- * (Map<Object[], Object> 직렬화 클래스.
- * YAML/Configurate 구조를 {["a", "b", 1] = "value"} 식으로 평탄화하고,
- * 다시 복원할 수 있도록 한다.
- * 또한 LinkedHashMap을 사용하여 키 순서를 보존하기 때문에
- * YAML에 적힌 원래 순서가 흐트러지지 않는다.)
+ *
+ * <p>This class flattens nested YAML/Configuration structures into path arrays like {["a", "b", 1]
+ * = "value"} and restores them back. The key order is preserved using LinkedHashMap, so the
+ * original YAML order will not be lost.
+ *
+ * <p>(Map<Object[], Object> 직렬화 클래스. YAML/Configurate 구조를 {["a", "b", 1] = "value"} 식으로 평탄화하고, 다시
+ * 복원할 수 있도록 한다. 또한 LinkedHashMap을 사용하여 키 순서를 보존하기 때문에 YAML에 적힌 원래 순서가 흐트러지지 않는다.)
  */
 public class FlattenedMapSerializer implements TypeSerializer.Annotated<Map<Object[], Object>> {
 
-    public static final TypeToken<Map<Object[], Object>> TYPE = new TypeToken<Map<Object[], Object>>() {
-    };
+    public static final TypeToken<Map<Object[], Object>> TYPE =
+            new TypeToken<Map<Object[], Object>>() {};
     private static final Logger LOGGER = LoggerFactory.getLogger(FlattenedMapSerializer.class);
 
     private final boolean clearInvalids;
@@ -39,7 +36,9 @@ public class FlattenedMapSerializer implements TypeSerializer.Annotated<Map<Obje
     }
 
     @Override
-    public Map<Object[], Object> deserialize(final AnnotatedType annotatedType, final ConfigurationNode node) throws SerializationException {
+    public Map<Object[], Object> deserialize(
+            final AnnotatedType annotatedType, final ConfigurationNode node)
+            throws SerializationException {
         final Map<Object[], Object> result = new LinkedHashMap<>();
         if (!node.isMap()) {
             return result;
@@ -47,7 +46,8 @@ public class FlattenedMapSerializer implements TypeSerializer.Annotated<Map<Obje
         }
 
         // iterate children with their order preserved (자식 노드 순서 그대로 순회)
-        for (Map.Entry<Object, ? extends ConfigurationNode> entry : new LinkedHashMap<>(node.childrenMap()).entrySet()) {
+        for (Map.Entry<Object, ? extends ConfigurationNode> entry :
+                new LinkedHashMap<>(node.childrenMap()).entrySet()) {
             Object rawKey = entry.getKey();
             ConfigurationNode child = entry.getValue();
             this.collectFlattened(result, new ArrayList<>(List.of(rawKey)), child);
@@ -55,10 +55,12 @@ public class FlattenedMapSerializer implements TypeSerializer.Annotated<Map<Obje
         return result;
     }
 
-    private void collectFlattened(Map<Object[], Object> result, List<Object> path, ConfigurationNode node) {
+    private void collectFlattened(
+            Map<Object[], Object> result, List<Object> path, ConfigurationNode node) {
         if (node.isMap()) {
             // if this node has children, keep going deeper (노드가 맵이면 자식들로 재귀 탐색)
-            for (Map.Entry<Object, ? extends ConfigurationNode> entry : new LinkedHashMap<>(node.childrenMap()).entrySet()) {
+            for (Map.Entry<Object, ? extends ConfigurationNode> entry :
+                    new LinkedHashMap<>(node.childrenMap()).entrySet()) {
                 List<Object> newPath = new ArrayList<>(path);
                 newPath.add(entry.getKey());
                 collectFlattened(result, newPath, entry.getValue());
@@ -70,7 +72,11 @@ public class FlattenedMapSerializer implements TypeSerializer.Annotated<Map<Obje
     }
 
     @Override
-    public void serialize(final AnnotatedType annotatedType, @Nullable final Map<Object[], Object> obj, final ConfigurationNode node) throws SerializationException {
+    public void serialize(
+            final AnnotatedType annotatedType,
+            @Nullable final Map<Object[], Object> obj,
+            final ConfigurationNode node)
+            throws SerializationException {
         if (obj == null || obj.isEmpty()) {
             node.set(Collections.emptyMap());
             return;
@@ -106,7 +112,8 @@ public class FlattenedMapSerializer implements TypeSerializer.Annotated<Map<Obje
     }
 
     @Override
-    public @Nullable Map<Object[], Object> emptyValue(final AnnotatedType specificType, final ConfigurationOptions options) {
+    public @Nullable Map<Object[], Object> emptyValue(
+            final AnnotatedType specificType, final ConfigurationOptions options) {
         // return empty LinkedHashMap as default (기본값은 빈 LinkedHashMap)
         return new LinkedHashMap<>();
     }

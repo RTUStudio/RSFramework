@@ -5,13 +5,14 @@ import kr.rtuserver.framework.bukkit.api.command.RSCommand;
 import kr.rtuserver.framework.bukkit.api.nms.NMSCommand;
 import kr.rtuserver.framework.bukkit.api.platform.MinecraftVersion;
 import lombok.Getter;
+
+import java.util.Map;
+import java.util.Set;
+
 import org.bukkit.Bukkit;
 import org.bukkit.command.SimpleCommandMap;
 import org.bukkit.craftbukkit.CraftServer;
 import org.bukkit.craftbukkit.command.CraftCommandMap;
-
-import java.util.Map;
-import java.util.Set;
 
 @Getter
 public class Command implements NMSCommand {
@@ -32,7 +33,8 @@ public class Command implements NMSCommand {
     @Override
     public boolean unregister(RSCommand<? extends RSPlugin> command) {
         boolean success = false;
-        for (Map.Entry<String, org.bukkit.command.Command> entry : Set.copyOf(getKnownCommands().entrySet())) {
+        for (Map.Entry<String, org.bukkit.command.Command> entry :
+                Set.copyOf(getKnownCommands().entrySet())) {
             if (entry.getValue() instanceof RSCommand<? extends RSPlugin> rsc) {
                 if (command.getPlugin().equals(rsc.getPlugin())) {
                     if (rsc.unregister(commandMap)) {
@@ -44,5 +46,4 @@ public class Command implements NMSCommand {
         }
         return success;
     }
-
 }

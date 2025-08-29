@@ -17,8 +17,7 @@ import java.util.Arrays;
 @Getter
 public class VelocityAuth implements ServerAuthHandler, ClientAuthHandler {
 
-    @Setter
-    private static byte[] secret = null;
+    @Setter private static byte[] secret = null;
 
     @Override
     public boolean handleAuth(ProtoConnection connection, byte[] key) {
@@ -37,5 +36,4 @@ public class VelocityAuth implements ServerAuthHandler, ClientAuthHandler {
             return null;
         }
     }
-
 }

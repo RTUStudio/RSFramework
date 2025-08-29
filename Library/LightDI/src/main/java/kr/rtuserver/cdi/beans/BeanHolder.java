@@ -7,5 +7,4 @@ package kr.rtuserver.cdi.beans;
 public interface BeanHolder {
 
     Object get();
-
 }

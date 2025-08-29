@@ -9,6 +9,7 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.HoverEvent;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
+
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
@@ -35,7 +36,11 @@ public class ComponentFormatter {
     }
 
     public static Component parse(CommandSender sender, String miniMessage) {
-        return mini(framework().isEnabledDependency("PlaceholderAPI") ? PlaceholderAPI.setPlaceholders((sender instanceof Player player) ? player : null, miniMessage) : miniMessage);
+        return mini(
+                framework().isEnabledDependency("PlaceholderAPI")
+                        ? PlaceholderAPI.setPlaceholders(
+                                (sender instanceof Player player) ? player : null, miniMessage)
+                        : miniMessage);
     }
 
     public static String legacy(Component component) {
@@ -63,6 +68,4 @@ public class ComponentFormatter {
         Component lore = parse(sender, framework().getModules().getTheme().getSystemMessage());
         return component.hoverEvent(HoverEvent.showText(lore));
     }
-
-
 }

@@ -28,5 +28,4 @@ public class MongoDBConfig extends RSConfiguration.Wrapper<RSPlugin> {
         password = getString("password", password);
         collectionPrefix = getString("collection-prefix", collectionPrefix);
     }
-
 }

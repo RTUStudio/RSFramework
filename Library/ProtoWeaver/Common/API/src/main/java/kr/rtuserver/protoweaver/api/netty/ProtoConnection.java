@@ -15,35 +15,32 @@ import java.net.InetSocketAddress;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 
-/**
- * This provider represents a connection to either a client or a server
- */
+/** This provider represents a connection to either a client or a server */
 public class ProtoConnection {
 
-    private static final ConcurrentHashMap<String, Integer> connectionCount = new ConcurrentHashMap<>();
+    private static final ConcurrentHashMap<String, Integer> connectionCount =
+            new ConcurrentHashMap<>();
 
     private final ProtoPacketHandler packetHandler;
     private final Channel channel;
     private final ChannelPipeline pipeline;
-    /**
-     * Get the side that this connection is on. Always returns {@link Side#CLIENT} on client and {@link Side#SERVER} on server.
-     */
-    @Getter
-    private final Side side;
-    @Getter
-    private ProtoConnectionHandler handler;
-    /**
-     * Get the connections current protocol.
-     */
-    @Getter
-    private Protocol protocol;
-    /**
-     * Get which side closed the connection.
-     */
-    @Getter
-    private Side disconnecter;
 
-    public ProtoConnection(@NonNull Protocol protocol, @NonNull Side side, @NonNull Channel channel) {
+    /**
+     * Get the side that this connection is on. Always returns {@link Side#CLIENT} on client and
+     * {@link Side#SERVER} on server.
+     */
+    @Getter private final Side side;
+
+    @Getter private ProtoConnectionHandler handler;
+
+    /** Get the connections current protocol. */
+    @Getter private Protocol protocol;
+
+    /** Get which side closed the connection. */
+    @Getter private Side disconnecter;
+
+    public ProtoConnection(
+            @NonNull Protocol protocol, @NonNull Side side, @NonNull Channel channel) {
         this.side = side;
         this.disconnecter = Side.SERVER == side ? Side.CLIENT : Side.SERVER;
         this.protocol = protocol;
@@ -76,23 +73,32 @@ public class ProtoConnection {
         int level = protocol.getCompressionLevel();
         switch (protocol.getCompression()) {
             case GZIP -> {
-                pipeline.addBefore("packetHandler", "compressionEncoder", ZlibCodecFactory.newZlibEncoder(ZlibWrapper.GZIP, level));
-                pipeline.addAfter("compressionEncoder", "compressionDecoder", ZlibCodecFactory.newZlibDecoder(ZlibWrapper.GZIP));
+                pipeline.addBefore(
+                        "packetHandler",
+                        "compressionEncoder",
+                        ZlibCodecFactory.newZlibEncoder(ZlibWrapper.GZIP, level));
+                pipeline.addAfter(
+                        "compressionEncoder",
+                        "compressionDecoder",
+                        ZlibCodecFactory.newZlibDecoder(ZlibWrapper.GZIP));
             }
             case SNAPPY -> {
                 pipeline.addBefore("packetHandler", "compressionEncoder", new SnappyFrameEncoder());
-                pipeline.addAfter("compressionEncoder", "compressionDecoder", new SnappyFrameDecoder());
+                pipeline.addAfter(
+                        "compressionEncoder", "compressionDecoder", new SnappyFrameDecoder());
             }
             case FAST_LZ -> {
-                pipeline.addBefore("packetHandler", "compressionEncoder", new FastLzFrameEncoder(level));
-                pipeline.addAfter("compressionEncoder", "compressionDecoder", new FastLzFrameDecoder());
+                pipeline.addBefore(
+                        "packetHandler", "compressionEncoder", new FastLzFrameEncoder(level));
+                pipeline.addAfter(
+                        "compressionEncoder", "compressionDecoder", new FastLzFrameDecoder());
             }
         }
     }
 
     /**
-     * Changes the current connection protocol to the given protocol.
-     * NOTE: You must call this on both the client and server or else you will have a protocol mismatch.
+     * Changes the current connection protocol to the given protocol. NOTE: You must call this on
+     * both the client and server or else you will have a protocol mismatch.
      *
      * @param protocol The protocol the connection will switch to.
      */
@@ -100,9 +106,11 @@ public class ProtoConnection {
         try {
             setCompression(protocol);
             this.handler = protocol.newConnectionHandler(side);
-            connectionCount.put(protocol.toString(), connectionCount.getOrDefault(protocol.toString(), 1) - 1);
+            connectionCount.put(
+                    protocol.toString(), connectionCount.getOrDefault(protocol.toString(), 1) - 1);
             this.protocol = protocol;
-            connectionCount.put(protocol.toString(), connectionCount.getOrDefault(protocol.toString(), 0) + 1);
+            connectionCount.put(
+                    protocol.toString(), connectionCount.getOrDefault(protocol.toString(), 0) + 1);
             packetHandler.setHandler(handler);
 
             this.handler.onReady(this);
@@ -122,7 +130,8 @@ public class ProtoConnection {
     }
 
     /**
-     * Get the remote address of the connection. Check {@link InetSocketAddress} for more information.
+     * Get the remote address of the connection. Check {@link InetSocketAddress} for more
+     * information.
      *
      * @return {@link InetSocketAddress}
      */
@@ -140,7 +149,8 @@ public class ProtoConnection {
     }
 
     /**
-     * Closes the connection if it is open. Calling this function on a closed connection does nothing.
+     * Closes the connection if it is open. Calling this function on a closed connection does
+     * nothing.
      */
     public void disconnect() {
         if (isOpen()) channel.close();
@@ -150,12 +160,12 @@ public class ProtoConnection {
     @Override
     public boolean equals(Object obj) {
         if (!(obj instanceof ProtoConnection connection)) return false;
-        return protocol.equals(connection.getProtocol()) && Objects.equals(getRemoteAddress(), connection.getRemoteAddress());
+        return protocol.equals(connection.getProtocol())
+                && Objects.equals(getRemoteAddress(), connection.getRemoteAddress());
     }
 
     @Override
     public String toString() {
         return "[" + protocol.toString() + ", " + getRemoteAddress() + "]";
     }
-
 }

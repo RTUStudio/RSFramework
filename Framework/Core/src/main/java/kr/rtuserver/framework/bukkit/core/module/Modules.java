@@ -30,5 +30,4 @@ public class Modules implements kr.rtuserver.framework.bukkit.api.core.module.Mo
         this.configuration.reload(CommandModule.class);
         this.configuration.reload(ThemeModule.class);
     }
-
 }

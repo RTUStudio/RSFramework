@@ -1,23 +1,27 @@
 package kr.rtuserver.protoweaver.api.serializer;
 
-import org.apache.fury.Fury;
-import org.apache.fury.memory.MemoryBuffer;
-import org.apache.fury.serializer.Serializer;
-
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.lang.reflect.InvocationTargetException;
+
+import org.apache.fury.Fury;
+import org.apache.fury.memory.MemoryBuffer;
+import org.apache.fury.serializer.Serializer;
 
 public class ProtoSerializerAdapter<T> extends Serializer<T> {
 
     private final ProtoSerializer<T> streamSerializer;
 
-    public ProtoSerializerAdapter(Fury fury, Class<T> type, Class<? extends ProtoSerializer<?>> streamSerializer) {
+    public ProtoSerializerAdapter(
+            Fury fury, Class<T> type, Class<? extends ProtoSerializer<?>> streamSerializer) {
         super(fury, type);
         try {
-            this.streamSerializer = (ProtoSerializer<T>) streamSerializer.getDeclaredConstructor().newInstance();
-        } catch (InstantiationException | IllegalAccessException | InvocationTargetException |
-                 NoSuchMethodException e) {
+            this.streamSerializer =
+                    (ProtoSerializer<T>) streamSerializer.getDeclaredConstructor().newInstance();
+        } catch (InstantiationException
+                | IllegalAccessException
+                | InvocationTargetException
+                | NoSuchMethodException e) {
             throw new RuntimeException(e);
         }
     }
@@ -34,5 +38,4 @@ public class ProtoSerializerAdapter<T> extends Serializer<T> {
         streamSerializer.write(out, value);
         buffer.writeBytes(out.toByteArray());
     }
-
 }

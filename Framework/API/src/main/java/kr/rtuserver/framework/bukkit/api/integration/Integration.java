@@ -7,5 +7,4 @@ public interface Integration {
     boolean register();
 
     boolean unregister();
-
 }

@@ -9,7 +9,6 @@ import kr.rtuserver.framework.bukkit.plugin.command.framework.SendCommand;
 
 public class FrameworkCommand extends RSCommand<RSFramework> {
 
-
     public FrameworkCommand(RSFramework plugin) {
         super(plugin, "rsf");
         registerCommand(new BroadcastCommand(plugin));
@@ -21,5 +20,4 @@ public class FrameworkCommand extends RSCommand<RSFramework> {
     public void reload(RSCommandData data) {
         framework().getModules().reload();
     }
-
 }

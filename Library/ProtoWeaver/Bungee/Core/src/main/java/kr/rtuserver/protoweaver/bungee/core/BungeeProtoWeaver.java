@@ -41,7 +41,8 @@ public class BungeeProtoWeaver implements kr.rtuserver.protoweaver.bungee.api.Bu
     private final Path dir;
 
     private final ProtoProxy protoProxy;
-    private final ConcurrentHashMap<UUID, TeleportRequest> teleportRequests = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<UUID, TeleportRequest> teleportRequests =
+            new ConcurrentHashMap<>();
     private final HandlerCallback callable = new HandlerCallback(this::onReady, this::onPacket);
 
     public BungeeProtoWeaver(ProxyServer server, Path dir) {
@@ -64,11 +65,21 @@ public class BungeeProtoWeaver implements kr.rtuserver.protoweaver.bungee.api.Bu
         protocol.setClientHandler(BungeeProtoHandler.class, callable).load();
     }
 
-    public void registerProtocol(String namespace, String key, Packet packet, Class<? extends ProtoConnectionHandler> protocolHandler, HandlerCallback callback) {
+    public void registerProtocol(
+            String namespace,
+            String key,
+            Packet packet,
+            Class<? extends ProtoConnectionHandler> protocolHandler,
+            HandlerCallback callback) {
         registerProtocol(namespace, key, Set.of(packet), protocolHandler, callback);
     }
 
-    public void registerProtocol(String namespace, String key, Set<Packet> packets, Class<? extends ProtoConnectionHandler> protocolHandler, HandlerCallback callback) {
+    public void registerProtocol(
+            String namespace,
+            String key,
+            Set<Packet> packets,
+            Class<? extends ProtoConnectionHandler> protocolHandler,
+            HandlerCallback callback) {
         Protocol.Builder protocol = Protocol.create(namespace, key);
         protocol.setCompression(CompressionType.SNAPPY);
         protocol.setMaxPacketSize(67108864); // 64mb
@@ -83,13 +94,16 @@ public class BungeeProtoWeaver implements kr.rtuserver.protoweaver.bungee.api.Bu
     }
 
     public void disable() {
-        BungeeProtoHandler.getServers().forEach(server -> server.send(new ServerName("Standalone Server")));
+        BungeeProtoHandler.getServers()
+                .forEach(server -> server.send(new ServerName("Standalone Server")));
         protoProxy.shutdown();
     }
 
     @Override
     public List<ProtoServer> getServers() {
-        return server.getServersCopy().values().stream().map(server -> new ProtoServer(server.getName(), server.getSocketAddress())).toList();
+        return server.getServersCopy().values().stream()
+                .map(server -> new ProtoServer(server.getName(), server.getSocketAddress()))
+                .toList();
     }
 
     @Override
@@ -139,7 +153,8 @@ public class BungeeProtoWeaver implements kr.rtuserver.protoweaver.bungee.api.Bu
             if (server == null) continue;
             ServerInfo info = server.getInfo();
             UUID uuid = player.getUniqueId();
-            ProxyPlayer pp = new ProxyPlayer(uuid, player.getName(), player.getLocale(), info.getName());
+            ProxyPlayer pp =
+                    new ProxyPlayer(uuid, player.getName(), player.getLocale(), info.getName());
             players.put(uuid, pp);
         }
         BungeeProtoHandler.getServers().forEach(server -> server.send(new PlayerList(players)));
@@ -166,11 +181,12 @@ public class BungeeProtoWeaver implements kr.rtuserver.protoweaver.bungee.api.Bu
             if (info == null) return;
             ProxiedPlayer player = this.server.getPlayer(request.player().uniqueId());
             if (player == null) return;
-            player.connect(info, (result, error) -> {
-                if (error != null) teleportRequests.remove(player.getUniqueId());
-                else if (!result) teleportRequests.remove(player.getUniqueId());
-            });
+            player.connect(
+                    info,
+                    (result, error) -> {
+                        if (error != null) teleportRequests.remove(player.getUniqueId());
+                        else if (!result) teleportRequests.remove(player.getUniqueId());
+                    });
         }
     }
-
 }

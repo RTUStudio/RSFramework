@@ -6,10 +6,8 @@ import lombok.RequiredArgsConstructor;
 @Getter
 @RequiredArgsConstructor
 public enum TranslationType {
-
     COMMAND("Command"),
     MESSAGE("Message");
 
     private final String name;
-
 }

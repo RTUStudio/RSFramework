@@ -17,5 +17,4 @@ public class ListUtils {
         ParameterizedType parameterizedType = (ParameterizedType) listClass.getGenericSuperclass();
         return Optional.of(parameterizedType.getActualTypeArguments()[0].getClass());
     }
-
 }

@@ -2,38 +2,30 @@ package kr.rtuserver.framework.bukkit.api.configuration;
 
 import io.leangen.geantyref.GenericTypeReflector;
 import kr.rtuserver.framework.bukkit.api.RSPlugin;
-import kr.rtuserver.framework.bukkit.api.configuration.serializer.ComponentSerializer;
-import kr.rtuserver.framework.bukkit.api.configuration.serializer.EnumValueSerializer;
-import kr.rtuserver.framework.bukkit.api.configuration.serializer.collection.map.FlattenedMapSerializer;
-import kr.rtuserver.framework.bukkit.api.configuration.serializer.collection.map.MapSerializer;
-import kr.rtuserver.framework.bukkit.api.configuration.type.BooleanOrDefault;
-import kr.rtuserver.framework.bukkit.api.configuration.type.Duration;
-import kr.rtuserver.framework.bukkit.api.configuration.type.DurationOrDisabled;
-import kr.rtuserver.framework.bukkit.api.configuration.type.number.DoubleOr;
-import kr.rtuserver.framework.bukkit.api.configuration.type.number.IntOr;
-import org.spongepowered.configurate.ConfigurateException;
-import org.spongepowered.configurate.ConfigurationOptions;
-import org.spongepowered.configurate.util.MapFactories;
-import org.spongepowered.configurate.yaml.YamlConfigurationLoader;
 
 import java.io.BufferedReader;
 import java.lang.reflect.Type;
 import java.nio.file.Path;
 import java.util.List;
 
+import org.spongepowered.configurate.ConfigurateException;
+import org.spongepowered.configurate.ConfigurationOptions;
+import org.spongepowered.configurate.yaml.YamlConfigurationLoader;
+
 public class PluginConfiguration<C extends ConfigurationPart> extends Configuration<C> {
 
-    public static final String HEADER = """
+    public static final String HEADER =
+            """
             ╔ Developed by ════════════════════════════════════╗
             ║ ░█▀▄░░▀█▀░░█░█░░░░░█▀▀░░▀█▀░░█░█░░█▀▄░░▀█▀░░█▀█░ ║
             ║ ░█▀▄░░░█░░░█░█░░░░░▀▀█░░░█░░░█░█░░█░█░░░█░░░█░█░ ║
             ║ ░▀░▀░░░▀░░░▀▀▀░░░░░▀▀▀░░░▀░░░▀▀▀░░▀▀░░░▀▀▀░░▀▀▀░ ║
             ╚══════════════════════════════════════════════════╝
-            
+
             This is the configuration for %s.
             If you have any questions or need assistance,
             please join our Discord server and ask for help from %s!
-            
+
             이것은 %s의 구성입니다.
             질문이 있거나 도움이 필요하시면,
             저희 Discord 서버에 가입하셔서 %s에게 도움을 요청해 주세요!""";
@@ -42,7 +34,13 @@ public class PluginConfiguration<C extends ConfigurationPart> extends Configurat
 
     private final Integer version;
 
-    public PluginConfiguration(RSPlugin plugin, Class<C> type, Path path, BufferedReader defaultConfig, Integer version) throws ConfigurateException {
+    public PluginConfiguration(
+            RSPlugin plugin,
+            Class<C> type,
+            Path path,
+            BufferedReader defaultConfig,
+            Integer version)
+            throws ConfigurateException {
         super(type, path, defaultConfig);
         this.plugin = plugin;
         this.version = version;
@@ -54,20 +52,7 @@ public class PluginConfiguration<C extends ConfigurationPart> extends Configurat
         String author = authors.getFirst();
 
         String header = String.format(HEADER, name, author, name, author);
-        return options.header(header).serializers(builder -> builder
-                //.register(new TypeToken<Reference2ObjectMap<?, ?>>() {}, new FastutilMapSerializer.SomethingToSomething<Reference2ObjectMap<?, ?>>(Reference2ObjectOpenHashMap::new))
-                .register(FlattenedMapSerializer.TYPE, new FlattenedMapSerializer(false))
-                .register(MapSerializer.TYPE, new MapSerializer(false))
-                .register(new EnumValueSerializer())
-                .register(new ComponentSerializer())
-                .register(IntOr.Default.SERIALIZER)
-                .register(IntOr.Disabled.SERIALIZER)
-                .register(DoubleOr.Default.SERIALIZER)
-                .register(DoubleOr.Disabled.SERIALIZER)
-                .register(BooleanOrDefault.SERIALIZER)
-                .register(Duration.SERIALIZER)
-                .register(DurationOrDisabled.SERIALIZER)
-        ).mapFactory(MapFactories.insertionOrdered());
+        return ConfigurationSerializer.apply(options.header(header));
     }
 
     @Override
@@ -77,8 +62,7 @@ public class PluginConfiguration<C extends ConfigurationPart> extends Configurat
 
     @Override
     protected YamlConfigurationLoader.Builder createLoaderBuilder() {
-        return super.createLoaderBuilder()
-                .defaultOptions(this::defaultOptions);
+        return super.createLoaderBuilder().defaultOptions(this::defaultOptions);
     }
 
     @Override

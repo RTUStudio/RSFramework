@@ -1,11 +1,12 @@
 package kr.rtuserver.framework.bukkit.api.core.provider.name;
 
 import kr.rtuserver.framework.bukkit.api.core.provider.Provider;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.UUID;
+
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 public interface NameProvider extends Provider {
 
@@ -31,5 +32,4 @@ public interface NameProvider extends Provider {
         GLOBAL_SERVERS,
         CURRENT_SERVER
     }
-
 }

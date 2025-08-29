@@ -1,11 +1,11 @@
 package kr.rtuserver.framework.bukkit.api.configuration.type;
 
-import org.spongepowered.configurate.serialize.ScalarSerializer;
-import org.spongepowered.configurate.serialize.SerializationException;
-
 import java.lang.reflect.Type;
 import java.util.Optional;
 import java.util.function.Predicate;
+
+import org.spongepowered.configurate.serialize.ScalarSerializer;
+import org.spongepowered.configurate.serialize.SerializationException;
 
 @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
 public final class DurationOrDisabled {
@@ -37,20 +37,22 @@ public final class DurationOrDisabled {
         }
 
         @Override
-        public DurationOrDisabled deserialize(final Type type, final Object obj) throws SerializationException {
+        public DurationOrDisabled deserialize(final Type type, final Object obj)
+                throws SerializationException {
             if (obj instanceof final String string) {
                 if (DISABLE_VALUE.equalsIgnoreCase(string)) {
                     return USE_DISABLED;
                 }
                 return new DurationOrDisabled(Optional.of(Duration.SERIALIZER.deserialize(string)));
             }
-            throw new SerializationException(obj + "(" + type + ") is not a duration or '" + DISABLE_VALUE + "'");
+            throw new SerializationException(
+                    obj + "(" + type + ") is not a duration or '" + DISABLE_VALUE + "'");
         }
 
         @Override
-        protected Object serialize(final DurationOrDisabled item, final Predicate<Class<?>> typeSupported) {
+        protected Object serialize(
+                final DurationOrDisabled item, final Predicate<Class<?>> typeSupported) {
             return item.value.map(Duration::value).orElse(DISABLE_VALUE);
         }
     }
-
 }

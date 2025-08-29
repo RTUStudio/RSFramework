@@ -26,15 +26,14 @@ public class ReflectionUtil {
         return new ReflectionUtil(instance);
     }
 
-    /**
-     * Create an instance of {@link ReflectionUtil} that can only be used for static actions
-     */
+    /** Create an instance of {@link ReflectionUtil} that can only be used for static actions */
     public static ReflectionUtil of(Class<?> clazz) {
         return new ReflectionUtil(clazz);
     }
 
     /**
-     * Create an instance of {@link ReflectionUtil} from a field in another {@link ReflectionUtil} instance
+     * Create an instance of {@link ReflectionUtil} from a field in another {@link ReflectionUtil}
+     * instance
      */
     public ReflectionUtil of(String name) {
         try {
@@ -59,7 +58,8 @@ public class ReflectionUtil {
     }
 
     // Search super classes for methods
-    private Method findMethod(String name, Class<?> clazz, Class<?>[] argTypes) throws NoSuchMethodException {
+    private Method findMethod(String name, Class<?> clazz, Class<?>[] argTypes)
+            throws NoSuchMethodException {
         if (clazz == null) throw new NoSuchMethodException();
 
         Method method;
@@ -72,9 +72,7 @@ public class ReflectionUtil {
         return method;
     }
 
-    /**
-     * Get the value of a field. Can be private or static
-     */
+    /** Get the value of a field. Can be private or static */
     public <T> T get(String name, Class<T> type) {
         try {
             return type.cast(findField(name, clazz).get(instance));
@@ -83,9 +81,7 @@ public class ReflectionUtil {
         }
     }
 
-    /**
-     * Set the value of a field. Can be private, final, or static
-     */
+    /** Set the value of a field. Can be private, final, or static */
     public ReflectionUtil set(String name, Object value) {
         try {
             findField(name, clazz).set(instance, value);
@@ -95,9 +91,7 @@ public class ReflectionUtil {
         return this;
     }
 
-    /**
-     * Invoke a function with a return type
-     */
+    /** Invoke a function with a return type */
     public <T> T call(String name, Class<T> returnType, Object... args) {
         try {
             Class<?>[] classes = Arrays.stream(args).map(Object::getClass).toArray(Class[]::new);
@@ -109,33 +103,30 @@ public class ReflectionUtil {
         }
     }
 
-    /**
-     * Invoke a function with no return type
-     */
+    /** Invoke a function with no return type */
     public ReflectionUtil call(String name, Object... args) {
         call(name, null, args);
         return this;
     }
 
-    /**
-     * Get a list of the generic type params of a class
-     */
+    /** Get a list of the generic type params of a class */
     public Class<?>[] generics() {
-        if (clazz.isEnum()) return new Class[]{};   // Enums cant have generics
+        if (clazz.isEnum()) return new Class[] {}; // Enums cant have generics
 
         Type generic = clazz.getGenericSuperclass();
         if (generic instanceof ParameterizedType) {
-            return Arrays.stream(((ParameterizedType) generic).getActualTypeArguments()).map(t -> {
-                        try {
-                            return Class.forName(t.getTypeName());
-                        } catch (ClassNotFoundException e) {
-                            return null;
-                        }
-                    })
+            return Arrays.stream(((ParameterizedType) generic).getActualTypeArguments())
+                    .map(
+                            t -> {
+                                try {
+                                    return Class.forName(t.getTypeName());
+                                } catch (ClassNotFoundException e) {
+                                    return null;
+                                }
+                            })
                     .filter(Objects::nonNull)
                     .toArray(Class[]::new);
         }
-        return new Class[]{};
+        return new Class[] {};
     }
-
 }

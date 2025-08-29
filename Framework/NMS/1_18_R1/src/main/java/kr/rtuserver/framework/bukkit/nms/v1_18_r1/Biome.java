@@ -6,19 +6,22 @@ import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.dedicated.DedicatedServer;
+
+import java.util.List;
+import java.util.stream.Collectors;
+
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.craftbukkit.v1_18_R1.CraftServer;
 import org.bukkit.craftbukkit.v1_18_R1.CraftWorld;
 
-import java.util.List;
-import java.util.stream.Collectors;
-
 public class Biome implements NMSBiome {
 
     private final DedicatedServer dedicatedServer = ((CraftServer) Bukkit.getServer()).getServer();
-    private final ResourceKey<Registry<net.minecraft.world.level.biome.Biome>> resourceKey = Registry.BIOME_REGISTRY;
-    private final Registry<net.minecraft.world.level.biome.Biome> registry = dedicatedServer.registryAccess().registryOrThrow(resourceKey);
+    private final ResourceKey<Registry<net.minecraft.world.level.biome.Biome>> resourceKey =
+            Registry.BIOME_REGISTRY;
+    private final Registry<net.minecraft.world.level.biome.Biome> registry =
+            dedicatedServer.registryAccess().registryOrThrow(resourceKey);
 
     @Override
     public String getName(Location location) {
@@ -27,7 +30,9 @@ public class Biome implements NMSBiome {
 
     @Override
     public List<String> getList() {
-        return registry.keySet().stream().map(ResourceLocation::toString).collect(Collectors.toList());
+        return registry.keySet().stream()
+                .map(ResourceLocation::toString)
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -40,11 +45,13 @@ public class Biome implements NMSBiome {
     }
 
     private net.minecraft.world.level.biome.Biome getNMSBiome(Location location) {
-        BlockPos pos = new BlockPos(location.getBlockX(), location.getBlockY(), location.getBlockZ());
+        BlockPos pos =
+                new BlockPos(location.getBlockX(), location.getBlockY(), location.getBlockZ());
         CraftWorld world = (CraftWorld) location.getWorld();
         if (world != null)
-            return world.getHandle().getChunk(pos).getNoiseBiome(pos.getX() >> 2, pos.getY() >> 2, pos.getZ() >> 2);
+            return world.getHandle()
+                    .getChunk(pos)
+                    .getNoiseBiome(pos.getX() >> 2, pos.getY() >> 2, pos.getZ() >> 2);
         return null;
     }
-
 }

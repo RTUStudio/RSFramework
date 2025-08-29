@@ -5,11 +5,12 @@ import kr.rtuserver.framework.bukkit.api.format.ComponentFormatter;
 import kr.rtuserver.framework.bukkit.api.listener.RSListener;
 import kr.rtuserver.framework.bukkit.core.Framework;
 import net.kyori.adventure.audience.Audience;
+
+import java.util.Map;
+
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.player.PlayerJoinEvent;
-
-import java.util.Map;
 
 public class JoinListener extends RSListener<RSPlugin> {
 
@@ -39,5 +40,4 @@ public class JoinListener extends RSListener<RSPlugin> {
         String end = framework.getModules().getTheme().getGradientEnd();
         return "<gradient:" + start + ":" + end + ">" + name + "</gradient>";
     }
-
 }

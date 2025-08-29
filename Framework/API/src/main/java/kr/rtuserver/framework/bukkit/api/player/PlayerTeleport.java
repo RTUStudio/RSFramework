@@ -10,13 +10,14 @@ import kr.rtuserver.protoweaver.bukkit.api.BukkitProtoWeaver;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+
+import java.util.concurrent.CompletableFuture;
+
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
-
-import java.util.concurrent.CompletableFuture;
 
 @Getter
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
@@ -66,7 +67,9 @@ public class PlayerTeleport {
         } else {
             if (protoWeaver().isConnected()) {
                 ProxyPlayer pp = PlayerList.getPlayer(player.getUniqueId());
-                kr.rtuserver.protoweaver.api.proxy.request.teleport.PlayerTeleport packet = new kr.rtuserver.protoweaver.api.proxy.request.teleport.PlayerTeleport(pp, target);
+                kr.rtuserver.protoweaver.api.proxy.request.teleport.PlayerTeleport packet =
+                        new kr.rtuserver.protoweaver.api.proxy.request.teleport.PlayerTeleport(
+                                pp, target);
                 return CompletableFuture.supplyAsync(() -> protoWeaver().sendPacket(packet));
             }
         }

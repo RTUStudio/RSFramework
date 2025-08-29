@@ -10,10 +10,11 @@ import kr.rtuserver.framework.bukkit.api.player.PlayerChat;
 import kr.rtuserver.framework.bukkit.api.player.PlayerList;
 import kr.rtuserver.framework.bukkit.plugin.RSFramework;
 import kr.rtuserver.protoweaver.api.proxy.ProxyPlayer;
-import org.bukkit.permissions.PermissionDefault;
 
 import java.util.List;
 import java.util.UUID;
+
+import org.bukkit.permissions.PermissionDefault;
 
 public class SendCommand extends RSCommand<RSFramework> {
 
@@ -31,7 +32,11 @@ public class SendCommand extends RSCommand<RSFramework> {
             String message = data.toString(2);
             UUID uniqueId = providers.getName().getUniqueId(name);
             if (uniqueId == null) {
-                chat().announce(message().getCommon(player(), MessageTranslation.NOT_FOUND_OFFLINE_PLAYER));
+                chat().announce(
+                                message()
+                                        .getCommon(
+                                                player(),
+                                                MessageTranslation.NOT_FOUND_OFFLINE_PLAYER));
                 return true;
             }
             if (message.isEmpty()) {
@@ -40,12 +45,21 @@ public class SendCommand extends RSCommand<RSFramework> {
             }
             ProxyPlayer target = PlayerList.getPlayer(uniqueId);
             if (target == null) {
-                chat().announce(message().getCommon(player(), MessageTranslation.NOT_FOUND_OFFLINE_PLAYER));
+                chat().announce(
+                                message()
+                                        .getCommon(
+                                                player(),
+                                                MessageTranslation.NOT_FOUND_OFFLINE_PLAYER));
                 return true;
             }
-            PlayerChat.send(target, getPlugin().getPrefix().append(ComponentFormatter.mini(message)));
+            PlayerChat.send(
+                    target, getPlugin().getPrefix().append(ComponentFormatter.mini(message)));
         } else if (data.length(2)) chat().announce(message().get(player(), "command.empty"));
-        else chat().announce(message().getCommon(player(), MessageTranslation.NOT_FOUND_OFFLINE_PLAYER));
+        else
+            chat().announce(
+                            message()
+                                    .getCommon(
+                                            player(), MessageTranslation.NOT_FOUND_OFFLINE_PLAYER));
         return true;
     }
 
@@ -54,5 +68,4 @@ public class SendCommand extends RSCommand<RSFramework> {
         if (data.length(2)) return providers.getName().names(NameProvider.Scope.GLOBAL_SERVERS);
         return List.of();
     }
-
 }

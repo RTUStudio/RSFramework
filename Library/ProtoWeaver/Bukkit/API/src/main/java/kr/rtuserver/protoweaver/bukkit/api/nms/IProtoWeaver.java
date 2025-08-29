@@ -9,7 +9,9 @@ public interface IProtoWeaver extends ProtoLogger.IProtoLogger {
     boolean isModernProxy();
 
     default boolean isPaper() {
-        return hasClass("com.destroystokyo.paper.PaperConfig") || hasClass("kr.rtuserver.framework.bukkit.api.configuration.paper.configuration.Configuration");
+        return hasClass("com.destroystokyo.paper.PaperConfig")
+                || hasClass(
+                        "kr.rtuserver.framework.bukkit.api.configuration.paper.configuration.Configuration");
     }
 
     default boolean hasClass(String className) {
@@ -20,5 +22,4 @@ public interface IProtoWeaver extends ProtoLogger.IProtoLogger {
             return false;
         }
     }
-
 }
