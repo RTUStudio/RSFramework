@@ -8,9 +8,7 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.dedicated.DedicatedServer;
 import net.minecraft.tags.TagKey;
-import net.minecraft.world.item.CreativeModeTab;
 
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Optional;
 
@@ -27,11 +25,6 @@ public class CraftItem implements Item {
             Registries.ITEM;
     private final Registry<net.minecraft.world.item.Item> registry =
             dedicatedServer.registries().compositeAccess().registryOrThrow(resourceKey);
-    private final Registry<CreativeModeTab> creativeModeTabRegistry =
-            dedicatedServer
-                    .registries()
-                    .compositeAccess()
-                    .registryOrThrow(Registries.CREATIVE_MODE_TAB);
 
     @Override
     public ItemStack getItem(NamespacedKey key) {
@@ -40,24 +33,6 @@ public class CraftItem implements Item {
         if (item == null) return null;
         net.minecraft.world.item.ItemStack itemStack = new net.minecraft.world.item.ItemStack(item);
         return CraftItemStack.asCraftMirror(itemStack.copy());
-    }
-
-    public LinkedHashSet<ItemStack> fromCreativeModeTab(NamespacedKey tabKey) {
-        LinkedHashSet<ItemStack> result = new LinkedHashSet<>();
-        CreativeModeTab tab = creativeModeTabRegistry.get(toResourceLocation(tabKey));
-        System.out.println(tab.getDisplayName());
-        System.out.println(tab.getIconItem());
-        System.out.println(tab.getType());
-        System.out.println(tab.getBackgroundSuffix());
-        System.out.println(tab.getDisplayItems());
-        System.out.println(tab.getSearchTabDisplayItems());
-        System.out.println(tab.column());
-        System.out.println(tab.hasAnyItems());
-        if (tab == null) return result;
-        for (net.minecraft.world.item.ItemStack item : tab.getDisplayItems()) {
-            result.add(CraftItemStack.asCraftMirror(item.copy()));
-        }
-        return result;
     }
 
     @Override

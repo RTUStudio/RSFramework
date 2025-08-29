@@ -1,6 +1,5 @@
 package kr.rtuserver.framework.bukkit.api.nms;
 
-import java.util.LinkedHashSet;
 import java.util.List;
 
 import org.bukkit.NamespacedKey;
@@ -13,6 +12,4 @@ public interface Item {
     ItemStack getItem(NamespacedKey key);
 
     List<NamespacedKey> getTag(NamespacedKey tag);
-
-    LinkedHashSet<ItemStack> fromCreativeModeTab(NamespacedKey tabKey);
 }

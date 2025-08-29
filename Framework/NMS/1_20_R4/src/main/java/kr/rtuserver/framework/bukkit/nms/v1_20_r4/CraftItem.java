@@ -8,16 +8,13 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.dedicated.DedicatedServer;
 import net.minecraft.tags.TagKey;
-import net.minecraft.world.item.CreativeModeTab;
 
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Optional;
 
 import org.bukkit.Bukkit;
 import org.bukkit.NamespacedKey;
 import org.bukkit.craftbukkit.CraftServer;
-import org.bukkit.craftbukkit.inventory.CraftItemStack;
 import org.bukkit.inventory.ItemStack;
 
 public class CraftItem implements Item {
@@ -27,11 +24,6 @@ public class CraftItem implements Item {
             Registries.ITEM;
     private final Registry<net.minecraft.world.item.Item> registry =
             dedicatedServer.registries().compositeAccess().registryOrThrow(resourceKey);
-    private final Registry<CreativeModeTab> creativeModeTabRegistry =
-            dedicatedServer
-                    .registries()
-                    .compositeAccess()
-                    .registryOrThrow(Registries.CREATIVE_MODE_TAB);
 
     @Override
     public ItemStack getItem(NamespacedKey key) {
@@ -39,17 +31,6 @@ public class CraftItem implements Item {
         net.minecraft.world.item.Item item = registry.get(id);
         if (item == null) return null;
         return new net.minecraft.world.item.ItemStack(item).asBukkitCopy();
-    }
-
-    @Override
-    public LinkedHashSet<ItemStack> fromCreativeModeTab(NamespacedKey tabKey) {
-        LinkedHashSet<ItemStack> result = new LinkedHashSet<>();
-        CreativeModeTab tab = creativeModeTabRegistry.get(toResourceLocation(tabKey));
-        if (tab == null) return result;
-        for (net.minecraft.world.item.ItemStack nms : tab.getDisplayItems()) {
-            result.add(CraftItemStack.asCraftMirror(nms.copy()));
-        }
-        return result;
     }
 
     @Override

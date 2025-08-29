@@ -8,7 +8,6 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.dedicated.DedicatedServer;
 import net.minecraft.tags.TagKey;
 
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Optional;
 
@@ -31,11 +30,6 @@ public class CraftItem implements Item {
         net.minecraft.world.item.Item item = registry.get(id);
         if (item == null) return null;
         return new net.minecraft.world.item.ItemStack(item).asBukkitCopy();
-    }
-
-    @Override
-    public LinkedHashSet<ItemStack> fromCreativeModeTab(NamespacedKey tabKey) {
-        return new LinkedHashSet<>();
     }
 
     @Override

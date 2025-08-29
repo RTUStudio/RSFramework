@@ -8,7 +8,6 @@ import dev.lone.itemsadder.api.CustomStack;
 import io.th0rgal.oraxen.api.OraxenItems;
 import kr.rtuserver.cdi.LightDI;
 import kr.rtuserver.framework.bukkit.api.core.Framework;
-import kr.rtuserver.framework.bukkit.api.nms.Item;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import net.Indyuce.mmoitems.MMOItems;
@@ -16,9 +15,6 @@ import net.Indyuce.mmoitems.MMOItems;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Base64;
-import java.util.Iterator;
-import java.util.LinkedHashSet;
-import java.util.stream.Collectors;
 
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
@@ -97,22 +93,6 @@ public class CustomItems {
                 itemMeta.setCustomModelData(Integer.valueOf(split[2]));
                 itemStack.setItemMeta(itemMeta);
                 return itemStack;
-            }
-            case "cmt" -> {
-                if (split.length != 4) return null;
-                NamespacedKey key = NamespacedKey.fromString(split[1] + ":" + split[2]);
-                Item item = framework().getNMS().getItem();
-                LinkedHashSet<ItemStack> set = item.fromCreativeModeTab(key);
-                System.out.println(
-                        set.stream().map(ItemStack::getType).collect(Collectors.toList()));
-                int index = Integer.getInteger(split[3]);
-                if (index < 0 || index >= set.size()) return null;
-                Iterator<ItemStack> iterator = set.iterator();
-                ItemStack element = null;
-                for (int i = 0; i <= index; i++) {
-                    element = iterator.next();
-                }
-                return element;
             }
             default -> {
                 NamespacedKey key = NamespacedKey.fromString(namespacedID);
