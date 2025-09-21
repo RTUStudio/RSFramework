@@ -1,39 +1,46 @@
-/**/run/
+# Compiled class files
+*.class
 
-# Mobile Tools for Java (J2ME)
-.mtj.tmp/
-
-# Package Files #
+# Package Files
 *.jar
 *.war
 *.ear
 
-# virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
+# Log files
+*.log
+
+# Virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
 hs_err_pid*
 
-# Eclipse
-.classpath
-.project
-.settings/
+# Gradle files
+.gradle/
+build/
+!gradle-wrapper.jar # Keep the wrapper jar, but ignore the rest of the .gradle folder
+# Ignore Gradle buildscans data
+.gradle-buildscans/
 
-# Intellij
+# IntelliJ IDEA
 .idea/
 *.iml
+*.ipr
 *.iws
 
-# Mac
-.DS_Store
+# Eclipse
+.project
+.classpath
+.settings/
+bin/
 
-# Maven
-log/
+# VS Code
+.vscode/
+
+# Maven (if using any Maven-related tools or plugins alongside Gradle)
 target/
 
-# Inclusions
-!lib/**
+# OS-specific files
+.DS_Store
+Thumbs.db
 
-# Compiled Files
-*.class
-bin/
-build/
-/bin1/
-java/build/**
+# Other common temporary files
+temp/
+tmp/

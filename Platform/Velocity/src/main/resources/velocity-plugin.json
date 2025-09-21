@@ -7,5 +7,5 @@
     "${author}"
   ],
   "dependencies": [],
-  "main": "kr.rtuserver.framework.velocity.plugin.RSFramework"
+  "main": "kr.rtustudio.framework.velocity.plugin.RSFramework"
 }

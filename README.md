@@ -1,39 +1,74 @@
 # RSFramework
 
-Framework Bukkit Plugin for RSPlugin (Spigot/Paper/Folia/Velocity/Bungee/Hybrid)
+**RSFramework** is a Bukkit plugin framework for **RSPlugin**, supporting Spigot, Paper, Folia, Velocity, Bungee, and hybrid setups.
 
-- Send packets to a proxy and another server without developing a plugin for the proxy.
-- Store data in a JSON-based structure with support for MySQL, MariaDB, MongoDB, and JSON files.
-- A simple utility for managing custom items and blocks, compatible with tools like ItemsAdder, Oraxen, Nexo, MMOItems
-  and EcoItems
+---
 
-## How to Build?
+## ✨ Features
 
-1. `./gradlew build`
+* Send packets between a proxy and a server **without developing a separate plugin** for the proxy.
+* Flexible **JSON-based data storage** with support for:
 
-## How to Run Server and Proxy?
+    * MySQL / MariaDB / MongoDB / JSON files
+* Manage custom items and blocks, compatible with:
 
-1. `./gradlew reobfJar`
-2. Proxy
-    - `./gradlew runVelocity -p ./Platform/Velocity`
-    - `./gradlew runWaterfall -p ./Platform/Bungee`
-3. `./gradlew runServer -p ./Framework`
-4. Don't forget. You should setup config of Bukkit:`config/paper-global.yml` and Velocity:`velocity.toml`
+    * **ItemsAdder, Oraxen, Nexo, MMOItems, EcoItems**
 
-## Supported Bukkit
+---
 
-Spigot, Paper, Folia, Arclight, Mohist
-and Forks
+## 🏗️ Build
 
-## Supported Proxy
+Build the project using Gradle:
 
-Velocity, Bungeecord, Waterfall and Forks
+```bash
+./gradlew build
+```
 
-## Supported  Version
+---
 
-1.17.1 ~ 1.21.7
+## 🚀 Running the Server and Proxy
 
-## JDK Version
+### 1. Reobfuscate the JAR
 
-- for 1.17.1 ~ 1.21.7, Java 21
-- for Project Build, Java 21
+```bash
+./gradlew reobfJar
+```
+
+### 2. Start a Proxy
+
+| Proxy Type       | Command                                        |
+| ---------------- | ---------------------------------------------- |
+| Velocity         | `./gradlew runVelocity -p ./Platform/Velocity` |
+| Waterfall/Bungee | `./gradlew runWaterfall -p ./Platform/Bungee`  |
+
+### 3. Start the Bukkit/Spigot Server
+
+```bash
+./gradlew runServer -p ./Framework
+```
+
+> **Important:** Configure before running:
+>
+> * Bukkit/Paper: `config/paper-global.yml`
+> * Velocity: `velocity.toml`
+
+---
+
+## 🧩 Supported Platforms
+
+| Type   | Platforms / Forks                                |
+| ------ | ----------------------------------------------- |
+| Bukkit | Spigot, Paper, Folia, Arclight, Mohist, and forks |
+| Proxy  | Velocity, BungeeCord, Waterfall, and forks      |
+
+---
+
+## 📦 Supported Minecraft Versions
+
+1.17.1 → 1.21.8
+
+---
+
+## ☕ JDK Requirement
+
+* Java 21 is required for **all supported Minecraft versions** and for building the project.

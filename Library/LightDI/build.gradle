@@ -3,5 +3,5 @@ dependencies {
 }
 
 shadowJar {
-    relocate "org.reflections", "kr.rtuserver.cdi.reflections"
+    relocate "org.reflections", "kr.rtustudio.cdi.reflections"
 }

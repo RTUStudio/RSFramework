@@ -53,12 +53,12 @@ shadowJar {
     exclude "META-INF/**"
     exclude "classpath.index"
 
-    relocate "org.reflections", "kr.rtuserver.cdi.reflections"
-    relocate "com.alessiodp.libby", "kr.rtuserver.libby"
-    relocate "net.kyori.adventure.platform.bukkit", "kr.rtuserver.framework.bukkit.kyori"
-    relocate "de.tr7zw.changeme.nbtapi", "kr.rtuserver.framework.bukkit.api.nbt"
-    relocate "org.spongepowered.configurate", "kr.rtuserver.configurate"
-    relocate "org.bstats", "kr.rtuserver.framework.bstats"
+    relocate "org.reflections", "kr.rtustudio.cdi.reflections"
+    relocate "com.alessiodp.libby", "kr.rtustudio.libby"
+    relocate "net.kyori.adventure.platform.bukkit", "kr.rtustudio.framework.bukkit.kyori"
+    relocate "de.tr7zw.changeme.nbtapi", "kr.rtustudio.framework.bukkit.api.nbt"
+    relocate "org.spongepowered.configurate", "kr.rtustudio.configurate"
+    relocate "org.bstats", "kr.rtustudio.framework.bstats"
 }
 
 runServer {

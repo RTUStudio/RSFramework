@@ -30,9 +30,9 @@ shadowJar {
     exclude "META-INF/**"
     exclude "classpath.index"
 
-    relocate "net.kyori.adventure.platform.bukkit", "kr.rtuserver.framework.bukkit.kyori"
-    relocate "de.tr7zw.changeme.nbtapi", "kr.rtuserver.framework.bukkit.api.nbt"
-    relocate "org.spongepowered.configurate", "kr.rtuserver.configurate"
+    relocate "net.kyori.adventure.platform.bukkit", "kr.rtustudio.framework.bukkit.kyori"
+    relocate "de.tr7zw.changeme.nbtapi", "kr.rtustudio.framework.bukkit.api.nbt"
+    relocate "org.spongepowered.configurate", "kr.rtustudio.configurate"
 
     doLast {
         copy {
@@ -44,7 +44,7 @@ shadowJar {
 publishing {
     repositories {
         maven {
-            url = uri("https://repo.codemc.io/repository/rtuserver/")
+            url = uri("https://repo.codemc.io/repository/rtustudio/")
 
             credentials {
                 username = System.getenv("MAVEN_USERNAME")
@@ -55,7 +55,7 @@ publishing {
 
     publications {
         api(MavenPublication) { publication ->
-            groupId = "kr.rtuserver"
+            groupId = "kr.rtustudio"
             artifactId = "framework-api"
             version = plugin_version
 
