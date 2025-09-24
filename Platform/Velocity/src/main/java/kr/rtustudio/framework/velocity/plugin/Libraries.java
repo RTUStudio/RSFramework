@@ -23,7 +23,7 @@ class Libraries {
                         plugin, logger, dataDirectory, pluginManager, "Libraries");
         manager.addMavenCentral();
         manager.addJitPack();
-        manager.addRepository("https://repo.papermc.io");
+        manager.addRepository("https://repo.papermc.io/repository/maven-public/");
     }
 
     public void load(@NotNull String dependency) {

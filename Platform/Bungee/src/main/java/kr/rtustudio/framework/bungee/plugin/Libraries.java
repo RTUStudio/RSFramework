@@ -15,7 +15,7 @@ class Libraries {
         this.manager = new BungeeLibraryManager(plugin, "Libraries");
         manager.addMavenCentral();
         manager.addJitPack();
-        manager.addRepository("https://repo.papermc.io");
+        manager.addRepository("https://repo.papermc.io/repository/maven-public/");
     }
 
     public void load(@NotNull String dependency) {
