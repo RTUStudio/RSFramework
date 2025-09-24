@@ -63,7 +63,7 @@ public class MongoDB implements Storage {
     }
 
     private boolean isNull(JsonObject json) {
-        return json == null || json.isEmpty() || json.isJsonNull();
+        return json == null || json.size() == 0 || json.isJsonNull();
     }
 
     private void debug(String type, String collection, String json) {
