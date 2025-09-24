@@ -204,7 +204,7 @@ public abstract class RSCommand<T extends RSPlugin> extends Command {
     }
 
     private String getTranslationKey() {
-        return parent == null ? getName() : parent.getName() + ".commands." + getName();
+        return parent == null ? getName() : parent.getTranslationKey() + ".commands." + getName();
     }
 
     protected String getLocalizedName(Player player) {
