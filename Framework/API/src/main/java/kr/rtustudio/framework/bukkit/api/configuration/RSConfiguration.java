@@ -101,12 +101,12 @@ public class RSConfiguration {
             String name,
             Integer version,
             Consumer<TypeSerializerCollection.Builder> extraSerializer) {
-        String fileName = name.endsWith(".yml") ? name : name + ".yml";
+        name = name.endsWith(".yml") ? name : name + ".yml";
         Path configFolder = plugin.getDataFolder().toPath().resolve(folder);
-        Path configFile = configFolder.resolve(fileName);
+        Path configFile = configFolder.resolve(name);
         BufferedReader defaultConfig = null;
         try {
-            InputStream in = plugin.getResource(folder + "/" + fileName);
+            InputStream in = plugin.getResource(folder + "/" + name);
             if (in != null) {
                 defaultConfig =
                         new BufferedReader(new InputStreamReader(in, StandardCharsets.UTF_8));
@@ -218,7 +218,7 @@ public class RSConfiguration {
                                             ConfigurationSerializer.apply(
                                                     co.header(header).shouldCopyDefaults(true)));
             final BufferedReader defaultConfig = configFromResource(folder, name);
-            if (defaultConfig == null) this.loader = builder.build();
+            if (defaultConfig == null || Files.exists(this.path)) this.loader = builder.build();
             else this.loader = builder.source(() -> defaultConfig).build();
             this.version = version != null ? version : 0;
             try {

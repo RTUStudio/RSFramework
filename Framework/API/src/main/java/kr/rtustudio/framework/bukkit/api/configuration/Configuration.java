@@ -5,16 +5,6 @@ import kr.rtustudio.framework.bukkit.api.configuration.mapping.FieldProcessor;
 import kr.rtustudio.framework.bukkit.api.configuration.mapping.InnerClassFieldDiscoverer;
 import kr.rtustudio.framework.bukkit.api.configuration.mapping.MergeMap;
 import lombok.extern.slf4j.Slf4j;
-
-import java.io.BufferedReader;
-import java.lang.reflect.Type;
-import java.nio.file.AccessDeniedException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.List;
-import java.util.Objects;
-import java.util.function.UnaryOperator;
-
 import org.spongepowered.configurate.CommentedConfigurationNode;
 import org.spongepowered.configurate.ConfigurateException;
 import org.spongepowered.configurate.ConfigurationNode;
@@ -26,11 +16,21 @@ import org.spongepowered.configurate.util.CheckedFunction;
 import org.spongepowered.configurate.yaml.NodeStyle;
 import org.spongepowered.configurate.yaml.YamlConfigurationLoader;
 
+import java.io.BufferedReader;
+import java.lang.reflect.Type;
+import java.nio.file.AccessDeniedException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.List;
+import java.util.Objects;
+import java.util.function.UnaryOperator;
+
 @Slf4j(topic = "Configuration")
 public abstract class Configuration<T extends ConfigurationPart> {
 
     public static final String VERSION_FIELD = "_version";
 
+    protected YamlConfigurationLoader loader;
     protected final Class<T> type;
     protected final Path path;
     protected final BufferedReader defaultConfig;
@@ -70,7 +70,7 @@ public abstract class Configuration<T extends ConfigurationPart> {
     }
 
     private static List<Definition<?, ?, ? extends FieldProcessor.Factory<?, ?>>>
-            defaultFieldProcessors() {
+    defaultFieldProcessors() {
         return List.of(MergeMap.DEFINITION);
     }
 
@@ -90,8 +90,7 @@ public abstract class Configuration<T extends ConfigurationPart> {
 
     protected abstract int configVersion();
 
-    private void trySaveFileNode(
-            YamlConfigurationLoader loader, ConfigurationNode node, String filename)
+    private void trySaveFileNode(ConfigurationNode node, String filename)
             throws ConfigurateException {
         try {
             loader.save(node);
@@ -105,7 +104,6 @@ public abstract class Configuration<T extends ConfigurationPart> {
     protected T initializeConfiguration(
             final CheckedFunction<ConfigurationNode, T, SerializationException> creator)
             throws ConfigurateException {
-        final YamlConfigurationLoader loader;
         final YamlConfigurationLoader.Builder builder =
                 this.createLoaderBuilder()
                         .defaultOptions(
@@ -126,7 +124,7 @@ public abstract class Configuration<T extends ConfigurationPart> {
             this.verifyConfigVersion(node);
         }
         final T instance = creator.apply(node);
-        trySaveFileNode(loader, node, path.toString());
+        trySaveFileNode(node, path.toString());
         return instance;
     }
 
