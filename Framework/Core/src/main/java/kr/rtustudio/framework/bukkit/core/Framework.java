@@ -17,12 +17,6 @@ import kr.rtustudio.framework.bukkit.core.listener.*;
 import kr.rtustudio.framework.bukkit.core.module.Modules;
 import kr.rtustudio.framework.bukkit.core.provider.Providers;
 import kr.rtustudio.framework.bukkit.core.scheduler.Scheduler;
-import kr.rtustudio.framework.bukkit.nms.v1_17_r1.NMS_1_17_R1;
-import kr.rtustudio.framework.bukkit.nms.v1_18_r1.NMS_1_18_R1;
-import kr.rtustudio.framework.bukkit.nms.v1_18_r2.NMS_1_18_R2;
-import kr.rtustudio.framework.bukkit.nms.v1_19_r1.NMS_1_19_R1;
-import kr.rtustudio.framework.bukkit.nms.v1_19_r2.NMS_1_19_R2;
-import kr.rtustudio.framework.bukkit.nms.v1_19_r3.NMS_1_19_R3;
 import kr.rtustudio.framework.bukkit.nms.v1_20_r1.NMS_1_20_R1;
 import kr.rtustudio.framework.bukkit.nms.v1_20_r2.NMS_1_20_R2;
 import kr.rtustudio.framework.bukkit.nms.v1_20_r3.NMS_1_20_R3;
@@ -122,12 +116,6 @@ public class Framework implements kr.rtustudio.framework.bukkit.api.core.Framewo
     private void loadNMS(RSPlugin plugin) {
         NMSVersion = MinecraftVersion.getNMS(MinecraftVersion.getAsText());
         switch (NMSVersion) {
-            case "v1_17_R1" -> NMS = new NMS_1_17_R1();
-            case "v1_18_R1" -> NMS = new NMS_1_18_R1();
-            case "v1_18_R2" -> NMS = new NMS_1_18_R2();
-            case "v1_19_R1" -> NMS = new NMS_1_19_R1();
-            case "v1_19_R2" -> NMS = new NMS_1_19_R2();
-            case "v1_19_R3" -> NMS = new NMS_1_19_R3();
             case "v1_20_R1" -> NMS = new NMS_1_20_R1();
             case "v1_20_R2" -> NMS = new NMS_1_20_R2();
             case "v1_20_R3" -> NMS = new NMS_1_20_R3();

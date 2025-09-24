@@ -16,12 +16,6 @@ import kr.rtustudio.protoweaver.api.proxy.request.teleport.LocationTeleport;
 import kr.rtustudio.protoweaver.api.proxy.request.teleport.PlayerTeleport;
 import kr.rtustudio.protoweaver.api.serializer.CustomPacketSerializer;
 import kr.rtustudio.protoweaver.bukkit.api.nms.IProtoWeaver;
-import kr.rtustudio.protoweaver.bukkit.core.nms.v1_17_r1.ProtoWeaver_1_17_R1;
-import kr.rtustudio.protoweaver.bukkit.core.nms.v1_18_r1.ProtoWeaver_1_18_R1;
-import kr.rtustudio.protoweaver.bukkit.core.nms.v1_18_r2.ProtoWeaver_1_18_R2;
-import kr.rtustudio.protoweaver.bukkit.core.nms.v1_19_r1.ProtoWeaver_1_19_R1;
-import kr.rtustudio.protoweaver.bukkit.core.nms.v1_19_r2.ProtoWeaver_1_19_R2;
-import kr.rtustudio.protoweaver.bukkit.core.nms.v1_19_r3.ProtoWeaver_1_19_R3;
 import kr.rtustudio.protoweaver.bukkit.core.nms.v1_20_r1.ProtoWeaver_1_20_R1;
 import kr.rtustudio.protoweaver.bukkit.core.nms.v1_20_r2.ProtoWeaver_1_20_R2;
 import kr.rtustudio.protoweaver.bukkit.core.nms.v1_20_r3.ProtoWeaver_1_20_R3;
@@ -58,12 +52,6 @@ public class BukkitProtoWeaver implements kr.rtustudio.protoweaver.bukkit.api.Bu
     public BukkitProtoWeaver(String sslFolder, String nmsVersion, HandlerCallback callback) {
         this.protoWeaver =
                 switch (nmsVersion) {
-                    case "v1_17_R1" -> new ProtoWeaver_1_17_R1(sslFolder);
-                    case "v1_18_R1" -> new ProtoWeaver_1_18_R1(sslFolder);
-                    case "v1_18_R2" -> new ProtoWeaver_1_18_R2(sslFolder);
-                    case "v1_19_R1" -> new ProtoWeaver_1_19_R1(sslFolder);
-                    case "v1_19_R2" -> new ProtoWeaver_1_19_R2(sslFolder);
-                    case "v1_19_R3" -> new ProtoWeaver_1_19_R3(sslFolder);
                     case "v1_20_R1" -> new ProtoWeaver_1_20_R1(sslFolder);
                     case "v1_20_R2" -> new ProtoWeaver_1_20_R2(sslFolder);
                     case "v1_20_R3" -> new ProtoWeaver_1_20_R3(sslFolder);

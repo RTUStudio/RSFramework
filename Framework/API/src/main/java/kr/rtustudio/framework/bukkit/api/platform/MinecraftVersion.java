@@ -117,9 +117,10 @@ public class MinecraftVersion {
                         case 2, 3 -> "v1_21_R2";
                         case 4 -> "v1_21_R3";
                         case 5 -> "v1_21_R4";
-                        default -> "v1_21_R5"; // 1.21.6, 1.21.7, 1.21.8
+                        case 6, 7, 8 -> "v1_21_R5"; // 1.21.6, 1.21.7, 1.21.8
+                        default -> "v1_21_R6"; // 1.21.9
                     };
-            default -> "v1_21_R5";
+            default -> "v1_21_R6";
         };
     }
 

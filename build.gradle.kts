@@ -8,10 +8,10 @@ plugins {
 }
 
 group = "kr.rtustudio"
-val plugin_version: String by project
-val plugin_name: String by project
-val java_version: String by project
-version = plugin_version
+val pluginVersion = property("plugin_version") as String
+val pluginName = property("plugin_name") as String
+val javaVersionProp = property("java_version") as String
+version = pluginVersion
 
 allprojects {
 
@@ -84,16 +84,16 @@ allprojects {
     }
 
     java {
-        val javaVersion = JavaVersion.toVersion(java_version)
+        val javaVersion = JavaVersion.toVersion(javaVersionProp)
         sourceCompatibility = javaVersion
         targetCompatibility = javaVersion
         if (JavaVersion.current() < javaVersion) {
-            toolchain.languageVersion.set(JavaLanguageVersion.of(java_version.toInt()))
+            toolchain.languageVersion.set(JavaLanguageVersion.of(javaVersionProp.toInt()))
         }
     }
 
     tasks.withType<JavaCompile>().configureEach {
-        options.release.set(java_version.toInt())
+        options.release.set(javaVersionProp.toInt())
     }
 
     tasks.jar {
@@ -120,7 +120,7 @@ dependencies {
     implementation("com.alessiodp.libby:libby-bukkit:2.0.0-SNAPSHOT")
     implementation("com.alessiodp.libby:libby-bungee:2.0.0-SNAPSHOT")
     implementation("com.alessiodp.libby:libby-velocity:2.0.0-SNAPSHOT")
-    implementation("net.kyori:adventure-platform-bukkit:4.4.1")
+    implementation("net.kyori:adventure-platform-bukkit:4.3.4")
 
     compileOnly("org.projectlombok:lombok:1.18.38")
     add("annotationProcessor", "org.projectlombok:lombok:1.18.38")
@@ -131,8 +131,8 @@ tasks.shadowJar {
     file("$rootDir/builds").delete()
 
     archiveClassifier.set(null as String?)
-    archiveBaseName.set(plugin_name)
-    archiveVersion.set(plugin_version)
+    archiveBaseName.set(pluginName)
+    archiveVersion.set(pluginVersion)
 
     doLast {
         copy {

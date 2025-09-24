@@ -16,12 +16,17 @@ dependencies {
     implementation("com.alessiodp.libby:libby-velocity:2.0.0-SNAPSHOT")
 }
 
+val pluginName = property("plugin_name") as String
+val pluginVersion = property("plugin_version") as String
+val pluginAuthor = property("plugin_author") as String
+
 tasks.named<ProcessResources>("processResources") {
-    val props = mapOf(
-        "version" to (property("plugin_version") as String),
-        "name" to (property("plugin_name") as String),
-        "author" to (property("plugin_author") as String),
-    )
+    val props =
+        mapOf(
+            "version" to pluginVersion,
+            "name" to pluginName,
+            "author" to pluginAuthor,
+        )
     inputs.properties(props)
     filteringCharset = "UTF-8"
     filesMatching("velocity-plugin.json") {

@@ -2,8 +2,10 @@ plugins {
     id("xyz.jpenilla.run-paper") version "2.3.1"
 }
 
-val api_version: String by project
-val bukkit_version: String by project
+val apiVersion = property("api_version") as String
+val bukkitVersion = property("bukkit_version") as String
+val pluginName = property("plugin_name") as String
+val pluginVersion = property("plugin_version") as String
 
 listOf("API", "Core").forEach { name ->
     project(":Framework:$name") {
@@ -13,10 +15,10 @@ listOf("API", "Core").forEach { name ->
             compileOnly(project(":Library:ProtoWeaver:Common:API"))
             compileOnly(project(":Library:ProtoWeaver:Bukkit:API"))
 
-            compileOnly("org.spigotmc:spigot-api:${api_version}-R0.1-SNAPSHOT")
-            compileOnly("io.papermc.paper:paper-api:${api_version}-R0.1-SNAPSHOT")
+            compileOnly("org.spigotmc:spigot-api:$apiVersion-R0.1-SNAPSHOT")
+            compileOnly("io.papermc.paper:paper-api:$apiVersion-R0.1-SNAPSHOT")
 
-            implementation("net.kyori:adventure-platform-bukkit:4.4.1")
+            implementation("net.kyori:adventure-platform-bukkit:4.3.4")
             implementation("de.tr7zw:item-nbt-api:2.15.2-SNAPSHOT")
 
             compileOnly("com.github.LoneDev6:API-ItemsAdder:3.6.3-beta-14")
@@ -48,10 +50,10 @@ tasks.jar {
 
 tasks.shadowJar {
     archiveClassifier.set(null as String?)
-    archiveBaseName.set(property("plugin_name") as String)
-    archiveVersion.set(property("plugin_version") as String)
+    archiveBaseName.set(pluginName)
+    archiveVersion.set(pluginVersion)
 }
 
 tasks.runServer {
-    minecraftVersion(bukkit_version)
+    minecraftVersion(bukkitVersion)
 }

@@ -1,3 +1,8 @@
+val pluginName = property("plugin_name") as String
+val pluginVersion = property("plugin_version") as String
+val pluginAuthor = property("plugin_author") as String
+val apiVersion = property("api_version") as String
+
 dependencies {
     implementation(project(":Library:LightDI"))
     implementation(project(path = ":Library:ProtoWeaver:Bukkit:API", configuration = "shadow"))
@@ -6,20 +11,16 @@ dependencies {
 
     implementation(project(":Platform:Spigot"))
 
-    val bukkit_version: String by project
-    compileOnly("io.papermc.paper:paper-api:${bukkit_version}-R0.1-SNAPSHOT")
+    compileOnly("io.papermc.paper:paper-api:$apiVersion-R0.1-SNAPSHOT")
 }
 
-val plugin_name: String by project
-val plugin_version: String by project
-val plugin_author: String by project
-
 tasks.named<ProcessResources>("processResources") {
-    val props = mapOf(
-        "name" to plugin_name,
-        "version" to plugin_version,
-        "author" to plugin_author,
-    )
+    val props =
+        mapOf(
+            "name" to pluginName,
+            "version" to pluginVersion,
+            "author" to pluginAuthor,
+        )
     inputs.properties(props)
     filteringCharset = "UTF-8"
     filesMatching("paper-plugin.yml") {

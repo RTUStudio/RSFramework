@@ -66,14 +66,14 @@ public abstract class RSPlugin extends JavaPlugin {
 
     @Override
     public void onEnable() {
-        if (MinecraftVersion.isSupport("1.17.1")) {
+        if (MinecraftVersion.isSupport("1.20.1")) {
             this.plugin = this;
             this.adventure = BukkitAudiences.create(this);
         } else {
             Bukkit.getLogger()
                     .warning(
-                            "Server version is unsupported version (< 1.17.1), Disabling this plugin...");
-            Bukkit.getLogger().warning("서버 버전이 지원되지 않는 버전입니다 (< 1.17.1), 플러그인을 비활성화합니다...");
+                            "Server version is unsupported version (< 1.20.1), Disabling this plugin...");
+            Bukkit.getLogger().warning("서버 버전이 지원되지 않는 버전입니다 (< 1.20.1), 플러그인을 비활성화합니다...");
             Bukkit.getPluginManager().disablePlugin(this);
             return;
         }

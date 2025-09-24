@@ -65,7 +65,7 @@ Build the project using Gradle:
 
 ## 📦 Supported Minecraft Versions
 
-1.17.1 → 1.21.8
+1.20.1 → 1.21.8
 
 ---
 

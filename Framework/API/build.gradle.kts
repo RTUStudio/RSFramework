@@ -2,6 +2,8 @@ plugins {
     `maven-publish`
 }
 
+val pluginVersion = property("plugin_version") as String
+
 dependencies {
     implementation(project(path = ":Library:ProtoWeaver:Bukkit:API", configuration = "shadow"))
 
@@ -24,7 +26,7 @@ dependencies {
 tasks.shadowJar {
     archiveClassifier.set(null as String?)
     archiveBaseName.set("api")
-    archiveVersion.set(property("plugin_version") as String)
+    archiveVersion.set(pluginVersion)
 
     doLast {
         copy {
@@ -50,7 +52,7 @@ publishing {
         create<MavenPublication>("api") {
             groupId = "kr.rtustudio"
             artifactId = "framework-api"
-            version = property("plugin_version") as String
+            version = pluginVersion
 
             from(components["shadow"])
         }

@@ -14,16 +14,17 @@ dependencies {
     compileOnly("net.md-5:bungeecord-api:1.20-R0.2")
 }
 
-val plugin_name: String by project
-val plugin_version: String by project
-val plugin_author: String by project
+val pluginName = property("plugin_name") as String
+val pluginVersion = property("plugin_version") as String
+val pluginAuthor = property("plugin_author") as String
 
 tasks.named<ProcessResources>("processResources") {
-    val props = mapOf(
-        "version" to plugin_version,
-        "name" to plugin_name,
-        "author" to plugin_author,
-    )
+    val props =
+        mapOf(
+            "name" to pluginName,
+            "version" to pluginVersion,
+            "author" to pluginAuthor,
+        )
     inputs.properties(props)
     filteringCharset = "UTF-8"
     filesMatching("bungee.yml") {
