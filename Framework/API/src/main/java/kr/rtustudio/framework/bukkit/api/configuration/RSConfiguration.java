@@ -505,11 +505,16 @@ public class RSConfiguration {
             }
         }
 
-        private void comment(CommentedConfigurationNode node, String... comment) {
+        protected void comment(String path, String... comment) {
+            CommentedConfigurationNode node = pathToNode(path);
+            comment(node, comment);
+        }
+
+        protected void comment(CommentedConfigurationNode node, String... comment) {
             if (comment.length == 0) return;
             node.comment(String.join("\n", comment));
             try {
-                loader.save(config);
+                loader.save(node);
             } catch (ConfigurateException ex) {
                 throw new RuntimeException(ex);
             }
