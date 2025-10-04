@@ -78,7 +78,7 @@ public abstract class RSPlugin extends JavaPlugin {
             return;
         }
 
-        registerPermission(this.plugin.getName() + ".reload", PermissionDefault.OP);
+        registerPermission("command.reload", PermissionDefault.OP);
         for (String plugin : this.getDescription().getSoftDepend())
             this.framework.hookDependency(plugin);
         enable();
@@ -201,8 +201,8 @@ public abstract class RSPlugin extends JavaPlugin {
     }
 
     public void registerPermission(String permission, PermissionDefault permissionDefault) {
-        this.framework.registerPermission(
-                getName().toLowerCase() + permission.toLowerCase(), permissionDefault);
+        String name = getName() + "." + permission;
+        this.framework.registerPermission(name.toLowerCase(), permissionDefault);
     }
 
     /**
