@@ -189,8 +189,8 @@ public abstract class RSCommand<T extends RSPlugin> extends Command {
 
     public void registerCommand(RSCommand<? extends RSPlugin> command) {
         command.setParent(this);
-        String permission = "command." + command.getQualifiedName();
-        command.setPermission(plugin.getName().toLowerCase() + "." + permission);
+        String permission = plugin.getName().toLowerCase() + ".command." + command.getQualifiedName();
+        command.setPermission(permission);
         plugin.registerPermission(permission, command.getPermissionDefault());
         commands.put(command.getName(), command);
     }
