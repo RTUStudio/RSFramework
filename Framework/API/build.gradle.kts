@@ -13,8 +13,6 @@ dependencies {
     compileOnly("org.mongodb:mongodb-driver-sync:5.5.1")
     compileOnly("com.mysql:mysql-connector-j:9.4.0")
     compileOnly("org.mariadb.jdbc:mariadb-java-client:3.5.5")
-//    compileOnly("org.xerial:sqlite-jdbc:3.45.3.0")
-//    compileOnly("org.postgresql:postgresql:42.7.3")
 
     compileOnly("me.clip:placeholderapi:2.11.6")
     compileOnly("net.dmulloy2:ProtocolLib:5.1.0")

@@ -18,4 +18,5 @@ dependencies {
     implementation(project(path = ":Library:ProtoWeaver:Bukkit:NMS:1_21_R3", configuration = "reobf"))
     implementation(project(path = ":Library:ProtoWeaver:Bukkit:NMS:1_21_R4", configuration = "reobf"))
     implementation(project(path = ":Library:ProtoWeaver:Bukkit:NMS:1_21_R5", configuration = "reobf"))
+//    implementation(project(path = ":Library:ProtoWeaver:Bukkit:NMS:1_21_R6", configuration = "reobf"))
 }

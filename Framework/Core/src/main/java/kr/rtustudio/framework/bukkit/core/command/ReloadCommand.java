@@ -4,6 +4,7 @@ import kr.rtustudio.framework.bukkit.api.RSPlugin;
 import kr.rtustudio.framework.bukkit.api.command.RSCommand;
 import kr.rtustudio.framework.bukkit.api.command.RSCommandData;
 import kr.rtustudio.framework.bukkit.api.configuration.internal.translation.Translation;
+import kr.rtustudio.framework.bukkit.api.configuration.internal.translation.command.CommandTranslation;
 import kr.rtustudio.framework.bukkit.api.nms.Command;
 
 import java.util.ArrayList;
@@ -41,16 +42,16 @@ public class ReloadCommand extends RSCommand<RSPlugin> {
 
     @Override
     protected String getLocalizedDescription(Player player) {
-        return command().getCommon(player, getDescription());
+        return command().getCommon(player, CommandTranslation.RELOAD_DESCRIPTION);
     }
 
     @Override
     protected String getLocalizedUsage(Player player) {
-        return command().getCommon(player, getUsage());
+        return "";
     }
 
     @Override
     protected String getLocalizedName(Player player) {
-        return command().getCommon(player, getName() + ".name");
+        return command().getCommon(player, CommandTranslation.RELOAD_NAME);
     }
 }

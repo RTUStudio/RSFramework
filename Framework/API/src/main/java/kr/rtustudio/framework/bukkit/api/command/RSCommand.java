@@ -79,92 +79,97 @@ public abstract class RSCommand<T extends RSPlugin> extends Command {
     }
 
     protected String getQualifiedName() {
-        return parent == null ? getName() : parent.getQualifiedName() + "." + getName();
+        return this.parent == null ? getName() : this.parent.getQualifiedName() + "." + getName();
     }
 
     protected TranslationConfiguration message() {
-        return message;
+        return this.message;
     }
 
     protected TranslationConfiguration command() {
-        return command;
+        return this.command;
     }
 
     protected Framework framework() {
-        return framework;
+        return this.framework;
     }
 
     protected NameProvider provider() {
-        return framework.getProviders().getName();
+        return this.framework.getProviders().getName();
     }
 
     protected PlayerChat chat() {
-        return chat;
+        return this.chat;
     }
 
     protected CommandSender sender() {
-        return sender;
+        return this.sender;
     }
 
     protected Audience audience() {
-        return audience;
+        return this.audience;
     }
 
     protected Player player() {
-        if (sender instanceof Player player) return player;
+        if (this.sender instanceof Player player) return player;
         return null;
     }
 
     public boolean isOp() {
-        return sender.isOp();
+        return this.sender.isOp();
     }
 
     public boolean hasPermission(String permission) {
-        return plugin.hasPermission(sender, permission);
+        return this.plugin.hasPermission(this.sender, permission);
     }
 
     private boolean hasCommandPermission(String node) {
         if (node == null) return false;
-        return sender.hasPermission(node);
+        return this.sender.hasPermission(node);
     }
 
     @Override
     public boolean execute(
             @NotNull CommandSender sender, @NotNull String commandLabel, @NotNull String[] args) {
-        chat.setReceiver(sender);
-        if (parent == null && (sender instanceof Player player)) {
-            Map<UUID, Integer> cooldownMap = framework.getCommandLimit().getExecuteLimit();
-            int cooldown = framework.getModules().getCommand().getExecuteLimit();
+        this.chat.setReceiver(sender);
+        if (this.parent == null && (sender instanceof Player player)) {
+            Map<UUID, Integer> cooldownMap = this.framework.getCommandLimit().getExecuteLimit();
+            int cooldown = this.framework.getModules().getCommand().getExecuteLimit();
             if (cooldown > 0) {
                 if (cooldownMap.containsKey(player.getUniqueId())) {
-                    chat.announce(message.getCommon(player, MessageTranslation.ERROR_COOLDOWN));
+                    this.chat.announce(
+                            this.message.getCommon(player, MessageTranslation.ERROR_COOLDOWN));
                     return true;
                 } else cooldownMap.put(player.getUniqueId(), cooldown);
             }
         }
         this.sender = sender;
-        this.audience = plugin.getAdventure().sender(sender);
+        this.audience = this.plugin.getAdventure().sender(sender);
         RSCommandData data = new RSCommandData(args);
-        RSCommand<? extends RSPlugin> sub = findCommand(data.args(index));
+        RSCommand<? extends RSPlugin> sub = findCommand(data.args(this.index));
         if (sub == null) {
             if (hasCommandPermission(getPermission())) {
                 if (!execute(data)) wrongUsage();
-            } else chat.announce(message.getCommon(player(), MessageTranslation.NO_PERMISSION));
+            } else
+                this.chat.announce(
+                        this.message.getCommon(player(), MessageTranslation.NO_PERMISSION));
         } else {
             if (sub.getName().equalsIgnoreCase("reload")) reload(data);
             if (hasCommandPermission(sub.getPermission())) {
                 if (!sub.execute(sender, commandLabel, args)) sub.wrongUsage();
-            } else chat.announce(message.getCommon(player(), MessageTranslation.NO_PERMISSION));
+            } else
+                this.chat.announce(
+                        this.message.getCommon(player(), MessageTranslation.NO_PERMISSION));
         }
         return true;
     }
 
     private void wrongUsage() {
-        chat.announce(message.getCommon(player(), MessageTranslation.WRONG_USAGE));
-        ThemeModule module = framework.getModules().getTheme();
+        this.chat.announce(this.message.getCommon(player(), MessageTranslation.WRONG_USAGE));
+        ThemeModule module = this.framework.getModules().getTheme();
         String startGradient = module.getGradientStart();
         String endGradient = module.getGradientEnd();
-        List<RSCommand<? extends RSPlugin>> list = new ArrayList<>(commands.values());
+        List<RSCommand<? extends RSPlugin>> list = new ArrayList<>(this.commands.values());
         if (list.isEmpty()) return;
         boolean empty = true;
         StringBuilder builder =
@@ -173,7 +178,7 @@ public abstract class RSCommand<T extends RSPlugin> extends Command {
             RSCommand<? extends RSPlugin> cmd = list.get(i);
             String permission = cmd.getPermission();
             if (permission == null) continue;
-            if (!sender.hasPermission(permission)) continue;
+            if (!this.sender.hasPermission(permission)) continue;
             String usage = cmd.getLocalizedUsage(player());
             if (usage.isEmpty()) usage = "/" + cmd.getLocalizedCommand(player());
             if (i > 0) builder.append("\n");
@@ -184,46 +189,48 @@ public abstract class RSCommand<T extends RSPlugin> extends Command {
             empty = false;
         }
         builder.append("</gradient>");
-        if (!empty) chat.send(builder.toString());
+        if (!empty) this.chat.send(builder.toString());
     }
 
     public void registerCommand(RSCommand<? extends RSPlugin> command) {
         command.setParent(this);
         String permission = "command." + command.getQualifiedName();
-        command.setPermission(plugin.getName().toLowerCase() + "." + permission);
-        plugin.registerPermission(permission, command.getPermissionDefault());
-        commands.put(command.getName(), command);
+        command.setPermission(this.plugin.getName().toLowerCase() + "." + permission);
+        this.plugin.registerPermission(permission, command.getPermissionDefault());
+        this.commands.put(command.getName(), command);
     }
 
     private RSCommand<? extends RSPlugin> findCommand(String name) {
         if (name.isEmpty()) return null;
-        for (RSCommand<? extends RSPlugin> sub : commands.values()) {
+        for (RSCommand<? extends RSPlugin> sub : this.commands.values()) {
             if (sub.getLocalizedName(player()).equals(name)) return sub;
         }
         return null;
     }
 
     private String getTranslationKey() {
-        return parent == null ? getName() : parent.getTranslationKey() + ".commands." + getName();
+        return this.parent == null
+                ? getName()
+                : this.parent.getTranslationKey() + ".commands." + getName();
     }
 
     protected String getLocalizedName(Player player) {
-        return command.get(player, getTranslationKey() + ".name");
+        return this.command.get(player, getTranslationKey() + ".name");
     }
 
     protected String getLocalizedDescription(Player player) {
-        return command.get(player, getDescription());
+        return this.command.get(player, getDescription());
     }
 
     protected String getLocalizedUsage(Player player) {
-        return command.get(player, getUsage());
+        return this.command.get(player, getUsage());
     }
 
     private String getLocalizedCommand(Player player) {
-        if (parent == null) {
+        if (this.parent == null) {
             String name = getLocalizedName(player);
             return name.isEmpty() ? getName() : name;
-        } else return parent.getLocalizedCommand(player) + " " + getLocalizedName(player);
+        } else return this.parent.getLocalizedCommand(player) + " " + getLocalizedName(player);
     }
 
     @NotNull
@@ -241,13 +248,13 @@ public abstract class RSCommand<T extends RSPlugin> extends Command {
     @Override
     public @NotNull List<String> tabComplete(
             @NotNull CommandSender sender, @NotNull String alias, @NotNull String[] args) {
-        chat.setReceiver(sender);
+        this.chat.setReceiver(sender);
         this.sender = sender;
-        this.audience = plugin.getAdventure().sender(sender);
+        this.audience = this.plugin.getAdventure().sender(sender);
         RSCommandData data = new RSCommandData(args);
         List<String> list = new ArrayList<>();
-        if (data.length(index + 1))
-            for (RSCommand<? extends RSPlugin> cmd : commands.values()) {
+        if (data.length(this.index + 1))
+            for (RSCommand<? extends RSPlugin> cmd : this.commands.values()) {
                 if (hasCommandPermission(cmd.getPermission()))
                     list.add(cmd.getLocalizedName(player()));
             }

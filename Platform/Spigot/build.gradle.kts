@@ -12,7 +12,6 @@ dependencies {
     compileOnly("org.spigotmc:spigot-api:$apiVersion-R0.1-SNAPSHOT")
 
     implementation("org.bstats:bstats-bukkit:3.0.2")
-    implementation("com.alessiodp.libby:libby-bukkit:2.0.0-SNAPSHOT")
 }
 
 tasks.named<ProcessResources>("processResources") {

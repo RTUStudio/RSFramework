@@ -57,11 +57,15 @@ public class Framework implements kr.rtustudio.framework.bukkit.api.core.Framewo
 
     @Getter private final Map<String, RSPlugin> plugins = new HashMap<>();
     @Getter private final Map<String, Boolean> hooks = new HashMap<>();
+
     @Getter private RSPlugin plugin;
+
     @Getter private kr.rtustudio.framework.bukkit.api.nms.NMS NMS;
+    @Getter private String NMSVersion;
+
     @Getter private BukkitProtoWeaver protoWeaver;
     private final HandlerCallback callback = new HandlerCallback(this::onReady, this::onPacket);
-    @Getter private String NMSVersion;
+
     @Getter private CommandLimit commandLimit;
     @Getter private CommonTranslation commonTranslation;
     @Getter private Modules modules;

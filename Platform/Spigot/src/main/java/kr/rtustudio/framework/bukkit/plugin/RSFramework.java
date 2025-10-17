@@ -16,43 +16,38 @@ import org.bukkit.plugin.Plugin;
 public class RSFramework extends RSPlugin {
 
     @Getter private static RSFramework instance;
-    @Getter private final Libraries libraries;
     private final Metrics metrics;
 
     public RSFramework() {
-        libraries = new Libraries(this);
+        loadLibrary("net.kyori:adventure-text-minimessage:4.24.0");
+        loadLibrary("net.kyori:adventure-text-serializer-gson:4.24.0");
 
-        libraries.load("net.kyori:adventure-text-minimessage:4.24.0");
-        libraries.load("net.kyori:adventure-text-serializer-gson:4.24.0");
+        loadLibrary("com.zaxxer:HikariCP:7.0.2");
+        loadLibrary("org.mongodb:bson:5.5.1");
+        loadLibrary("org.mongodb:mongodb-driver-sync:5.5.1");
+        loadLibrary("org.mongodb:mongodb-driver-core:5.5.1");
+        loadLibrary("com.mysql:mysql-connector-j:9.4.0");
+        loadLibrary("org.mariadb.jdbc:mariadb-java-client:3.5.5");
 
-        libraries.load("com.zaxxer:HikariCP:7.0.2");
-        libraries.load("org.mongodb:bson:5.5.1");
-        libraries.load("org.mongodb:mongodb-driver-sync:5.5.1");
-        libraries.load("org.mongodb:mongodb-driver-core:5.5.1");
-        libraries.load("com.mysql:mysql-connector-j:9.4.0");
-        libraries.load("org.mariadb.jdbc:mariadb-java-client:3.5.5");
-        // libraries.load("org.xerial:sqlite-jdbc:3.45.3.0");
-        // libraries.load("org.postgresql:postgresql:42.7.3");
+        loadLibrary("org.apache.commons:commons-lang3:3.18.0");
+        loadLibrary("com.google.code.gson:gson:2.13.1");
+        loadLibrary("com.google.guava:guava:33.4.8-jre");
+        loadLibrary("org.xerial.snappy:snappy-java:1.1.10.8");
+        loadLibrary("org.quartz-scheduler:quartz:2.5.0");
 
-        libraries.load("org.apache.commons:commons-lang3:3.18.0");
-        libraries.load("com.google.code.gson:gson:2.13.1");
-        libraries.load("com.google.guava:guava:33.4.8-jre");
-        libraries.load("org.xerial.snappy:snappy-java:1.1.10.8");
-        libraries.load("org.quartz-scheduler:quartz:2.5.0");
-
-        libraries.load("io.netty:netty-buffer:4.1.111.Final");
-        libraries.load("io.netty:netty-transport:4.1.111.Final");
-        libraries.load("io.netty:netty-handler:4.1.111.Final");
-        libraries.load("io.netty:netty-codec-http:4.1.111.Final");
-        libraries.load("io.netty:netty-codec-http2:4.1.111.Final");
-        libraries.load(
+        loadLibrary("io.netty:netty-buffer:4.1.111.Final");
+        loadLibrary("io.netty:netty-transport:4.1.111.Final");
+        loadLibrary("io.netty:netty-handler:4.1.111.Final");
+        loadLibrary("io.netty:netty-codec-http:4.1.111.Final");
+        loadLibrary("io.netty:netty-codec-http2:4.1.111.Final");
+        loadLibrary(
                 "org.apache.fury:fury-core:0.10.3",
                 "org.apache.fury",
                 "kr.rtustudio.protoweaver.fury");
-        libraries.load("org.bouncycastle:bcpkix-jdk18on:1.80");
-        libraries.load("org.bouncycastle:bcprov-jdk18on:1.80");
-        libraries.load("org.bouncycastle:bcutil-jdk18on:1.80");
-        libraries.load("org.javassist:javassist:3.30.2-GA");
+        loadLibrary("org.bouncycastle:bcpkix-jdk18on:1.80");
+        loadLibrary("org.bouncycastle:bcprov-jdk18on:1.80");
+        loadLibrary("org.bouncycastle:bcutil-jdk18on:1.80");
+        loadLibrary("org.javassist:javassist:3.30.2-GA");
 
         List<String> list = new ArrayList<>();
         list.add("kr.rtustudio.framework.bukkit");

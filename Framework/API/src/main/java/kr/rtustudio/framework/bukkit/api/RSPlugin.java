@@ -8,6 +8,7 @@ import kr.rtustudio.framework.bukkit.api.core.Framework;
 import kr.rtustudio.framework.bukkit.api.core.module.ThemeModule;
 import kr.rtustudio.framework.bukkit.api.format.ComponentFormatter;
 import kr.rtustudio.framework.bukkit.api.integration.Integration;
+import kr.rtustudio.framework.bukkit.api.library.LibraryLoader;
 import kr.rtustudio.framework.bukkit.api.listener.RSListener;
 import kr.rtustudio.framework.bukkit.api.platform.MinecraftVersion;
 import kr.rtustudio.framework.bukkit.api.storage.Storage;
@@ -39,10 +40,15 @@ import com.google.gson.JsonObject;
 @SuppressWarnings("unused")
 public abstract class RSPlugin extends JavaPlugin {
 
+    private static final String MINIMUM_SUPPORTED_VERSION = "1.20.1";
+
     private final Set<RSListener<? extends RSPlugin>> listeners = new HashSet<>();
     private final Set<RSCommand<? extends RSPlugin>> commands = new HashSet<>();
     private final Set<Integration> integrations = new HashSet<>();
     private final LinkedHashSet<String> languages = new LinkedHashSet<>();
+
+    @Getter private final LibraryLoader libraryLoader;
+
     private Framework framework;
     private Component prefix;
     private RSPlugin plugin;
@@ -56,6 +62,7 @@ public abstract class RSPlugin extends JavaPlugin {
 
     public RSPlugin(String... languages) {
         Collections.addAll(this.languages, languages);
+        this.libraryLoader = new LibraryLoader(this);
     }
 
     public Component getPrefix() {
@@ -66,14 +73,20 @@ public abstract class RSPlugin extends JavaPlugin {
 
     @Override
     public void onEnable() {
-        if (MinecraftVersion.isSupport("1.20.1")) {
+        if (MinecraftVersion.isSupport(MINIMUM_SUPPORTED_VERSION)) {
             this.plugin = this;
             this.adventure = BukkitAudiences.create(this);
         } else {
             Bukkit.getLogger()
                     .warning(
-                            "Server version is unsupported version (< 1.20.1), Disabling this plugin...");
-            Bukkit.getLogger().warning("서버 버전이 지원되지 않는 버전입니다 (< 1.20.1), 플러그인을 비활성화합니다...");
+                            "Server version is unsupported version (< "
+                                    + MINIMUM_SUPPORTED_VERSION
+                                    + "), Disabling this plugin...");
+            Bukkit.getLogger()
+                    .warning(
+                            "서버 버전이 지원되지 않는 버전입니다 (< "
+                                    + MINIMUM_SUPPORTED_VERSION
+                                    + "), 플러그인을 비활성화합니다...");
             Bukkit.getPluginManager().disablePlugin(this);
             return;
         }
@@ -131,6 +144,14 @@ public abstract class RSPlugin extends JavaPlugin {
 
     public void console(String minimessage) {
         console(ComponentFormatter.mini(minimessage));
+    }
+
+    public void loadLibrary(String dependency) {
+        this.libraryLoader.load(dependency);
+    }
+
+    public void loadLibrary(String dependency, String pattern, String relocatedPattern) {
+        this.libraryLoader.load(dependency, pattern, relocatedPattern);
     }
 
     public <T extends ConfigurationPart> T getConfiguration(Class<T> configuration) {
