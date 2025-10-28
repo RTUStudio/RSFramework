@@ -17,7 +17,7 @@ public class InfoCommand extends RSCommand<RSFramework> {
     }
 
     @Override
-    public boolean execute(RSCommandData data) {
+    protected Result execute(RSCommandData data) {
         chat().announce(
                         ComponentFormatter.mini(
                                 "Info\n<gradient:#2979FF:#7C4DFF> ┠ Name<white>: %s</white>\n ┠ Version<white>: %s</white>\n ┠ Bukkit<white>: %s</white>\n ┠ NMS<white>: %s</white>\n ┠ OS<white>: %s</white>\n ┖ JDK<white>: %s</white></gradient>"
@@ -30,6 +30,6 @@ public class InfoCommand extends RSCommand<RSFramework> {
                                                 framework().getNMSVersion(),
                                                 SystemEnvironment.getOS(),
                                                 SystemEnvironment.getJDKVersion())));
-        return true;
+        return Result.SUCCESS;
     }
 }

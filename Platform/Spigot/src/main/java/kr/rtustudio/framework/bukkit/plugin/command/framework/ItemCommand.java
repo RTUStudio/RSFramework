@@ -2,7 +2,6 @@ package kr.rtustudio.framework.bukkit.plugin.command.framework;
 
 import kr.rtustudio.framework.bukkit.api.command.RSCommand;
 import kr.rtustudio.framework.bukkit.api.command.RSCommandData;
-import kr.rtustudio.framework.bukkit.api.configuration.internal.translation.message.MessageTranslation;
 import kr.rtustudio.framework.bukkit.api.registry.CustomItems;
 import kr.rtustudio.framework.bukkit.plugin.RSFramework;
 
@@ -18,31 +17,23 @@ public class ItemCommand extends RSCommand<RSFramework> {
     }
 
     @Override
-    public boolean execute(RSCommandData data) {
+    protected Result execute(RSCommandData data) {
         Player player = player();
-        if (player == null) {
-            chat().announce(message().getCommon(player(), MessageTranslation.ONLY_PLAYER));
-            return true;
-        }
+        if (player == null) return Result.ONLY_PLAYER;
         if (data.length(1)) {
             EntityEquipment equipment = player.getEquipment();
             if (equipment != null) {
                 ItemStack itemStack = equipment.getItemInMainHand();
                 String id = CustomItems.to(itemStack);
                 chat().announce(message().get(player(), "command.item").replace("{id}", id));
-            } else {
-                chat().announce(message().getCommon(player(), MessageTranslation.NOT_FOUND_ITEM));
-                return true;
-            }
+                return Result.SUCCESS;
+            } else return Result.NOT_FOUND_ITEM;
         } else {
             String id = data.args(1);
             ItemStack itemStack = CustomItems.from(id);
-            if (itemStack == null) {
-                chat().announce(message().getCommon(player(), MessageTranslation.NOT_FOUND_ITEM));
-                return true;
-            }
+            if (itemStack == null) return Result.NOT_FOUND_ITEM;
             player().getInventory().addItem(itemStack);
+            return Result.SUCCESS;
         }
-        return true;
     }
 }

@@ -15,12 +15,13 @@ public class BroadcastCommand extends RSCommand<RSFramework> {
     }
 
     @Override
-    public boolean execute(RSCommandData data) {
+    protected Result execute(RSCommandData data) {
         if (data.args(1).isEmpty()) {
             chat().announce(message().get(player(), "command.empty"));
-        } else
-            PlayerChat.broadcastAll(
-                    getPlugin().getPrefix().append(ComponentFormatter.mini(data.toString(1))));
-        return true;
+            return Result.FAILURE;
+        }
+        PlayerChat.broadcastAll(
+                getPlugin().getPrefix().append(ComponentFormatter.mini(data.toString(1))));
+        return Result.SUCCESS;
     }
 }

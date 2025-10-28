@@ -11,6 +11,7 @@ import kr.rtustudio.framework.bukkit.api.core.module.ThemeModule;
 import kr.rtustudio.framework.bukkit.api.core.provider.name.NameProvider;
 import kr.rtustudio.framework.bukkit.api.player.PlayerChat;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 import net.kyori.adventure.audience.Audience;
 
@@ -133,39 +134,62 @@ public abstract class RSCommand<T extends RSPlugin> extends Command {
             @NotNull CommandSender sender, @NotNull String commandLabel, @NotNull String[] args) {
         this.chat.setReceiver(sender);
         if (this.parent == null && (sender instanceof Player player)) {
-            Map<UUID, Integer> cooldownMap = this.framework.getCommandLimit().getExecuteLimit();
-            int cooldown = this.framework.getModules().getCommand().getExecuteLimit();
-            if (cooldown > 0) {
-                if (cooldownMap.containsKey(player.getUniqueId())) {
-                    this.chat.announce(
-                            this.message.getCommon(player, MessageTranslation.ERROR_COOLDOWN));
-                    return true;
-                } else cooldownMap.put(player.getUniqueId(), cooldown);
-            }
+            if (_cooldown(player)) return true;
         }
         this.sender = sender;
         this.audience = this.plugin.getAdventure().sender(sender);
         RSCommandData data = new RSCommandData(args);
         RSCommand<? extends RSPlugin> sub = findCommand(data.args(this.index));
         if (sub == null) {
-            if (hasCommandPermission(getPermission())) {
-                if (!execute(data)) wrongUsage();
-            } else
-                this.chat.announce(
-                        this.message.getCommon(player(), MessageTranslation.NO_PERMISSION));
+            if (!hasCommandPermission(getPermission())) {
+                _handle(Result.NO_PERMISSION);
+                return true;
+            }
+            _handle(execute(data));
         } else {
             if (sub.getName().equalsIgnoreCase("reload")) reload(data);
-            if (hasCommandPermission(sub.getPermission())) {
-                if (!sub.execute(sender, commandLabel, args)) sub.wrongUsage();
-            } else
-                this.chat.announce(
-                        this.message.getCommon(player(), MessageTranslation.NO_PERMISSION));
+            if (!hasCommandPermission(sub.getPermission())) {
+                _handle(Result.NO_PERMISSION);
+                return true;
+            }
+            if (!sub.execute(sender, commandLabel, args)) sub._usage();
         }
         return true;
     }
 
-    private void wrongUsage() {
-        this.chat.announce(this.message.getCommon(player(), MessageTranslation.WRONG_USAGE));
+    private void _announce(String key) {
+        this.chat.announce(this.message.getCommon(player(), key));
+    }
+
+    private boolean _cooldown(Player player) {
+        Map<UUID, Integer> cooldownMap = this.framework.getCommandLimit().getExecuteLimit();
+        int cooldown = this.framework.getModules().getCommand().getExecuteLimit();
+        if (cooldown <= 0) return false;
+        if (cooldownMap.containsKey(player.getUniqueId())) {
+            _announce(MessageTranslation.ERROR_COOLDOWN);
+            return true;
+        }
+        cooldownMap.put(player.getUniqueId(), cooldown);
+        return false;
+    }
+
+    private void _handle(Result result) {
+        String key =
+                switch (result) {
+                    case ONLY_PLAYER -> MessageTranslation.ONLY_PLAYER;
+                    case ONLY_CONSOLE -> MessageTranslation.ONLY_CONSOLE;
+                    case NOT_FOUND_ONLINE_PLAYER -> MessageTranslation.NOT_FOUND_ONLINE_PLAYER;
+                    case NOT_FOUND_OFFLINE_PLAYER -> MessageTranslation.NOT_FOUND_OFFLINE_PLAYER;
+                    case NOT_FOUND_ITEM -> MessageTranslation.NOT_FOUND_ITEM;
+                    case NO_PERMISSION -> MessageTranslation.NO_PERMISSION;
+                    default -> null;
+                };
+        if (result == Result.WRONG_USAGE) _usage();
+        else if (key != null) _announce(key);
+    }
+
+    private void _usage() {
+        _announce(MessageTranslation.WRONG_USAGE);
         ThemeModule module = this.framework.getModules().getTheme();
         String startGradient = module.getGradientStart();
         String endGradient = module.getGradientEnd();
@@ -258,7 +282,7 @@ public abstract class RSCommand<T extends RSPlugin> extends Command {
                 if (hasCommandPermission(cmd.getPermission()))
                     list.add(cmd.getLocalizedName(player()));
             }
-        RSCommand<? extends RSPlugin> sub = findCommand(data.args(0));
+        RSCommand<? extends RSPlugin> sub = findCommand(data.args(index));
         if (sub == null) {
             if (hasCommandPermission(getPermission())) list.addAll(tabComplete(data));
         } else if (hasCommandPermission(sub.getPermission())) {
@@ -267,13 +291,59 @@ public abstract class RSCommand<T extends RSPlugin> extends Command {
         return list;
     }
 
-    protected boolean execute(RSCommandData data) {
-        return false;
+    /**
+     * 명령 인자를 파싱한 후 표준화된 {@link Result} 값을 반환합니다. 실제 동작은 하위 클래스에서 이 메소드를 오버라이드하여 구현하세요.
+     *
+     * <p>Execute this command with parsed data and return a standardized {@link Result}. Subclasses
+     * should override this method to implement the actual behavior.
+     *
+     * <ul>
+     *   <li>Result.SUCCESS: 작업 성공
+     *   <li>Result.FAILURE: 작업 실패(필요 시 개별 커맨드에서 직접 안내)
+     *   <li>Result.ONLY_PLAYER / ONLY_CONSOLE / NOT_FOUND_* / WRONG_USAGE: 상위 디스패처가 공통 안내
+     * </ul>
+     */
+    protected Result execute(RSCommandData data) {
+        return Result.FAILURE;
     }
 
+    /**
+     * 탭 완성 후보를 반환합니다. 기본 구현은 빈 리스트를 반환합니다.
+     *
+     * <p>Return tab-completion candidates. The default implementation returns an empty list.
+     */
     protected List<String> tabComplete(RSCommandData data) {
         return List.of();
     }
 
+    /**
+     * 구성/상태를 재적용합니다. 기본 구현은 아무 동작도 수행하지 않습니다.
+     *
+     * <p>Reload configuration/state. The default implementation is a no-op.
+     */
     protected void reload(RSCommandData data) {}
+
+    @Getter
+    @RequiredArgsConstructor
+    public enum Result {
+        SUCCESS(true),
+
+        FAILURE(false),
+
+        ONLY_PLAYER(false),
+
+        ONLY_CONSOLE(false),
+
+        NO_PERMISSION(false),
+
+        NOT_FOUND_ONLINE_PLAYER(false),
+
+        NOT_FOUND_OFFLINE_PLAYER(false),
+
+        NOT_FOUND_ITEM(false),
+
+        WRONG_USAGE(false);
+
+        private final boolean success;
+    }
 }

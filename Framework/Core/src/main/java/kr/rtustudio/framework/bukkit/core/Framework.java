@@ -26,6 +26,7 @@ import kr.rtustudio.framework.bukkit.nms.v1_21_r2.NMS_1_21_R2;
 import kr.rtustudio.framework.bukkit.nms.v1_21_r3.NMS_1_21_R3;
 import kr.rtustudio.framework.bukkit.nms.v1_21_r4.NMS_1_21_R4;
 import kr.rtustudio.framework.bukkit.nms.v1_21_r5.NMS_1_21_R5;
+import kr.rtustudio.framework.bukkit.nms.v1_21_r6.NMS_1_21_R6;
 import kr.rtustudio.protoweaver.api.ProtoConnectionHandler;
 import kr.rtustudio.protoweaver.api.callback.HandlerCallback;
 import kr.rtustudio.protoweaver.api.protocol.Packet;
@@ -129,6 +130,7 @@ public class Framework implements kr.rtustudio.framework.bukkit.api.core.Framewo
             case "v1_21_R3" -> NMS = new NMS_1_21_R3();
             case "v1_21_R4" -> NMS = new NMS_1_21_R4();
             case "v1_21_R5" -> NMS = new NMS_1_21_R5();
+            case "v1_21_R6" -> NMS = new NMS_1_21_R6();
             default -> {
                 log.warn("Server version is unsupported version, Disabling RSFramework...");
                 Bukkit.getPluginManager().disablePlugin(plugin);

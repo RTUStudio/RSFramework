@@ -92,18 +92,6 @@ public class MinecraftVersion {
     public static String getNMS(String versionStr) {
         Version version = new Version(versionStr);
         return switch (version.getMinor()) {
-            case 17 -> "v1_17_R1"; // 1.17.1
-            case 18 ->
-                    switch (version.getPatch()) {
-                        case 0, 1 -> "v1_18_R1";
-                        default -> "v1_18_R2"; // 1.18.2
-                    };
-            case 19 ->
-                    switch (version.getPatch()) {
-                        case 0, 1, 2 -> "v1_19_R1";
-                        case 3 -> "v1_19_R2";
-                        default -> "v1_19_R3"; // 1.19.4
-                    };
             case 20 ->
                     switch (version.getPatch()) {
                         case 0, 1 -> "v1_20_R1";
@@ -118,7 +106,7 @@ public class MinecraftVersion {
                         case 4 -> "v1_21_R3";
                         case 5 -> "v1_21_R4";
                         case 6, 7, 8 -> "v1_21_R5"; // 1.21.6, 1.21.7, 1.21.8
-                        default -> "v1_21_R6"; // 1.21.9
+                        default -> "v1_21_R6"; // 1.21.9, 1.21.10
                     };
             default -> "v1_21_R6";
         };

@@ -37,7 +37,7 @@ include(
     "Library:ProtoWeaver:Bukkit:NMS:1_21_R3",
     "Library:ProtoWeaver:Bukkit:NMS:1_21_R4",
     "Library:ProtoWeaver:Bukkit:NMS:1_21_R5",
-//    "Library:ProtoWeaver:Bukkit:NMS:1_21_R6"
+    "Library:ProtoWeaver:Bukkit:NMS:1_21_R6",
 )
 
 include("Platform")
@@ -65,7 +65,7 @@ include(
     "Framework:NMS:1_21_R3",
     "Framework:NMS:1_21_R4",
     "Framework:NMS:1_21_R5",
-//    "Framework:NMS:1_21_R6"
+    "Framework:NMS:1_21_R6",
 )
 
 include(

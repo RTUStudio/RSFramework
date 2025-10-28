@@ -2,7 +2,6 @@ package kr.rtustudio.framework.bukkit.plugin.command.framework;
 
 import kr.rtustudio.framework.bukkit.api.command.RSCommand;
 import kr.rtustudio.framework.bukkit.api.command.RSCommandData;
-import kr.rtustudio.framework.bukkit.api.configuration.internal.translation.message.MessageTranslation;
 import kr.rtustudio.framework.bukkit.api.core.provider.Providers;
 import kr.rtustudio.framework.bukkit.api.core.provider.name.NameProvider;
 import kr.rtustudio.framework.bukkit.api.format.ComponentFormatter;
@@ -26,41 +25,25 @@ public class SendCommand extends RSCommand<RSFramework> {
     }
 
     @Override
-    public boolean execute(RSCommandData data) {
+    protected Result execute(RSCommandData data) {
         if (data.length() > 2) {
             String name = data.args(1);
             String message = data.toString(2);
             UUID uniqueId = providers.getName().getUniqueId(name);
-            if (uniqueId == null) {
-                chat().announce(
-                                message()
-                                        .getCommon(
-                                                player(),
-                                                MessageTranslation.NOT_FOUND_OFFLINE_PLAYER));
-                return true;
-            }
+            if (uniqueId == null) return Result.NOT_FOUND_OFFLINE_PLAYER;
             if (message.isEmpty()) {
                 chat().announce(message().get(player(), "command.empty"));
-                return true;
+                return Result.FAILURE;
             }
             ProxyPlayer target = PlayerList.getPlayer(uniqueId);
-            if (target == null) {
-                chat().announce(
-                                message()
-                                        .getCommon(
-                                                player(),
-                                                MessageTranslation.NOT_FOUND_OFFLINE_PLAYER));
-                return true;
-            }
+            if (target == null) return Result.NOT_FOUND_OFFLINE_PLAYER;
             PlayerChat.send(
                     target, getPlugin().getPrefix().append(ComponentFormatter.mini(message)));
-        } else if (data.length(2)) chat().announce(message().get(player(), "command.empty"));
-        else
-            chat().announce(
-                            message()
-                                    .getCommon(
-                                            player(), MessageTranslation.NOT_FOUND_OFFLINE_PLAYER));
-        return true;
+            return Result.SUCCESS;
+        } else if (data.length(2)) {
+            chat().announce(message().get(player(), "command.empty"));
+            return Result.FAILURE;
+        } else return Result.NOT_FOUND_OFFLINE_PLAYER;
     }
 
     @Override

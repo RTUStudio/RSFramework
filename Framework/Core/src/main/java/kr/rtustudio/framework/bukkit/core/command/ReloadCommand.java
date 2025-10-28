@@ -21,7 +21,7 @@ public class ReloadCommand extends RSCommand<RSPlugin> {
     }
 
     @Override
-    protected boolean execute(RSCommandData data) {
+    protected Result execute(RSCommandData data) {
         getPlugin().getConfiguration().reloadInternal();
         Command nmsc = framework().getNMS().getCommand();
         for (RSCommand<? extends RSPlugin> rsc : getPlugin().getCommands()) {
@@ -37,7 +37,7 @@ public class ReloadCommand extends RSCommand<RSPlugin> {
             Bukkit.getOnlinePlayers().forEach(Player::updateCommands);
         }
         chat().announce(message().getCommon(player(), "reload"));
-        return true;
+        return Result.SUCCESS;
     }
 
     @Override

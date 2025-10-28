@@ -75,12 +75,6 @@ allprojects {
             leadingTabsToSpaces(4)
             endWithNewline()
         }
-
-        format("misc") {
-            target("**/*.md", "**/*.yml", "**/*.yaml", "**/*.json", "**/.gitignore")
-            trimTrailingWhitespace()
-            endWithNewline()
-        }
     }
 
     java {
