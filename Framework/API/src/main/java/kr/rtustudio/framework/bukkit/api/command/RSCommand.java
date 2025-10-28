@@ -134,7 +134,7 @@ public abstract class RSCommand<T extends RSPlugin> extends Command {
             @NotNull CommandSender sender, @NotNull String commandLabel, @NotNull String[] args) {
         this.chat.setReceiver(sender);
         if (this.parent == null && (sender instanceof Player player)) {
-            if (_cooldown(player)) return true;
+            if (checkCooldown(player)) return true;
         }
         this.sender = sender;
         this.audience = this.plugin.getAdventure().sender(sender);
@@ -142,38 +142,38 @@ public abstract class RSCommand<T extends RSPlugin> extends Command {
         RSCommand<? extends RSPlugin> sub = findCommand(data.args(this.index));
         if (sub == null) {
             if (!hasCommandPermission(getPermission())) {
-                _handle(Result.NO_PERMISSION);
+                handleResult(Result.NO_PERMISSION);
                 return true;
             }
-            _handle(execute(data));
+            handleResult(execute(data));
         } else {
             if (sub.getName().equalsIgnoreCase("reload")) reload(data);
             if (!hasCommandPermission(sub.getPermission())) {
-                _handle(Result.NO_PERMISSION);
+                handleResult(Result.NO_PERMISSION);
                 return true;
             }
-            if (!sub.execute(sender, commandLabel, args)) sub._usage();
+            if (!sub.execute(sender, commandLabel, args)) sub.showUsage();
         }
         return true;
     }
 
-    private void _announce(String key) {
+    private void announceCommon(String key) {
         this.chat.announce(this.message.getCommon(player(), key));
     }
 
-    private boolean _cooldown(Player player) {
+    private boolean checkCooldown(Player player) {
         Map<UUID, Integer> cooldownMap = this.framework.getCommandLimit().getExecuteLimit();
         int cooldown = this.framework.getModules().getCommand().getExecuteLimit();
         if (cooldown <= 0) return false;
         if (cooldownMap.containsKey(player.getUniqueId())) {
-            _announce(MessageTranslation.ERROR_COOLDOWN);
+            announceCommon(MessageTranslation.ERROR_COOLDOWN);
             return true;
         }
         cooldownMap.put(player.getUniqueId(), cooldown);
         return false;
     }
 
-    private void _handle(Result result) {
+    private void handleResult(Result result) {
         String key =
                 switch (result) {
                     case ONLY_PLAYER -> MessageTranslation.ONLY_PLAYER;
@@ -184,12 +184,12 @@ public abstract class RSCommand<T extends RSPlugin> extends Command {
                     case NO_PERMISSION -> MessageTranslation.NO_PERMISSION;
                     default -> null;
                 };
-        if (result == Result.WRONG_USAGE) _usage();
-        else if (key != null) _announce(key);
+        if (result == Result.WRONG_USAGE) showUsage();
+        else if (key != null) announceCommon(key);
     }
 
-    private void _usage() {
-        _announce(MessageTranslation.WRONG_USAGE);
+    private void showUsage() {
+        announceCommon(MessageTranslation.WRONG_USAGE);
         ThemeModule module = this.framework.getModules().getTheme();
         String startGradient = module.getGradientStart();
         String endGradient = module.getGradientEnd();
@@ -304,7 +304,7 @@ public abstract class RSCommand<T extends RSPlugin> extends Command {
      * </ul>
      */
     protected Result execute(RSCommandData data) {
-        return Result.FAILURE;
+        return Result.WRONG_USAGE;
     }
 
     /**
