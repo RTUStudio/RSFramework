@@ -12,6 +12,8 @@ import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import net.Indyuce.mmoitems.MMOItems;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Base64;
@@ -21,6 +23,8 @@ import org.bukkit.NamespacedKey;
 import org.bukkit.Registry;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.util.io.BukkitObjectInputStream;
+import org.bukkit.util.io.BukkitObjectOutputStream;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.xerial.snappy.Snappy;
@@ -143,6 +147,71 @@ public class CustomItems {
             return stack1.isSimilar(stack2);
         if (id1.startsWith("custom:") || id2.startsWith("custom:")) return stack1.isSimilar(stack2);
         return id1.equalsIgnoreCase(id2);
+    }
+
+    @Nullable
+    public static String encode(ItemStack itemStack) {
+        try {
+            final ByteArrayOutputStream str = new ByteArrayOutputStream();
+            final BukkitObjectOutputStream data = new BukkitObjectOutputStream(str);
+            data.writeObject(itemStack);
+            data.close();
+            byte[] compressed = Snappy.compress(str.toByteArray());
+            String result = Base64.getEncoder().encodeToString(compressed);
+            return result == null || result.isEmpty() ? null : result;
+        } catch (final Exception e) {
+            return null;
+        }
+    }
+
+    @Nullable
+    public static ItemStack decode(String str) {
+        if (str == null || str.isEmpty()) return null;
+        try {
+            byte[] base64 = Base64.getDecoder().decode(str);
+            byte[] uncompressed = Snappy.uncompress(base64);
+            final ByteArrayInputStream stream = new ByteArrayInputStream(uncompressed);
+            final BukkitObjectInputStream data = new BukkitObjectInputStream(stream);
+            ItemStack itemStack = (ItemStack) data.readObject();
+            data.close();
+            return itemStack;
+        } catch (final IOException | ClassNotFoundException e) {
+            return null;
+        }
+    }
+
+    @Nullable
+    public static String encodeArray(ItemStack[] array) {
+        try {
+            final ByteArrayOutputStream str = new ByteArrayOutputStream();
+            final BukkitObjectOutputStream data = new BukkitObjectOutputStream(str);
+            data.writeInt(array.length);
+            for (ItemStack itemStack : array) data.writeObject(itemStack);
+            data.close();
+            byte[] compressed = Snappy.compress(str.toByteArray());
+            String result = Base64.getEncoder().encodeToString(compressed);
+            return result == null || result.isEmpty() ? null : result;
+        } catch (final Exception e) {
+            return null;
+        }
+    }
+
+    @Nullable
+    public static ItemStack[] decodeArray(String str) {
+        if (str == null || str.isEmpty()) return null;
+        try {
+            byte[] base64 = Base64.getDecoder().decode(str);
+            byte[] uncompressed = Snappy.uncompress(base64);
+            final ByteArrayInputStream stream = new ByteArrayInputStream(uncompressed);
+            final BukkitObjectInputStream data = new BukkitObjectInputStream(stream);
+            int length = data.readInt();
+            ItemStack[] array = new ItemStack[length];
+            for (int i = 0; i < length; i++) array[i] = (ItemStack) data.readObject();
+            data.close();
+            return array;
+        } catch (final IOException | ClassNotFoundException e) {
+            return null;
+        }
     }
 
     @Nullable

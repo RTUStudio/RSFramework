@@ -286,7 +286,8 @@ public class RSConfiguration {
                 if (previous == null) return;
                 String dump = config.copy().getString();
                 if (!previous.isEmpty()) if (!previous.equalsIgnoreCase(dump)) changed = true;
-            } catch (IOException ignore) {
+            } catch (IOException ex) {
+                log.warn("IOException {}", path.getFileName(), ex);
             } catch (Exception ex) {
                 log.warn(
                         "Could not load {}, please correct your syntax errors",
