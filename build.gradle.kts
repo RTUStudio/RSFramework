@@ -114,7 +114,7 @@ dependencies {
     implementation("com.alessiodp.libby:libby-bukkit:2.0.0-SNAPSHOT")
     implementation("com.alessiodp.libby:libby-bungee:2.0.0-SNAPSHOT")
     implementation("com.alessiodp.libby:libby-velocity:2.0.0-SNAPSHOT")
-    implementation("net.kyori:adventure-platform-bukkit:4.3.4")
+    implementation("net.kyori:adventure-platform-bukkit:4.4.1")
 
     compileOnly("org.projectlombok:lombok:1.18.38")
     add("annotationProcessor", "org.projectlombok:lombok:1.18.38")

@@ -18,7 +18,7 @@ listOf("API", "Core").forEach { name ->
             compileOnly("org.spigotmc:spigot-api:$apiVersion-R0.1-SNAPSHOT")
             compileOnly("io.papermc.paper:paper-api:$apiVersion-R0.1-SNAPSHOT")
 
-            implementation("net.kyori:adventure-platform-bukkit:4.3.4")
+            implementation("net.kyori:adventure-platform-bukkit:4.4.1")
             implementation("de.tr7zw:item-nbt-api:2.15.2-SNAPSHOT")
 
             compileOnly("com.github.LoneDev6:API-ItemsAdder:3.6.3-beta-14")
