@@ -75,19 +75,16 @@ public class PacketWrapper<T extends RSPlugin> implements Integration {
         return result;
     }
 
-    /** Receiver of PlayerChat may be empty */
     protected void onConnect(@NotNull UserConnectEvent event) {}
 
     protected void onLogin(@NotNull UserLoginEvent event) {}
 
-    /** Receiver of PlayerChat may be empty */
     protected void onDisconnect(@NotNull UserDisconnectEvent event) {}
 
     protected void onReceive(@NotNull PacketReceiveEvent event) {}
 
     protected void onSend(@NotNull PacketSendEvent event) {}
 
-    /** Receiver of PlayerChat may be empty */
     protected void onExternal(@NotNull PacketEvent event) {}
 
     public enum Priority {
@@ -143,7 +140,6 @@ public class PacketWrapper<T extends RSPlugin> implements Integration {
         }
 
         public void onUserLogin(@NotNull UserLoginEvent event) {
-            chat.setReceiver(event.getPlayer());
             onLogin(event);
         }
 
@@ -152,12 +148,10 @@ public class PacketWrapper<T extends RSPlugin> implements Integration {
         }
 
         public void onPacketReceive(@NotNull PacketReceiveEvent event) {
-            chat.setReceiver(event.getPlayer());
             onReceive(event);
         }
 
         public void onPacketSend(@NotNull PacketSendEvent event) {
-            chat.setReceiver(event.getPlayer());
             onSend(event);
         }
 
