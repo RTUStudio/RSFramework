@@ -2,7 +2,7 @@ name: '${name}'
 version: '${version}'
 main: kr.rtustudio.framework.bukkit.plugin.RSFramework
 description: Framework of RSPlugins, developed by IPECTER 이팩터
-api-version: 1.17
+api-version: 1.20
 folia-supported: true
 authors: [ '${author}' ]
-softdepend: [ PlaceholderAPI, ProtocolLib, Nexo, ItemsAdder, Oraxen, EcoItems, MMOItems ]
+softdepend: [ PlaceholderAPI, packetevents, Nexo, ItemsAdder, Oraxen, EcoItems, MMOItems ]
