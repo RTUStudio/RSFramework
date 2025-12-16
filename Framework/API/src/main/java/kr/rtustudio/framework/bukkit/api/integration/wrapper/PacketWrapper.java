@@ -29,6 +29,10 @@ public class PacketWrapper<T extends RSPlugin> implements Integration {
 
     private Integration.Wrapper wrapper;
 
+    public PacketWrapper(T plugin) {
+        this(plugin, Priority.NORMAL);
+    }
+
     public PacketWrapper(T plugin, Priority priority) {
         this.plugin = plugin;
         this.message = plugin.getConfiguration().getMessage();
