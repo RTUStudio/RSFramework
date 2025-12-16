@@ -10,9 +10,9 @@ public class MongoDBConfig extends RSConfiguration.Wrapper<RSPlugin> {
 
     private String host = "127.0.0.1";
     private String port = "27017";
-    private String database = "";
-    private String username = "";
-    private String password = "";
+    private String database = "RSPlugin";
+    private String username = "root";
+    private String password = "pwd";
     private String collectionPrefix = getPlugin().getName() + "_";
 
     public MongoDBConfig(RSPlugin plugin) {

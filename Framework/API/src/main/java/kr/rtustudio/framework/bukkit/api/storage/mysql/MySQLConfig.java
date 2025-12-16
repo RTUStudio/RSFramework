@@ -10,9 +10,9 @@ public class MySQLConfig extends RSConfiguration.Wrapper<RSPlugin> {
 
     private String host = "127.0.0.1";
     private String port = "3306";
-    private String database = "minecraft_rsplugin";
-    private String username = "";
-    private String password = "";
+    private String database = "RSPlugin";
+    private String username = "root";
+    private String password = "pwd";
     private String tablePrefix = getPlugin().getName() + "_";
     private boolean useArrowOperator = true;
 
