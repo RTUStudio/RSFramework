@@ -16,16 +16,6 @@ import kr.rtustudio.protoweaver.api.proxy.request.teleport.LocationTeleport;
 import kr.rtustudio.protoweaver.api.proxy.request.teleport.PlayerTeleport;
 import kr.rtustudio.protoweaver.api.serializer.CustomPacketSerializer;
 import kr.rtustudio.protoweaver.bukkit.api.nms.IProtoWeaver;
-import kr.rtustudio.protoweaver.bukkit.nms.v1_20_r1.ProtoWeaver_1_20_R1;
-import kr.rtustudio.protoweaver.bukkit.nms.v1_20_r2.ProtoWeaver_1_20_R2;
-import kr.rtustudio.protoweaver.bukkit.nms.v1_20_r3.ProtoWeaver_1_20_R3;
-import kr.rtustudio.protoweaver.bukkit.nms.v1_20_r4.ProtoWeaver_1_20_R4;
-import kr.rtustudio.protoweaver.bukkit.nms.v1_21_r1.ProtoWeaver_1_21_R1;
-import kr.rtustudio.protoweaver.bukkit.nms.v1_21_r2.ProtoWeaver_1_21_R2;
-import kr.rtustudio.protoweaver.bukkit.nms.v1_21_r3.ProtoWeaver_1_21_R3;
-import kr.rtustudio.protoweaver.bukkit.nms.v1_21_r4.ProtoWeaver_1_21_R4;
-import kr.rtustudio.protoweaver.bukkit.nms.v1_21_r5.ProtoWeaver_1_21_R5;
-import kr.rtustudio.protoweaver.bukkit.nms.v1_21_r6.ProtoWeaver_1_21_R6;
 import kr.rtustudio.protoweaver.core.protocol.protoweaver.ProxyPacketHandler;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
@@ -51,23 +41,10 @@ public class BukkitProtoWeaver implements kr.rtustudio.protoweaver.bukkit.api.Bu
     private ProtoConnection connection;
 
     public BukkitProtoWeaver(String sslFolder, String nmsVersion, HandlerCallback callback) {
-        this.protoWeaver =
-                switch (nmsVersion) {
-                    case "v1_20_R1" -> new ProtoWeaver_1_20_R1(sslFolder);
-                    case "v1_20_R2" -> new ProtoWeaver_1_20_R2(sslFolder);
-                    case "v1_20_R3" -> new ProtoWeaver_1_20_R3(sslFolder);
-                    case "v1_20_R4" -> new ProtoWeaver_1_20_R4(sslFolder);
-                    case "v1_21_R1" -> new ProtoWeaver_1_21_R1(sslFolder);
-                    case "v1_21_R2" -> new ProtoWeaver_1_21_R2(sslFolder);
-                    case "v1_21_R3" -> new ProtoWeaver_1_21_R3(sslFolder);
-                    case "v1_21_R4" -> new ProtoWeaver_1_21_R4(sslFolder);
-                    case "v1_21_R5" -> new ProtoWeaver_1_21_R5(sslFolder);
-                    case "v1_21_R6" -> new ProtoWeaver_1_21_R6(sslFolder);
-                    default -> throw new IllegalStateException();
-                };
-        protoWeaver.setup();
+        this.protoWeaver = new ProtoWeaver(sslFolder);
+        this.protoWeaver.setup();
         this.callback = callback;
-        this.isModernProxy = protoWeaver.isModernProxy();
+        this.isModernProxy = this.protoWeaver.isModernProxy();
         Protocol.Builder protocol = Protocol.create("rsframework", "internal");
         protocol.setCompression(CompressionType.SNAPPY);
         protocol.setMaxPacketSize(67108864); // 64mb

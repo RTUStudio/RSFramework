@@ -14,6 +14,7 @@ dependencies {
     implementation(project(path = ":Framework:NMS:1_21_R4", configuration = "reobf"))
     implementation(project(path = ":Framework:NMS:1_21_R5", configuration = "reobf"))
     implementation(project(path = ":Framework:NMS:1_21_R6", configuration = "reobf"))
+    // implementation(project(path = ":Framework:NMS:1_21_R7", configuration = "reobf"))
 
     implementation(project(":Platform:Spigot"))
     implementation(project(":Platform:Paper"))

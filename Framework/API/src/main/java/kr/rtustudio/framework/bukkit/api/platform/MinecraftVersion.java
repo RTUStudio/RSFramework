@@ -24,9 +24,9 @@ public class MinecraftVersion {
      * if you use Bukkit#getBukkitVersion, use fromAPI
      *
      * @param minVersion
-     *            ex) 1.14.0
+     *            ex) 1.20.1
      * @param maxVersion
-     *            ex) 1.21.1
+     *            ex) 1.21.11
      * @return isSupportVersion
      */
     public static boolean isSupport(String minVersion, String maxVersion) {
@@ -91,24 +91,32 @@ public class MinecraftVersion {
     @NotNull
     public static String getNMS(String versionStr) {
         Version version = new Version(versionStr);
-        return switch (version.getMinor()) {
-            case 20 ->
-                    switch (version.getPatch()) {
-                        case 0, 1 -> "v1_20_R1";
-                        case 2 -> "v1_20_R2";
-                        case 3, 4 -> "v1_20_R3";
-                        default -> "v1_20_R4"; // 1.20.5, 1.20.6
+        return switch (version.getMajor()) {
+            case 1 ->
+                    switch (version.getMinor()) {
+                        case 20 ->
+                                switch (version.getPatch()) {
+                                    case 0, 1 -> "v1_20_R1";
+                                    case 2 -> "v1_20_R2";
+                                    case 3, 4 -> "v1_20_R3";
+                                    default -> "v1_20_R4"; // 1.20.5, 1.20.6
+                                };
+                        case 21 ->
+                                switch (version.getPatch()) {
+                                    case 0, 1 -> "v1_21_R1";
+                                    case 2, 3 -> "v1_21_R2";
+                                    case 4 -> "v1_21_R3";
+                                    case 5 -> "v1_21_R4";
+                                    case 6, 7, 8 -> "v1_21_R5";
+                                    case 9, 10 -> "v1_21_R6";
+                                    default -> "v1_21_R7"; // 1.21.11
+                                };
+                        default ->
+                                throw new IllegalArgumentException(
+                                        "Invalid minor version: " + versionStr);
                     };
-            case 21 ->
-                    switch (version.getPatch()) {
-                        case 0, 1 -> "v1_21_R1";
-                        case 2, 3 -> "v1_21_R2";
-                        case 4 -> "v1_21_R3";
-                        case 5 -> "v1_21_R4";
-                        case 6, 7, 8 -> "v1_21_R5"; // 1.21.6, 1.21.7, 1.21.8
-                        default -> "v1_21_R6"; // 1.21.9, 1.21.10
-                    };
-            default -> "v1_21_R6";
+                // case 26 -> // 26.0.0
+            default -> throw new IllegalArgumentException("Invalid major version: " + versionStr);
         };
     }
 

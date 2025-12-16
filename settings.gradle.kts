@@ -14,7 +14,6 @@ include(
 include(
     "Library:ProtoWeaver:Bukkit:API",
     "Library:ProtoWeaver:Bukkit:Core",
-    "Library:ProtoWeaver:Bukkit:NMS",
 )
 
 include(
@@ -25,19 +24,6 @@ include(
 include(
     "Library:ProtoWeaver:Velocity:API",
     "Library:ProtoWeaver:Velocity:Core",
-)
-
-include(
-    "Library:ProtoWeaver:Bukkit:NMS:1_20_R1",
-    "Library:ProtoWeaver:Bukkit:NMS:1_20_R2",
-    "Library:ProtoWeaver:Bukkit:NMS:1_20_R3",
-    "Library:ProtoWeaver:Bukkit:NMS:1_20_R4",
-    "Library:ProtoWeaver:Bukkit:NMS:1_21_R1",
-    "Library:ProtoWeaver:Bukkit:NMS:1_21_R2",
-    "Library:ProtoWeaver:Bukkit:NMS:1_21_R3",
-    "Library:ProtoWeaver:Bukkit:NMS:1_21_R4",
-    "Library:ProtoWeaver:Bukkit:NMS:1_21_R5",
-    "Library:ProtoWeaver:Bukkit:NMS:1_21_R6",
 )
 
 include("Platform")
@@ -66,6 +52,7 @@ include(
     "Framework:NMS:1_21_R4",
     "Framework:NMS:1_21_R5",
     "Framework:NMS:1_21_R6",
+    "Framework:NMS:1_21_R7",
 )
 
 include(

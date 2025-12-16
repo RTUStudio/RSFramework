@@ -29,6 +29,7 @@ allprojects {
         maven("https://repo.papermc.io/repository/maven-public/") { name = "papermc" }
         maven("https://oss.sonatype.org/content/groups/public/") { name = "sonatype" }
         maven("https://repo.codemc.io/repository/maven-public/") { name = "CodeMC" }
+        maven("https://repo.codemc.io/repository/maven-releases/") { name = "CodeMC" }
 
         maven("https://repo.viaversion.com")
         maven("https://repo.oraxen.com/releases")
@@ -36,7 +37,6 @@ allprojects {
         maven("https://repo.nexomc.com/releases/")
         maven("https://repo.auxilor.io/repository/maven-public/")
         maven("https://repo.extendedclip.com/content/repositories/placeholderapi/")
-        maven("https://repo.dmulloy2.net/repository/public/")
         maven("https://repo.essentialsx.net/releases") { name = "essentialsx" }
         maven("https://repo.opencollab.dev/maven-snapshots") { name = "GeyserMC Fork of SpongePowered/Configurate" }
     }

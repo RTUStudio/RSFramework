@@ -7,4 +7,11 @@ public interface Integration {
     boolean register();
 
     boolean unregister();
+
+    interface Wrapper {
+
+        boolean register();
+
+        boolean unregister();
+    }
 }

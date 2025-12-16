@@ -15,7 +15,7 @@ dependencies {
     compileOnly("org.mariadb.jdbc:mariadb-java-client:3.5.5")
 
     compileOnly("me.clip:placeholderapi:2.11.6")
-    compileOnly("net.dmulloy2:ProtocolLib:5.1.0")
+    compileOnly("com.github.retrooper:packetevents-spigot:2.10.1")
 
     implementation("org.spongepowered:configurate-yaml:4.2.0-GeyserMC-SNAPSHOT")
 }
