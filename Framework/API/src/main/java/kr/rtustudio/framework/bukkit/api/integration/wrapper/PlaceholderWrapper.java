@@ -8,6 +8,7 @@ import kr.rtustudio.framework.bukkit.api.configuration.internal.translation.mess
 import kr.rtustudio.framework.bukkit.api.core.Framework;
 import kr.rtustudio.framework.bukkit.api.integration.Integration;
 import kr.rtustudio.framework.bukkit.api.player.PlayerChat;
+import lombok.RequiredArgsConstructor;
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
 
 import org.bukkit.OfflinePlayer;
@@ -24,11 +25,18 @@ public abstract class PlaceholderWrapper<T extends RSPlugin> implements Integrat
 
     private Integration.Wrapper wrapper;
 
+    private final String identifier;
+
     public PlaceholderWrapper(T plugin) {
+        this(plugin, plugin.getName().toLowerCase());
+    }
+
+    public PlaceholderWrapper(T plugin, String identifier) {
         this.plugin = plugin;
         this.message = plugin.getConfiguration().getMessage();
         this.command = plugin.getConfiguration().getCommand();
         this.chat = PlayerChat.of(plugin);
+        this.identifier = identifier;
     }
 
     protected TranslationConfiguration message() {
@@ -54,7 +62,7 @@ public abstract class PlaceholderWrapper<T extends RSPlugin> implements Integrat
 
     @Override
     public boolean register() {
-        wrapper = new PlaceholderAPI();
+        wrapper = new PlaceholderAPI(identifier);
         return wrapper.register();
     }
 
@@ -67,7 +75,10 @@ public abstract class PlaceholderWrapper<T extends RSPlugin> implements Integrat
 
     public abstract String onRequest(OfflinePlayer offlinePlayer, String[] params);
 
+    @RequiredArgsConstructor
     class PlaceholderAPI extends PlaceholderExpansion implements Integration.Wrapper {
+
+        private final String identifier;
 
         @Override
         public @NotNull String getAuthor() {
@@ -76,7 +87,7 @@ public abstract class PlaceholderWrapper<T extends RSPlugin> implements Integrat
 
         @Override
         public @NotNull String getIdentifier() {
-            return plugin.getName().toLowerCase();
+            return identifier;
         }
 
         @Override
