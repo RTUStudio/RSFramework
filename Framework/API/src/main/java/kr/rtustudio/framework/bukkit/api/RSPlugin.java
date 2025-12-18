@@ -176,7 +176,7 @@ public abstract class RSPlugin extends JavaPlugin {
             Class<T> configuration,
             String name,
             Consumer<TypeSerializerCollection.Builder> serializers) {
-        return registerConfiguration(configuration, name, null, serializers);
+        return this.configuration.register(configuration, name, null, serializers);
     }
 
     protected <T extends ConfigurationPart> T registerConfiguration(
@@ -185,6 +185,33 @@ public abstract class RSPlugin extends JavaPlugin {
             Integer version,
             Consumer<TypeSerializerCollection.Builder> serializers) {
         return this.configuration.register(configuration, name, version, serializers);
+    }
+
+    protected <T extends ConfigurationPart> T registerConfiguration(
+            Class<T> configuration, String folder, String name) {
+        return this.configuration.register(configuration, folder, name);
+    }
+
+    protected <T extends ConfigurationPart> T registerConfiguration(
+            Class<T> configuration, String folder, String name, Integer version) {
+        return this.configuration.register(configuration, folder, name, version);
+    }
+
+    protected <T extends ConfigurationPart> T registerConfiguration(
+            Class<T> configuration,
+            String folder,
+            String name,
+            Consumer<TypeSerializerCollection.Builder> serializers) {
+        return this.configuration.register(configuration, folder, name, null, serializers);
+    }
+
+    protected <T extends ConfigurationPart> T registerConfiguration(
+            Class<T> configuration,
+            String folder,
+            String name,
+            Integer version,
+            Consumer<TypeSerializerCollection.Builder> serializers) {
+        return this.configuration.register(configuration, folder, name, version, serializers);
     }
 
     protected void initStorage(String... storages) {
