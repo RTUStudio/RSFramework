@@ -1,6 +1,8 @@
 package kr.rtustudio.framework.bukkit.core;
 
 import de.tr7zw.changeme.nbtapi.NBT;
+import it.unimi.dsi.fastutil.objects.Object2BooleanMap;
+import it.unimi.dsi.fastutil.objects.Object2BooleanOpenHashMap;
 import kr.rtustudio.framework.bukkit.api.RSPlugin;
 import kr.rtustudio.framework.bukkit.api.command.RSCommand;
 import kr.rtustudio.framework.bukkit.api.format.ComponentFormatter;
@@ -57,7 +59,7 @@ public class Framework implements kr.rtustudio.framework.bukkit.api.core.Framewo
             ComponentFormatter.mini("<gradient:#2979FF:#7C4DFF>RSFramework » </gradient>");
 
     @Getter private final Map<String, RSPlugin> plugins = new HashMap<>();
-    @Getter private final Map<String, Boolean> hooks = new HashMap<>();
+    @Getter private final Object2BooleanMap<String> hooks = new Object2BooleanOpenHashMap<>();
 
     @Getter private RSPlugin plugin;
 
@@ -98,7 +100,7 @@ public class Framework implements kr.rtustudio.framework.bukkit.api.core.Framewo
     }
 
     public boolean isEnabledDependency(String dependencyName) {
-        return hooks.getOrDefault(dependencyName, false);
+        return hooks.getBoolean(dependencyName);
     }
 
     public void hookDependency(String dependencyName) {

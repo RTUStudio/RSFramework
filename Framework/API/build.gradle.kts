@@ -9,6 +9,7 @@ dependencies {
 
     compileOnly("com.alessiodp.libby:libby-bukkit:2.0.0-SNAPSHOT")
 
+    compileOnly("it.unimi.dsi:fastutil:8.5.18")
     compileOnly("com.zaxxer:HikariCP:7.0.2")
     compileOnly("org.mongodb:mongodb-driver-sync:5.5.1")
     compileOnly("com.mysql:mysql-connector-j:9.4.0")

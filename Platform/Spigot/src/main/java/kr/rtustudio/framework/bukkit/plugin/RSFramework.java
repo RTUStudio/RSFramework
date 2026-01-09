@@ -32,6 +32,7 @@ public class RSFramework extends RSPlugin {
         loadLibrary("org.apache.commons:commons-lang3:3.18.0");
         loadLibrary("com.google.code.gson:gson:2.13.1");
         loadLibrary("com.google.guava:guava:33.4.8-jre");
+        loadLibrary("it.unimi.dsi:fastutil:8.5.18");
         loadLibrary("org.xerial.snappy:snappy-java:1.1.10.8");
         loadLibrary("org.quartz-scheduler:quartz:2.5.0");
 
