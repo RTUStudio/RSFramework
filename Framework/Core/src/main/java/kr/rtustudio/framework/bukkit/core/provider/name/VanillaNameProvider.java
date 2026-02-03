@@ -18,7 +18,7 @@ public class VanillaNameProvider implements NameProvider {
     @NotNull
     @Override
     public List<String> names(Scope scope) {
-        if (scope == Scope.GLOBAL_SERVERS) {
+        if (scope == Scope.GLOBAL) {
             return PlayerList.getPlayers(true).stream().map(ProxyPlayer::name).toList();
         } else return Bukkit.getOnlinePlayers().stream().map(Player::getName).toList();
     }

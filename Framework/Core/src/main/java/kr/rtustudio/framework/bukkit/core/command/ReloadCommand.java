@@ -27,7 +27,7 @@ public class ReloadCommand extends RSCommand<RSPlugin> {
         for (RSCommand<? extends RSPlugin> rsc : getPlugin().getCommands()) {
             nmsc.unregister(rsc);
             List<String> aliases = new ArrayList<>(getNames().subList(1, getNames().size()));
-            for (Translation translation : command().getMap().values()) {
+            for (Translation translation : command().getTranslations().values()) {
                 String name = translation.get(getName() + ".name");
                 if (getName().equals(name)) continue;
                 aliases.add(name);

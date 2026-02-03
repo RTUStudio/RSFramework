@@ -19,7 +19,7 @@ public interface NameProvider extends Provider {
      * @return player names
      */
     default @NotNull List<String> names() {
-        return names(Scope.CURRENT_SERVER);
+        return names(Scope.LOCAL);
     }
 
     @Nullable
@@ -29,7 +29,7 @@ public interface NameProvider extends Provider {
     UUID getUniqueId(String name);
 
     enum Scope {
-        GLOBAL_SERVERS,
-        CURRENT_SERVER
+        GLOBAL, // 모든 서버
+        LOCAL // 현재 서버
     }
 }

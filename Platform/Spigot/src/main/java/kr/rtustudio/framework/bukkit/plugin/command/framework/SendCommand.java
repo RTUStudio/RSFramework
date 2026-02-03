@@ -48,7 +48,7 @@ public class SendCommand extends RSCommand<RSFramework> {
 
     @Override
     public List<String> tabComplete(RSCommandData data) {
-        if (data.length(2)) return providers.getName().names(NameProvider.Scope.GLOBAL_SERVERS);
+        if (data.length(2)) return providers.getName().names(NameProvider.Scope.GLOBAL);
         return List.of();
     }
 }

@@ -85,7 +85,7 @@ public interface Storage {
     /** Enum representing the result of a storage operation. */
     @Getter
     @RequiredArgsConstructor
-    public enum Result {
+    enum Result {
 
         /** Operation succeeded and the storage was modified. */
         UPDATED(true, true),

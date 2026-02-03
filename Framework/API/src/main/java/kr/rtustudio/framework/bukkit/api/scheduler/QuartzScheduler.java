@@ -51,8 +51,9 @@ public class QuartzScheduler {
 
     private JobDetail createOrGet(Class<? extends Job> job) {
         JobDetail newJob = JobBuilder.newJob(job).usingJobData(new JobDataMap()).build();
-        if (jobs.containsKey(newJob.getKey())) return newJob;
-        return jobs.put(newJob.getKey(), newJob);
+        if (jobs.containsKey(newJob.getKey())) return jobs.get(newJob.getKey());
+        jobs.put(newJob.getKey(), newJob);
+        return newJob;
     }
 
     /**

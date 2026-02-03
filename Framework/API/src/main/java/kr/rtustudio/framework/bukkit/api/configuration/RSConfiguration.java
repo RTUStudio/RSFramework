@@ -331,6 +331,7 @@ public class RSConfiguration {
             set(path, val, "");
         }
 
+        @NotNull
         protected String getString(String path, String def) {
             return getString(path, def, new String[] {});
         }
@@ -351,34 +352,42 @@ public class RSConfiguration {
             return getLong(path, def, new String[] {});
         }
 
+        @NotNull
         protected <E> List<E> getList(String path, Class<E> type, List<E> def) {
             return getList(path, type, def, new String[] {});
         }
 
+        @NotNull
         protected List<String> getStringList(String path, List<String> def) {
             return getStringList(path, def, new String[] {});
         }
 
+        @NotNull
         protected List<Boolean> getBooleanList(String path, List<Boolean> def) {
             return getBooleanList(path, def, new String[] {});
         }
 
+        @NotNull
         protected List<Float> getFloatList(String path, List<Float> def) {
             return getFloatList(path, def, new String[] {});
         }
 
+        @NotNull
         protected List<Double> getDoubleList(String path, List<Double> def) {
             return getDoubleList(path, def, new String[] {});
         }
 
+        @NotNull
         protected List<Integer> getIntegerList(String path, List<Integer> def) {
             return getIntegerList(path, def, new String[] {});
         }
 
+        @NotNull
         protected List<Long> getLongList(String path, List<Long> def) {
             return getLongList(path, def, new String[] {});
         }
 
+        @NotNull
         protected Map<Object, Object> getMap(String path, Map<Object, Object> def) {
             return getMap(path, def, new String[] {});
         }
@@ -408,6 +417,7 @@ public class RSConfiguration {
             return node;
         }
 
+        @NotNull
         protected String getString(String path, String def, String... comment) {
             CommentedConfigurationNode node = addDefault(path, def, comment);
             return node.getString(def);
@@ -444,48 +454,75 @@ public class RSConfiguration {
             }
         }
 
+        @NotNull
         protected List<String> getStringList(String path, List<String> def, String... comment) {
             return getList(path, String.class, def, comment);
         }
 
+        @NotNull
         protected List<Boolean> getBooleanList(String path, List<Boolean> def, String... comment) {
             return getList(path, Boolean.class, def, comment);
         }
 
+        @NotNull
         protected List<Float> getFloatList(String path, List<Float> def, String... comment) {
             return getList(path, Float.class, def, comment);
         }
 
+        @NotNull
         protected List<Double> getDoubleList(String path, List<Double> def, String... comment) {
             return getList(path, Double.class, def, comment);
         }
 
+        @NotNull
         protected List<Integer> getIntegerList(String path, List<Integer> def, String... comment) {
             return getList(path, Integer.class, def, comment);
         }
 
+        @NotNull
         protected List<Long> getLongList(String path, List<Long> def, String... comment) {
             return getList(path, Long.class, def, comment);
         }
 
+        @NotNull
         protected Map<Object, Object> getMap(
                 String path, Map<Object, Object> def, String... comment) {
             CommentedConfigurationNode node = addDefault(path, def, comment);
             return toMap(node);
         }
 
+        protected boolean isList(String path) {
+            CommentedConfigurationNode node = pathToNode(path);
+            return node.isList();
+        }
+
+        protected boolean isMap(String path) {
+            CommentedConfigurationNode node = pathToNode(path);
+            return node.isMap();
+        }
+
+        protected boolean isNull(String path) {
+            CommentedConfigurationNode node = pathToNode(path);
+            if (node == null) return true;
+            return node.isNull();
+        }
+
+        @NotNull
         protected Set<String> keys(String path) {
             return keys(pathToNode(path));
         }
 
+        @NotNull
         protected Set<String> keys(String path, String... comment) {
             return keys(pathToNode(path));
         }
 
+        @NotNull
         protected Set<String> keys() {
             return keys(config);
         }
 
+        @NotNull
         protected Set<String> keys(ConfigurationNode node) {
             Set<String> out = new HashSet<>();
             collectKeys(node, "", out);
@@ -521,6 +558,7 @@ public class RSConfiguration {
             }
         }
 
+        @NotNull
         protected CommentedConfigurationNode pathToNode(String path) {
             String[] split = path.split("\\.");
             Object[] nodes = new Object[split.length];

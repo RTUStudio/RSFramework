@@ -34,8 +34,6 @@ import org.bukkit.permissions.PermissionDefault;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.spongepowered.configurate.serialize.TypeSerializerCollection;
 
-import com.google.gson.JsonObject;
-
 @Getter
 @SuppressWarnings("unused")
 public abstract class RSPlugin extends JavaPlugin {
@@ -302,6 +300,4 @@ public abstract class RSPlugin extends JavaPlugin {
     protected void enable() {}
 
     protected void disable() {}
-
-    public void syncStorage(String name, JsonObject json) {}
 }
