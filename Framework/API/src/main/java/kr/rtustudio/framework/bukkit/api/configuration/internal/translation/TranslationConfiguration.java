@@ -1,10 +1,10 @@
 package kr.rtustudio.framework.bukkit.api.configuration.internal.translation;
 
+import kr.rtustudio.broker.protoweaver.api.proxy.ProxyPlayer;
 import kr.rtustudio.cdi.LightDI;
 import kr.rtustudio.framework.bukkit.api.RSPlugin;
 import kr.rtustudio.framework.bukkit.api.core.Framework;
 import kr.rtustudio.framework.bukkit.api.platform.FileResource;
-import kr.rtustudio.protoweaver.api.proxy.ProxyPlayer;
 import lombok.Getter;
 
 import java.io.File;
@@ -32,74 +32,73 @@ public class TranslationConfiguration {
         reload();
     }
 
+    private Translation resolveTranslation(String locale) {
+        if (locale == null) return translations.get(defaultLocale);
+        return translations.getOrDefault(locale, translations.get(defaultLocale));
+    }
+
+    private String resolveLocale(CommandSender sender) {
+        return sender instanceof Player player ? player.getLocale() : null;
+    }
+
+    private String resolveLocale(ProxyPlayer player) {
+        return player != null && player.locale() != null ? player.locale().toString() : null;
+    }
+
     @NotNull
     public String get(String key) {
-        Translation translation = translations.get(defaultLocale);
+        Translation translation = resolveTranslation(null);
         if (translation == null) return "";
         return translation.get(key);
     }
 
     @NotNull
     public String get(String locale, String key) {
-        Translation translation = translations.get(locale);
+        Translation translation = resolveTranslation(locale);
         if (translation == null) return "";
         return translation.get(key);
     }
 
     @NotNull
     public String get(CommandSender sender, String key) {
-        if (sender instanceof Player player) {
-            Translation translation = translations.getOrDefault(player.getLocale(), translations.get(defaultLocale));
-            if (translation == null) return "";
-            return translation.get(key);
-        }
-        return get(key);
+        Translation translation = resolveTranslation(resolveLocale(sender));
+        if (translation == null) return "";
+        return translation.get(key);
     }
 
     @NotNull
     public String get(ProxyPlayer player, String key) {
-        if (player != null && player.locale() != null) {
-            Translation translation =
-                    translations.getOrDefault(player.locale().toString(), translations.get(defaultLocale));
-            if (translation == null) return "";
-            return translation.get(key);
-        }
-        return get(key);
+        Translation translation = resolveTranslation(resolveLocale(player));
+        if (translation == null) return "";
+        return translation.get(key);
     }
 
     @NotNull
     public List<String> getList(String key) {
-        Translation translation = translations.get(defaultLocale);
+        Translation translation = resolveTranslation(null);
         if (translation == null) return List.of();
         return translation.getList(key);
     }
 
     @NotNull
     public List<String> getList(String locale, String key) {
-        Translation translation = translations.get(locale);
+        Translation translation = resolveTranslation(locale);
         if (translation == null) return List.of();
         return translation.getList(key);
     }
 
     @NotNull
     public List<String> getList(CommandSender sender, String key) {
-        if (sender instanceof Player player) {
-            Translation translation = translations.getOrDefault(player.getLocale(), translations.get(defaultLocale));
-            if (translation == null) return List.of();
-            return translation.getList(key);
-        }
-        return getList(key);
+        Translation translation = resolveTranslation(resolveLocale(sender));
+        if (translation == null) return List.of();
+        return translation.getList(key);
     }
 
     @NotNull
     public List<String> getList(ProxyPlayer player, String key) {
-        if (player != null && player.locale() != null) {
-            Translation translation =
-                    translations.getOrDefault(player.locale().toString(), translations.get(defaultLocale));
-            if (translation == null) return List.of();
-            return translation.getList(key);
-        }
-        return getList(key);
+        Translation translation = resolveTranslation(resolveLocale(player));
+        if (translation == null) return List.of();
+        return translation.getList(key);
     }
 
     @NotNull
@@ -160,6 +159,7 @@ public class TranslationConfiguration {
                         .map(file -> Files.getNameWithoutExtension(file.getName()))
                         .toList());
         list.add(defaultLocale);
-        for (String lang : list) this.translations.put(lang, new Translation(plugin, type.getName(), lang));
+        for (String lang : list)
+            this.translations.put(lang, new Translation(plugin, type.getName(), lang));
     }
 }

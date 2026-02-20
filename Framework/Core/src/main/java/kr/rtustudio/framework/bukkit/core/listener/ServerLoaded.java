@@ -8,6 +8,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.server.ServerLoadEvent;
 
+@SuppressWarnings("unused")
 public class ServerLoaded extends RSListener<RSPlugin> {
 
     public ServerLoaded(RSPlugin plugin) {

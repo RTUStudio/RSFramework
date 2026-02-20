@@ -1,8 +1,8 @@
 package kr.rtustudio.framework.bukkit.core.provider.name;
 
+import kr.rtustudio.broker.protoweaver.api.proxy.ProxyPlayer;
 import kr.rtustudio.framework.bukkit.api.core.provider.name.NameProvider;
 import kr.rtustudio.framework.bukkit.api.player.PlayerList;
-import kr.rtustudio.protoweaver.api.proxy.ProxyPlayer;
 
 import java.util.List;
 import java.util.UUID;
@@ -20,10 +20,12 @@ public class VanillaNameProvider implements NameProvider {
     public List<String> names(Scope scope) {
         if (scope == Scope.GLOBAL) {
             return PlayerList.getPlayers(true).stream().map(ProxyPlayer::name).toList();
-        } else return Bukkit.getOnlinePlayers().stream().map(Player::getName).toList();
+        }
+        return Bukkit.getOnlinePlayers().stream().map(Player::getName).toList();
     }
 
     @Nullable
+    @Override
     public String getName(UUID uniqueId) {
         for (ProxyPlayer player : PlayerList.getPlayers()) {
             if (player.uniqueId().equals(uniqueId)) return player.name();
@@ -31,7 +33,6 @@ public class VanillaNameProvider implements NameProvider {
         return null;
     }
 
-    /** 프록시 플레이어를 지원합니다 */
     @Nullable
     @Override
     public UUID getUniqueId(String name) {

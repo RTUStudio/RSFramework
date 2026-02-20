@@ -4,6 +4,7 @@ import kr.rtustudio.framework.bukkit.api.RSPlugin;
 import kr.rtustudio.framework.bukkit.api.format.ComponentFormatter;
 import kr.rtustudio.framework.bukkit.api.inventory.RSInventory;
 import kr.rtustudio.framework.bukkit.api.listener.RSListener;
+import lombok.extern.slf4j.Slf4j;
 import net.kyori.adventure.text.Component;
 
 import org.bukkit.entity.Player;
@@ -14,6 +15,8 @@ import org.bukkit.event.inventory.InventoryDragEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
 
+@Slf4j
+@SuppressWarnings("unused")
 public class InventoryListener extends RSListener<RSPlugin> {
 
     public InventoryListener(RSPlugin plugin) {
@@ -21,7 +24,7 @@ public class InventoryListener extends RSListener<RSPlugin> {
     }
 
     @EventHandler
-    private void onRSInventoryClick(InventoryClickEvent e) {
+    private void onClick(InventoryClickEvent e) {
         Inventory inv = e.getClickedInventory();
         Player player = (Player) e.getWhoClicked();
         InventoryHolder holder = e.getView().getTopInventory().getHolder();
@@ -38,16 +41,16 @@ public class InventoryListener extends RSListener<RSPlugin> {
             } catch (Exception ex) {
                 e.setCancelled(true);
                 Component errorMessage =
-                        ComponentFormatter.mini(getMessage().get(player, "error.inventory"));
+                        ComponentFormatter.mini(message().get(player, "error.inventory"));
                 getPlugin().console(errorMessage);
                 getPlugin().getAdventure().player(player).sendMessage(errorMessage);
-                ex.printStackTrace();
+                log.error("Error in inventory click handler", ex);
             }
         }
     }
 
     @EventHandler
-    private void onRSInventoryDrag(InventoryDragEvent e) {
+    private void onDrag(InventoryDragEvent e) {
         Inventory inv = e.getInventory();
         Player player = (Player) e.getWhoClicked();
         InventoryHolder holder = e.getView().getTopInventory().getHolder();
@@ -65,16 +68,16 @@ public class InventoryListener extends RSListener<RSPlugin> {
             } catch (Exception ex) {
                 e.setCancelled(true);
                 Component errorMessage =
-                        ComponentFormatter.mini(getMessage().get(player, "error.inventory"));
+                        ComponentFormatter.mini(message().get(player, "error.inventory"));
                 getPlugin().console(errorMessage);
                 getPlugin().getAdventure().player(player).sendMessage(errorMessage);
-                ex.printStackTrace();
+                log.error("Error in inventory click handler", ex);
             }
         }
     }
 
     @EventHandler
-    private void onRSInventoryClose(InventoryCloseEvent e) {
+    private void onClose(InventoryCloseEvent e) {
         Inventory inv = e.getInventory();
         Player player = (Player) e.getPlayer();
         InventoryHolder holder = e.getView().getTopInventory().getHolder();
@@ -88,10 +91,10 @@ public class InventoryListener extends RSListener<RSPlugin> {
                 rsInv.onClose(holderEvent);
             } catch (Exception ex) {
                 Component errorMessage =
-                        ComponentFormatter.mini(getMessage().get(player, "error.inventory"));
+                        ComponentFormatter.mini(message().get(player, "error.inventory"));
                 getPlugin().console(errorMessage);
                 getPlugin().getAdventure().player(player).sendMessage(errorMessage);
-                ex.printStackTrace();
+                log.error("Error in inventory click handler", ex);
             }
         }
     }

@@ -20,6 +20,6 @@ public class FrameworkCommand extends RSCommand<RSFramework> {
 
     @Override
     public void reload(RSCommandData data) {
-        framework().getModules().reload();
+        framework().getModuleFactory().reload();
     }
 }

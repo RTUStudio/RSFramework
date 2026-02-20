@@ -1,6 +1,6 @@
 dependencies {
-    implementation(project(":Library:LightDI"))
-    implementation(project(path = ":Library:ProtoWeaver:Bukkit:API", configuration = "shadow"))
+    implementation(project(":LightDI"))
+    implementation(project(path = ":Broker:ProtoWeaver:Bukkit:API", configuration = "shadow"))
 
     compileOnly(project(":Framework:API"))
 

@@ -4,26 +4,43 @@ plugins {
 
 rootProject.name = "RSFramework"
 
-include("Library:LightDI")
+include("LightDI")
 
 include(
-    "Library:ProtoWeaver:Common:API",
-    "Library:ProtoWeaver:Common:Core",
+    "Storage",
+    "Storage:Common",
+    "Storage:MySQL",
+    "Storage:MariaDB",
+    "Storage:MongoDB",
+    "Storage:Json",
+    "Storage:SQLite",
+    "Storage:PostgreSQL",
 )
 
 include(
-    "Library:ProtoWeaver:Bukkit:API",
-    "Library:ProtoWeaver:Bukkit:Core",
+    "Broker",
+    "Broker:Common",
+    "Broker:Redisson",
 )
 
 include(
-    "Library:ProtoWeaver:Bungee:API",
-    "Library:ProtoWeaver:Bungee:Core",
+    "Broker:ProtoWeaver:Common:API",
+    "Broker:ProtoWeaver:Common:Core",
 )
 
 include(
-    "Library:ProtoWeaver:Velocity:API",
-    "Library:ProtoWeaver:Velocity:Core",
+    "Broker:ProtoWeaver:Bukkit:API",
+    "Broker:ProtoWeaver:Bukkit:Core",
+)
+
+include(
+    "Broker:ProtoWeaver:Bungee:API",
+    "Broker:ProtoWeaver:Bungee:Core",
+)
+
+include(
+    "Broker:ProtoWeaver:Velocity:API",
+    "Broker:ProtoWeaver:Velocity:Core",
 )
 
 include("Platform")

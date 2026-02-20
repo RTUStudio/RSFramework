@@ -1,0 +1,160 @@
+[versions]
+# Shared
+adventure-platform = "4.4.1"
+adventure = "4.24.0"
+configurate = "4.2.0-GeyserMC-SNAPSHOT"
+gson = "2.13.1"
+guava = "33.4.8-jre"
+commons-lang3 = "3.18.0"
+snappy = "1.1.10.8"
+slf4j = "2.0.17"
+lombok = "1.18.38"
+quartz = "2.5.0"
+fastutil = "8.5.18"
+
+# Database
+hikaricp = "7.0.2"
+mongodb = "5.6.3"
+mysql = "9.6.0"
+mariadb = "3.5.7"
+sqlite = "3.51.2.0"
+postgresql = "42.7.10"
+
+# Redis
+redisson = "3.45.1"
+
+# Networking / Serialization
+netty = "4.1.111.Final"
+fory = "0.15.0"
+msgpack = "0.9.8"
+bouncycastle = "1.80"
+javassist = "3.30.2-GA"
+
+# NMS / Server
+spigot-api = "1.20.1"
+paper-api = "1.20.1"
+folia-api = "1.19.4"
+bungeecord-api = "1.20"
+waterfall-api = "1.20"
+velocity-api = "3.3.0-SNAPSHOT"
+velocity-api-latest = "3.4.0-SNAPSHOT"
+paperweight = "2.0.0-beta.18"
+tiny-remapper = "0.10.4"
+
+# Plugins
+nbt-api = "2.15.2-SNAPSHOT"
+libby = "2.0.0-SNAPSHOT"
+bstats = "3.0.2"
+placeholderapi = "2.11.6"
+packetevents = "2.10.1"
+itemsadder = "3.6.3-beta-14"
+oraxen = "1.189.0"
+mmoitems = "6.10.1-SNAPSHOT"
+mythiclib = "1.7.1-SNAPSHOT"
+nexo = "1.8.0"
+ecoitems = "5.62.0"
+eco = "6.75.2"
+libreforge = "4.64.1"
+toml4j = "0.7.2"
+jsr305 = "3.0.2"
+
+# Build plugins
+freefair-lombok = "8.14.2"
+shadow = "9.0.2"
+spotless = "7.2.1"
+run-paper = "2.3.1"
+run-waterfall = "2.3.1"
+run-velocity = "2.3.1"
+foojay = "0.8.0"
+reflections = "0.10.2"
+
+[libraries]
+# Adventure
+adventure-platform-bukkit = { module = "net.kyori:adventure-platform-bukkit", version.ref = "adventure-platform" }
+adventure-minimessage = { module = "net.kyori:adventure-text-minimessage", version.ref = "adventure" }
+adventure-serializer-gson = { module = "net.kyori:adventure-text-serializer-gson", version.ref = "adventure" }
+
+# Configuration
+configurate-yaml = { module = "org.spongepowered:configurate-yaml", version.ref = "configurate" }
+
+# Common libs
+gson = { module = "com.google.code.gson:gson", version.ref = "gson" }
+guava = { module = "com.google.guava:guava", version.ref = "guava" }
+commons-lang3 = { module = "org.apache.commons:commons-lang3", version.ref = "commons-lang3" }
+snappy = { module = "org.xerial.snappy:snappy-java", version.ref = "snappy" }
+slf4j = { module = "org.slf4j:slf4j-api", version.ref = "slf4j" }
+lombok = { module = "org.projectlombok:lombok", version.ref = "lombok" }
+quartz = { module = "org.quartz-scheduler:quartz", version.ref = "quartz" }
+fastutil = { module = "it.unimi.dsi:fastutil", version.ref = "fastutil" }
+
+# Database
+hikaricp = { module = "com.zaxxer:HikariCP", version.ref = "hikaricp" }
+mongodb-sync = { module = "org.mongodb:mongodb-driver-sync", version.ref = "mongodb" }
+mongodb-bson = { module = "org.mongodb:bson", version.ref = "mongodb" }
+mongodb-core = { module = "org.mongodb:mongodb-driver-core", version.ref = "mongodb" }
+mysql = { module = "com.mysql:mysql-connector-j", version.ref = "mysql" }
+mariadb = { module = "org.mariadb.jdbc:mariadb-java-client", version.ref = "mariadb" }
+sqlite = { module = "org.xerial:sqlite-jdbc", version.ref = "sqlite" }
+postgresql = { module = "org.postgresql:postgresql", version.ref = "postgresql" }
+
+# Redis
+redisson = { module = "org.redisson:redisson", version.ref = "redisson" }
+
+# Networking
+netty-buffer = { module = "io.netty:netty-buffer", version.ref = "netty" }
+netty-transport = { module = "io.netty:netty-transport", version.ref = "netty" }
+netty-handler = { module = "io.netty:netty-handler", version.ref = "netty" }
+netty-codec-http = { module = "io.netty:netty-codec-http", version.ref = "netty" }
+netty-codec-http2 = { module = "io.netty:netty-codec-http2", version.ref = "netty" }
+fory = { module = "org.apache.fory:fory-core", version.ref = "fory" }
+msgpack = { module = "org.msgpack:msgpack-core", version.ref = "msgpack" }
+msgpack-jackson = { module = "org.msgpack:jackson-dataformat-msgpack", version.ref = "msgpack" }
+bouncycastle-pkix = { module = "org.bouncycastle:bcpkix-jdk18on", version.ref = "bouncycastle" }
+bouncycastle-prov = { module = "org.bouncycastle:bcprov-jdk18on", version.ref = "bouncycastle" }
+bouncycastle-util = { module = "org.bouncycastle:bcutil-jdk18on", version.ref = "bouncycastle" }
+javassist = { module = "org.javassist:javassist", version.ref = "javassist" }
+
+# Server APIs
+spigot-api = { module = "org.spigotmc:spigot-api", version.ref = "spigot-api" }
+paper-api = { module = "io.papermc.paper:paper-api", version.ref = "paper-api" }
+folia-api = { module = "dev.folia:folia-api", version.ref = "folia-api" }
+bungeecord-api = { module = "net.md-5:bungeecord-api", version.ref = "bungeecord-api" }
+waterfall-api = { module = "io.github.waterfallmc:waterfall-api", version.ref = "waterfall-api" }
+velocity-api = { module = "com.velocitypowered:velocity-api", version.ref = "velocity-api" }
+velocity-api-latest = { module = "com.velocitypowered:velocity-api", version.ref = "velocity-api-latest" }
+
+# Plugin dependencies
+nbt-api = { module = "de.tr7zw:item-nbt-api", version.ref = "nbt-api" }
+libby-bukkit = { module = "com.alessiodp.libby:libby-bukkit", version.ref = "libby" }
+libby-bungee = { module = "com.alessiodp.libby:libby-bungee", version.ref = "libby" }
+libby-velocity = { module = "com.alessiodp.libby:libby-velocity", version.ref = "libby" }
+bstats = { module = "org.bstats:bstats-bukkit", version.ref = "bstats" }
+placeholderapi = { module = "me.clip:placeholderapi", version.ref = "placeholderapi" }
+packetevents = { module = "com.github.retrooper:packetevents-spigot", version.ref = "packetevents" }
+itemsadder = { module = "com.github.LoneDev6:API-ItemsAdder", version.ref = "itemsadder" }
+oraxen = { module = "io.th0rgal:oraxen", version.ref = "oraxen" }
+mmoitems = { module = "net.Indyuce:MMOItems-API", version.ref = "mmoitems" }
+mythiclib = { module = "io.lumine:MythicLib-dist", version.ref = "mythiclib" }
+nexo = { module = "com.nexomc:nexo", version.ref = "nexo" }
+ecoitems = { module = "com.willfp:EcoItems", version.ref = "ecoitems" }
+eco = { module = "com.willfp:eco", version.ref = "eco" }
+libreforge = { module = "com.willfp:libreforge", version.ref = "libreforge" }
+toml4j = { module = "com.moandjiezana.toml:toml4j", version.ref = "toml4j" }
+jsr305 = { module = "com.google.code.findbugs:jsr305", version.ref = "jsr305" }
+
+# Internal
+reflections = { module = "org.reflections:reflections", version.ref = "reflections" }
+tiny-remapper = { module = "net.fabricmc:tiny-remapper", version.ref = "tiny-remapper" }
+
+[bundles]
+netty = ["netty-buffer", "netty-transport", "netty-handler", "netty-codec-http", "netty-codec-http2"]
+
+[plugins]
+freefair-lombok = { id = "io.freefair.lombok", version.ref = "freefair-lombok" }
+shadow = { id = "com.gradleup.shadow", version.ref = "shadow" }
+paperweight = { id = "io.papermc.paperweight.userdev", version.ref = "paperweight" }
+spotless = { id = "com.diffplug.spotless", version.ref = "spotless" }
+run-paper = { id = "xyz.jpenilla.run-paper", version.ref = "run-paper" }
+run-waterfall = { id = "xyz.jpenilla.run-waterfall", version.ref = "run-waterfall" }
+run-velocity = { id = "xyz.jpenilla.run-velocity", version.ref = "run-velocity" }
+foojay = { id = "org.gradle.toolchains.foojay-resolver-convention", version.ref = "foojay" }

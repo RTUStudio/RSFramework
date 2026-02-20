@@ -20,8 +20,7 @@ import org.spongepowered.configurate.util.EnumLookup;
 /** Enum serializer that lists options if fails and accepts `-` as `_`. */
 public class EnumValueSerializer extends ScalarSerializer.Annotated<Enum<?>> {
 
-    private static final Logger LOGGER =
-            LoggerFactory.getLogger(EnumValueSerializer.class); // TODO: 이거 맞냐...
+    private static final Logger LOGGER = LoggerFactory.getLogger(EnumValueSerializer.class);
 
     public EnumValueSerializer() {
         super(new TypeToken<Enum<?>>() {});

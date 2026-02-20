@@ -9,6 +9,7 @@ import org.bukkit.event.EventHandler;
 
 import com.nexomc.nexo.api.events.NexoItemsLoadedEvent;
 
+@SuppressWarnings("unused")
 public class NexoLoaded extends RSListener<RSPlugin> {
 
     public NexoLoaded(RSPlugin plugin) {

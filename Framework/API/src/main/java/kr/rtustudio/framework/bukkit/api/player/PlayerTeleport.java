@@ -1,12 +1,12 @@
 package kr.rtustudio.framework.bukkit.api.player;
 
+import kr.rtustudio.broker.protoweaver.api.proxy.ProxyLocation;
+import kr.rtustudio.broker.protoweaver.api.proxy.ProxyPlayer;
+import kr.rtustudio.broker.protoweaver.api.proxy.request.teleport.LocationTeleport;
+import kr.rtustudio.broker.protoweaver.bukkit.api.ProtoWeaver;
 import kr.rtustudio.cdi.LightDI;
 import kr.rtustudio.framework.bukkit.api.core.Framework;
 import kr.rtustudio.framework.bukkit.api.platform.MinecraftVersion;
-import kr.rtustudio.protoweaver.api.proxy.ProxyLocation;
-import kr.rtustudio.protoweaver.api.proxy.ProxyPlayer;
-import kr.rtustudio.protoweaver.api.proxy.request.teleport.LocationTeleport;
-import kr.rtustudio.protoweaver.bukkit.api.BukkitProtoWeaver;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -36,11 +36,11 @@ public class PlayerTeleport {
     }
 
     private String server() {
-        return framework().getProtoWeaver().getServer();
+        return framework().getBroker(ProtoWeaver.class).getServer();
     }
 
-    private BukkitProtoWeaver protoWeaver() {
-        return framework().getProtoWeaver();
+    private ProtoWeaver protoWeaver() {
+        return framework().getBroker(ProtoWeaver.class);
     }
 
     public CompletableFuture<Boolean> teleport(@NotNull ProxyLocation location) {
@@ -53,7 +53,7 @@ public class PlayerTeleport {
             if (protoWeaver().isConnected()) {
                 ProxyPlayer pp = PlayerList.getPlayer(player.getUniqueId());
                 LocationTeleport packet = new LocationTeleport(pp, location);
-                return CompletableFuture.supplyAsync(() -> protoWeaver().sendPacket(packet));
+                return CompletableFuture.supplyAsync(() -> protoWeaver().publish(packet));
             }
         }
         return CompletableFuture.completedFuture(false);
@@ -67,10 +67,10 @@ public class PlayerTeleport {
         } else {
             if (protoWeaver().isConnected()) {
                 ProxyPlayer pp = PlayerList.getPlayer(player.getUniqueId());
-                kr.rtustudio.protoweaver.api.proxy.request.teleport.PlayerTeleport packet =
-                        new kr.rtustudio.protoweaver.api.proxy.request.teleport.PlayerTeleport(
-                                pp, target);
-                return CompletableFuture.supplyAsync(() -> protoWeaver().sendPacket(packet));
+                kr.rtustudio.broker.protoweaver.api.proxy.request.teleport.PlayerTeleport packet =
+                        new kr.rtustudio.broker.protoweaver.api.proxy.request.teleport
+                                .PlayerTeleport(pp, target);
+                return CompletableFuture.supplyAsync(() -> protoWeaver().publish(packet));
             }
         }
         return CompletableFuture.completedFuture(false);
@@ -80,27 +80,15 @@ public class PlayerTeleport {
         Player player = getPlayer();
         if (player == null) return CompletableFuture.completedFuture(false);
         if (MinecraftVersion.isPaper()) return player.teleportAsync(location);
-        else {
-            try {
-                player.teleport(location);
-                return CompletableFuture.completedFuture(true);
-            } catch (Exception e) {
-                return CompletableFuture.completedFuture(false);
-            }
+        try {
+            player.teleport(location);
+            return CompletableFuture.completedFuture(true);
+        } catch (Exception e) {
+            return CompletableFuture.completedFuture(false);
         }
     }
 
     public CompletableFuture<Boolean> teleport(Player target) {
-        Player player = getPlayer();
-        if (player == null) return CompletableFuture.completedFuture(false);
-        if (MinecraftVersion.isPaper()) return player.teleportAsync(target.getLocation());
-        else {
-            try {
-                player.teleport(target.getLocation());
-                return CompletableFuture.completedFuture(true);
-            } catch (Exception e) {
-                return CompletableFuture.completedFuture(false);
-            }
-        }
+        return teleport(target.getLocation());
     }
 }

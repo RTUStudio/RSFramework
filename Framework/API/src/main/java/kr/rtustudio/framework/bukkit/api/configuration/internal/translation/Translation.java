@@ -1,6 +1,7 @@
 package kr.rtustudio.framework.bukkit.api.configuration.internal.translation;
 
 import kr.rtustudio.framework.bukkit.api.RSPlugin;
+import kr.rtustudio.framework.bukkit.api.configuration.ConfigPath;
 import kr.rtustudio.framework.bukkit.api.configuration.RSConfiguration;
 import lombok.ToString;
 
@@ -18,7 +19,7 @@ public class Translation extends RSConfiguration.Wrapper<RSPlugin> {
     private final Map<String, List<String>> stringListCache = new HashMap<>();
 
     public Translation(RSPlugin plugin, String folder, String lang) {
-        super(plugin, "Translations/" + folder, lang + ".yml", null);
+        super(plugin, ConfigPath.relative("Translation", folder, lang));
         setup(this);
     }
 

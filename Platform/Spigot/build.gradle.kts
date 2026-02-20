@@ -1,17 +1,17 @@
-val apiVersion = property("api_version") as String
-val pluginName = property("plugin_name") as String
-val pluginVersion = property("plugin_version") as String
-val pluginAuthor = property("plugin_author") as String
+val apiVersion = property("project.server.apiVersion") as String
+val pluginName = property("project.plugin.name") as String
+val pluginVersion = property("project.plugin.version") as String
+val pluginAuthor = property("project.plugin.author") as String
 
 dependencies {
-    implementation(project(":Library:LightDI"))
-    implementation(project(path = ":Library:ProtoWeaver:Bukkit:API", configuration = "shadow"))
+    implementation(project(":LightDI"))
+    implementation(project(path = ":Broker:ProtoWeaver:Bukkit:API", configuration = "shadow"))
 
     compileOnly(project(":Framework:API"))
 
     compileOnly("org.spigotmc:spigot-api:$apiVersion-R0.1-SNAPSHOT")
 
-    implementation("org.bstats:bstats-bukkit:3.0.2")
+    implementation(libs.bstats)
 }
 
 tasks.named<ProcessResources>("processResources") {

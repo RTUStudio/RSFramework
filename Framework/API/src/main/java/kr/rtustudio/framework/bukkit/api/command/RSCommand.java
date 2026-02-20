@@ -7,9 +7,10 @@ import kr.rtustudio.framework.bukkit.api.configuration.internal.translation.Tran
 import kr.rtustudio.framework.bukkit.api.configuration.internal.translation.command.CommandTranslation;
 import kr.rtustudio.framework.bukkit.api.configuration.internal.translation.message.MessageTranslation;
 import kr.rtustudio.framework.bukkit.api.core.Framework;
+import kr.rtustudio.framework.bukkit.api.core.module.CommandModule;
 import kr.rtustudio.framework.bukkit.api.core.module.ThemeModule;
 import kr.rtustudio.framework.bukkit.api.core.provider.name.NameProvider;
-import kr.rtustudio.framework.bukkit.api.player.PlayerChat;
+import kr.rtustudio.framework.bukkit.api.player.PlayerAudience;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.ToString;
@@ -38,33 +39,33 @@ public abstract class RSCommand<T extends RSPlugin> extends Command {
     private final MessageTranslation message;
     private final CommandTranslation command;
     private final Framework framework = LightDI.getBean(Framework.class);
-    private final PlayerChat chat;
+    private final PlayerAudience chat;
     private CommandSender sender;
     private Audience audience;
 
     private RSCommand<? extends RSPlugin> parent = null;
     private int index = 0;
 
-    public RSCommand(T plugin, @NotNull String name) {
-        this(plugin, List.of(name), PermissionDefault.TRUE);
+    public RSCommand(T plugin, @NotNull String key) {
+        this(plugin, List.of(key), PermissionDefault.TRUE);
     }
 
-    public RSCommand(T plugin, @NotNull List<String> names) {
-        this(plugin, names, PermissionDefault.TRUE);
+    public RSCommand(T plugin, @NotNull List<String> keys) {
+        this(plugin, keys, PermissionDefault.TRUE);
     }
 
-    public RSCommand(T plugin, @NotNull String name, PermissionDefault permission) {
-        this(plugin, List.of(name), permission);
+    public RSCommand(T plugin, @NotNull String key, PermissionDefault permission) {
+        this(plugin, List.of(key), permission);
     }
 
-    public RSCommand(T plugin, List<String> names, PermissionDefault permission) {
-        super(names.getFirst());
-        this.names = Collections.unmodifiableList(names);
+    public RSCommand(T plugin, List<String> keys, PermissionDefault permission) {
+        super(keys.getFirst());
+        this.names = Collections.unmodifiableList(keys);
         this.plugin = plugin;
         this.permissionDefault = permission;
         this.message = plugin.getConfiguration().getMessage();
         this.command = plugin.getConfiguration().getCommand();
-        this.chat = PlayerChat.of(plugin);
+        this.chat = PlayerAudience.of(plugin);
         super.setPermission(plugin.getName().toLowerCase() + ".command." + getName());
         List<String> aliases = new ArrayList<>(names.subList(1, names.size()));
         for (Translation translation : command.getTranslations().values()) {
@@ -97,10 +98,10 @@ public abstract class RSCommand<T extends RSPlugin> extends Command {
     }
 
     protected NameProvider provider() {
-        return this.framework.getProviders().getName();
+        return this.framework.getProvider(NameProvider.class);
     }
 
-    protected PlayerChat chat() {
+    protected PlayerAudience chat() {
         return this.chat;
     }
 
@@ -148,11 +149,11 @@ public abstract class RSCommand<T extends RSPlugin> extends Command {
             }
             handleResult(execute(data));
         } else {
-            if (sub.getName().equalsIgnoreCase("reload")) reload(data);
             if (!hasPermissionNode(sub.getPermission())) {
                 handleResult(Result.NO_PERMISSION);
                 return true;
             }
+            if (sub.getName().equalsIgnoreCase("reload")) reload(data);
             if (!sub.execute(sender, commandLabel, args)) sub.showUsage();
         }
         return true;
@@ -164,7 +165,7 @@ public abstract class RSCommand<T extends RSPlugin> extends Command {
 
     private boolean checkCooldown(Player player) {
         Map<UUID, Integer> cooldownMap = this.framework.getCommandLimit().getExecuteLimit();
-        int cooldown = this.framework.getModules().getCommand().getExecuteLimit();
+        int cooldown = this.framework.getModule(CommandModule.class).getExecuteLimit();
         if (cooldown <= 0) return false;
         if (cooldownMap.containsKey(player.getUniqueId())) {
             announceCommon(MessageTranslation.ERROR_COOLDOWN);
@@ -191,7 +192,7 @@ public abstract class RSCommand<T extends RSPlugin> extends Command {
 
     private void showUsage() {
         announceCommon(MessageTranslation.WRONG_USAGE);
-        ThemeModule module = this.framework.getModules().getTheme();
+        ThemeModule module = this.framework.getModule(ThemeModule.class);
         String startGradient = module.getGradientStart();
         String endGradient = module.getGradientEnd();
         List<RSCommand<? extends RSPlugin>> list = new ArrayList<>(this.commands.values());
@@ -210,7 +211,10 @@ public abstract class RSCommand<T extends RSPlugin> extends Command {
                 String description = cmd.getLocalizedDescription(player());
                 builder.append(" ⏵ <white>").append(usage).append("</white>");
                 if (!description.isEmpty())
-                    builder.append("\n    ┗ ").append("<gray>").append(description).append("</gray>");
+                    builder.append("\n    ┗ ")
+                            .append("<gray>")
+                            .append(description)
+                            .append("</gray>");
                 empty = false;
             }
         }

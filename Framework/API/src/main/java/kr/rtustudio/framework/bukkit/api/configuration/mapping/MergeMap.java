@@ -27,7 +27,7 @@ import com.google.common.collect.Sets;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface MergeMap {
 
-    Logger LOGGER = LoggerFactory.getLogger("MergeMap"); // TODO: 이거 맞냐...
+    Logger LOGGER = LoggerFactory.getLogger(MergeMap.class);
     Definition<MergeMap, Map<?, ?>, Factory> DEFINITION =
             new Definition<>(MergeMap.class, MapSerializer.TYPE, new Factory());
 

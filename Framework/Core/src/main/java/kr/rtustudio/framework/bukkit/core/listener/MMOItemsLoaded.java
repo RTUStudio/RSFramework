@@ -8,6 +8,7 @@ import net.Indyuce.mmoitems.api.event.MMOItemsReloadEvent;
 import org.bukkit.Bukkit;
 import org.bukkit.event.EventHandler;
 
+@SuppressWarnings("unused")
 public class MMOItemsLoaded extends RSListener<RSPlugin> {
 
     public MMOItemsLoaded(RSPlugin plugin) {

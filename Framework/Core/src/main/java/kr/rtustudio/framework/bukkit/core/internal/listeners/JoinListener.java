@@ -1,6 +1,7 @@
 package kr.rtustudio.framework.bukkit.core.internal.listeners;
 
 import kr.rtustudio.framework.bukkit.api.RSPlugin;
+import kr.rtustudio.framework.bukkit.api.core.module.ThemeModule;
 import kr.rtustudio.framework.bukkit.api.format.ComponentFormatter;
 import kr.rtustudio.framework.bukkit.api.listener.RSListener;
 import kr.rtustudio.framework.bukkit.core.Framework;
@@ -12,6 +13,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.player.PlayerJoinEvent;
 
+@SuppressWarnings("unused")
 public class JoinListener extends RSListener<RSPlugin> {
 
     private final Framework framework;
@@ -36,8 +38,9 @@ public class JoinListener extends RSListener<RSPlugin> {
     }
 
     private String gradient(String name) {
-        String start = framework.getModules().getTheme().getGradientStart();
-        String end = framework.getModules().getTheme().getGradientEnd();
+        ThemeModule theme = framework.getModule(ThemeModule.class);
+        String start = theme.getGradientStart();
+        String end = theme.getGradientEnd();
         return "<gradient:" + start + ":" + end + ">" + name + "</gradient>";
     }
 }

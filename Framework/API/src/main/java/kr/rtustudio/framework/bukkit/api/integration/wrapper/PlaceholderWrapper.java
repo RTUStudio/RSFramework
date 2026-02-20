@@ -7,7 +7,7 @@ import kr.rtustudio.framework.bukkit.api.configuration.internal.translation.comm
 import kr.rtustudio.framework.bukkit.api.configuration.internal.translation.message.MessageTranslation;
 import kr.rtustudio.framework.bukkit.api.core.Framework;
 import kr.rtustudio.framework.bukkit.api.integration.Integration;
-import kr.rtustudio.framework.bukkit.api.player.PlayerChat;
+import kr.rtustudio.framework.bukkit.api.player.PlayerAudience;
 import lombok.RequiredArgsConstructor;
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
 
@@ -21,7 +21,7 @@ public abstract class PlaceholderWrapper<T extends RSPlugin> implements Integrat
     private final MessageTranslation message;
     private final CommandTranslation command;
     private final Framework framework = LightDI.getBean(Framework.class);
-    private final PlayerChat chat;
+    private final PlayerAudience chat;
 
     private Integration.Wrapper wrapper;
 
@@ -35,7 +35,7 @@ public abstract class PlaceholderWrapper<T extends RSPlugin> implements Integrat
         this.plugin = plugin;
         this.message = plugin.getConfiguration().getMessage();
         this.command = plugin.getConfiguration().getCommand();
-        this.chat = PlayerChat.of(plugin);
+        this.chat = PlayerAudience.of(plugin);
         this.identifier = identifier;
     }
 
@@ -51,7 +51,7 @@ public abstract class PlaceholderWrapper<T extends RSPlugin> implements Integrat
         return framework;
     }
 
-    protected PlayerChat chat() {
+    protected PlayerAudience chat() {
         return chat;
     }
 

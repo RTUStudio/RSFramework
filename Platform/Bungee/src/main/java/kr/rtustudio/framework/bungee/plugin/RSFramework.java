@@ -1,6 +1,6 @@
 package kr.rtustudio.framework.bungee.plugin;
 
-import kr.rtustudio.protoweaver.bungee.api.BungeeProtoWeaver;
+import kr.rtustudio.broker.protoweaver.bungee.api.ProtoWeaver;
 import lombok.extern.slf4j.Slf4j;
 import net.md_5.bungee.api.plugin.Plugin;
 
@@ -9,7 +9,7 @@ import net.md_5.bungee.api.plugin.Plugin;
 public class RSFramework extends Plugin {
 
     private final Libraries libraries;
-    private BungeeProtoWeaver protoWeaver;
+    private ProtoWeaver protoWeaver;
 
     public RSFramework() {
         libraries = new Libraries(this);
@@ -25,9 +25,7 @@ public class RSFramework extends Plugin {
         libraries.load("io.netty:netty-codec-http:4.1.111.Final");
         libraries.load("io.netty:netty-codec-http2:4.1.111.Final");
         libraries.load(
-                "org.apache.fury:fury-core:0.10.3",
-                "org.apache.fury",
-                "kr.rtustudio.protoweaver.fury");
+                "org.apache.fory:fory-core:0.15.0", "org.apache.fory", "kr.rtustudio.broker.fory");
         libraries.load("org.bouncycastle:bcpkix-jdk18on:1.80");
         libraries.load("org.bouncycastle:bcprov-jdk18on:1.80");
         libraries.load("org.bouncycastle:bcutil-jdk18on:1.80");
@@ -38,13 +36,13 @@ public class RSFramework extends Plugin {
     public void onEnable() {
         log.info("RSFramework Bungee loaded.");
         protoWeaver =
-                new kr.rtustudio.protoweaver.bungee.core.BungeeProtoWeaver(
+                new kr.rtustudio.broker.protoweaver.bungee.core.ProtoWeaver(
                         getProxy(), getDataFolder().toPath());
         getProxy().getPluginManager().registerListener(this, protoWeaver);
     }
 
     @Override
     public void onDisable() {
-        protoWeaver.disable();
+        protoWeaver.shutdown();
     }
 }

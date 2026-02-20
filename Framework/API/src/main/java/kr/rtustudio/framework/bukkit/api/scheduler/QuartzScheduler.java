@@ -3,6 +3,7 @@ package kr.rtustudio.framework.bukkit.api.scheduler;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
@@ -13,6 +14,7 @@ import java.util.Map;
 import org.quartz.*;
 import org.quartz.impl.StdSchedulerFactory;
 
+@Slf4j
 @Getter
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 public class QuartzScheduler {
@@ -103,7 +105,7 @@ public class QuartzScheduler {
             scheduler().unscheduleJob(trigger.getKey());
             return true;
         } catch (SchedulerException e) {
-            e.printStackTrace();
+            log.warn("Failed to cancel scheduled task", e);
             return false;
         }
     }
@@ -112,7 +114,7 @@ public class QuartzScheduler {
         try {
             return !scheduler().checkExists(trigger.getKey());
         } catch (SchedulerException e) {
-            e.printStackTrace();
+            log.warn("Failed to check scheduled task existence", e);
             return false;
         }
     }

@@ -1,40 +1,43 @@
 plugins {
-    id("xyz.jpenilla.run-paper") version "2.3.1"
+    alias(libs.plugins.run.paper)
 }
 
-val apiVersion = property("api_version") as String
-val bukkitVersion = property("bukkit_version") as String
-val pluginName = property("plugin_name") as String
-val pluginVersion = property("plugin_version") as String
+val apiVersion = property("project.server.apiVersion") as String
+val bukkitVersion = property("project.server.bukkitVersion") as String
+val pluginName = property("project.plugin.name") as String
+val pluginVersion = property("project.plugin.version") as String
+val catalog = the<VersionCatalogsExtension>().named("libs")
 
 listOf("API", "Core").forEach { name ->
     project(":Framework:$name") {
         dependencies {
-            implementation(project(":Library:LightDI"))
+            implementation(project(":LightDI"))
 
-            compileOnly(project(":Library:ProtoWeaver:Common:API"))
-            compileOnly(project(":Library:ProtoWeaver:Bukkit:API"))
+            compileOnly(project(":Broker:Common"))
+            compileOnly(project(":Broker:Redisson"))
+            compileOnly(project(":Broker:ProtoWeaver:Common:API"))
+            compileOnly(project(":Broker:ProtoWeaver:Bukkit:API"))
 
             compileOnly("org.spigotmc:spigot-api:$apiVersion-R0.1-SNAPSHOT")
             compileOnly("io.papermc.paper:paper-api:$apiVersion-R0.1-SNAPSHOT")
 
-            implementation("net.kyori:adventure-platform-bukkit:4.4.1")
-            implementation("de.tr7zw:item-nbt-api:2.15.2-SNAPSHOT")
+            implementation(catalog.findLibrary("adventure-platform-bukkit").get())
+            implementation(catalog.findLibrary("nbt-api").get())
 
-            compileOnly("com.github.LoneDev6:API-ItemsAdder:3.6.3-beta-14")
+            compileOnly(catalog.findLibrary("itemsadder").get())
 
-            compileOnly("io.th0rgal:oraxen:1.189.0")
+            compileOnly(catalog.findLibrary("oraxen").get())
 
-            compileOnly("net.Indyuce:MMOItems-API:6.10.1-SNAPSHOT")
-            compileOnly("io.lumine:MythicLib-dist:1.7.1-SNAPSHOT")
+            compileOnly(catalog.findLibrary("mmoitems").get())
+            compileOnly(catalog.findLibrary("mythiclib").get())
 
-            compileOnly("com.nexomc:nexo:1.8.0")
+            compileOnly(catalog.findLibrary("nexo").get())
 
-            compileOnly("com.willfp:EcoItems:5.62.0")
-            compileOnly("com.willfp:eco:6.75.2")
-            compileOnly("com.willfp:libreforge:4.64.1")
+            compileOnly(catalog.findLibrary("ecoitems").get())
+            compileOnly(catalog.findLibrary("eco").get())
+            compileOnly(catalog.findLibrary("libreforge").get())
 
-            implementation("org.spongepowered:configurate-yaml:4.2.0-GeyserMC-SNAPSHOT")
+            implementation(catalog.findLibrary("configurate-yaml").get())
         }
     }
 }

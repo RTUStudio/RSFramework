@@ -8,6 +8,7 @@ import kr.rtustudio.framework.bukkit.api.listener.RSListener;
 import org.bukkit.Bukkit;
 import org.bukkit.event.EventHandler;
 
+@SuppressWarnings("unused")
 public class OraxenLoaded extends RSListener<RSPlugin> {
 
     public OraxenLoaded(RSPlugin plugin) {

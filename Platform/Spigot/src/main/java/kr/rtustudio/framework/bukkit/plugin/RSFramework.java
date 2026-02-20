@@ -42,9 +42,7 @@ public class RSFramework extends RSPlugin {
         loadLibrary("io.netty:netty-codec-http:4.1.111.Final");
         loadLibrary("io.netty:netty-codec-http2:4.1.111.Final");
         loadLibrary(
-                "org.apache.fury:fury-core:0.10.3",
-                "org.apache.fury",
-                "kr.rtustudio.protoweaver.fury");
+                "org.apache.fory:fory-core:0.15.0", "org.apache.fory", "kr.rtustudio.broker.fory");
         loadLibrary("org.bouncycastle:bcpkix-jdk18on:1.80");
         loadLibrary("org.bouncycastle:bcprov-jdk18on:1.80");
         loadLibrary("org.bouncycastle:bcutil-jdk18on:1.80");

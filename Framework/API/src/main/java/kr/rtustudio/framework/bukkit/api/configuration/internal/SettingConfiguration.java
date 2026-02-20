@@ -1,8 +1,8 @@
 package kr.rtustudio.framework.bukkit.api.configuration.internal;
 
 import kr.rtustudio.framework.bukkit.api.RSPlugin;
+import kr.rtustudio.framework.bukkit.api.configuration.ConfigPath;
 import kr.rtustudio.framework.bukkit.api.configuration.RSConfiguration;
-import kr.rtustudio.framework.bukkit.api.configuration.type.StorageType;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -16,10 +16,9 @@ public class SettingConfiguration extends RSConfiguration.Wrapper<RSPlugin> {
     private boolean welcome = true;
     private String prefix = "";
     private String locale;
-    private StorageType storage = StorageType.JSON;
 
     public SettingConfiguration(RSPlugin plugin) {
-        super(plugin, "Setting.yml");
+        super(plugin, ConfigPath.of("Setting"));
         this.locale = plugin.getLanguages().getFirst();
         setup(this);
     }
@@ -64,14 +63,6 @@ public class SettingConfiguration extends RSConfiguration.Wrapper<RSPlugin> {
                                 Built-in locales: en_us, ko_kr
                                 메세지 및 명령어 기본 언어, 새로운 언어 파일을 만들 수 있습니다
                                 내장된 언어: en_us, ko_kr""");
-        storage =
-                StorageType.get(
-                        getString(
-                                "storage",
-                                storage.name(),
-                                """
-                                        Data storage format. Available options: JSON, MONGODB, MYSQL, MARIADB
-                                        데이터 저장 포멧. 사용 가능한 포멧: JSON, MONGODB, MYSQL, MARIADB"""));
     }
 
     @Override

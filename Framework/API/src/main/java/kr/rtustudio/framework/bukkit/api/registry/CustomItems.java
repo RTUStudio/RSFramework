@@ -10,6 +10,7 @@ import kr.rtustudio.cdi.LightDI;
 import kr.rtustudio.framework.bukkit.api.core.Framework;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import net.Indyuce.mmoitems.MMOItems;
 
 import java.io.ByteArrayInputStream;
@@ -35,6 +36,7 @@ import com.willfp.ecoitems.items.EcoItem;
 import com.willfp.ecoitems.items.EcoItems;
 import com.willfp.ecoitems.items.ItemUtilsKt;
 
+@Slf4j
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class CustomItems {
 
@@ -228,7 +230,7 @@ public class CustomItems {
                 byte[] bytes = Snappy.compress(result.toString());
                 return Base64.getEncoder().encodeToString(bytes);
             } catch (IOException e) {
-                e.printStackTrace();
+                log.error("Failed to compress item NBT", e);
                 return null;
             }
         } else return result.toString();
@@ -247,7 +249,7 @@ public class CustomItems {
                 byte[] bytes = Base64.getDecoder().decode(nbt);
                 nbt = Snappy.uncompressString(bytes);
             } catch (IOException e) {
-                e.printStackTrace();
+                log.error("Failed to decompress item NBT", e);
                 return null;
             }
         }
@@ -267,7 +269,7 @@ public class CustomItems {
                 byte[] bytes = Snappy.compress(result.toString());
                 return Base64.getEncoder().encodeToString(bytes);
             } catch (IOException e) {
-                e.printStackTrace();
+                log.error("Failed to compress item array NBT", e);
                 return "";
             }
         } else return result.toString();
@@ -285,7 +287,7 @@ public class CustomItems {
                 byte[] bytes = Base64.getDecoder().decode(nbt);
                 nbt = Snappy.uncompressString(bytes);
             } catch (IOException e) {
-                e.printStackTrace();
+                log.error("Failed to decompress item array NBT", e);
                 return null;
             }
         }

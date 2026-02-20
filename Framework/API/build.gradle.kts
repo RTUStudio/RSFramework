@@ -2,23 +2,23 @@ plugins {
     `maven-publish`
 }
 
-val pluginVersion = property("plugin_version") as String
+val pluginVersion = property("project.plugin.version") as String
 
 dependencies {
-    implementation(project(path = ":Library:ProtoWeaver:Bukkit:API", configuration = "shadow"))
+    implementation(project(path = ":Broker:ProtoWeaver:Bukkit:API", configuration = "shadow"))
+    implementation(project(":Broker:Common"))
+    compileOnly(project(":Broker:Redisson"))
 
-    compileOnly("com.alessiodp.libby:libby-bukkit:2.0.0-SNAPSHOT")
+    compileOnly(project(":Storage:Common"))
 
-    compileOnly("it.unimi.dsi:fastutil:8.5.18")
-    compileOnly("com.zaxxer:HikariCP:7.0.2")
-    compileOnly("org.mongodb:mongodb-driver-sync:5.5.1")
-    compileOnly("com.mysql:mysql-connector-j:9.4.0")
-    compileOnly("org.mariadb.jdbc:mariadb-java-client:3.5.5")
+    compileOnly(libs.libby.bukkit)
 
-    compileOnly("me.clip:placeholderapi:2.11.6")
-    compileOnly("com.github.retrooper:packetevents-spigot:2.10.1")
+    compileOnly(libs.fastutil)
 
-    implementation("org.spongepowered:configurate-yaml:4.2.0-GeyserMC-SNAPSHOT")
+    compileOnly(libs.placeholderapi)
+    compileOnly(libs.packetevents)
+
+    implementation(libs.configurate.yaml)
 }
 
 // API Build

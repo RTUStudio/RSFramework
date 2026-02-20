@@ -8,7 +8,7 @@ import kr.rtustudio.framework.bukkit.api.configuration.internal.translation.mess
 import kr.rtustudio.framework.bukkit.api.core.Framework;
 import kr.rtustudio.framework.bukkit.api.format.ComponentFormatter;
 import kr.rtustudio.framework.bukkit.api.platform.MinecraftVersion;
-import kr.rtustudio.framework.bukkit.api.player.PlayerChat;
+import kr.rtustudio.framework.bukkit.api.player.PlayerAudience;
 import lombok.Getter;
 import net.kyori.adventure.text.Component;
 
@@ -28,13 +28,13 @@ public abstract class RSInventory<T extends RSPlugin> implements InventoryHolder
     private final MessageTranslation message;
     private final CommandTranslation command;
     private final Framework framework = LightDI.getBean(Framework.class);
-    private final PlayerChat chat;
+    private final PlayerAudience chat;
 
     public RSInventory(T plugin) {
         this.plugin = plugin;
         this.message = plugin.getConfiguration().getMessage();
         this.command = plugin.getConfiguration().getCommand();
-        this.chat = PlayerChat.of(plugin);
+        this.chat = PlayerAudience.of(plugin);
     }
 
     protected TranslationConfiguration message() {
@@ -49,7 +49,7 @@ public abstract class RSInventory<T extends RSPlugin> implements InventoryHolder
         return framework;
     }
 
-    public PlayerChat chat() {
+    public PlayerAudience chat() {
         return chat;
     }
 

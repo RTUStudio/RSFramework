@@ -2,6 +2,7 @@ package kr.rtustudio.framework.bukkit.api.format;
 
 import kr.rtustudio.cdi.LightDI;
 import kr.rtustudio.framework.bukkit.api.core.Framework;
+import kr.rtustudio.framework.bukkit.api.core.module.ThemeModule;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import me.clip.placeholderapi.PlaceholderAPI;
@@ -60,12 +61,12 @@ public class ComponentFormatter {
     }
 
     public static Component system(CommandSender sender, String miniMessage) {
-        Component lore = parse(sender, framework().getModules().getTheme().getSystemMessage());
+        Component lore = parse(sender, framework().getModule(ThemeModule.class).getSystemMessage());
         return parse(miniMessage).hoverEvent(HoverEvent.showText(lore));
     }
 
     public static Component system(CommandSender sender, Component component) {
-        Component lore = parse(sender, framework().getModules().getTheme().getSystemMessage());
+        Component lore = parse(sender, framework().getModule(ThemeModule.class).getSystemMessage());
         return component.hoverEvent(HoverEvent.showText(lore));
     }
 }

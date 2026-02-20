@@ -1,5 +1,5 @@
 plugins {
-    id("xyz.jpenilla.run-velocity") version "2.3.1"
+    alias(libs.plugins.run.velocity)
 }
 
 tasks.runVelocity {
@@ -7,18 +7,18 @@ tasks.runVelocity {
 }
 
 dependencies {
-    implementation(project(path = ":Library:ProtoWeaver:Velocity:API", configuration = "shadow"))
-    implementation(project(path = ":Library:ProtoWeaver:Velocity:Core", configuration = "shadow"))
+    implementation(project(path = ":Broker:ProtoWeaver:Velocity:API", configuration = "shadow"))
+    implementation(project(path = ":Broker:ProtoWeaver:Velocity:Core", configuration = "shadow"))
 
-    compileOnly("com.velocitypowered:velocity-api:3.3.0-SNAPSHOT")
-    annotationProcessor("com.velocitypowered:velocity-api:3.3.0-SNAPSHOT")
+    compileOnly(libs.velocity.api)
+    annotationProcessor(libs.velocity.api)
 
-    implementation("com.alessiodp.libby:libby-velocity:2.0.0-SNAPSHOT")
+    implementation(libs.libby.velocity)
 }
 
-val pluginName = property("plugin_name") as String
-val pluginVersion = property("plugin_version") as String
-val pluginAuthor = property("plugin_author") as String
+val pluginName = property("project.plugin.name") as String
+val pluginVersion = property("project.plugin.version") as String
+val pluginAuthor = property("project.plugin.author") as String
 
 tasks.named<ProcessResources>("processResources") {
     val props =

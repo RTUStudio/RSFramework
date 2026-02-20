@@ -1,6 +1,6 @@
 package kr.rtustudio.framework.velocity.plugin;
 
-import kr.rtustudio.protoweaver.velocity.api.VelocityProtoWeaver;
+import kr.rtustudio.broker.protoweaver.velocity.api.ProtoWeaver;
 import lombok.extern.slf4j.Slf4j;
 
 import java.nio.file.Path;
@@ -19,7 +19,7 @@ public class RSFramework {
     private final Path dir;
     private final Libraries libraries;
 
-    private VelocityProtoWeaver protoWeaver;
+    private ProtoWeaver protoWeaver;
 
     @Inject
     public RSFramework(ProxyServer server, @DataDirectory Path dir) {
@@ -47,16 +47,14 @@ public class RSFramework {
         libraries.load("io.netty:netty-codec-http:4.1.111.Final");
         libraries.load("io.netty:netty-codec-http2:4.1.111.Final");
         libraries.load(
-                "org.apache.fury:fury-core:0.10.3",
-                "org.apache.fury",
-                "kr.rtustudio.protoweaver.fury");
+                "org.apache.fory:fory-core:0.15.0", "org.apache.fory", "kr.rtustudio.broker.fory");
         libraries.load("org.bouncycastle:bcpkix-jdk18on:1.80");
         libraries.load("org.bouncycastle:bcprov-jdk18on:1.80");
         libraries.load("org.bouncycastle:bcutil-jdk18on:1.80");
         libraries.load("org.javassist:javassist:3.30.2-GA");
 
         protoWeaver =
-                new kr.rtustudio.protoweaver.velocity.core.VelocityProtoWeaver(
+                new kr.rtustudio.broker.protoweaver.velocity.core.ProtoWeaver(
                         server, dir.toAbsolutePath().getParent().getParent());
         server.getEventManager().register(this, protoWeaver);
     }

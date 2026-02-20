@@ -3,6 +3,7 @@ package kr.rtustudio.framework.bukkit.api.configuration.mapping;
 import static io.leangen.geantyref.GenericTypeReflector.erase;
 
 import kr.rtustudio.framework.bukkit.api.configuration.ConfigurationPart;
+import lombok.extern.slf4j.Slf4j;
 
 import java.lang.reflect.AnnotatedType;
 import java.lang.reflect.Constructor;
@@ -21,6 +22,7 @@ import org.spongepowered.configurate.util.CheckedSupplier;
  * objects that extend {@link ConfigurationPart}. Only 1 instance of each {@link ConfigurationPart}
  * should be present for each instance of the field discoverer this is used in.
  */
+@Slf4j
 final class InnerClassInstanceSupplier
         implements CheckedFunction<
                 AnnotatedType, @Nullable Supplier<Object>, SerializationException> {
@@ -66,7 +68,7 @@ final class InnerClassInstanceSupplier
                 this.instanceMap.put(type, instance);
                 return () -> instance;
             } catch (final ReflectiveOperationException e) {
-                e.printStackTrace();
+                log.error("Failed to create instance of {}", target, e);
                 throw new SerializationException(
                         ConfigurationPart.class, target + " must be a valid ConfigurationPart", e);
             }

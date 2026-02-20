@@ -1,96 +1,74 @@
 package kr.rtustudio.framework.bukkit.api.configuration.internal;
 
 import kr.rtustudio.framework.bukkit.api.RSPlugin;
-import kr.rtustudio.framework.bukkit.api.configuration.type.StorageType;
-import kr.rtustudio.framework.bukkit.api.platform.FileResource;
-import kr.rtustudio.framework.bukkit.api.storage.Storage;
-import kr.rtustudio.framework.bukkit.api.storage.json.Json;
-import kr.rtustudio.framework.bukkit.api.storage.json.JsonConfig;
-import kr.rtustudio.framework.bukkit.api.storage.mariadb.MariaDB;
-import kr.rtustudio.framework.bukkit.api.storage.mariadb.MariaDBConfig;
-import kr.rtustudio.framework.bukkit.api.storage.mongodb.MongoDB;
-import kr.rtustudio.framework.bukkit.api.storage.mongodb.MongoDBConfig;
-import kr.rtustudio.framework.bukkit.api.storage.mysql.MySQL;
-import kr.rtustudio.framework.bukkit.api.storage.mysql.MySQLConfig;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
+import kr.rtustudio.framework.bukkit.api.configuration.ConfigPath;
+import kr.rtustudio.framework.bukkit.api.configuration.RSConfiguration;
+import kr.rtustudio.storage.Storage;
+import kr.rtustudio.storage.StorageType;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Map;
 
-@RequiredArgsConstructor
-public class StorageConfiguration {
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-    private final RSPlugin plugin;
+/**
+ * Storage name 별로 서로 다른 {@link StorageType}을 지정할 수 있는 스토리지 설정 추상 클래스.
+ *
+ * <p>설정 파일 {@code Config/Storage.yml}에서 name-type 매핑을 관리하며, 실제 구현은 Core 모듈의 {@code
+ * StorageConfigurationImpl}에서 제공한다.
+ *
+ * <pre>{@code
+ * // Storage.yml 예시
+ * LocalSQL: "SQLITE"
+ * Local: "JSON"
+ * }</pre>
+ *
+ * @see StorageType
+ * @see kr.rtustudio.storage.Storage
+ */
+public abstract class StorageConfiguration extends RSConfiguration.Wrapper<RSPlugin> {
 
-    private final List<String> list = new ArrayList<>();
-
-    @Getter private JsonConfig json;
-    @Getter private MariaDBConfig mariadb;
-    @Getter private MongoDBConfig mongodb;
-    @Getter private MySQLConfig mysql;
-
-    public void init(String... list) {
-        this.init(List.of(list));
+    /**
+     * @param plugin 이 설정을 소유하는 플러그인
+     */
+    public StorageConfiguration(RSPlugin plugin) {
+        super(plugin, ConfigPath.of("Storage"));
+        setup(this);
     }
 
-    public void init(List<String> list) {
-        if (list.isEmpty()) return;
-        this.list.addAll(list);
-        json = new JsonConfig(plugin);
-        mariadb = new MariaDBConfig(plugin);
-        mongodb = new MongoDBConfig(plugin);
-        mysql = new MySQLConfig(plugin);
-        load();
+    /**
+     * 지정한 이름과 타입으로 스토리지를 등록한다.
+     *
+     * <p>{@code Storage.yml}에 해당 name이 없으면 새로 추가하고, 이미 존재하면 yml에 기록된 타입을 우선 사용한다.
+     *
+     * @param name 스토리지 식별 이름 (예: {@code "Local"}, {@code "LocalSQL"})
+     * @param type 기본 스토리지 타입
+     */
+    public abstract void registerStorage(@NotNull String name, @NotNull StorageType type);
+
+    /**
+     * 지정한 이름으로 스토리지를 등록한다. 기본 타입은 {@link StorageType#JSON}.
+     *
+     * @param name 스토리지 식별 이름
+     */
+    public void registerStorage(@NotNull String name) {
+        registerStorage(name, StorageType.JSON);
     }
 
-    private void load() {
-        StorageType type = plugin.getConfiguration().getSetting().getStorage();
-        Storage storage = plugin.getStorage();
-        switch (type) {
-            case JSON -> {
-                if (!(storage instanceof Json) || json.isChanged()) {
-                    for (String name : list)
-                        FileResource.createFile(plugin.getDataFolder() + "/Data", name + ".json");
-                    File[] files =
-                            FileResource.createFolder(plugin.getDataFolder() + "/Data").listFiles();
-                    assert files != null;
-                    if (storage != null) storage.close();
-                    plugin.setStorage(new Json(plugin, files));
-                    plugin.console("Storage: Json");
-                }
-            }
-            case MARIADB -> {
-                if (!(storage instanceof MariaDB) || mariadb.isChanged()) {
-                    if (storage != null) storage.close();
-                    plugin.setStorage(new MariaDB(plugin, list));
-                    plugin.console("Storage: MariaDB");
-                }
-            }
-            case MONGODB -> {
-                if (!(storage instanceof MongoDB) || mongodb.isChanged()) {
-                    if (storage != null) storage.close();
-                    plugin.setStorage(new MongoDB(plugin));
-                    plugin.console("Storage: MongoDB");
-                }
-            }
-            case MYSQL -> {
-                if (!(storage instanceof MySQL) || mysql.isChanged()) {
-                    if (storage != null) storage.close();
-                    plugin.setStorage(new MySQL(plugin, list));
-                    plugin.console("Storage: MySQL");
-                }
-            }
-        }
-    }
+    /**
+     * 등록된 스토리지 인스턴스를 반환한다.
+     *
+     * @param name 스토리지 식별 이름
+     * @return 해당 이름의 {@link Storage}, 등록되지 않았으면 {@code null}
+     */
+    @Nullable
+    public abstract Storage getStorage(@NotNull String name);
 
-    public void reload() {
-        if (list.isEmpty()) return;
-        if (json != null) json.reload();
-        if (mariadb != null) mariadb.reload();
-        if (mongodb != null) mongodb.reload();
-        if (mysql != null) mysql.reload();
-        load();
-    }
+    /**
+     * 현재 등록된 모든 스토리지의 name-type 매핑을 반환한다.
+     *
+     * @return 수정 불가능한 name → {@link StorageType} 맵
+     */
+    @NotNull
+    public abstract Map<String, StorageType> getStorageMap();
 }

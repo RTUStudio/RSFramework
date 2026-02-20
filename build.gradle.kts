@@ -1,17 +1,19 @@
 plugins {
     java
     `maven-publish`
-    id("io.freefair.lombok") version "8.14.2"
-    id("com.gradleup.shadow") version "9.0.2"
-    id("io.papermc.paperweight.userdev") version "2.0.0-beta.18" apply false
-    id("com.diffplug.spotless") version "7.2.1" apply false
+    alias(libs.plugins.freefair.lombok)
+    alias(libs.plugins.shadow)
+    alias(libs.plugins.paperweight) apply false
+    alias(libs.plugins.spotless) apply false
 }
 
 group = "kr.rtustudio"
-val pluginVersion = property("plugin_version") as String
-val pluginName = property("plugin_name") as String
-val javaVersionProp = property("java_version") as String
+val pluginVersion = property("project.plugin.version") as String
+val pluginName = property("project.plugin.name") as String
+val javaVersionProp = property("project.java.version") as String
 version = pluginVersion
+
+val catalog = the<VersionCatalogsExtension>().named("libs")
 
 allprojects {
 
@@ -42,17 +44,16 @@ allprojects {
     }
 
     dependencies {
-        compileOnly("org.quartz-scheduler:quartz:2.5.0")
+        compileOnly(catalog.findLibrary("quartz").get())
 
-        compileOnly("net.kyori:adventure-text-minimessage:4.24.0")
-        compileOnly("net.kyori:adventure-text-serializer-gson:4.24.0")
-        compileOnly("com.google.code.gson:gson:2.13.1")
-        compileOnly("com.google.guava:guava:33.4.8-jre")
-        compileOnly("org.apache.commons:commons-lang3:3.18.0")
-        compileOnly("org.xerial.snappy:snappy-java:1.1.10.8")
-        compileOnly("org.slf4j:slf4j-api:2.0.17")
+        compileOnly(catalog.findLibrary("adventure-minimessage").get())
+        compileOnly(catalog.findLibrary("adventure-serializer-gson").get())
+        compileOnly(catalog.findLibrary("gson").get())
+        compileOnly(catalog.findLibrary("guava").get())
+        compileOnly(catalog.findLibrary("commons-lang3").get())
+        compileOnly(catalog.findLibrary("slf4j").get())
 
-        compileOnly("org.projectlombok:lombok:1.18.38")
+        compileOnly(catalog.findLibrary("lombok").get())
     }
 
     configure<com.diffplug.gradle.spotless.SpotlessExtension> {
@@ -111,13 +112,13 @@ dependencies {
     implementation(project(":Platform:Bungee"))
     implementation(project(":Platform:Velocity"))
 
-    implementation("com.alessiodp.libby:libby-bukkit:2.0.0-SNAPSHOT")
-    implementation("com.alessiodp.libby:libby-bungee:2.0.0-SNAPSHOT")
-    implementation("com.alessiodp.libby:libby-velocity:2.0.0-SNAPSHOT")
-    implementation("net.kyori:adventure-platform-bukkit:4.4.1")
+    implementation(libs.libby.bukkit)
+    implementation(libs.libby.bungee)
+    implementation(libs.libby.velocity)
+    implementation(libs.adventure.platform.bukkit)
 
-    compileOnly("org.projectlombok:lombok:1.18.38")
-    add("annotationProcessor", "org.projectlombok:lombok:1.18.38")
+    compileOnly(libs.lombok)
+    add("annotationProcessor", libs.lombok.get().toString())
 }
 
 // Plugin Build
@@ -151,7 +152,7 @@ publishing {
         create<MavenPublication>("plugin") {
             groupId = "kr.rtustudio"
             artifactId = "framework-plugin"
-            version = property("plugin_version") as String
+            version = property("project.plugin.version") as String
             from(components["shadow"])
         }
     }

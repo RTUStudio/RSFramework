@@ -53,49 +53,118 @@ public class RSConfiguration {
             new HashMap<>();
 
     @Getter private final SettingConfiguration setting;
+
+    /**
+     * Storage name 별 타입 매핑 및 {@link kr.rtustudio.storage.Storage} 인스턴스를 관리하는 설정. Core에서 구현체를 주입받는다.
+     */
     @Getter private final StorageConfiguration storage;
 
     @Getter private MessageTranslation message;
     @Getter private CommandTranslation command;
 
+    /**
+     * 플러그인의 모든 내부 설정을 초기화한다.
+     *
+     * <p>{@link StorageConfiguration}은 {@link
+     * kr.rtustudio.framework.bukkit.api.core.Framework#createStorageConfiguration(RSPlugin)} 팩토리
+     * 메서드를 통해 Core 구현체를 주입받는다.
+     *
+     * @param plugin 이 설정을 소유하는 플러그인
+     */
     public RSConfiguration(RSPlugin plugin) {
         this.plugin = plugin;
         this.setting = new SettingConfiguration(plugin);
-        this.storage = new StorageConfiguration(plugin);
+        this.storage = plugin.getFramework().createStorageConfiguration(plugin);
         this.message =
                 new MessageTranslation(plugin, TranslationType.MESSAGE, this.setting.getLocale());
         this.command =
                 new CommandTranslation(plugin, TranslationType.COMMAND, this.setting.getLocale());
     }
 
-    public <C extends ConfigurationPart> C register(Class<C> configuration, String name) {
-        return register(configuration, "Configs", name, null, null);
+    /**
+     * 단일 {@code .yml} 설정 파일을 등록한다.
+     *
+     * <p>{@link ConfigPath}의 마지막 요소가 파일명, 나머지가 폴더 경로로 해석된다.
+     *
+     * @param configuration 로드할 {@link ConfigurationPart} 클래스
+     * @param path 설정 경로 (예: {@code ConfigPath.of("MyConfig")})
+     */
+    public <C extends ConfigurationPart> C registerConfiguration(
+            Class<C> configuration, ConfigPath path) {
+        return registerConfiguration(configuration, path, null);
     }
 
-    public <C extends ConfigurationPart> C register(
-            Class<C> configuration, String name, Integer version) {
-        return register(configuration, "Configs", name, version);
-    }
-
-    public <C extends ConfigurationPart> C register(
-            Class<C> configuration, String folder, String name) {
-        return register(configuration, folder, name, null, null);
-    }
-
-    public <C extends ConfigurationPart> C register(
-            Class<C> configuration, String folder, String name, Integer version) {
-        return register(configuration, folder, name, version, null);
-    }
-
-    public <C extends ConfigurationPart> C register(
+    /**
+     * 커스텀 직렬화를 포함하여 단일 {@code .yml} 설정 파일을 등록한다.
+     *
+     * @param configuration 로드할 {@link ConfigurationPart} 클래스
+     * @param path 설정 경로
+     * @param extraSerializer 추가 타입 직렬화
+     */
+    public <C extends ConfigurationPart> C registerConfiguration(
             Class<C> configuration,
-            String name,
-            Integer version,
+            ConfigPath path,
             Consumer<TypeSerializerCollection.Builder> extraSerializer) {
-        return register(configuration, "Configs", name, version, extraSerializer);
+        return registerImpl(
+                configuration, path.folder(), path.last(), path.version(), extraSerializer);
     }
 
-    public <C extends ConfigurationPart> C register(
+    /**
+     * 폴더 내 모든 {@code .yml} 파일을 개별 인스턴스로 등록한다.
+     *
+     * <p>{@link ConfigPath}의 전체 요소가 폴더 경로로 해석된다.
+     *
+     * @param configuration 로드할 {@link ConfigurationPart} 클래스
+     * @param path 폴더 경로 (예: {@code ConfigPath.of("Regions")})
+     * @return 파일명(확장자 제외)을 키로 하는 {@link ConfigList}
+     */
+    public <C extends ConfigurationPart> ConfigList<C> registerConfigurations(
+            Class<C> configuration, ConfigPath path) {
+        return registerConfigurations(configuration, path, null);
+    }
+
+    /**
+     * 커스텀 직렬화를 포함하여 폴더 내 모든 {@code .yml} 파일을 등록한다.
+     *
+     * @param configuration 로드할 {@link ConfigurationPart} 클래스
+     * @param path 폴더 경로
+     * @param extraSerializer 추가 타입 직렬화
+     * @return 파일명(확장자 제외)을 키로 하는 {@link ConfigList}
+     */
+    public <C extends ConfigurationPart> ConfigList<C> registerConfigurations(
+            Class<C> configuration,
+            ConfigPath path,
+            Consumer<TypeSerializerCollection.Builder> extraSerializer) {
+        String folderPath = path.folderPath();
+        Integer version = path.version();
+        Path configFolder = plugin.getDataFolder().toPath().resolve(folderPath);
+        Map<String, C> result = new LinkedHashMap<>();
+        try {
+            if (Files.notExists(configFolder)) Files.createDirectories(configFolder);
+            try (java.util.stream.Stream<Path> stream = Files.list(configFolder)) {
+                stream.filter(p -> p.toString().endsWith(".yml"))
+                        .sorted()
+                        .forEach(
+                                file -> {
+                                    String name = file.getFileName().toString();
+                                    String key = name.substring(0, name.length() - ".yml".length());
+                                    C instance =
+                                            registerImpl(
+                                                    configuration,
+                                                    folderPath,
+                                                    name,
+                                                    version,
+                                                    extraSerializer);
+                                    result.put(key, instance);
+                                });
+            }
+        } catch (IOException e) {
+            log.warn("Could not scan folder {}", folderPath, e);
+        }
+        return new ConfigList<>(result);
+    }
+
+    private <C extends ConfigurationPart> C registerImpl(
             Class<C> configuration,
             String folder,
             String name,
@@ -140,6 +209,11 @@ public class RSConfiguration {
         return (C) instance;
     }
 
+    /**
+     * 내부 설정(Setting, Storage, Message, Command)을 모두 리로드한다.
+     *
+     * <p>로케일이 변경된 경우 번역 객체를 새로 생성한다.
+     */
     public void reloadInternal() {
         final String locale = setting.getLocale();
         setting.reload();
@@ -186,15 +260,19 @@ public class RSConfiguration {
         private Wrapper<T> instance;
 
         public Wrapper(T plugin, String name) {
-            this(plugin, "Configs", name, null);
+            this(plugin, "Config", name, null);
         }
 
         public Wrapper(T plugin, String name, Integer version) {
-            this(plugin, "Configs", name, version);
+            this(plugin, "Config", name, version);
         }
 
         public Wrapper(T plugin, String folder, String name) {
             this(plugin, folder, name, null);
+        }
+
+        public Wrapper(T plugin, ConfigPath path) {
+            this(plugin, path.folder(), path.last(), path.version());
         }
 
         public Wrapper(T plugin, String folder, String name, Integer version) {

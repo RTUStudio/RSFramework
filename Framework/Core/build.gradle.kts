@@ -1,8 +1,17 @@
 dependencies {
 
-    implementation(project(path = ":Library:ProtoWeaver:Bukkit:Core", configuration = "shadow"))
+    implementation(project(path = ":Broker:ProtoWeaver:Bukkit:Core", configuration = "shadow"))
+    implementation(project(":Broker:Redisson"))
 
     implementation(project(":Framework:API"))
+
+    implementation(project(":Storage:Common"))
+    implementation(project(":Storage:MySQL"))
+    implementation(project(":Storage:MariaDB"))
+    implementation(project(":Storage:MongoDB"))
+    implementation(project(":Storage:Json"))
+    implementation(project(":Storage:SQLite"))
+    implementation(project(":Storage:PostgreSQL"))
 
     implementation(project(path = ":Framework:NMS:1_20_R1", configuration = "reobf"))
     implementation(project(path = ":Framework:NMS:1_20_R2", configuration = "reobf"))
@@ -14,11 +23,11 @@ dependencies {
     implementation(project(path = ":Framework:NMS:1_21_R4", configuration = "reobf"))
     implementation(project(path = ":Framework:NMS:1_21_R5", configuration = "reobf"))
     implementation(project(path = ":Framework:NMS:1_21_R6", configuration = "reobf"))
-    // implementation(project(path = ":Framework:NMS:1_21_R7", configuration = "reobf"))
+    implementation(project(path = ":Framework:NMS:1_21_R7", configuration = "reobf"))
 
     implementation(project(":Platform:Spigot"))
     implementation(project(":Platform:Paper"))
     implementation(project(":Platform:Folia"))
 
-    implementation("com.alessiodp.libby:libby-bukkit:2.0.0-SNAPSHOT")
+    implementation(libs.libby.bukkit)
 }

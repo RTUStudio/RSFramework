@@ -1,22 +1,24 @@
 package kr.rtustudio.framework.bukkit.api;
 
+import kr.rtustudio.broker.Broker;
 import kr.rtustudio.cdi.LightDI;
 import kr.rtustudio.framework.bukkit.api.command.RSCommand;
+import kr.rtustudio.framework.bukkit.api.configuration.ConfigList;
+import kr.rtustudio.framework.bukkit.api.configuration.ConfigPath;
 import kr.rtustudio.framework.bukkit.api.configuration.ConfigurationPart;
 import kr.rtustudio.framework.bukkit.api.configuration.RSConfiguration;
+import kr.rtustudio.framework.bukkit.api.configuration.internal.StorageConfiguration;
 import kr.rtustudio.framework.bukkit.api.core.Framework;
 import kr.rtustudio.framework.bukkit.api.core.module.ThemeModule;
+import kr.rtustudio.framework.bukkit.api.core.provider.Provider;
 import kr.rtustudio.framework.bukkit.api.format.ComponentFormatter;
 import kr.rtustudio.framework.bukkit.api.integration.Integration;
 import kr.rtustudio.framework.bukkit.api.library.LibraryLoader;
 import kr.rtustudio.framework.bukkit.api.listener.RSListener;
 import kr.rtustudio.framework.bukkit.api.platform.MinecraftVersion;
-import kr.rtustudio.framework.bukkit.api.storage.Storage;
-import kr.rtustudio.protoweaver.api.ProtoConnectionHandler;
-import kr.rtustudio.protoweaver.api.callback.HandlerCallback;
-import kr.rtustudio.protoweaver.api.protocol.Packet;
+import kr.rtustudio.storage.Storage;
+import kr.rtustudio.storage.StorageType;
 import lombok.Getter;
-import lombok.Setter;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import net.kyori.adventure.text.Component;
 
@@ -32,6 +34,7 @@ import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
 import org.bukkit.permissions.PermissionDefault;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.jetbrains.annotations.NotNull;
 import org.spongepowered.configurate.serialize.TypeSerializerCollection;
 
 @Getter
@@ -45,14 +48,12 @@ public abstract class RSPlugin extends JavaPlugin {
     private final Set<Integration> integrations = new HashSet<>();
     private final LinkedHashSet<String> languages = new LinkedHashSet<>();
 
-    @Getter private final LibraryLoader libraryLoader;
+    private final LibraryLoader libraryLoader;
 
     private Framework framework;
     private Component prefix;
-    private RSPlugin plugin;
     private BukkitAudiences adventure;
     private RSConfiguration configuration;
-    @Setter private Storage storage;
 
     public RSPlugin() {
         this("en_us", "ko_kr");
@@ -71,10 +72,7 @@ public abstract class RSPlugin extends JavaPlugin {
 
     @Override
     public void onEnable() {
-        if (MinecraftVersion.isSupport(MINIMUM_SUPPORTED_VERSION)) {
-            this.plugin = this;
-            this.adventure = BukkitAudiences.create(this);
-        } else {
+        if (!MinecraftVersion.isSupport(MINIMUM_SUPPORTED_VERSION)) {
             Bukkit.getLogger()
                     .warning(
                             "Server version is unsupported version (< "
@@ -88,10 +86,10 @@ public abstract class RSPlugin extends JavaPlugin {
             Bukkit.getPluginManager().disablePlugin(this);
             return;
         }
-
+        this.adventure = BukkitAudiences.create(this);
         registerPermission("command.reload", PermissionDefault.OP);
-        for (String plugin : this.getDescription().getSoftDepend())
-            this.framework.hookDependency(plugin);
+        for (String dependency : this.getDescription().getSoftDepend())
+            this.framework.hookDependency(dependency);
         enable();
         console("<green>Enable!</green>");
         this.framework.loadPlugin(this);
@@ -101,13 +99,11 @@ public abstract class RSPlugin extends JavaPlugin {
     public void onDisable() {
         this.integrations.forEach(Integration::unregister);
         disable();
-        if (this.storage != null) this.storage.close();
-        this.framework.unloadPlugin(this);
+        if (this.framework != null) this.framework.unloadPlugin(this);
         console("<red>Disable!</red>");
-        if (this.adventure != null) {
-            this.adventure.close();
-            this.adventure = null;
-        }
+        if (this.adventure == null) return;
+        this.adventure.close();
+        this.adventure = null;
     }
 
     @Override
@@ -115,16 +111,16 @@ public abstract class RSPlugin extends JavaPlugin {
         this.framework = LightDI.getBean(Framework.class);
         this.configuration = new RSConfiguration(this);
         initialize();
-        ThemeModule theme = this.framework.getModules().getTheme();
-        String text =
-                String.format(
-                        "<gradient:%s:%s>%s%s%s</gradient>",
-                        theme.getGradientStart(),
-                        theme.getGradientEnd(),
-                        theme.getPrefix(),
-                        getName(),
-                        theme.getSuffix());
-        this.prefix = ComponentFormatter.mini(text);
+        ThemeModule theme = this.framework.getModule(ThemeModule.class);
+        this.prefix =
+                ComponentFormatter.mini(
+                        "<gradient:%s:%s>%s%s%s</gradient>"
+                                .formatted(
+                                        theme.getGradientStart(),
+                                        theme.getGradientEnd(),
+                                        theme.getPrefix(),
+                                        getName(),
+                                        theme.getSuffix()));
         load();
     }
 
@@ -137,7 +133,8 @@ public abstract class RSPlugin extends JavaPlugin {
     }
 
     public void console(Component message) {
-        getAdventure().console().sendMessage(getPrefix().append(message));
+        if (this.adventure == null) return;
+        this.adventure.console().sendMessage(getPrefix().append(message));
     }
 
     public void console(String minimessage) {
@@ -160,60 +157,79 @@ public abstract class RSPlugin extends JavaPlugin {
         return this.configuration.reload(configuration);
     }
 
-    protected <T extends ConfigurationPart> T registerConfiguration(
-            Class<T> configuration, String name) {
-        return this.configuration.register(configuration, name);
+    public <T extends ConfigurationPart> T registerConfiguration(
+            Class<T> configuration, ConfigPath path) {
+        return this.configuration.registerConfiguration(configuration, path);
     }
 
-    protected <T extends ConfigurationPart> T registerConfiguration(
-            Class<T> configuration, String name, Integer version) {
-        return this.configuration.register(configuration, name, version);
-    }
-
-    protected <T extends ConfigurationPart> T registerConfiguration(
+    public <T extends ConfigurationPart> T registerConfiguration(
             Class<T> configuration,
-            String name,
+            ConfigPath path,
             Consumer<TypeSerializerCollection.Builder> serializers) {
-        return this.configuration.register(configuration, name, null, serializers);
+        return this.configuration.registerConfiguration(configuration, path, serializers);
     }
 
-    protected <T extends ConfigurationPart> T registerConfiguration(
+    public <T extends ConfigurationPart> ConfigList<T> registerConfigurations(
+            Class<T> configuration, ConfigPath path) {
+        return this.configuration.registerConfigurations(configuration, path);
+    }
+
+    public <T extends ConfigurationPart> ConfigList<T> registerConfigurations(
             Class<T> configuration,
-            String name,
-            Integer version,
+            ConfigPath path,
             Consumer<TypeSerializerCollection.Builder> serializers) {
-        return this.configuration.register(configuration, name, version, serializers);
+        return this.configuration.registerConfigurations(configuration, path, serializers);
     }
 
-    protected <T extends ConfigurationPart> T registerConfiguration(
-            Class<T> configuration, String folder, String name) {
-        return this.configuration.register(configuration, folder, name);
+    /**
+     * 등록된 스토리지 인스턴스를 반환한다.
+     *
+     * @param name 스토리지 식별 이름 (예: {@code "Local"}, {@code "LocalSQL"})
+     * @return 해당 이름의 {@link Storage}, 등록되지 않았으면 {@code null}
+     * @see StorageConfiguration#getStorage(String)
+     */
+    public Storage getStorage(@NotNull String name) {
+        return this.configuration.getStorage().getStorage(name);
     }
 
-    protected <T extends ConfigurationPart> T registerConfiguration(
-            Class<T> configuration, String folder, String name, Integer version) {
-        return this.configuration.register(configuration, folder, name, version);
+    /**
+     * 지정한 이름과 타입으로 스토리지를 등록한다.
+     *
+     * <p>{@code Storage.yml}에 해당 name이 없으면 새로 추가하고, 이미 존재하면 yml에 기록된 타입을 우선 사용한다.
+     *
+     * <pre>{@code
+     * registerStorage("LocalSQL", StorageType.SQLITE);
+     * registerStorage("Local", StorageType.JSON);
+     * }</pre>
+     *
+     * @param name 스토리지 식별 이름
+     * @param type 기본 스토리지 타입
+     * @see StorageConfiguration#registerStorage(String, StorageType)
+     */
+    protected void registerStorage(@NotNull String name, @NotNull StorageType type) {
+        this.configuration.getStorage().registerStorage(name, type);
     }
 
-    protected <T extends ConfigurationPart> T registerConfiguration(
-            Class<T> configuration,
-            String folder,
-            String name,
-            Consumer<TypeSerializerCollection.Builder> serializers) {
-        return this.configuration.register(configuration, folder, name, null, serializers);
+    /**
+     * 지정한 이름으로 스토리지를 등록한다. 기본 타입은 {@link StorageType#JSON}.
+     *
+     * @param name 스토리지 식별 이름
+     * @see #registerStorage(String, StorageType)
+     */
+    protected void registerStorage(@NotNull String name) {
+        this.configuration.getStorage().registerStorage(name);
     }
 
-    protected <T extends ConfigurationPart> T registerConfiguration(
-            Class<T> configuration,
-            String folder,
-            String name,
-            Integer version,
-            Consumer<TypeSerializerCollection.Builder> serializers) {
-        return this.configuration.register(configuration, folder, name, version, serializers);
+    public <T extends Broker> T getBroker(@NotNull Class<T> type) {
+        return this.framework.getBroker(type);
     }
 
-    protected void initStorage(String... storages) {
-        this.configuration.getStorage().init(storages);
+    public <T extends Provider> T getProvider(@NotNull Class<T> type) {
+        return this.framework.getProvider(type);
+    }
+
+    public <T extends Provider> void setProvider(@NotNull Class<T> type, @NotNull T provider) {
+        this.framework.setProvider(type, provider);
     }
 
     protected void registerEvent(RSListener<? extends RSPlugin> listener) {
@@ -249,42 +265,6 @@ public abstract class RSPlugin extends JavaPlugin {
     public void registerPermission(String permission, PermissionDefault permissionDefault) {
         String name = getName() + "." + permission;
         this.framework.registerPermission(name.toLowerCase(), permissionDefault);
-    }
-
-    /**
-     * 프록시의 RSFramework와 통신을 위한 프로토콜 등록
-     *
-     * @param namespace 네임스페이스
-     * @param key 키
-     * @param packet 패킷 정보
-     * @param protocolHandler 수신을 담당하는 핸들러
-     * @param callback 핸들러 외부에서 수신 이벤트를 받는 callback
-     */
-    protected void registerProtocol(
-            String namespace,
-            String key,
-            Packet packet,
-            Class<? extends ProtoConnectionHandler> protocolHandler,
-            HandlerCallback callback) {
-        this.framework.registerProtocol(namespace, key, packet, protocolHandler, callback);
-    }
-
-    /**
-     * 프록시의 RSFramework와 통신을 위한 프로토콜 등록
-     *
-     * @param namespace 네임스페이스
-     * @param key 키
-     * @param packets 패킷 정보
-     * @param protocolHandler 수신을 담당하는 핸들러
-     * @param callback 핸들러 외부에서 수신 이벤트를 받는 callback
-     */
-    protected void registerProtocol(
-            String namespace,
-            String key,
-            Set<Packet> packets,
-            Class<? extends ProtoConnectionHandler> protocolHandler,
-            HandlerCallback callback) {
-        this.framework.registerProtocol(namespace, key, packets, protocolHandler, callback);
     }
 
     protected void registerIntegration(Integration integrationWrapper) {

@@ -1,5 +1,5 @@
 plugins {
-    id("xyz.jpenilla.run-waterfall") version "2.3.1"
+    alias(libs.plugins.run.waterfall)
 }
 
 tasks.runWaterfall {
@@ -7,16 +7,16 @@ tasks.runWaterfall {
 }
 
 dependencies {
-    implementation(project(path = ":Library:ProtoWeaver:Bungee:API", configuration = "shadow"))
-    implementation(project(path = ":Library:ProtoWeaver:Bungee:Core", configuration = "shadow"))
-    implementation("com.alessiodp.libby:libby-bungee:2.0.0-SNAPSHOT")
+    implementation(project(path = ":Broker:ProtoWeaver:Bungee:API", configuration = "shadow"))
+    implementation(project(path = ":Broker:ProtoWeaver:Bungee:Core", configuration = "shadow"))
+    implementation(libs.libby.bungee)
 
     compileOnly("net.md-5:bungeecord-api:1.20-R0.2")
 }
 
-val pluginName = property("plugin_name") as String
-val pluginVersion = property("plugin_version") as String
-val pluginAuthor = property("plugin_author") as String
+val pluginName = property("project.plugin.name") as String
+val pluginVersion = property("project.plugin.version") as String
+val pluginAuthor = property("project.plugin.author") as String
 
 tasks.named<ProcessResources>("processResources") {
     val props =
