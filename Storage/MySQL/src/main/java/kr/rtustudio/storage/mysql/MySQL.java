@@ -30,7 +30,7 @@ public class MySQL implements Storage {
     public interface Config {
         String getHost();
 
-        String getPort();
+        int getPort();
 
         String getDatabase();
 

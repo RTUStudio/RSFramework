@@ -30,7 +30,7 @@ public class MariaDB implements Storage {
     public interface Config {
         String getHost();
 
-        String getPort();
+        int getPort();
 
         String getDatabase();
 
