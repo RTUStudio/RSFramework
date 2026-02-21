@@ -50,10 +50,14 @@ public class RSConfiguration {
 
     private final RSPlugin plugin;
 
-    private final Map<
-                    Class<? extends ConfigurationPart>,
-                    List<ConfigurationData<? extends ConfigurationPart>>>
-            configuration = new HashMap<>();
+    private final Map<Class<? extends ConfigurationPart>, Registry<? extends ConfigurationPart>>
+            registries = new HashMap<>();
+
+    private record Registry<C extends ConfigurationPart>(
+            ConfigPath path,
+            Consumer<TypeSerializerCollection.Builder> extraSerializer,
+            boolean isList,
+            Map<String, C> instances) {}
 
     @Getter private final SettingConfiguration setting;
 
@@ -98,14 +102,13 @@ public class RSConfiguration {
             Class<C> configuration,
             ConfigPath path,
             Consumer<TypeSerializerCollection.Builder> extraSerializer) {
-        ConfigurationData<C> data =
-                registerImpl(configuration, path, path.last(), extraSerializer, false);
+        C instance = registerImpl(configuration, path, path.last(), extraSerializer);
 
-        List<ConfigurationData<? extends ConfigurationPart>> list = new ArrayList<>();
-        list.add(data);
-        this.configuration.put(configuration, list);
+        registries.put(
+                configuration,
+                new Registry<>(path, extraSerializer, false, Map.of(path.last(), instance)));
 
-        return data.getInstance();
+        return instance;
     }
 
     /**
@@ -137,7 +140,6 @@ public class RSConfiguration {
         String folderPath = path.folderPath();
         Path configFolder = plugin.getDataFolder().toPath().resolve(folderPath);
         Map<String, C> result = new LinkedHashMap<>();
-        List<ConfigurationData<? extends ConfigurationPart>> dataList = new ArrayList<>();
         try {
             if (Files.notExists(configFolder)) Files.createDirectories(configFolder);
             try (java.util.stream.Stream<Path> stream = Files.list(configFolder)) {
@@ -147,30 +149,22 @@ public class RSConfiguration {
                                 file -> {
                                     String name = file.getFileName().toString();
                                     String key = name.replace(".yml", "");
-                                    ConfigurationData<C> data =
-                                            registerImpl(
-                                                    configuration,
-                                                    path,
-                                                    name,
-                                                    extraSerializer,
-                                                    true);
-                                    result.put(key, data.getInstance());
-                                    dataList.add(data);
+                                    C instance = registerImpl(configuration, path, name, extraSerializer);
+                                    result.put(key, instance);
                                 });
             }
         } catch (IOException e) {
             log.warn("Could not scan folder {}", folderPath, e);
         }
-        this.configuration.put(configuration, dataList);
+        registries.put(configuration, new Registry<>(path, extraSerializer, true, result));
         return new ConfigList<>(result);
     }
 
-    private <C extends ConfigurationPart> ConfigurationData<C> registerImpl(
+    private <C extends ConfigurationPart> C registerImpl(
             Class<C> configuration,
             ConfigPath path,
             String name,
-            Consumer<TypeSerializerCollection.Builder> extraSerializer,
-            boolean isList) {
+            Consumer<TypeSerializerCollection.Builder> extraSerializer) {
         String folder = path.folderPath();
         Integer version = path.version();
         name = name.endsWith(".yml") ? name : name + ".yml";
@@ -199,15 +193,7 @@ public class RSConfiguration {
         } catch (ConfigurateException e) {
             throw new RuntimeException(e);
         }
-        C created = pluginConfiguration.load();
-
-        String key = name.replace(".yml", "");
-        ConfigurationData<C> data =
-                new ConfigurationData<>(
-                        key, path, configFile, extraSerializer, pluginConfiguration, isList);
-        data.setInstance(created);
-
-        return data;
+        return pluginConfiguration.load();
     }
 
     /**
@@ -219,10 +205,9 @@ public class RSConfiguration {
      */
     @SuppressWarnings("unchecked")
     public <C extends ConfigurationPart> C get(Class<C> configuration) {
-        List<ConfigurationData<? extends ConfigurationPart>> list =
-                this.configuration.get(configuration);
-        if (list == null || list.isEmpty()) return null;
-        return (C) list.getFirst().getInstance();
+        Registry<C> registry = (Registry<C>) this.registries.get(configuration);
+        if (registry == null || registry.instances().isEmpty()) return null;
+        return registry.instances().values().iterator().next();
     }
 
     /**
@@ -234,15 +219,9 @@ public class RSConfiguration {
      */
     @SuppressWarnings("unchecked")
     public <C extends ConfigurationPart> ConfigList<C> getList(Class<C> configuration) {
-        List<ConfigurationData<? extends ConfigurationPart>> list =
-                this.configuration.get(configuration);
-        if (list == null) return null;
-
-        Map<String, C> entries = new LinkedHashMap<>();
-        for (ConfigurationData<? extends ConfigurationPart> data : list) {
-            entries.put(data.getKey(), (C) data.getInstance());
-        }
-        return new ConfigList<>(entries);
+        Registry<C> registry = (Registry<C>) this.registries.get(configuration);
+        if (registry == null) return null;
+        return new ConfigList<>(registry.instances());
     }
 
     /**
@@ -265,7 +244,7 @@ public class RSConfiguration {
 
     /** 등록된 모든 커스텀 설정을 파일에서 다시 로드한다. */
     public void reloadAll() {
-        for (Class<? extends ConfigurationPart> configuration : this.configuration.keySet())
+        for (Class<? extends ConfigurationPart> configuration : this.registries.keySet())
             reload(configuration);
     }
 
@@ -279,20 +258,14 @@ public class RSConfiguration {
      */
     @SuppressWarnings("unchecked")
     public <C extends ConfigurationPart> boolean reload(Class<C> configuration) {
-        List<ConfigurationData<? extends ConfigurationPart>> list =
-                this.configuration.get(configuration);
-        if (list == null || list.isEmpty()) return false;
-
-        ConfigurationData<? extends ConfigurationPart> sample = list.getFirst();
-        ConfigPath path = sample.getConfigPath();
-        Consumer<TypeSerializerCollection.Builder> serializer = sample.getExtraSerializer();
-        boolean isList = sample.isList();
+        Registry<C> registry = (Registry<C>) this.registries.get(configuration);
+        if (registry == null) return false;
 
         try {
-            if (isList) {
-                registerConfigurations(configuration, path, serializer);
+            if (registry.isList()) {
+                registerConfigurations(configuration, registry.path(), registry.extraSerializer());
             } else {
-                registerConfiguration(configuration, path, serializer);
+                registerConfiguration(configuration, registry.path(), registry.extraSerializer());
             }
             return true;
         } catch (Exception e) {

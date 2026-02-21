@@ -160,7 +160,7 @@ public record MyConfig(String welcomeMessage, int maxPlayers) {
 
 ### 2. 설정 등록 및 가져오기
 플러그인 시작 시 단일 설정 파일이나, 디렉토리 내의 설정 파일 목록(`ConfigList`)을 등록하고, 이후 어디서든 쉽게 가져와 사용할 수 있습니다.
-모든 설정은 내부적으로 `ConfigurationData`로 래핑되어 관리되며, `/reload` 명령어나 `reloadAll()` 호출 시 폴더 내 파일 변경사항(추가/삭제)까지 자동으로 반영됩니다.
+모든 설정은 내부적으로 캐싱되어 관리되며, `/reload` 명령어나 `reloadAll()` 호출 시 폴더 내 파일 변경사항(추가/삭제)까지 자동으로 반영됩니다.
 
 #### 단일 파일 등록 및 가져오기
 ```java

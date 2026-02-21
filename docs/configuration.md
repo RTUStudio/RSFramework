@@ -4,8 +4,8 @@
 
 ## ✨ 핵심 기능
 
-### 1. ConfigurationData 기반 통합 관리
-모든 등록된 설정은 내부적으로 `ConfigurationData` 레코드로 래핑되어 관리됩니다.
+### 1. 통합 캐싱 레지스트리 관리
+모든 등록된 설정은 내부적으로 `Registry` 레코드로 래핑되어 단일 맵(`registries`)에서 관리됩니다.
 - **기능**: 단일 파일(`registerConfiguration`) 또는 폴더 전체(`registerConfigurations`) 여부를 기억하고, 각 설정에 대한 파일 경로(`Path`), 직렬화 방식(`Serializer`)을 함께 캐싱합니다.
 - **장점**: `/reload` 또는 `reloadAll()` 호출 시, 폴더에서 삭제되거나 새로 추가된 파일까지 완벽하게 재스캔하여 자동으로 갱신합니다. 기존 설정 목록을 일일이 재등록할 필요가 없습니다.
 
