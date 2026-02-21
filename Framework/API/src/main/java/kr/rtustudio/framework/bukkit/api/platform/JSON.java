@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
+/** {@link JsonObject}를 빌더 패턴으로 구성할 수 있는 유틸리티 클래스입니다. */
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class JSON {
 

@@ -14,14 +14,10 @@ import org.spongepowered.configurate.serialize.SerializationException;
 import org.spongepowered.configurate.serialize.TypeSerializer;
 
 /**
- * Serializer for Map<Object[], Object>.
+ * {@code Map<Object[], Object>}를 Configurate 노드로 직렬화/역직렬화하는 직렬화기입니다.
  *
- * <p>This class flattens nested YAML/Configuration structures into path arrays like {["a", "b", 1]
- * = "value"} and restores them back. The key order is preserved using LinkedHashMap, so the
- * original YAML order will not be lost.
- *
- * <p>(Map<Object[], Object> 직렬화 클래스. YAML/Configurate 구조를 {["a", "b", 1] = "value"} 식으로 평탄화하고, 다시
- * 복원할 수 있도록 한다. 또한 LinkedHashMap을 사용하여 키 순서를 보존하기 때문에 YAML에 적힌 원래 순서가 흐트러지지 않는다.)
+ * <p>중첩된 YAML 구조를 {@code {["a", "b", 1] = "value"}} 형태의 경로 배열로 평탄화하고 복원합니다. {@link LinkedHashMap}을
+ * 사용하여 YAML 원본 키 순서를 보존합니다.
  */
 public class FlattenedMapSerializer implements TypeSerializer.Annotated<Map<Object[], Object>> {
 

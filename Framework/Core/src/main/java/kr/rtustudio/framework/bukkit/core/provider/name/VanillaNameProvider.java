@@ -14,7 +14,6 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public class VanillaNameProvider implements NameProvider {
-
     @NotNull
     @Override
     public List<String> names(Scope scope) {
@@ -27,19 +26,18 @@ public class VanillaNameProvider implements NameProvider {
     @Nullable
     @Override
     public String getName(UUID uniqueId) {
-        for (ProxyPlayer player : PlayerList.getPlayers()) {
-            if (player.uniqueId().equals(uniqueId)) return player.name();
-        }
-        return null;
+        ProxyPlayer player = PlayerList.getPlayer(uniqueId);
+        return player != null ? player.name() : null;
     }
 
     @Nullable
     @Override
     public UUID getUniqueId(String name) {
-        for (ProxyPlayer player : PlayerList.getPlayers()) {
-            if (player.name().equals(name)) return player.uniqueId();
-        }
-        return null;
+        return PlayerList.getPlayers().stream()
+                .filter(p -> p.name().equalsIgnoreCase(name))
+                .map(ProxyPlayer::uniqueId)
+                .findFirst()
+                .orElse(null);
     }
 
     @Override

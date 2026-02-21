@@ -10,7 +10,6 @@ import org.bukkit.event.EventHandler;
 
 @SuppressWarnings("unused")
 public class ItemsAdderLoaded extends RSListener<RSPlugin> {
-
     public ItemsAdderLoaded(RSPlugin plugin) {
         super(plugin);
     }

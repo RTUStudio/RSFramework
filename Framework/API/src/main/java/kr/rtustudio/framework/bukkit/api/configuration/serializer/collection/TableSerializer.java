@@ -20,6 +20,11 @@ import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.ImmutableTable;
 import com.google.common.collect.Table;
 
+/**
+ * Guava {@link Table}을 Configurate 노드로 직렬화/역직렬화하는 직렬화기입니다.
+ *
+ * <p>Row → Column → Value 계층 구조를 중첩 맵으로 변환합니다.
+ */
 public class TableSerializer implements TypeSerializer.Annotated<Table<?, ?, ?>> {
     private static final int ROW_TYPE_ARGUMENT_INDEX = 0;
     private static final int COLUMN_TYPE_ARGUMENT_INDEX = 1;

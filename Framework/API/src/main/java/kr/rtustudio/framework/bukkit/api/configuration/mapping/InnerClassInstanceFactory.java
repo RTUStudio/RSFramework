@@ -12,6 +12,11 @@ import java.util.function.Supplier;
 import org.spongepowered.configurate.objectmapping.FieldDiscoverer;
 import org.spongepowered.configurate.serialize.SerializationException;
 
+/**
+ * {@link InnerClassFieldDiscoverer}에서 사용하는 인스턴스 팩토리 구현체입니다.
+ *
+ * <p>역직렬화된 필드 값을 인스턴스에 적용하고, {@link FieldProcessor}를 실행합니다.
+ */
 final class InnerClassInstanceFactory
         implements FieldDiscoverer.MutableInstanceFactory<Map<Field, DeserializedFieldInfo<?>>> {
 

@@ -10,7 +10,6 @@ import org.bukkit.event.EventHandler;
 
 @SuppressWarnings("unused")
 public class OraxenLoaded extends RSListener<RSPlugin> {
-
     public OraxenLoaded(RSPlugin plugin) {
         super(plugin);
     }

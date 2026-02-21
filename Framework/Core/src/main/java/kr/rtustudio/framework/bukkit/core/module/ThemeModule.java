@@ -15,7 +15,6 @@ import org.spongepowered.configurate.objectmapping.meta.Comment;
 })
 public class ThemeModule extends ConfigurationPart
         implements kr.rtustudio.framework.bukkit.api.core.module.ThemeModule {
-
     public Gradient gradient;
 
     @Comment(
@@ -47,7 +46,6 @@ public class ThemeModule extends ConfigurationPart
 
     @Getter
     public class Gradient extends ConfigurationPart {
-
         @Comment(
                 """
                         Start color of gradient

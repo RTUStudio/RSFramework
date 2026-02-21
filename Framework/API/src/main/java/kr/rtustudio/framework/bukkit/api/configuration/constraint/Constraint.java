@@ -4,6 +4,12 @@ import java.lang.annotation.*;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Type;
 
+/**
+ * Configurate 객체 매핑 시 필드에 적용할 커스텀 제약 조건을 지정하는 어노테이션입니다.
+ *
+ * <p>{@code value}에 {@link org.spongepowered.configurate.objectmapping.meta.Constraint} 구현체 클래스를
+ * 지정합니다.
+ */
 @Documented
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.FIELD, ElementType.TYPE, ElementType.PARAMETER})

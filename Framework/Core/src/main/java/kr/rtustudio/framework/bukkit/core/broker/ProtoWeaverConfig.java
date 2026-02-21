@@ -15,7 +15,6 @@ import org.spongepowered.configurate.objectmapping.meta.Comment;
     "InnerClassMayBeStatic"
 })
 public class ProtoWeaverConfig extends ConfigurationPart {
-
     @Comment("ProtoWeaver TLS settings")
     public Tls tls;
 
@@ -31,7 +30,6 @@ public class ProtoWeaverConfig extends ConfigurationPart {
 
     @Getter
     public class Tls extends ConfigurationPart {
-
         @Comment(
                 """
                 Enable TLS for ProtoWeaver connections (Netty SslHandler)

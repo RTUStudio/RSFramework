@@ -18,11 +18,8 @@ import org.bukkit.plugin.Plugin;
 
 public final class ScheduledTask
         implements kr.rtustudio.framework.bukkit.api.core.scheduler.ScheduledTask {
-
     private final RSPlugin plugin;
-
     private final BukkitScheduler scheduler;
-
     private final Deque<Runnable> steps = new ArrayDeque<>();
     private final AtomicBoolean cancelled = new AtomicBoolean(false);
     private final AtomicBoolean running = new AtomicBoolean(false);
@@ -228,7 +225,6 @@ public final class ScheduledTask
             running.set(false);
             return;
         }
-
         Runnable next = steps.poll();
         if (next != null) {
             running.set(true);

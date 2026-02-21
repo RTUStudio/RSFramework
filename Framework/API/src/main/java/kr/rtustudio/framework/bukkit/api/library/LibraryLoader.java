@@ -15,9 +15,11 @@ import com.alessiodp.libby.BukkitLibraryManager;
 import com.alessiodp.libby.Library;
 
 /**
- * Maven 형식의 라이브러리를 런타임에 동적으로 로드하는 유틸리티
+ * Maven 형식의 라이브러리를 런타임에 동적으로 로드하는 유틸리티 클래스입니다.
  *
- * <p>형식: {@code groupId:artifactId:version[:classifier]}
+ * <p>의존성 형식: {@code groupId:artifactId:version[:classifier]}
+ *
+ * <p>Libby 라이브러리 매니저를 사용하며, Maven Central, JitPack, PaperMC 리포지토리를 기본 지원합니다.
  */
 public class LibraryLoader {
 
@@ -32,19 +34,42 @@ public class LibraryLoader {
         this.manager.addRepository("https://repo.papermc.io/repository/maven-public/");
     }
 
+    /**
+     * 커스텀 Maven 리포지토리를 추가한다.
+     *
+     * @param url 리포지토리 URL
+     */
     public void addRepository(@NotNull String url) {
         this.manager.addRepository(Objects.requireNonNull(url, "Repository URL cannot be null"));
     }
 
+    /**
+     * 지정한 의존성을 로드한다.
+     *
+     * @param dependency {@code groupId:artifactId:version[:classifier]} 형식 문자열
+     */
     public void load(@NotNull String dependency) {
         builder(dependency).load();
     }
 
+    /**
+     * 패키지 재배치(relocation)를 적용하여 의존성을 로드한다.
+     *
+     * @param dependency {@code groupId:artifactId:version[:classifier]} 형식 문자열
+     * @param pattern 원본 패키지 패턴
+     * @param relocatedPattern 재배치 대상 패키지 패턴
+     */
     public void load(
             @NotNull String dependency, @NotNull String pattern, @NotNull String relocatedPattern) {
         builder(dependency).relocate(pattern, relocatedPattern).load();
     }
 
+    /**
+     * 의존성 로딩을 세밀하게 제어할 수 있는 빌더를 생성한다.
+     *
+     * @param dependency {@code groupId:artifactId:version[:classifier]} 형식 문자열
+     * @return 라이브러리 빌더
+     */
     public LibraryBuilder builder(@NotNull String dependency) {
         return new LibraryBuilder(parseDependency(dependency));
     }
@@ -89,6 +114,7 @@ public class LibraryLoader {
         }
     }
 
+    /** 패키지 재배치 정보를 보관하는 레코드. */
     public record Relocation(String pattern, String relocatedPattern) {
         public Relocation {
             Objects.requireNonNull(pattern, "Pattern cannot be null");
@@ -96,7 +122,7 @@ public class LibraryLoader {
         }
     }
 
-    /** 라이브러리 로딩을 위한 빌더 */
+    /** 라이브러리 로딩을 위한 빌더. 재배치, 체크섬 등을 설정할 수 있다. */
     public class LibraryBuilder {
         private final DependencyInfo info;
         private final List<Relocation> relocations = new ArrayList<>();
@@ -106,16 +132,30 @@ public class LibraryLoader {
             this.info = info;
         }
 
+        /**
+         * 패키지 재배치를 추가한다.
+         *
+         * @param pattern 원본 패키지 패턴
+         * @param relocatedPattern 재배치 대상 패키지 패턴
+         * @return 이 빌더
+         */
         public LibraryBuilder relocate(@NotNull String pattern, @NotNull String relocatedPattern) {
             this.relocations.add(new Relocation(pattern, relocatedPattern));
             return this;
         }
 
+        /**
+         * SHA-256 체크섬을 설정한다.
+         *
+         * @param checksum SHA-256 해시 문자열
+         * @return 이 빌더
+         */
         public LibraryBuilder checksum(@NotNull String checksum) {
             this.checksum = Objects.requireNonNull(checksum, "Checksum cannot be null");
             return this;
         }
 
+        /** 설정된 옵션으로 라이브러리를 로드한다. */
         public void load() {
             loadLibrary(this);
         }

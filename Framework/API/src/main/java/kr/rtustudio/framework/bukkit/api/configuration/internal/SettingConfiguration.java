@@ -6,6 +6,11 @@ import kr.rtustudio.framework.bukkit.api.configuration.RSConfiguration;
 import lombok.Getter;
 import lombok.Setter;
 
+/**
+ * 플러그인 공통 설정({@code Config/Setting.yml})을 관리하는 클래스입니다.
+ *
+ * <p>디버그 모드, 리스너 활성화, MOTD, 접두사, 로케일 등의 기본 설정을 포함합니다.
+ */
 @Getter
 @Setter
 @SuppressWarnings("unused")

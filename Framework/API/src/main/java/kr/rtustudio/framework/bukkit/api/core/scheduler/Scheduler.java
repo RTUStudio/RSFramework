@@ -7,10 +7,28 @@ import java.util.function.Consumer;
 import org.bukkit.Location;
 import org.bukkit.entity.Entity;
 
+/**
+ * 플랫폼별(Spigot/Paper/Folia) 스케줄러 추상화 인터페이스입니다.
+ *
+ * <p>동기/비동기 실행, 지연 실행, 반복 실행을 지원하며, Folia 환경에서는 {@link Location} 및 {@link Entity} 기반 리전 스케줄링도
+ * 지원합니다.
+ */
 public interface Scheduler {
 
+    /**
+     * 지정한 플러그인 소유의 스케줄러를 반환한다.
+     *
+     * @param plugin 소유 플러그인
+     * @return 플러그인 스케줄러
+     */
     ScheduledTask plugin(RSPlugin plugin);
 
+    /**
+     * 메인 스레드에서 동기 실행한다.
+     *
+     * @param consumer 실행할 작업
+     * @return 스케줄된 태스크
+     */
     ScheduledTask sync(Consumer<ScheduledUnit> consumer);
 
     default ScheduledTask sync(Runnable runnable) {

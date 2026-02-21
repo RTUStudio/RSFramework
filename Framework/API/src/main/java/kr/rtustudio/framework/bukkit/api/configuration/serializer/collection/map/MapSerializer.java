@@ -20,7 +20,11 @@ import org.spongepowered.configurate.serialize.SerializationException;
 import org.spongepowered.configurate.serialize.TypeSerializer;
 import org.spongepowered.configurate.serialize.TypeSerializerCollection;
 
-/** Map serializer that does not throw errors on individual entry serialization failures. */
+/**
+ * 개별 항목 직렬화 실패 시 예외를 던지지 않고 로그만 남기는 {@link Map} 직렬화기입니다.
+ *
+ * <p>{@link ThrowExceptions} 어노테이션이 있으면 기본 직렬화기로 위임합니다.
+ */
 public class MapSerializer implements TypeSerializer.Annotated<Map<?, ?>> {
 
     public static final TypeToken<Map<?, ?>> TYPE = new TypeToken<Map<?, ?>>() {};

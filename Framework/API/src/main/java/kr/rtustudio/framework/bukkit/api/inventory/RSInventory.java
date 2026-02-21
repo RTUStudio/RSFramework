@@ -2,13 +2,12 @@ package kr.rtustudio.framework.bukkit.api.inventory;
 
 import kr.rtustudio.cdi.LightDI;
 import kr.rtustudio.framework.bukkit.api.RSPlugin;
-import kr.rtustudio.framework.bukkit.api.configuration.internal.translation.TranslationConfiguration;
 import kr.rtustudio.framework.bukkit.api.configuration.internal.translation.command.CommandTranslation;
 import kr.rtustudio.framework.bukkit.api.configuration.internal.translation.message.MessageTranslation;
 import kr.rtustudio.framework.bukkit.api.core.Framework;
 import kr.rtustudio.framework.bukkit.api.format.ComponentFormatter;
 import kr.rtustudio.framework.bukkit.api.platform.MinecraftVersion;
-import kr.rtustudio.framework.bukkit.api.player.PlayerAudience;
+import kr.rtustudio.framework.bukkit.api.player.Notifier;
 import lombok.Getter;
 import net.kyori.adventure.text.Component;
 
@@ -21,36 +20,27 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
 
+/**
+ * 플러그인별 커스텀 인벤토리 UI의 기반 추상 클래스입니다.
+ *
+ * <p>클릭, 드래그, 닫기 이벤트 핸들링과 플러그인 리소스(번역, 알림 등)에 접근할 수 있습니다.
+ *
+ * @param <T> 소유 플러그인 타입
+ */
 public abstract class RSInventory<T extends RSPlugin> implements InventoryHolder {
 
-    @Getter private final T plugin;
-
-    private final MessageTranslation message;
-    private final CommandTranslation command;
-    private final Framework framework = LightDI.getBean(Framework.class);
-    private final PlayerAudience chat;
+    @Getter protected final T plugin;
+    @Getter protected final Framework framework;
+    @Getter protected final MessageTranslation message;
+    @Getter protected final CommandTranslation command;
+    @Getter protected final Notifier notifier;
 
     public RSInventory(T plugin) {
         this.plugin = plugin;
+        this.framework = LightDI.getBean(Framework.class);
         this.message = plugin.getConfiguration().getMessage();
         this.command = plugin.getConfiguration().getCommand();
-        this.chat = PlayerAudience.of(plugin);
-    }
-
-    protected TranslationConfiguration message() {
-        return message;
-    }
-
-    protected TranslationConfiguration command() {
-        return command;
-    }
-
-    protected Framework framework() {
-        return framework;
-    }
-
-    public PlayerAudience chat() {
-        return chat;
+        this.notifier = Notifier.of(plugin);
     }
 
     protected Inventory createInventory(InventoryType type, Component title) {

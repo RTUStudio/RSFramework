@@ -1,7 +1,7 @@
 package kr.rtustudio.framework.bukkit.plugin.command;
 
+import kr.rtustudio.framework.bukkit.api.command.CommandArgs;
 import kr.rtustudio.framework.bukkit.api.command.RSCommand;
-import kr.rtustudio.framework.bukkit.api.command.RSCommandData;
 import kr.rtustudio.framework.bukkit.plugin.RSFramework;
 import kr.rtustudio.framework.bukkit.plugin.command.framework.BroadcastCommand;
 import kr.rtustudio.framework.bukkit.plugin.command.framework.InfoCommand;
@@ -19,7 +19,7 @@ public class FrameworkCommand extends RSCommand<RSFramework> {
     }
 
     @Override
-    public void reload(RSCommandData data) {
-        framework().getModuleFactory().reload();
+    public void reload(CommandArgs data) {
+        framework.getModuleFactory().reload();
     }
 }

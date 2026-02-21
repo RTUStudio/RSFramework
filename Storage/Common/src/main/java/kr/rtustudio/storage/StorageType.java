@@ -1,12 +1,21 @@
 package kr.rtustudio.storage;
 
+import lombok.Getter;
+
+@Getter
 public enum StorageType {
-    JSON,
-    SQLITE,
-    MYSQL,
-    MONGODB,
-    MARIADB,
-    POSTGRESQL;
+    JSON("Json"),
+    SQLITE("SQLite"),
+    MYSQL("MySQL"),
+    MONGODB("MongoDB"),
+    MARIADB("MariaDB"),
+    POSTGRESQL("PostgreSQL");
+
+    private final String name;
+
+    StorageType(String name) {
+        this.name = name;
+    }
 
     public static StorageType get(String type) {
         try {

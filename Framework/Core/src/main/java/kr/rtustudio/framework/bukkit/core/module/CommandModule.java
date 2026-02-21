@@ -15,7 +15,6 @@ import org.spongepowered.configurate.objectmapping.meta.Comment;
 })
 public class CommandModule extends ConfigurationPart
         implements kr.rtustudio.framework.bukkit.api.core.module.CommandModule {
-
     public Execute execute;
 
     public int getExecuteLimit() {
@@ -24,7 +23,6 @@ public class CommandModule extends ConfigurationPart
 
     @Getter
     public class Execute extends ConfigurationPart {
-
         @Comment(
                 """
                         Command cooldown (tick)

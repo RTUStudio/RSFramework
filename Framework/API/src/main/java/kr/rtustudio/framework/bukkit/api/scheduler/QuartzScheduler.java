@@ -14,6 +14,12 @@ import java.util.Map;
 import org.quartz.*;
 import org.quartz.impl.StdSchedulerFactory;
 
+/**
+ * Quartz Cron 스케줄러를 간편하게 사용할 수 있는 래퍼 클래스입니다.
+ *
+ * <p>Cron 표현식으로 {@link Job}을 등록하고, 다음 실행까지 남은 시간 조회 및 취소를 지원합니다. 동일한 {@link Job} 클래스는 하나의 {@link
+ * JobDetail}로 공유되며, 여러 트리거를 붙일 수 있습니다.
+ */
 @Slf4j
 @Getter
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
@@ -23,6 +29,14 @@ public class QuartzScheduler {
     private static Scheduler scheduler;
     private final Trigger trigger;
 
+    /**
+     * Cron 스케줄을 생성하고 즉시 시작한다.
+     *
+     * @param name 트리거 식별자
+     * @param cron Cron 표현식 (예: {@code "0 0/5 * * * ?"})
+     * @param job 실행할 {@link Job} 클래스
+     * @throws SchedulerException 스케줄러 등록 실패 시
+     */
     public QuartzScheduler(String name, String cron, Class<? extends Job> job)
             throws SchedulerException {
         JobDetail detail = createOrGet(job);
@@ -43,6 +57,14 @@ public class QuartzScheduler {
         return scheduler;
     }
 
+    /**
+     * Cron 스케줄을 생성하고 즉시 시작한다. 실패 시 {@code null}을 반환한다.
+     *
+     * @param name 트리거 식별자
+     * @param cron Cron 표현식
+     * @param job 실행할 {@link Job} 클래스
+     * @return 스케줄러 인스턴스, 실패 시 {@code null}
+     */
     public static QuartzScheduler run(String name, String cron, Class<? extends Job> job) {
         try {
             return new QuartzScheduler(name, cron, job);
@@ -59,9 +81,9 @@ public class QuartzScheduler {
     }
 
     /**
-     * Get remain milliseconds to next fire if scheduler is not running, return -1
+     * 다음 실행까지 남은 시간을 밀리초로 반환한다.
      *
-     * @return remain milliseconds to next fire
+     * @return 남은 밀리초, 스케줄러가 실행 중이 아니면 {@code -1}
      */
     public long getRemainMilliseconds() {
         try {
@@ -79,6 +101,11 @@ public class QuartzScheduler {
         }
     }
 
+    /**
+     * 다음 실행까지 남은 시간을 시/분/초로 분해하여 반환한다.
+     *
+     * @return 남은 시간, 스케줄러가 실행 중이 아니면 {@code null}
+     */
     public Time getRemainTime() {
         try {
             Trigger trigger = scheduler().getTrigger(this.trigger.getKey());
@@ -100,6 +127,11 @@ public class QuartzScheduler {
         }
     }
 
+    /**
+     * 스케줄을 취소한다.
+     *
+     * @return 취소 성공 여부
+     */
     public boolean cancel() {
         try {
             scheduler().unscheduleJob(trigger.getKey());
@@ -110,6 +142,11 @@ public class QuartzScheduler {
         }
     }
 
+    /**
+     * 스케줄이 취소되었는지 확인한다.
+     *
+     * @return 취소 여부
+     */
     public boolean isCancelled() {
         try {
             return !scheduler().checkExists(trigger.getKey());
@@ -119,5 +156,12 @@ public class QuartzScheduler {
         }
     }
 
+    /**
+     * 남은 시간을 시/분/초로 보관하는 레코드.
+     *
+     * @param hours 시간
+     * @param minutes 분
+     * @param seconds 초
+     */
     public record Time(long hours, long minutes, long seconds) {}
 }

@@ -2,7 +2,6 @@ package kr.rtustudio.framework.bukkit.api.configuration;
 
 import kr.rtustudio.framework.bukkit.api.RSPlugin;
 import kr.rtustudio.framework.bukkit.api.configuration.internal.SettingConfiguration;
-import kr.rtustudio.framework.bukkit.api.configuration.internal.StorageConfiguration;
 import kr.rtustudio.framework.bukkit.api.configuration.internal.translation.TranslationType;
 import kr.rtustudio.framework.bukkit.api.configuration.internal.translation.command.CommandTranslation;
 import kr.rtustudio.framework.bukkit.api.configuration.internal.translation.message.MessageTranslation;
@@ -40,6 +39,12 @@ import org.spongepowered.configurate.yaml.YamlConfigurationLoader;
 import com.google.common.base.Throwables;
 import com.google.common.collect.ImmutableMap;
 
+/**
+ * 플러그인의 모든 설정 파일을 통합 관리하는 클래스입니다.
+ *
+ * <p>내부 설정(Setting, Message, Command)과 플러그인별 커스텀 {@link ConfigurationPart}를 등록·로드·리로드합니다.
+ * Configurate YAML 로더를 기반으로 동작합니다.
+ */
 @Slf4j
 public class RSConfiguration {
 
@@ -47,17 +52,10 @@ public class RSConfiguration {
 
     private final Map<
                     Class<? extends ConfigurationPart>,
-                    PluginConfiguration<? extends ConfigurationPart>>
+                    List<ConfigurationData<? extends ConfigurationPart>>>
             configuration = new HashMap<>();
-    private final Map<Class<? extends ConfigurationPart>, ConfigurationPart> instance =
-            new HashMap<>();
 
     @Getter private final SettingConfiguration setting;
-
-    /**
-     * Storage name 별 타입 매핑 및 {@link kr.rtustudio.storage.Storage} 인스턴스를 관리하는 설정. Core에서 구현체를 주입받는다.
-     */
-    @Getter private final StorageConfiguration storage;
 
     @Getter private MessageTranslation message;
     @Getter private CommandTranslation command;
@@ -65,16 +63,11 @@ public class RSConfiguration {
     /**
      * 플러그인의 모든 내부 설정을 초기화한다.
      *
-     * <p>{@link StorageConfiguration}은 {@link
-     * kr.rtustudio.framework.bukkit.api.core.Framework#createStorageConfiguration(RSPlugin)} 팩토리
-     * 메서드를 통해 Core 구현체를 주입받는다.
-     *
      * @param plugin 이 설정을 소유하는 플러그인
      */
     public RSConfiguration(RSPlugin plugin) {
         this.plugin = plugin;
         this.setting = new SettingConfiguration(plugin);
-        this.storage = plugin.getFramework().createStorageConfiguration(plugin);
         this.message =
                 new MessageTranslation(plugin, TranslationType.MESSAGE, this.setting.getLocale());
         this.command =
@@ -105,8 +98,14 @@ public class RSConfiguration {
             Class<C> configuration,
             ConfigPath path,
             Consumer<TypeSerializerCollection.Builder> extraSerializer) {
-        return registerImpl(
-                configuration, path.folder(), path.last(), path.version(), extraSerializer);
+        ConfigurationData<C> data =
+                registerImpl(configuration, path, path.last(), extraSerializer, false);
+
+        List<ConfigurationData<? extends ConfigurationPart>> list = new ArrayList<>();
+        list.add(data);
+        this.configuration.put(configuration, list);
+
+        return data.getInstance();
     }
 
     /**
@@ -136,9 +135,9 @@ public class RSConfiguration {
             ConfigPath path,
             Consumer<TypeSerializerCollection.Builder> extraSerializer) {
         String folderPath = path.folderPath();
-        Integer version = path.version();
         Path configFolder = plugin.getDataFolder().toPath().resolve(folderPath);
         Map<String, C> result = new LinkedHashMap<>();
+        List<ConfigurationData<? extends ConfigurationPart>> dataList = new ArrayList<>();
         try {
             if (Files.notExists(configFolder)) Files.createDirectories(configFolder);
             try (java.util.stream.Stream<Path> stream = Files.list(configFolder)) {
@@ -147,29 +146,33 @@ public class RSConfiguration {
                         .forEach(
                                 file -> {
                                     String name = file.getFileName().toString();
-                                    String key = name.substring(0, name.length() - ".yml".length());
-                                    C instance =
+                                    String key = name.replace(".yml", "");
+                                    ConfigurationData<C> data =
                                             registerImpl(
                                                     configuration,
-                                                    folderPath,
+                                                    path,
                                                     name,
-                                                    version,
-                                                    extraSerializer);
-                                    result.put(key, instance);
+                                                    extraSerializer,
+                                                    true);
+                                    result.put(key, data.getInstance());
+                                    dataList.add(data);
                                 });
             }
         } catch (IOException e) {
             log.warn("Could not scan folder {}", folderPath, e);
         }
+        this.configuration.put(configuration, dataList);
         return new ConfigList<>(result);
     }
 
-    private <C extends ConfigurationPart> C registerImpl(
+    private <C extends ConfigurationPart> ConfigurationData<C> registerImpl(
             Class<C> configuration,
-            String folder,
+            ConfigPath path,
             String name,
-            Integer version,
-            Consumer<TypeSerializerCollection.Builder> extraSerializer) {
+            Consumer<TypeSerializerCollection.Builder> extraSerializer,
+            boolean isList) {
+        String folder = path.folderPath();
+        Integer version = path.version();
         name = name.endsWith(".yml") ? name : name + ".yml";
         Path configFolder = plugin.getDataFolder().toPath().resolve(folder);
         Path configFile = configFolder.resolve(name);
@@ -197,16 +200,49 @@ public class RSConfiguration {
             throw new RuntimeException(e);
         }
         C created = pluginConfiguration.load();
-        this.configuration.put(configuration, pluginConfiguration);
-        this.instance.put(configuration, created);
-        return created;
+
+        String key = name.replace(".yml", "");
+        ConfigurationData<C> data =
+                new ConfigurationData<>(
+                        key, path, configFile, extraSerializer, pluginConfiguration, isList);
+        data.setInstance(created);
+
+        return data;
     }
 
+    /**
+     * 등록된 설정 인스턴스를 타입으로 조회한다.
+     *
+     * @param configuration 조회할 {@link ConfigurationPart} 클래스
+     * @param <C> 설정 타입
+     * @return 등록된 설정 인스턴스, 없으면 {@code null}
+     */
     @SuppressWarnings("unchecked")
     public <C extends ConfigurationPart> C get(Class<C> configuration) {
-        ConfigurationPart instance = this.instance.get(configuration);
-        if (instance == null) return null;
-        return (C) instance;
+        List<ConfigurationData<? extends ConfigurationPart>> list =
+                this.configuration.get(configuration);
+        if (list == null || list.isEmpty()) return null;
+        return (C) list.getFirst().getInstance();
+    }
+
+    /**
+     * 등록된 설정 목록 인스턴스를 타입으로 조회한다.
+     *
+     * @param configuration 조회할 {@link ConfigurationPart} 클래스
+     * @param <C> 설정 타입
+     * @return 등록된 설정 목록 인스턴스, 없으면 {@code null}
+     */
+    @SuppressWarnings("unchecked")
+    public <C extends ConfigurationPart> ConfigList<C> getList(Class<C> configuration) {
+        List<ConfigurationData<? extends ConfigurationPart>> list =
+                this.configuration.get(configuration);
+        if (list == null) return null;
+
+        Map<String, C> entries = new LinkedHashMap<>();
+        for (ConfigurationData<? extends ConfigurationPart> data : list) {
+            entries.put(data.getKey(), (C) data.getInstance());
+        }
+        return new ConfigList<>(entries);
     }
 
     /**
@@ -217,7 +253,7 @@ public class RSConfiguration {
     public void reloadInternal() {
         final String locale = setting.getLocale();
         setting.reload();
-        storage.reload();
+        plugin.getFramework().reloadStorages(plugin);
         if (locale.equalsIgnoreCase(setting.getLocale())) {
             message.reload();
             command.reload();
@@ -227,31 +263,56 @@ public class RSConfiguration {
         }
     }
 
+    /** 등록된 모든 커스텀 설정을 파일에서 다시 로드한다. */
     public void reloadAll() {
-        for (Class<? extends ConfigurationPart> configuration : instance.keySet())
+        for (Class<? extends ConfigurationPart> configuration : this.configuration.keySet())
             reload(configuration);
     }
 
+    /**
+     * 지정한 설정을 파일에서 다시 로드한다. 단일 설정뿐만 아니라 폴더로 등록된 설정 목록도 함께 리로드하며, 폴더의 경우 새로 추가/삭제된 파일까지 모두 반영하여
+     * 갱신합니다.
+     *
+     * @param configuration 리로드할 {@link ConfigurationPart} 클래스
+     * @param <C> 설정 타입
+     * @return 리로드 성공 여부
+     */
     @SuppressWarnings("unchecked")
     public <C extends ConfigurationPart> boolean reload(Class<C> configuration) {
-        C instance = get(configuration);
-        if (instance == null) return false;
-        PluginConfiguration<? extends ConfigurationPart> impl =
+        List<ConfigurationData<? extends ConfigurationPart>> list =
                 this.configuration.get(configuration);
-        if (impl == null) return false;
+        if (list == null || list.isEmpty()) return false;
+
+        ConfigurationData<? extends ConfigurationPart> sample = list.getFirst();
+        ConfigPath path = sample.getConfigPath();
+        Consumer<TypeSerializerCollection.Builder> serializer = sample.getExtraSerializer();
+        boolean isList = sample.isList();
+
         try {
-            ((PluginConfiguration<C>) impl).reload(instance);
+            if (isList) {
+                registerConfigurations(configuration, path, serializer);
+            } else {
+                registerConfiguration(configuration, path, serializer);
+            }
             return true;
         } catch (Exception e) {
             return false;
         }
     }
 
+    /**
+     * YAML 설정 파일 하나를 관리하는 래퍼 클래스입니다.
+     *
+     * <p>Configurate {@link YamlConfigurationLoader}를 기반으로 노드 읽기/쓰기, 기본값 처리, 변경 감지 등을 제공합니다. 하위
+     * 클래스에서 {@code private void} 메서드를 선언하면 {@link #setup} 및 {@link #reload} 시 자동으로 호출됩니다.
+     *
+     * @param <T> 소유 플러그인 타입
+     */
     @Slf4j(topic = "RSConfiguration.Wrapper")
     @SuppressWarnings("unused")
     public static class Wrapper<T extends RSPlugin> {
 
-        @Getter private final T plugin;
+        @Getter protected final T plugin;
         private final Path path;
         private final YamlConfigurationLoader loader;
         @Getter private final int version;

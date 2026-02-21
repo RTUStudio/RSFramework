@@ -3,14 +3,13 @@ package kr.rtustudio.framework.bukkit.api.command;
 import kr.rtustudio.cdi.LightDI;
 import kr.rtustudio.framework.bukkit.api.RSPlugin;
 import kr.rtustudio.framework.bukkit.api.configuration.internal.translation.Translation;
-import kr.rtustudio.framework.bukkit.api.configuration.internal.translation.TranslationConfiguration;
 import kr.rtustudio.framework.bukkit.api.configuration.internal.translation.command.CommandTranslation;
 import kr.rtustudio.framework.bukkit.api.configuration.internal.translation.message.MessageTranslation;
 import kr.rtustudio.framework.bukkit.api.core.Framework;
 import kr.rtustudio.framework.bukkit.api.core.module.CommandModule;
 import kr.rtustudio.framework.bukkit.api.core.module.ThemeModule;
 import kr.rtustudio.framework.bukkit.api.core.provider.name.NameProvider;
-import kr.rtustudio.framework.bukkit.api.player.PlayerAudience;
+import kr.rtustudio.framework.bukkit.api.player.Notifier;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.ToString;
@@ -25,47 +24,82 @@ import org.bukkit.entity.Player;
 import org.bukkit.permissions.PermissionDefault;
 import org.jetbrains.annotations.NotNull;
 
+/**
+ * RSFramework 전용 명령어 추상 클래스입니다.
+ *
+ * <p>서브 커맨드 구조, 권한 체크, 쿨다운, 자동 탭 완성 및 다국어 지원 등을 포함합니다. 하위 클래스에서 {@link #execute(CommandArgs)}와
+ * {@link #tabComplete(CommandArgs)}를 오버라이드하여 실제 동작을 구현합니다.
+ */
 @ToString(exclude = "commands")
 public abstract class RSCommand<T extends RSPlugin> extends Command {
 
     private final Map<String, RSCommand<? extends RSPlugin>> commands = new HashMap<>();
 
-    @Getter private final T plugin;
+    @Getter protected final T plugin;
+    @Getter protected final Framework framework;
+    @Getter protected final MessageTranslation message;
+    @Getter protected final CommandTranslation command;
+    @Getter protected final Notifier notifier;
 
     @Getter private final PermissionDefault permissionDefault;
 
     @Getter private final List<String> names;
 
-    private final MessageTranslation message;
-    private final CommandTranslation command;
-    private final Framework framework = LightDI.getBean(Framework.class);
-    private final PlayerAudience chat;
-    private CommandSender sender;
-    private Audience audience;
+    @Getter private CommandSender sender;
+    @Getter private Audience audience;
 
     private RSCommand<? extends RSPlugin> parent = null;
     private int index = 0;
 
+    /**
+     * 단일 이름으로 명령어를 생성한다. 기본 권한은 {@link PermissionDefault#TRUE}.
+     *
+     * @param plugin 소유 플러그인
+     * @param key 명령어 이름
+     */
     public RSCommand(T plugin, @NotNull String key) {
         this(plugin, List.of(key), PermissionDefault.TRUE);
     }
 
+    /**
+     * 이름 목록(별칭 포함)으로 명령어를 생성한다. 기본 권한은 {@link PermissionDefault#TRUE}.
+     *
+     * @param plugin 소유 플러그인
+     * @param keys 명령어 이름 목록 (첫 번째가 기본 이름, 나머지는 별칭)
+     */
     public RSCommand(T plugin, @NotNull List<String> keys) {
         this(plugin, keys, PermissionDefault.TRUE);
     }
 
+    /**
+     * 단일 이름과 권한 수준으로 명령어를 생성한다.
+     *
+     * @param plugin 소유 플러그인
+     * @param key 명령어 이름
+     * @param permission 기본 권한 수준
+     */
     public RSCommand(T plugin, @NotNull String key, PermissionDefault permission) {
         this(plugin, List.of(key), permission);
     }
 
+    /**
+     * 이름 목록과 권한 수준으로 명령어를 생성한다.
+     *
+     * <p>번역 파일에 정의된 로컬라이즈 이름이 자동으로 별칭에 추가된다.
+     *
+     * @param plugin 소유 플러그인
+     * @param keys 명령어 이름 목록 (첫 번째가 기본 이름)
+     * @param permission 기본 권한 수준
+     */
     public RSCommand(T plugin, List<String> keys, PermissionDefault permission) {
         super(keys.getFirst());
         this.names = Collections.unmodifiableList(keys);
         this.plugin = plugin;
         this.permissionDefault = permission;
+        this.framework = LightDI.getBean(Framework.class);
         this.message = plugin.getConfiguration().getMessage();
         this.command = plugin.getConfiguration().getCommand();
-        this.chat = PlayerAudience.of(plugin);
+        this.notifier = Notifier.of(plugin);
         super.setPermission(plugin.getName().toLowerCase() + ".command." + getName());
         List<String> aliases = new ArrayList<>(names.subList(1, names.size()));
         for (Translation translation : command.getTranslations().values()) {
@@ -81,47 +115,33 @@ public abstract class RSCommand<T extends RSPlugin> extends Command {
         this.index++;
     }
 
+    /** 부모 명령어를 포함한 전체 경로명을 반환한다 (예: {@code "admin.reload"}). */
     protected String getQualifiedName() {
         return this.parent == null ? getName() : this.parent.getQualifiedName() + "." + getName();
     }
 
-    protected TranslationConfiguration message() {
-        return this.message;
-    }
-
-    protected TranslationConfiguration command() {
-        return this.command;
-    }
-
-    protected Framework framework() {
-        return this.framework;
-    }
-
+    /** {@link NameProvider}를 조회하여 반환한다. */
     protected NameProvider provider() {
         return this.framework.getProvider(NameProvider.class);
     }
 
-    protected PlayerAudience chat() {
-        return this.chat;
-    }
-
-    protected CommandSender sender() {
-        return this.sender;
-    }
-
-    protected Audience audience() {
-        return this.audience;
-    }
-
+    /** 명령어 발신자가 플레이어이면 반환하고, 아니면 {@code null}을 반환한다. */
     protected Player player() {
         if (this.sender instanceof Player player) return player;
         return null;
     }
 
+    /** 명령어 발신자가 OP인지 확인한다. */
     public boolean isOp() {
         return this.sender.isOp();
     }
 
+    /**
+     * 명령어 발신자가 지정한 권한을 가지고 있는지 확인한다.
+     *
+     * @param permission 권한 접미사
+     * @return 권한 보유 여부
+     */
     public boolean hasPermission(String permission) {
         return this.plugin.hasPermission(this.sender, permission);
     }
@@ -134,14 +154,14 @@ public abstract class RSCommand<T extends RSPlugin> extends Command {
     @Override
     public boolean execute(
             @NotNull CommandSender sender, @NotNull String commandLabel, @NotNull String[] args) {
-        this.chat.setReceiver(sender);
-        if (this.parent == null && (sender instanceof Player player)) {
+        this.notifier.setReceiver(sender);
+        if (this.parent == null && sender instanceof Player player) {
             if (checkCooldown(player)) return true;
         }
         this.sender = sender;
         this.audience = this.plugin.getAdventure().sender(sender);
-        RSCommandData data = new RSCommandData(args);
-        RSCommand<? extends RSPlugin> sub = findCommand(data.args(this.index));
+        CommandArgs data = new CommandArgs(args);
+        RSCommand<? extends RSPlugin> sub = findCommand(data.get(this.index));
         if (sub == null) {
             if (!hasPermissionNode(getPermission())) {
                 handleResult(Result.NO_PERMISSION);
@@ -153,14 +173,14 @@ public abstract class RSCommand<T extends RSPlugin> extends Command {
                 handleResult(Result.NO_PERMISSION);
                 return true;
             }
-            if (sub.getName().equalsIgnoreCase("reload")) reload(data);
+            if (sub.getName().equalsIgnoreCase("reload")) sub.reload(data);
             if (!sub.execute(sender, commandLabel, args)) sub.showUsage();
         }
         return true;
     }
 
     private void announceCommon(String key) {
-        this.chat.announce(this.message.getCommon(player(), key));
+        this.notifier.announce(this.message.getCommon(player(), key));
     }
 
     private boolean checkCooldown(Player player) {
@@ -195,33 +215,46 @@ public abstract class RSCommand<T extends RSPlugin> extends Command {
         ThemeModule module = this.framework.getModule(ThemeModule.class);
         String startGradient = module.getGradientStart();
         String endGradient = module.getGradientEnd();
+
         List<RSCommand<? extends RSPlugin>> list = new ArrayList<>(this.commands.values());
         if (list.isEmpty()) return;
-        boolean empty = true;
+
         StringBuilder builder =
                 new StringBuilder("<gradient:" + startGradient + ":" + endGradient + ">");
+        boolean empty = true;
+
         for (int i = 0; i < list.size(); i++) {
             RSCommand<? extends RSPlugin> cmd = list.get(i);
             String permission = cmd.getPermission();
-            if (permission == null) continue;
-            if (hasPermissionNode(permission)) {
+            if (permission != null && hasPermissionNode(permission)) {
                 String usage = cmd.getLocalizedUsage(player());
                 if (usage.isEmpty()) usage = "/" + cmd.getLocalizedCommand(player());
-                if (i > 0) builder.append("\n");
+
+                if (!empty) builder.append("\n");
+
                 String description = cmd.getLocalizedDescription(player());
                 builder.append(" ⏵ <white>").append(usage).append("</white>");
-                if (!description.isEmpty())
+                if (!description.isEmpty()) {
                     builder.append("\n    ┗ ")
                             .append("<gray>")
                             .append(description)
                             .append("</gray>");
+                }
                 empty = false;
             }
         }
         builder.append("</gradient>");
-        if (!empty) this.chat.send(builder.toString());
+
+        if (!empty) this.notifier.send(builder.toString());
     }
 
+    /**
+     * 서브 커맨드를 등록한다.
+     *
+     * <p>서브 커맨드의 권한 노드가 자동으로 생성되어 서버에 등록된다.
+     *
+     * @param command 등록할 서브 커맨드
+     */
     public void registerCommand(RSCommand<? extends RSPlugin> command) {
         command.setParent(this);
         String permission = "command." + command.getQualifiedName();
@@ -278,17 +311,17 @@ public abstract class RSCommand<T extends RSPlugin> extends Command {
     @Override
     public @NotNull List<String> tabComplete(
             @NotNull CommandSender sender, @NotNull String alias, @NotNull String[] args) {
-        this.chat.setReceiver(sender);
+        this.notifier.setReceiver(sender);
         this.sender = sender;
         this.audience = this.plugin.getAdventure().sender(sender);
-        RSCommandData data = new RSCommandData(args);
+        CommandArgs data = new CommandArgs(args);
         List<String> list = new ArrayList<>();
         if (data.length(this.index + 1))
             for (RSCommand<? extends RSPlugin> cmd : this.commands.values()) {
                 if (hasPermissionNode(cmd.getPermission()))
                     list.add(cmd.getLocalizedName(player()));
             }
-        RSCommand<? extends RSPlugin> sub = findCommand(data.args(index));
+        RSCommand<? extends RSPlugin> sub = findCommand(data.get(index));
         if (sub == null) {
             if (hasPermissionNode(getPermission())) list.addAll(tabComplete(data));
         } else if (hasPermissionNode(sub.getPermission())) {
@@ -309,7 +342,7 @@ public abstract class RSCommand<T extends RSPlugin> extends Command {
      *   <li>Result.ONLY_PLAYER / ONLY_CONSOLE / NOT_FOUND_* / WRONG_USAGE: 상위 디스패처가 공통 안내
      * </ul>
      */
-    protected Result execute(RSCommandData data) {
+    protected Result execute(CommandArgs data) {
         return Result.WRONG_USAGE;
     }
 
@@ -318,7 +351,7 @@ public abstract class RSCommand<T extends RSPlugin> extends Command {
      *
      * <p>Return tab-completion candidates. The default implementation returns an empty list.
      */
-    protected List<String> tabComplete(RSCommandData data) {
+    protected List<String> tabComplete(CommandArgs data) {
         return List.of();
     }
 
@@ -327,8 +360,13 @@ public abstract class RSCommand<T extends RSPlugin> extends Command {
      *
      * <p>Reload configuration/state. The default implementation is a no-op.
      */
-    protected void reload(RSCommandData data) {}
+    protected void reload(CommandArgs data) {}
 
+    /**
+     * 명령어 실행 결과를 나타내는 열거형.
+     *
+     * <p>각 값에 따라 프레임워크가 자동으로 공통 안내 메시지를 발송한다.
+     */
     @Getter
     @RequiredArgsConstructor
     public enum Result {

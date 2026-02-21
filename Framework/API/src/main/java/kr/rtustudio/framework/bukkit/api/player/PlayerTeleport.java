@@ -8,7 +8,6 @@ import kr.rtustudio.cdi.LightDI;
 import kr.rtustudio.framework.bukkit.api.core.Framework;
 import kr.rtustudio.framework.bukkit.api.platform.MinecraftVersion;
 import lombok.AccessLevel;
-import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 import java.util.concurrent.CompletableFuture;
@@ -19,9 +18,16 @@ import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
-@Getter
+/**
+ * 플레이어 텔레포트를 처리하는 유틸리티 클래스입니다.
+ *
+ * <p>로컬 서버 내 텔레포트는 Bukkit/Paper API를 사용하고, 타 서버 텔레포트는 ProtoWeaver를 통해 프록시에 요청합니다.
+ */
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 public class PlayerTeleport {
+
+    private static final CompletableFuture<Boolean> FALSE =
+            CompletableFuture.completedFuture(false);
 
     static Framework framework;
     private final Player player;
@@ -31,64 +37,96 @@ public class PlayerTeleport {
         return framework;
     }
 
-    public static PlayerTeleport of(Player player) {
+    /**
+     * 플레이어를 대상으로 텔레포트 유틸리티를 생성한다.
+     *
+     * @param player 텔레포트할 플레이어
+     * @return 텔레포트 유틸리티
+     */
+    public static PlayerTeleport of(@NotNull Player player) {
         return new PlayerTeleport(player);
     }
 
+    /** 현재 서버 이름을 반환한다. */
     private String server() {
         return framework().getBroker(ProtoWeaver.class).getServer();
     }
 
+    /** ProtoWeaver 브로커를 반환한다. */
     private ProtoWeaver protoWeaver() {
         return framework().getBroker(ProtoWeaver.class);
     }
 
+    /**
+     * 프록시 위치로 텔레포트한다.
+     *
+     * <p>대상 서버가 현재 서버면 로컬 텔레포트, 다른 서버면 ProtoWeaver를 통해 요청한다.
+     *
+     * @param location 대상 프록시 위치
+     * @return 텔레포트 성공 여부
+     */
     public CompletableFuture<Boolean> teleport(@NotNull ProxyLocation location) {
         if (server().equalsIgnoreCase(location.server())) {
             World world = Bukkit.getWorld(location.world());
-            if (world == null) return CompletableFuture.completedFuture(false);
-            Location bukkitLocation = new Location(world, location.x(), location.y(), location.z());
-            return teleport(bukkitLocation);
-        } else {
-            if (protoWeaver().isConnected()) {
-                ProxyPlayer pp = PlayerList.getPlayer(player.getUniqueId());
-                LocationTeleport packet = new LocationTeleport(pp, location);
-                return CompletableFuture.supplyAsync(() -> protoWeaver().publish(packet));
-            }
+            if (world == null) return FALSE;
+            return teleport(new Location(world, location.x(), location.y(), location.z()));
         }
-        return CompletableFuture.completedFuture(false);
+        ProtoWeaver pw = protoWeaver();
+        if (!pw.isConnected()) return FALSE;
+        ProxyPlayer pp = PlayerList.getPlayer(player.getUniqueId());
+        LocationTeleport packet = new LocationTeleport(pp, location);
+        return CompletableFuture.supplyAsync(() -> pw.publish(packet));
     }
 
+    /**
+     * 프록시 플레이어에게 텔레포트한다.
+     *
+     * <p>대상이 현재 서버에 있으면 로컬 텔레포트, 다른 서버면 ProtoWeaver를 통해 요청한다.
+     *
+     * @param target 대상 프록시 플레이어
+     * @return 텔레포트 성공 여부
+     */
     public CompletableFuture<Boolean> teleport(@NotNull ProxyPlayer target) {
         if (server().equalsIgnoreCase(target.server())) {
             Player targetPlayer = Bukkit.getPlayer(target.uniqueId());
-            if (targetPlayer == null) return CompletableFuture.completedFuture(false);
+            if (targetPlayer == null) return FALSE;
             return teleport(targetPlayer.getLocation());
-        } else {
-            if (protoWeaver().isConnected()) {
-                ProxyPlayer pp = PlayerList.getPlayer(player.getUniqueId());
-                kr.rtustudio.broker.protoweaver.api.proxy.request.teleport.PlayerTeleport packet =
-                        new kr.rtustudio.broker.protoweaver.api.proxy.request.teleport
-                                .PlayerTeleport(pp, target);
-                return CompletableFuture.supplyAsync(() -> protoWeaver().publish(packet));
-            }
         }
-        return CompletableFuture.completedFuture(false);
+        ProtoWeaver pw = protoWeaver();
+        if (!pw.isConnected()) return FALSE;
+        ProxyPlayer pp = PlayerList.getPlayer(player.getUniqueId());
+        var packet =
+                new kr.rtustudio.broker.protoweaver.api.proxy.request.teleport.PlayerTeleport(
+                        pp, target);
+        return CompletableFuture.supplyAsync(() -> pw.publish(packet));
     }
 
-    public CompletableFuture<Boolean> teleport(Location location) {
-        Player player = getPlayer();
-        if (player == null) return CompletableFuture.completedFuture(false);
+    /**
+     * Bukkit {@link Location}으로 텔레포트한다.
+     *
+     * <p>Paper 환경에서는 비동기 텔레포트, Spigot에서는 동기 텔레포트를 사용한다.
+     *
+     * @param location 대상 위치
+     * @return 텔레포트 성공 여부
+     */
+    public CompletableFuture<Boolean> teleport(@NotNull Location location) {
+        if (player == null || !player.isOnline()) return FALSE;
         if (MinecraftVersion.isPaper()) return player.teleportAsync(location);
         try {
             player.teleport(location);
             return CompletableFuture.completedFuture(true);
         } catch (Exception e) {
-            return CompletableFuture.completedFuture(false);
+            return FALSE;
         }
     }
 
-    public CompletableFuture<Boolean> teleport(Player target) {
+    /**
+     * 대상 플레이어의 현재 위치로 텔레포트한다.
+     *
+     * @param target 대상 플레이어
+     * @return 텔레포트 성공 여부
+     */
+    public CompletableFuture<Boolean> teleport(@NotNull Player target) {
         return teleport(target.getLocation());
     }
 }

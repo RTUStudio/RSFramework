@@ -1,7 +1,7 @@
 package kr.rtustudio.framework.bukkit.plugin.command.framework;
 
+import kr.rtustudio.framework.bukkit.api.command.CommandArgs;
 import kr.rtustudio.framework.bukkit.api.command.RSCommand;
-import kr.rtustudio.framework.bukkit.api.command.RSCommandData;
 import kr.rtustudio.framework.bukkit.api.registry.CustomItems;
 import kr.rtustudio.framework.bukkit.plugin.RSFramework;
 
@@ -17,7 +17,7 @@ public class ItemCommand extends RSCommand<RSFramework> {
     }
 
     @Override
-    protected Result execute(RSCommandData data) {
+    protected Result execute(CommandArgs data) {
         Player player = player();
         if (player == null) return Result.ONLY_PLAYER;
         if (data.length(1)) {
@@ -25,11 +25,11 @@ public class ItemCommand extends RSCommand<RSFramework> {
             if (equipment != null) {
                 ItemStack itemStack = equipment.getItemInMainHand();
                 String id = CustomItems.to(itemStack);
-                chat().announce(message().get(player(), "command.item").replace("{id}", id));
+                notifier.announce(message.get(player(), "command.item").replace("{id}", id));
                 return Result.SUCCESS;
             } else return Result.NOT_FOUND_ITEM;
         } else {
-            String id = data.args(1);
+            String id = data.get(1);
             ItemStack itemStack = CustomItems.from(id);
             if (itemStack == null) return Result.NOT_FOUND_ITEM;
             player().getInventory().addItem(itemStack);

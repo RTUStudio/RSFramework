@@ -17,7 +17,11 @@ import org.spongepowered.configurate.serialize.ScalarSerializer;
 import org.spongepowered.configurate.serialize.SerializationException;
 import org.spongepowered.configurate.util.EnumLookup;
 
-/** Enum serializer that lists options if fails and accepts `-` as `_`. */
+/**
+ * Enum 값을 직렬화/역직렬화하는 Configurate 직렬화기입니다.
+ *
+ * <p>역직렬화 실패 시 사용 가능한 옵션을 로그에 출력하며, {@code -}를 {@code _}로 치환하여 매칭을 시도합니다.
+ */
 public class EnumValueSerializer extends ScalarSerializer.Annotated<Enum<?>> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(EnumValueSerializer.class);

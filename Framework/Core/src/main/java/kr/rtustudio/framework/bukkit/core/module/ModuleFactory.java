@@ -9,18 +9,15 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class ModuleFactory implements kr.rtustudio.framework.bukkit.api.core.module.ModuleFactory {
-
     private final RSConfiguration configuration;
     private final Map<Class<? extends Module>, Module> modules = new ConcurrentHashMap<>();
 
     public ModuleFactory(Framework framework) {
         this.configuration = framework.getPlugin().getConfiguration();
-
         this.configuration.registerConfiguration(
                 CommandModule.class, ConfigPath.relative("Modules", "Command"));
         this.configuration.registerConfiguration(
                 ThemeModule.class, ConfigPath.relative("Modules", "Theme"));
-
         register(
                 kr.rtustudio.framework.bukkit.api.core.module.CommandModule.class,
                 this.configuration.get(CommandModule.class));

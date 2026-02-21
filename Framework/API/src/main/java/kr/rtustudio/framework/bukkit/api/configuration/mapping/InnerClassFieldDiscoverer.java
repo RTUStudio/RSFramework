@@ -16,6 +16,11 @@ import org.jetbrains.annotations.Nullable;
 import org.spongepowered.configurate.objectmapping.FieldDiscoverer;
 import org.spongepowered.configurate.serialize.SerializationException;
 
+/**
+ * {@link ConfigurationPart}의 내부 클래스 구조를 지원하는 Configurate {@link FieldDiscoverer} 구현체입니다.
+ *
+ * <p>비정적 내부 클래스의 인스턴스 생성과 {@link FieldProcessor} 기반 필드 후처리를 통합 관리합니다.
+ */
 public final class InnerClassFieldDiscoverer
         implements FieldDiscoverer<Map<Field, DeserializedFieldInfo<?>>> {
 

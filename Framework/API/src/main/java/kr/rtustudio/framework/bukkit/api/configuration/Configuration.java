@@ -26,6 +26,13 @@ import org.spongepowered.configurate.util.CheckedFunction;
 import org.spongepowered.configurate.yaml.NodeStyle;
 import org.spongepowered.configurate.yaml.YamlConfigurationLoader;
 
+/**
+ * {@link ConfigurationPart} 기반 YAML 설정 파일의 로드·저장·리로드를 담당하는 추상 클래스입니다.
+ *
+ * <p>Configurate {@link YamlConfigurationLoader}와 {@link ObjectMapper}를 사용하여 설정 객체를 YAML 노드에 매핑합니다.
+ *
+ * @param <T> 설정 타입
+ */
 @Slf4j(topic = "Configuration")
 public abstract class Configuration<T extends ConfigurationPart> {
 

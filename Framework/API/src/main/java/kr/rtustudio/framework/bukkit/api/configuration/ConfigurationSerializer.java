@@ -21,6 +21,10 @@ import org.spongepowered.configurate.objectmapping.ObjectMapper;
 import org.spongepowered.configurate.serialize.TypeSerializerCollection;
 import org.spongepowered.configurate.util.MapFactories;
 
+/**
+ * Configurate의 {@link ConfigurationOptions} 및 {@link ObjectMapper.Factory.Builder}에 프레임워크 내장 직렬화/제약
+ * 조건을 일괄 적용하는 유틸리티 클래스입니다.
+ */
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class ConfigurationSerializer {
 
@@ -29,7 +33,13 @@ public final class ConfigurationSerializer {
                 .mapFactory(MapFactories.insertionOrdered());
     }
 
-    /** Apply configuration options with the built-in serializers plus any provided extras. */
+    /**
+     * 내장 직렬화와 추가 직렬화를 함께 적용한다.
+     *
+     * @param options 기존 옵션
+     * @param extra 추가 타입 직렬화
+     * @return 직렬화가 적용된 옵션
+     */
     public static ConfigurationOptions apply(
             ConfigurationOptions options, Consumer<TypeSerializerCollection.Builder> extra) {
         return options.serializers(

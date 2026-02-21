@@ -14,6 +14,13 @@ import org.spongepowered.configurate.ConfigurationOptions;
 import org.spongepowered.configurate.serialize.TypeSerializerCollection;
 import org.spongepowered.configurate.yaml.YamlConfigurationLoader;
 
+/**
+ * 플러그인별 YAML 설정 파일을 로드·리로드하는 구현체입니다.
+ *
+ * <p>플러그인 정보를 포함한 헤더, 버전 관리, 커스텀 직렬화를 지원합니다.
+ *
+ * @param <C> 설정 타입
+ */
 public class PluginConfiguration<C extends ConfigurationPart> extends Configuration<C> {
 
     public static final String HEADER =
@@ -78,6 +85,11 @@ public class PluginConfiguration<C extends ConfigurationPart> extends Configurat
         return ConfigurationPart.class.isAssignableFrom(GenericTypeReflector.erase(type));
     }
 
+    /**
+     * 설정 파일을 로드하여 새 인스턴스를 생성한다.
+     *
+     * @return 로드된 설정 인스턴스
+     */
     public C load() {
         try {
             return this.initializeConfiguration(creator(this.type, true));
@@ -86,6 +98,11 @@ public class PluginConfiguration<C extends ConfigurationPart> extends Configurat
         }
     }
 
+    /**
+     * 기존 인스턴스에 파일 내용을 다시 로드한다.
+     *
+     * @param instance 리로드할 기존 인스턴스
+     */
     public void reload(C instance) {
         try {
             this.initializeConfiguration(reloader(this.type, instance));

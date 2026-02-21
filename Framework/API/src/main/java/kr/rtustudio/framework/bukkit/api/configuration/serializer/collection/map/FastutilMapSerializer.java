@@ -16,6 +16,13 @@ import org.spongepowered.configurate.ConfigurationNode;
 import org.spongepowered.configurate.serialize.SerializationException;
 import org.spongepowered.configurate.serialize.TypeSerializer;
 
+/**
+ * Fastutil {@link Map} 구현체를 Configurate 노드로 직렬화/역직렬화하는 추상 직렬화기입니다.
+ *
+ * <p>프리미티브 타입 키/값을 지원하는 서브클래스를 제공합니다.
+ *
+ * @param <M> Fastutil 맵 타입
+ */
 @SuppressWarnings("rawtypes")
 public abstract class FastutilMapSerializer<M extends Map<?, ?>>
         implements TypeSerializer.Annotated<M> {

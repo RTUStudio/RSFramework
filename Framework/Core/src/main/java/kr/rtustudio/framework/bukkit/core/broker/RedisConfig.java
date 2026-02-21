@@ -14,7 +14,6 @@ import org.spongepowered.configurate.objectmapping.meta.Comment;
     "InnerClassMayBeStatic"
 })
 public class RedisConfig extends ConfigurationPart {
-
     @Comment("Redis server connection settings")
     public Connection connection;
 
@@ -34,23 +33,18 @@ public class RedisConfig extends ConfigurationPart {
                         .port(connection.port)
                         .database(connection.database)
                         .tls(tls.enabled);
-
         if (connection.password != null && !connection.password.isEmpty())
             builder.password(connection.password);
-
         if (sentinel.enabled)
             builder.sentinel(true)
                     .sentinelMasterName(sentinel.masterName)
                     .sentinelAddresses(sentinel.addresses);
-
         if (cluster.enabled) builder.cluster(true).nodeAddresses(cluster.addresses);
-
         return builder.build();
     }
 
     @Getter
     public class Connection extends ConfigurationPart {
-
         @Comment("Redis server host")
         private String host = "127.0.0.1";
 
@@ -66,7 +60,6 @@ public class RedisConfig extends ConfigurationPart {
 
     @Getter
     public class Tls extends ConfigurationPart {
-
         @Comment(
                 """
                 Enable TLS (rediss://) for Redis connection
@@ -76,7 +69,6 @@ public class RedisConfig extends ConfigurationPart {
 
     @Getter
     public class Sentinel extends ConfigurationPart {
-
         @Comment("Enable Redis Sentinel mode")
         private boolean enabled = false;
 
@@ -89,7 +81,6 @@ public class RedisConfig extends ConfigurationPart {
 
     @Getter
     public class Cluster extends ConfigurationPart {
-
         @Comment("Enable Redis Cluster mode")
         private boolean enabled = false;
 

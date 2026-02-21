@@ -10,7 +10,6 @@ import org.bukkit.event.EventHandler;
 
 @SuppressWarnings("unused")
 public class MMOItemsLoaded extends RSListener<RSPlugin> {
-
     public MMOItemsLoaded(RSPlugin plugin) {
         super(plugin);
     }

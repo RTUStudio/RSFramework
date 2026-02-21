@@ -36,6 +36,12 @@ import com.willfp.ecoitems.items.EcoItem;
 import com.willfp.ecoitems.items.EcoItems;
 import com.willfp.ecoitems.items.ItemUtilsKt;
 
+/**
+ * Nexo, Oraxen, ItemsAdder, EcoItems, MMOItems 등 커스텀 아이템 플러그인과 바닐라 아이템을 통합 처리하는 유틸리티 클래스입니다.
+ *
+ * <p>Namespaced ID 형식({@code nexo:id}, {@code itemsadder:ns:id} 등)으로 아이템을 조회·변환하며, NBT 기반 직렬화/역직렬화
+ * 및 Base64+Snappy 압축 인코딩을 지원합니다.
+ */
 @Slf4j
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class CustomItems {
@@ -49,6 +55,12 @@ public class CustomItems {
         return framework;
     }
 
+    /**
+     * Namespaced ID로 아이템을 조회한다.
+     *
+     * @param namespacedID {@code nexo:id}, {@code itemsadder:ns:id}, {@code oraxen:id} 등
+     * @return 아이템, 없으면 {@code null}
+     */
     @Nullable
     public static ItemStack from(@NotNull String namespacedID) {
         if (namespacedID.isEmpty()) return null;
@@ -109,6 +121,12 @@ public class CustomItems {
         }
     }
 
+    /**
+     * 아이템을 Namespaced ID 문자열로 변환한다.
+     *
+     * @param itemStack 대상 아이템
+     * @return Namespaced ID 문자열
+     */
     @NotNull
     public static String to(@NotNull ItemStack itemStack) {
         if (framework().isEnabledDependency("Nexo")) {
@@ -142,6 +160,13 @@ public class CustomItems {
         } else return result;
     }
 
+    /**
+     * 두 아이템이 커스텀 아이디 기준으로 동일한지 비교한다.
+     *
+     * @param stack1 첫 번째 아이템
+     * @param stack2 두 번째 아이템
+     * @return 동일 여부
+     */
     public static boolean isSimilar(ItemStack stack1, ItemStack stack2) {
         String id1 = to(stack1);
         String id2 = to(stack2);
@@ -151,6 +176,12 @@ public class CustomItems {
         return id1.equalsIgnoreCase(id2);
     }
 
+    /**
+     * 아이템을 Base64+Snappy 압축 문자열로 인코딩한다.
+     *
+     * @param itemStack 인코딩할 아이템
+     * @return 인코딩된 문자열, 실패 시 {@code null}
+     */
     @Nullable
     public static String encode(ItemStack itemStack) {
         try {
@@ -166,6 +197,12 @@ public class CustomItems {
         }
     }
 
+    /**
+     * Base64+Snappy 압축 문자열에서 아이템을 디코딩한다.
+     *
+     * @param str 인코딩된 문자열
+     * @return 디코딩된 아이템, 실패 시 {@code null}
+     */
     @Nullable
     public static ItemStack decode(String str) {
         if (str == null || str.isEmpty()) return null;
@@ -216,11 +253,24 @@ public class CustomItems {
         }
     }
 
+    /**
+     * 아이템을 NBT 문자열로 직렬화한다.
+     *
+     * @param target 직렬화할 아이템
+     * @return NBT 문자열, 실패 시 {@code null}
+     */
     @Nullable
     public static String serialize(@NotNull ItemStack target) {
         return serialize(target, false);
     }
 
+    /**
+     * 아이템을 NBT 문자열로 직렬화한다.
+     *
+     * @param target 직렬화할 아이템
+     * @param compress Snappy 압축 적용 여부
+     * @return NBT 문자열, 실패 시 {@code null}
+     */
     @Nullable
     public static String serialize(@NotNull ItemStack target, boolean compress) {
         ReadWriteNBT result = toNBT(target);
@@ -236,11 +286,24 @@ public class CustomItems {
         } else return result.toString();
     }
 
+    /**
+     * NBT 문자열에서 아이템을 역직렬화한다.
+     *
+     * @param nbt NBT 문자열
+     * @return 역직렬화된 아이템, 실패 시 {@code null}
+     */
     @Nullable
     public static ItemStack deserialize(@NotNull String nbt) {
         return deserialize(nbt, false);
     }
 
+    /**
+     * NBT 문자열에서 아이템을 역직렬화한다.
+     *
+     * @param nbt NBT 문자열
+     * @param compressed Snappy 압축 여부
+     * @return 역직렬화된 아이템, 실패 시 {@code null}
+     */
     @Nullable
     public static ItemStack deserialize(@NotNull String nbt, boolean compressed) {
         if (nbt.isEmpty()) return null;

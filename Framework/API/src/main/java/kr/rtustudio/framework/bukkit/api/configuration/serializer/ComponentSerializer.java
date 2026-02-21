@@ -9,6 +9,7 @@ import java.util.function.Predicate;
 import org.spongepowered.configurate.serialize.ScalarSerializer;
 import org.spongepowered.configurate.serialize.SerializationException;
 
+/** Adventure {@link Component}를 MiniMessage 형식으로 직렬화/역직렬화하는 Configurate 직렬화기입니다. */
 public class ComponentSerializer extends ScalarSerializer.Annotated<Component> {
 
     public ComponentSerializer() {

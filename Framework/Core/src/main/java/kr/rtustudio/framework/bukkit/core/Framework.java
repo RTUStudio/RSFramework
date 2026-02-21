@@ -21,7 +21,7 @@ import kr.rtustudio.framework.bukkit.api.listener.RSListener;
 import kr.rtustudio.framework.bukkit.api.nms.NMS;
 import kr.rtustudio.framework.bukkit.api.platform.MinecraftVersion;
 import kr.rtustudio.framework.bukkit.api.platform.SystemEnvironment;
-import kr.rtustudio.framework.bukkit.api.player.PlayerAudience;
+import kr.rtustudio.framework.bukkit.api.player.Notifier;
 import kr.rtustudio.framework.bukkit.core.broker.ProtoWeaverConfig;
 import kr.rtustudio.framework.bukkit.core.broker.RedisConfig;
 import kr.rtustudio.framework.bukkit.core.command.ReloadCommand;
@@ -33,7 +33,7 @@ import kr.rtustudio.framework.bukkit.core.listener.*;
 import kr.rtustudio.framework.bukkit.core.module.ModuleFactory;
 import kr.rtustudio.framework.bukkit.core.provider.name.VanillaNameProvider;
 import kr.rtustudio.framework.bukkit.core.scheduler.Scheduler;
-import kr.rtustudio.framework.bukkit.core.storage.StorageConfigurationImpl;
+import kr.rtustudio.framework.bukkit.core.storage.StorageManager;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import net.kyori.adventure.text.Component;
@@ -45,44 +45,34 @@ import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.permissions.Permission;
 import org.bukkit.permissions.PermissionDefault;
+import org.jetbrains.annotations.NotNull;
 
 @Slf4j(topic = "RSFramework")
 @kr.rtustudio.cdi.annotations.Component
 public class Framework implements kr.rtustudio.framework.bukkit.api.core.Framework {
-
     @Getter
     private final Component prefix =
             ComponentFormatter.mini("<gradient:#2979FF:#7C4DFF>RSFramework » </gradient>");
 
     @Getter private final Map<String, RSPlugin> plugins = new Object2ObjectOpenHashMap<>();
     @Getter private final Object2BooleanMap<String> hooks = new Object2BooleanOpenHashMap<>();
-
     @Getter private RSPlugin plugin;
-
     @Getter private NMS NMS;
     @Getter private String NMSVersion;
-
     private static final String NMS_PACKAGE_PREFIX = "kr.rtustudio.framework.bukkit.nms.";
-
     private kr.rtustudio.broker.protoweaver.bukkit.api.ProtoWeaver protoWeaver;
     private final HandlerCallback callback = new HandlerCallback(this::onReady, this::onPacket);
-
     @Getter private CommandLimit commandLimit;
     @Getter private CommonTranslation commonTranslation;
     @Getter private ModuleFactory moduleFactory;
     @Getter private ProviderRegistry providerRegistry;
     @Getter private BrokerRegistry brokerRegistry;
     @Getter private Scheduler scheduler;
+    private final Map<String, StorageManager> storageConfigs = new Object2ObjectOpenHashMap<>();
 
     public void loadPlugin(RSPlugin plugin) {
         log.info("loading RSPlugin: {}", plugin.getName());
         plugins.put(plugin.getName(), plugin);
-    }
-
-    @Override
-    public kr.rtustudio.framework.bukkit.api.configuration.internal.StorageConfiguration
-            createStorageConfiguration(RSPlugin plugin) {
-        return new StorageConfigurationImpl(plugin);
     }
 
     public void unloadPlugin(RSPlugin plugin) {
@@ -92,10 +82,31 @@ public class Framework implements kr.rtustudio.framework.bukkit.api.core.Framewo
     }
 
     @Override
-    public void closeStorages(RSPlugin plugin) {
-        if (plugin.getConfiguration().getStorage() instanceof StorageConfigurationImpl impl) {
-            impl.closeAll();
-        }
+    public void registerStorage(
+            @NotNull RSPlugin plugin,
+            @NotNull String name,
+            @NotNull kr.rtustudio.storage.StorageType type) {
+        storageConfigs
+                .computeIfAbsent(plugin.getName(), k -> new StorageManager(plugin))
+                .registerStorage(name, type);
+    }
+
+    @Override
+    public kr.rtustudio.storage.Storage getStorage(@NotNull RSPlugin plugin, @NotNull String name) {
+        StorageManager impl = storageConfigs.get(plugin.getName());
+        return impl != null ? impl.getStorage(name) : null;
+    }
+
+    @Override
+    public void reloadStorages(@NotNull RSPlugin plugin) {
+        StorageManager impl = storageConfigs.get(plugin.getName());
+        if (impl != null) impl.reload();
+    }
+
+    @Override
+    public void closeStorages(@NotNull RSPlugin plugin) {
+        StorageManager impl = storageConfigs.remove(plugin.getName());
+        if (impl != null) impl.close();
     }
 
     private void onReady(HandlerCallback.Ready ready) {
@@ -105,10 +116,10 @@ public class Framework implements kr.rtustudio.framework.bukkit.api.core.Framewo
     private void onPacket(HandlerCallback.Packet packet) {
         protoWeaver.onPacket(packet);
         if (packet.packet() instanceof Broadcast(String minimessage)) {
-            PlayerAudience.broadcast(minimessage);
+            Notifier.broadcast(minimessage);
         } else if (packet.packet() instanceof SendMessage(ProxyPlayer target, String minimessage)) {
             Player player = Bukkit.getPlayer(target.uniqueId());
-            if (player != null) PlayerAudience.of(plugin, player).send(minimessage);
+            if (player != null) Notifier.of(plugin, player).send(minimessage);
         }
     }
 
@@ -127,7 +138,6 @@ public class Framework implements kr.rtustudio.framework.bukkit.api.core.Framewo
             Bukkit.getPluginManager().disablePlugin(plugin);
         }
         loadNMS(plugin);
-
         moduleFactory = new ModuleFactory(this);
         providerRegistry = new ProviderRegistry();
         providerRegistry.register(NameProvider.class, new VanillaNameProvider());
@@ -163,7 +173,6 @@ public class Framework implements kr.rtustudio.framework.bukkit.api.core.Framewo
                         callback,
                         protoConfig.toBrokerOptions(classLoader));
         brokerRegistry.register(ProtoWeaver.class, protoWeaver);
-
         RedisConfig redisConfig =
                 plugin.registerConfiguration(RedisConfig.class, ConfigPath.of("Broker", "Redis"));
         brokerRegistry.register(
@@ -204,7 +213,7 @@ public class Framework implements kr.rtustudio.framework.bukkit.api.core.Framewo
     }
 
     private void registerInternalListener(RSPlugin plugin) {
-        registerEvent(new JoinListener(this, plugin));
+        registerEvent(new JoinListener(plugin));
         registerEvent(new InventoryListener(plugin));
     }
 

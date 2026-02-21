@@ -14,7 +14,6 @@ import org.jspecify.annotations.NonNull;
 @RequiredArgsConstructor
 public class CommonTranslation
         implements kr.rtustudio.framework.bukkit.api.core.configuration.CommonTranslation {
-
     private final CommandTranslation command;
     private final MessageTranslation message;
 

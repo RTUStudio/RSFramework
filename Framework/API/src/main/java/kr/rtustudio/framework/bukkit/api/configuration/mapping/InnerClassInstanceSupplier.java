@@ -18,9 +18,9 @@ import org.spongepowered.configurate.util.CheckedFunction;
 import org.spongepowered.configurate.util.CheckedSupplier;
 
 /**
- * This instance factory handles creating non-static inner classes by tracking all instances of
- * objects that extend {@link ConfigurationPart}. Only 1 instance of each {@link ConfigurationPart}
- * should be present for each instance of the field discoverer this is used in.
+ * {@link ConfigurationPart}를 상속하는 비정적 내부 클래스의 인스턴스 생성을 담당하는 공급자입니다.
+ *
+ * <p>각 {@link ConfigurationPart} 타입별로 하나의 인스턴스만 생성되며, 내부 클래스 계층 구조를 자동으로 처리합니다.
  */
 @Slf4j
 final class InnerClassInstanceSupplier
@@ -31,7 +31,7 @@ final class InnerClassInstanceSupplier
     private final Map<Class<?>, Object> initialOverrides;
 
     /**
-     * @param initialOverrides map of types to objects to preload the config objects with.
+     * @param initialOverrides 초기 인스턴스 오버라이드 맵 (타입 → 인스턴스)
      */
     InnerClassInstanceSupplier(final Map<Class<?>, Object> initialOverrides) {
         this.initialOverrides = initialOverrides;

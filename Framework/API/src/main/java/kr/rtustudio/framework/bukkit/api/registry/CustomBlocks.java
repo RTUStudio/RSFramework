@@ -16,6 +16,11 @@ import org.jetbrains.annotations.Nullable;
 
 import com.nexomc.nexo.api.NexoBlocks;
 
+/**
+ * Nexo, Oraxen, ItemsAdder 등 커스텀 블록 플러그인과 바닐라 블록을 통합 처리하는 유틸리티 클래스입니다.
+ *
+ * <p>Namespaced ID 형식({@code nexo:block_id}, {@code oraxen:block_id} 등)으로 블록을 조회·배치합니다.
+ */
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class CustomBlocks {
 
@@ -26,6 +31,12 @@ public class CustomBlocks {
         return framework;
     }
 
+    /**
+     * Namespaced ID로 블록 데이터를 조회한다.
+     *
+     * @param namespacedID {@code nexo:id}, {@code oraxen:id}, {@code itemsadder:ns:id} 또는 바닐라 아이디
+     * @return 블록 데이터, 없으면 {@code null}
+     */
     @Nullable
     public static BlockData from(@NotNull String namespacedID) {
         if (namespacedID.isEmpty()) return null;
@@ -54,6 +65,12 @@ public class CustomBlocks {
         }
     }
 
+    /**
+     * 배치된 블록을 Namespaced ID 문자열로 변환한다.
+     *
+     * @param block 대상 블록
+     * @return Namespaced ID 문자열
+     */
     @NotNull
     public static String to(@NotNull Block block) {
         if (framework().isEnabledDependency("Nexo")) {
@@ -71,6 +88,13 @@ public class CustomBlocks {
         return block.getBlockData().getMaterial().getKey().toString();
     }
 
+    /**
+     * 지정한 위치에 블록을 배치한다.
+     *
+     * @param location 배치 위치
+     * @param namespacedID 블록 Namespaced ID
+     * @return 배치 성공 여부
+     */
     public static boolean place(@NotNull Location location, @NotNull String namespacedID) {
         if (namespacedID.isEmpty()) return false;
         String[] split = namespacedID.split(":");

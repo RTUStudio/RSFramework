@@ -14,6 +14,7 @@ import org.bukkit.plugin.Plugin;
 
 import com.google.common.io.ByteStreams;
 
+/** 플러그인 리소스 파일 복사 및 폴더/파일 생성 유틸리티 클래스입니다. */
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class FileResource {
 

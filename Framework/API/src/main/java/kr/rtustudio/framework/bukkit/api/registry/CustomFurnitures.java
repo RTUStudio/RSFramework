@@ -17,6 +17,11 @@ import org.jetbrains.annotations.Nullable;
 
 import com.nexomc.nexo.api.NexoFurniture;
 
+/**
+ * Nexo, Oraxen, ItemsAdder 등 커스텀 가구 플러그인을 통합 처리하는 유틸리티 클래스입니다.
+ *
+ * <p>Namespaced ID 형식({@code nexo:id}, {@code oraxen:id} 등)으로 가구를 조회·배치·제거합니다.
+ */
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class CustomFurnitures {
 
@@ -27,6 +32,12 @@ public class CustomFurnitures {
         return framework;
     }
 
+    /**
+     * 엔티티로부터 가구 Namespaced ID를 조회한다.
+     *
+     * @param entity 대상 엔티티
+     * @return Namespaced ID, 가구가 아니면 {@code null}
+     */
     @Nullable
     public static String to(@NotNull Entity entity) {
         if (framework().isEnabledDependency("Nexo")) {
@@ -44,6 +55,12 @@ public class CustomFurnitures {
         return null;
     }
 
+    /**
+     * 블록으로부터 가구 Namespaced ID를 조회한다.
+     *
+     * @param block 대상 블록
+     * @return Namespaced ID, 가구가 아니면 {@code null}
+     */
     @Nullable
     public static String to(@NotNull Block block) {
         if (framework().isEnabledDependency("Nexo")) {
@@ -61,6 +78,12 @@ public class CustomFurnitures {
         return null;
     }
 
+    /**
+     * 위치로부터 가구 Namespaced ID를 조회한다.
+     *
+     * @param location 대상 위치
+     * @return Namespaced ID, 가구가 아니면 {@code null}
+     */
     @Nullable
     public static String to(@NotNull Location location) {
         if (framework().isEnabledDependency("Nexo")) {
@@ -79,6 +102,13 @@ public class CustomFurnitures {
         return null;
     }
 
+    /**
+     * 지정한 위치에 가구를 배치한다.
+     *
+     * @param location 배치 위치
+     * @param namespacedID 가구 Namespaced ID
+     * @return 배치 성공 여부
+     */
     public static boolean place(@NotNull Location location, @NotNull String namespacedID) {
         if (namespacedID.isEmpty()) return false;
         String[] split = namespacedID.split(":");
@@ -114,6 +144,12 @@ public class CustomFurnitures {
         }
     }
 
+    /**
+     * 지정한 위치의 가구를 제거한다.
+     *
+     * @param location 제거 위치
+     * @return 제거 성공 여부
+     */
     public static boolean remove(@NotNull Location location) {
         if (framework().isEnabledDependency("Nexo")) {
             if (NexoFurniture.isFurniture(location)) return NexoFurniture.remove(location);

@@ -11,7 +11,6 @@ import org.bukkit.entity.Entity;
 
 @RequiredArgsConstructor
 public final class Scheduler implements kr.rtustudio.framework.bukkit.api.core.scheduler.Scheduler {
-
     private final RSPlugin plugin;
 
     @Override

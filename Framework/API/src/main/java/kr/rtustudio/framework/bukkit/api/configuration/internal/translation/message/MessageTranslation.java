@@ -4,6 +4,11 @@ import kr.rtustudio.framework.bukkit.api.RSPlugin;
 import kr.rtustudio.framework.bukkit.api.configuration.internal.translation.TranslationConfiguration;
 import kr.rtustudio.framework.bukkit.api.configuration.internal.translation.TranslationType;
 
+/**
+ * 메시지 번역을 관리하는 클래스입니다.
+ *
+ * <p>{@code Translations/Message/<locale>.yml} 파일을 로드하며, 안내/오류 메시지의 다국어 지원을 제공합니다.
+ */
 @SuppressWarnings("unused")
 public class MessageTranslation extends TranslationConfiguration {
 
