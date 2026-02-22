@@ -27,22 +27,6 @@ import com.zaxxer.hikari.HikariDataSource;
 @Slf4j
 public class MariaDB implements Storage {
 
-    public interface Config {
-        String getHost();
-
-        int getPort();
-
-        String getDatabase();
-
-        String getUsername();
-
-        String getPassword();
-
-        String getTablePrefix();
-
-        boolean isUseArrowOperator();
-    }
-
     private final Config config;
     private final Gson gson = new Gson();
     private final String prefix;
@@ -265,5 +249,21 @@ public class MariaDB implements Storage {
             hikariDataSource.close();
             hikariDataSource = null;
         }
+    }
+
+    public interface Config {
+        String getHost();
+
+        int getPort();
+
+        String getDatabase();
+
+        String getUsername();
+
+        String getPassword();
+
+        String getTablePrefix();
+
+        boolean isUseArrowOperator();
     }
 }

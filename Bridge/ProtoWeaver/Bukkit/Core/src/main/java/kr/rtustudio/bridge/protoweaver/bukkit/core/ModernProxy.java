@@ -4,10 +4,10 @@ import io.netty.channel.Channel;
 import io.papermc.paper.configuration.GlobalConfiguration;
 import io.papermc.paper.network.ChannelInitializeListener;
 import io.papermc.paper.network.ChannelInitializeListenerHolder;
+import kr.rtustudio.bridge.BridgeChannel;
 import kr.rtustudio.bridge.protoweaver.api.protocol.velocity.VelocityAuth;
 import kr.rtustudio.bridge.protoweaver.core.server.netty.ProtoDeterminer;
 import lombok.extern.slf4j.Slf4j;
-import net.kyori.adventure.key.Key;
 
 import java.nio.charset.StandardCharsets;
 
@@ -19,7 +19,7 @@ public class ModernProxy implements ChannelInitializeListener {
     public static void initialize() {
         log.info("Detected modern proxy");
         ChannelInitializeListenerHolder.addListener(
-                Key.key("rsframework", "protoweaver"), new ModernProxy());
+                BridgeChannel.PROTOWEAVER.toKey(), new ModernProxy());
         VelocityAuth.setSecret(
                 GlobalConfiguration.get().proxies.velocity.secret.getBytes(StandardCharsets.UTF_8));
     }

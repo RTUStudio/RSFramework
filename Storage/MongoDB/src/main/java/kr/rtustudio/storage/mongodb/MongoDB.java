@@ -20,7 +20,10 @@ import com.mongodb.ConnectionString;
 import com.mongodb.MongoClientSettings;
 import com.mongodb.ServerApi;
 import com.mongodb.ServerApiVersion;
-import com.mongodb.client.*;
+import com.mongodb.client.MongoClient;
+import com.mongodb.client.MongoClients;
+import com.mongodb.client.MongoCollection;
+import com.mongodb.client.MongoDatabase;
 import com.mongodb.client.model.Filters;
 import com.mongodb.client.model.UpdateOptions;
 import com.mongodb.client.result.DeleteResult;
@@ -28,20 +31,6 @@ import com.mongodb.client.result.UpdateResult;
 
 @Slf4j
 public class MongoDB implements Storage {
-
-    public interface Config {
-        String getHost();
-
-        int getPort();
-
-        String getDatabase();
-
-        String getUsername();
-
-        String getPassword();
-
-        String getCollectionPrefix();
-    }
 
     private final Gson gson = new Gson();
     private final MongoClient client;
@@ -209,5 +198,19 @@ public class MongoDB implements Storage {
             client.close();
             log.info("MongoDB disconnected");
         }
+    }
+
+    public interface Config {
+        String getHost();
+
+        int getPort();
+
+        String getDatabase();
+
+        String getUsername();
+
+        String getPassword();
+
+        String getCollectionPrefix();
     }
 }

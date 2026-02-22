@@ -37,11 +37,10 @@ import org.spongepowered.configurate.yaml.YamlConfigurationLoader;
 public abstract class Configuration<T extends ConfigurationPart> {
 
     public static final String VERSION_FIELD = "_version";
-
-    protected YamlConfigurationLoader loader;
     protected final Class<T> type;
     protected final Path path;
     protected final BufferedReader defaultConfig;
+    protected YamlConfigurationLoader loader;
 
     public Configuration(Class<T> type, Path path, BufferedReader defaultConfig) {
         this.type = type;

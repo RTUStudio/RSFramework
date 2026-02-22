@@ -1,7 +1,6 @@
 package kr.rtustudio.bridge.protoweaver.bungee.core;
 
 import kr.rtustudio.bridge.protoweaver.api.ProtoConnectionHandler;
-import kr.rtustudio.bridge.protoweaver.api.callback.HandlerCallback;
 import kr.rtustudio.bridge.protoweaver.api.netty.ProtoConnection;
 import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
@@ -19,7 +18,7 @@ import com.google.common.collect.ImmutableList;
 public class ProtoHandler implements ProtoConnectionHandler {
 
     private static final List<ProtoConnection> servers = new ArrayList<>();
-    private final HandlerCallback callable;
+    private final ProtoWeaver protoWeaver;
 
     public static ProtoConnection getServer(SocketAddress address) {
         for (ProtoConnection server : getServers()) {
@@ -43,13 +42,22 @@ public class ProtoHandler implements ProtoConnectionHandler {
         log.info("Connected to Server");
         log.info("┠ Address: {}", protoConnection.getRemoteAddress());
         log.info("┖ Protocol: {}", protoConnection.getProtocol().getNamespaceKey());
-        if (callable != null) callable.onReady(protoConnection);
+        if (protoWeaver != null) protoWeaver.ready(protoConnection);
     }
 
     @Override
     public void handlePacket(ProtoConnection protoConnection, Object packet) {
-        if (callable != null) callable.handlePacket(protoConnection, packet);
         if (protoConnection.getProtocol().isGlobal(packet))
             getServers().forEach(connection -> connection.send(packet));
+
+        if (protoWeaver != null) {
+            java.util.function.Consumer<Object> handler =
+                    protoWeaver
+                            .getChannelHandlers()
+                            .get(protoConnection.getProtocol().getNamespaceKey());
+            if (handler != null) {
+                handler.accept(packet);
+            }
+        }
     }
 }

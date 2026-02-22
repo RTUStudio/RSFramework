@@ -21,10 +21,8 @@ public abstract class PlaceholderWrapper<T extends RSPlugin> implements Integrat
     @Getter protected final MessageTranslation message;
     @Getter protected final CommandTranslation command;
     @Getter protected final Notifier notifier;
-
-    private Integration.Wrapper wrapper;
-
     private final String identifier;
+    private Integration.Wrapper wrapper;
 
     public PlaceholderWrapper(T plugin) {
         this(plugin, plugin.getName().toLowerCase());

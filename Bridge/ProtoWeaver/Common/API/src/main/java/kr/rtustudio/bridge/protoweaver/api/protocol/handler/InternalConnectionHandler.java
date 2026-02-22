@@ -1,5 +1,6 @@
 package kr.rtustudio.bridge.protoweaver.api.protocol.handler;
 
+import kr.rtustudio.bridge.BridgeChannel;
 import kr.rtustudio.bridge.protoweaver.api.netty.ProtoConnection;
 import kr.rtustudio.bridge.protoweaver.api.netty.Sender;
 import kr.rtustudio.bridge.protoweaver.api.protocol.Protocol;
@@ -11,7 +12,7 @@ public class InternalConnectionHandler {
 
     @Getter
     protected static final Protocol protocol =
-            Protocol.create("rsframework", "protoweaver")
+            Protocol.create(BridgeChannel.PROTOWEAVER)
                     .setServerHandler(ServerConnectionHandler.class)
                     .setClientHandler(ClientConnectionHandler.class)
                     .addPacket(AuthStatus.class)

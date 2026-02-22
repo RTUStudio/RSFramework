@@ -79,6 +79,10 @@ public class Redisson {
         client.getTopic(channel, ByteArrayCodec.INSTANCE).publish(message);
     }
 
+    public org.redisson.api.RLock getLock(String key) {
+        return client.getLock(key);
+    }
+
     public void unsubscribe(String channel) {
         RTopic topic = topics.remove(channel);
         int listenerId = listenerIds.removeInt(channel);

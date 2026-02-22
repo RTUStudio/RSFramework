@@ -37,6 +37,30 @@ public final class BridgeOptions {
         this.tls = builder.tls;
     }
 
+    private static byte[] snappyCompress(byte[] data) {
+        try {
+            return Snappy.compress(data);
+        } catch (Exception e) {
+            throw new RuntimeException("Snappy compress failed", e);
+        }
+    }
+
+    private static byte[] snappyDecompress(byte[] data) {
+        try {
+            return Snappy.uncompress(data);
+        } catch (Exception e) {
+            throw new RuntimeException("Snappy decompress failed", e);
+        }
+    }
+
+    public static Builder builder(ClassLoader classLoader) {
+        return new Builder(classLoader);
+    }
+
+    public static BridgeOptions defaults(ClassLoader classLoader) {
+        return builder(classLoader).build();
+    }
+
     public boolean isCompress() {
         return compress;
     }
@@ -64,7 +88,7 @@ public final class BridgeOptions {
         if (!type.isEnum()) recursiveRegister(type.getSuperclass(), registered);
     }
 
-    public byte[] encode(String channel, Object value) {
+    public byte[] encode(BridgeChannel channel, Object value) {
         byte[] serialized;
         synchronized (fory) {
             try {
@@ -75,7 +99,7 @@ public final class BridgeOptions {
             }
         }
         byte[] payload = compress ? snappyCompress(serialized) : serialized;
-        byte[] channelBytes = channel.getBytes(StandardCharsets.UTF_8);
+        byte[] channelBytes = channel.toString().getBytes(StandardCharsets.UTF_8);
         ByteBuffer buf = ByteBuffer.allocate(4 + channelBytes.length + payload.length);
         buf.putInt(channelBytes.length);
         buf.put(channelBytes);
@@ -83,14 +107,14 @@ public final class BridgeOptions {
         return buf.array();
     }
 
-    public String peekChannel(byte[] frame) {
+    public BridgeChannel peekChannel(byte[] frame) {
         try {
             ByteBuffer buf = ByteBuffer.wrap(frame);
             int len = buf.getInt();
             if (len < 0 || len > buf.remaining()) return null;
             byte[] channelBytes = new byte[len];
             buf.get(channelBytes);
-            return new String(channelBytes, StandardCharsets.UTF_8);
+            return BridgeChannel.of(new String(channelBytes, StandardCharsets.UTF_8));
         } catch (Exception e) {
             return null;
         }
@@ -111,30 +135,6 @@ public final class BridgeOptions {
                 throw new IllegalArgumentException("Unregistered type: " + name, e);
             }
         }
-    }
-
-    private static byte[] snappyCompress(byte[] data) {
-        try {
-            return Snappy.compress(data);
-        } catch (Exception e) {
-            throw new RuntimeException("Snappy compress failed", e);
-        }
-    }
-
-    private static byte[] snappyDecompress(byte[] data) {
-        try {
-            return Snappy.uncompress(data);
-        } catch (Exception e) {
-            throw new RuntimeException("Snappy decompress failed", e);
-        }
-    }
-
-    public static Builder builder(ClassLoader classLoader) {
-        return new Builder(classLoader);
-    }
-
-    public static BridgeOptions defaults(ClassLoader classLoader) {
-        return builder(classLoader).build();
     }
 
     public static final class Builder {

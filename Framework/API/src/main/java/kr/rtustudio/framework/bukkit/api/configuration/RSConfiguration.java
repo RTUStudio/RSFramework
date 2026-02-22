@@ -52,15 +52,7 @@ public class RSConfiguration {
 
     private final Map<Class<? extends ConfigurationPart>, Registry<? extends ConfigurationPart>>
             registries = new HashMap<>();
-
-    private record Registry<C extends ConfigurationPart>(
-            ConfigPath path,
-            Consumer<TypeSerializerCollection.Builder> extraSerializer,
-            boolean isList,
-            Map<String, C> instances) {}
-
     @Getter private final SettingConfiguration setting;
-
     @Getter private MessageTranslation message;
     @Getter private CommandTranslation command;
 
@@ -279,6 +271,12 @@ public class RSConfiguration {
             return false;
         }
     }
+
+    private record Registry<C extends ConfigurationPart>(
+            ConfigPath path,
+            Consumer<TypeSerializerCollection.Builder> extraSerializer,
+            boolean isList,
+            Map<String, C> instances) {}
 
     /**
      * YAML 설정 파일 하나를 관리하는 래퍼 클래스입니다.

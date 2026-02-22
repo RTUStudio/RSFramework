@@ -1,7 +1,6 @@
 package kr.rtustudio.bridge.protoweaver.core.protocol.protoweaver;
 
 import kr.rtustudio.bridge.protoweaver.api.ProtoConnectionHandler;
-import kr.rtustudio.bridge.protoweaver.api.callback.HandlerCallback;
 import kr.rtustudio.bridge.protoweaver.api.netty.ProtoConnection;
 import kr.rtustudio.bridge.protoweaver.api.protocol.Protocol;
 import lombok.RequiredArgsConstructor;
@@ -17,11 +16,6 @@ import com.google.common.collect.ImmutableList;
 public class ServerPacketHandler implements ProtoConnectionHandler {
 
     private static final List<ProtoConnection> servers = new ArrayList<>();
-    private final HandlerCallback callable;
-
-    public ServerPacketHandler() {
-        this.callable = null;
-    }
 
     public static List<ProtoConnection> getServers() {
         List<ProtoConnection> result = new ArrayList<>();
@@ -42,7 +36,6 @@ public class ServerPacketHandler implements ProtoConnectionHandler {
 
     @Override
     public void handlePacket(ProtoConnection protoConnection, Object packet) {
-        if (callable != null) callable.handlePacket(protoConnection, packet);
         Protocol protocol = protoConnection.getProtocol();
         if (protocol.isGlobal(packet)) {
             getServers()

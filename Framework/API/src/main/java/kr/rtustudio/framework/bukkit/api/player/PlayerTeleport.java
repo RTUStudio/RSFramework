@@ -75,7 +75,7 @@ public class PlayerTeleport {
         if (!pw.isConnected()) return FALSE;
         ProxyPlayer pp = PlayerList.getPlayer(player.getUniqueId());
         LocationTeleport packet = new LocationTeleport(pp, location);
-        return CompletableFuture.supplyAsync(() -> pw.publish(packet));
+        return CompletableFuture.supplyAsync(() -> pw.send(packet));
     }
 
     /**
@@ -98,7 +98,7 @@ public class PlayerTeleport {
         var packet =
                 new kr.rtustudio.bridge.protoweaver.api.proxy.request.teleport.PlayerTeleport(
                         pp, target);
-        return CompletableFuture.supplyAsync(() -> pw.publish(packet));
+        return CompletableFuture.supplyAsync(() -> pw.send(packet));
     }
 
     /**

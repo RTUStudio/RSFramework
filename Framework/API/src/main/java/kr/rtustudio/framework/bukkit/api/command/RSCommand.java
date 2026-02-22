@@ -33,14 +33,12 @@ import org.jetbrains.annotations.NotNull;
 @ToString(exclude = "commands")
 public abstract class RSCommand<T extends RSPlugin> extends Command {
 
-    private final Map<String, RSCommand<? extends RSPlugin>> commands = new HashMap<>();
-
     @Getter protected final T plugin;
     @Getter protected final Framework framework;
     @Getter protected final MessageTranslation message;
     @Getter protected final CommandTranslation command;
     @Getter protected final Notifier notifier;
-
+    private final Map<String, RSCommand<? extends RSPlugin>> commands = new HashMap<>();
     @Getter private final PermissionDefault permissionDefault;
 
     @Getter private final List<String> names;

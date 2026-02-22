@@ -1,7 +1,6 @@
 package kr.rtustudio.bridge.protoweaver.velocity.core;
 
-import kr.rtustudio.bridge.protoweaver.api.ProtoConnectionHandler;
-import kr.rtustudio.bridge.protoweaver.api.callback.HandlerCallback;
+import kr.rtustudio.bridge.BridgeChannel;
 import kr.rtustudio.bridge.protoweaver.api.netty.ProtoConnection;
 import kr.rtustudio.bridge.protoweaver.api.protocol.CompressionType;
 import kr.rtustudio.bridge.protoweaver.api.protocol.Packet;
@@ -53,10 +52,9 @@ public class ProtoWeaver implements kr.rtustudio.bridge.protoweaver.velocity.api
     private final Path dir;
 
     private final ProtoProxy protoProxy;
-    private final HandlerCallback callable = new HandlerCallback(this::onReady, this::onPacket);
 
     private final Map<UUID, TeleportRequest> teleportRequests = new ConcurrentHashMap<>();
-    private final Map<String, Consumer<Object>> channelHandlers = new ConcurrentHashMap<>();
+    private final Map<BridgeChannel, Consumer<Object>> channelHandlers = new ConcurrentHashMap<>();
 
     public ProtoWeaver(ProxyServer server, Path dir) {
         this.server = server;
@@ -65,7 +63,7 @@ public class ProtoWeaver implements kr.rtustudio.bridge.protoweaver.velocity.api
         ProtoLogger.setLogger(this);
         this.velocityConfig = new Toml().read(new File(dir.toFile(), "velocity.toml"));
 
-        Protocol.Builder protocol = Protocol.create("rsframework", "internal");
+        Protocol.Builder protocol = Protocol.create(BridgeChannel.INTERNAL);
         protocol.setCompression(CompressionType.SNAPPY);
         protocol.setMaxPacketSize(67108864); // 64mb
 
@@ -82,11 +80,11 @@ public class ProtoWeaver implements kr.rtustudio.bridge.protoweaver.velocity.api
             info("Detected modern proxy");
             protocol.setClientAuthHandler(VelocityAuth.class);
         }
-        protocol.setClientHandler(ProtoHandler.class, callable).load();
+        protocol.setClientHandler(ProtoHandler.class, this).load();
     }
 
     @Override
-    public void register(String channel, Consumer<ProxyBridge.PacketRegistrar> registrar) {
+    public void register(BridgeChannel channel, Consumer<ProxyBridge.PacketRegistrar> registrar) {
         Set<Packet> packets = new HashSet<>();
         registrar.accept(
                 new ProxyBridge.PacketRegistrar() {
@@ -101,21 +99,21 @@ public class ProtoWeaver implements kr.rtustudio.bridge.protoweaver.velocity.api
                         packets.add(Packet.of(type, serializer));
                     }
                 });
-        loadChannelProtocol(channel, packets, ServerPacketHandler.class, null);
+        loadChannelProtocol(channel, packets, ServerPacketHandler.class);
     }
 
     @Override
-    public void subscribe(String channel, Consumer<Object> handler) {
+    public void subscribe(BridgeChannel channel, Consumer<Object> handler) {
         channelHandlers.put(channel, handler);
     }
 
     @Override
-    public void publish(String channel, Object message) {
+    public void publish(BridgeChannel channel, Object message) {
         ProtoHandler.getServers().forEach(conn -> conn.send(message));
     }
 
     @Override
-    public void unsubscribe(String channel) {
+    public void unsubscribe(BridgeChannel channel) {
         channelHandlers.remove(channel);
     }
 
@@ -128,16 +126,65 @@ public class ProtoWeaver implements kr.rtustudio.bridge.protoweaver.velocity.api
         channelHandlers.clear();
     }
 
-    private void loadChannelProtocol(
-            String channel,
-            Set<Packet> packets,
-            Class<? extends ProtoConnectionHandler> protocolHandler,
-            HandlerCallback callback) {
-        String[] parts = channel.split(":", 2);
-        String namespace = parts[0];
-        String key = parts.length > 1 ? parts[1] : parts[0];
+    @Override
+    public void ready(ProtoConnection connection) {
+        connection.send(new ServerName(server.getConfiguration().getMotd().toString()));
+        Consumer<Object> systemHandler =
+                channelHandlers.get(BridgeChannel.of("rsf:system:connection"));
+        if (systemHandler != null) {
+            systemHandler.accept(connection);
+        }
 
-        Protocol.Builder protocol = Protocol.create(namespace, key);
+        subscribe(
+                BridgeChannel.INTERNAL,
+                packet -> {
+                    if (packet
+                            instanceof
+                            ProtocolRegister(BridgeChannel channel, Set<Packet> packets)) {
+                        loadChannelProtocol(channel, packets, ServerPacketHandler.class);
+                    } else if (packet instanceof TeleportRequest request) {
+                        Optional<RegisteredServer> optServer =
+                                this.server.getServer(request.server());
+                        if (optServer.isEmpty()) return;
+
+                        Optional<Player> optPlayer =
+                                this.server.getPlayer(request.player().uniqueId());
+                        if (optPlayer.isEmpty()) return;
+
+                        Player targetPlayer = optPlayer.get();
+                        teleportRequests.put(targetPlayer.getUniqueId(), request);
+
+                        targetPlayer
+                                .createConnectionRequest(optServer.get())
+                                .connectWithIndication()
+                                .whenComplete(
+                                        (result, throwable) -> {
+                                            if (throwable != null || !result) {
+                                                teleportRequests.remove(targetPlayer.getUniqueId());
+                                            }
+                                        });
+                    } else if (packet instanceof Broadcast broadcast) {
+                        for (Player player : server.getAllPlayers()) {
+                            kr.rtustudio.bridge.protoweaver.velocity.api.ProtoWeaver.sendMessage(
+                                    player, broadcast.minimessage());
+                        }
+                    } else if (packet instanceof SendMessage message) {
+                        Optional<Player> player = server.getPlayer(message.player().uniqueId());
+                        if (player.isPresent()) {
+                            kr.rtustudio.bridge.protoweaver.velocity.api.ProtoWeaver.sendMessage(
+                                    player.get(), message.minimessage());
+                        }
+                    }
+                });
+    }
+
+    private void loadChannelProtocol(
+            BridgeChannel channel,
+            Set<Packet> packets,
+            Class<? extends kr.rtustudio.bridge.protoweaver.api.ProtoConnectionHandler>
+                    protocolHandler) {
+
+        Protocol.Builder protocol = Protocol.create(channel);
         protocol.setCompression(CompressionType.SNAPPY);
         protocol.setMaxPacketSize(67108864); // 64mb
 
@@ -154,11 +201,7 @@ public class ProtoWeaver implements kr.rtustudio.bridge.protoweaver.velocity.api
             protocol.setClientAuthHandler(VelocityAuth.class);
         }
 
-        if (callback == null) {
-            protocol.setClientHandler(protocolHandler).load();
-        } else {
-            protocol.setClientHandler(protocolHandler, callback).load();
-        }
+        protocol.setClientHandler(protocolHandler).load();
     }
 
     private boolean isModernProxy() {
@@ -271,44 +314,5 @@ public class ProtoWeaver implements kr.rtustudio.bridge.protoweaver.velocity.api
     @Override
     public void err(String message) {
         log.error(message);
-    }
-
-    private void onReady(HandlerCallback.Ready data) {
-        ProtoConnection connection = data.protoConnection();
-        if (!connection.isOpen()) return;
-
-        for (RegisteredServer rs : this.server.getAllServers()) {
-            ServerInfo info = rs.getServerInfo();
-            if (connection.getRemoteAddress().equals(info.getAddress())) {
-                connection.send(new ServerName(info.getName()));
-            }
-        }
-    }
-
-    private void onPacket(HandlerCallback.Packet data) {
-        Object packet = data.packet();
-
-        if (packet instanceof ProtocolRegister(String channel, Set<Packet> packets)) {
-            loadChannelProtocol(channel, packets, ServerPacketHandler.class, null);
-        } else if (packet instanceof TeleportRequest request) {
-            Optional<RegisteredServer> optServer = this.server.getServer(request.server());
-            if (optServer.isEmpty()) return;
-
-            Optional<Player> optPlayer = this.server.getPlayer(request.player().uniqueId());
-            if (optPlayer.isEmpty()) return;
-
-            Player targetPlayer = optPlayer.get();
-            teleportRequests.put(targetPlayer.getUniqueId(), request);
-
-            targetPlayer
-                    .createConnectionRequest(optServer.get())
-                    .connectWithIndication()
-                    .whenComplete(
-                            (result, throwable) -> {
-                                if (throwable != null || !result) {
-                                    teleportRequests.remove(targetPlayer.getUniqueId());
-                                }
-                            });
-        }
     }
 }

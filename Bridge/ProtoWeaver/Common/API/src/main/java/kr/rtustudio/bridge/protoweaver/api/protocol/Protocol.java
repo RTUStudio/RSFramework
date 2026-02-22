@@ -1,5 +1,6 @@
 package kr.rtustudio.bridge.protoweaver.api.protocol;
 
+import kr.rtustudio.bridge.BridgeChannel;
 import kr.rtustudio.bridge.protoweaver.api.ProtoConnectionHandler;
 import kr.rtustudio.bridge.protoweaver.api.ProtoWeaver;
 import kr.rtustudio.bridge.protoweaver.api.netty.ProtoConnection;
@@ -32,8 +33,7 @@ public class Protocol {
 
     @EqualsAndHashCode.Exclude private final ObjectSerializer serializer = new ObjectSerializer();
     @Getter private final MessageDigest packetMD = MessageDigest.getInstance("SHA-1");
-    @Getter private final String namespace;
-    @Getter private final String key;
+    @Getter private final BridgeChannel channel;
     @Getter private CompressionType compression = CompressionType.NONE;
     @Getter private int compressionLevel = -37;
     @Getter private int maxPacketSize = 16384;
@@ -54,9 +54,8 @@ public class Protocol {
     @EqualsAndHashCode.Exclude private Constructor<? extends ClientAuthHandler> clientAuthHandler;
     @EqualsAndHashCode.Exclude private Object[] clientAuthHandlerArgs = new Object[0];
 
-    private Protocol(String namespace, String name) throws NoSuchAlgorithmException {
-        this.namespace = namespace;
-        this.key = name;
+    private Protocol(BridgeChannel channel) throws NoSuchAlgorithmException {
+        this.channel = channel;
     }
 
     /**
@@ -65,16 +64,15 @@ public class Protocol {
      * something unique. <br>
      * For example: "protoweaver:proto-message"</br>
      *
-     * @param namespace Usually should be set to your mod id or project id
-     * @param name The name of your protocol.
+     * @param channel The BridgeChannel of your protocol.
      */
     @SneakyThrows
-    public static Builder create(@NonNull String namespace, @NonNull String name) {
-        return new Builder(new Protocol(namespace, name));
+    public static Builder create(@NonNull BridgeChannel channel) {
+        return new Builder(new Protocol(channel));
     }
 
     public String getNamespaceKey() {
-        return namespace + ":" + key;
+        return channel.toString();
     }
 
     public boolean isGlobal(Object packet) {
@@ -179,7 +177,7 @@ public class Protocol {
 
     @Override
     public String toString() {
-        return namespace + ":" + key;
+        return channel.toString();
     }
 
     @AllArgsConstructor(access = AccessLevel.PRIVATE)

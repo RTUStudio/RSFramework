@@ -2,14 +2,13 @@ package kr.rtustudio.bridge.protoweaver.bukkit.core;
 
 import io.papermc.paper.configuration.GlobalConfiguration;
 import kr.rtustudio.bridge.protoweaver.api.util.ProtoLogger;
-import kr.rtustudio.bridge.protoweaver.bukkit.api.nms.IProtoWeaver;
 import kr.rtustudio.bridge.protoweaver.core.server.netty.SSLContext;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j(topic = "RSF/ProtoWeaver")
 @RequiredArgsConstructor
-public class ProtoWeaverSetup implements IProtoWeaver {
+public class Security implements kr.rtustudio.bridge.protoweaver.bukkit.api.Security {
 
     private final String folder;
 

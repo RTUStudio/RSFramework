@@ -1,10 +1,9 @@
 package kr.rtustudio.bridge.protoweaver.bukkit.api;
 
 import kr.rtustudio.bridge.Bridge;
-import kr.rtustudio.bridge.protoweaver.api.callback.HandlerCallback;
+import kr.rtustudio.bridge.protoweaver.api.netty.ProtoConnection;
 import kr.rtustudio.bridge.protoweaver.api.protocol.internal.InternalPacket;
 import kr.rtustudio.bridge.protoweaver.api.proxy.ProxyPlayer;
-import kr.rtustudio.bridge.protoweaver.bukkit.api.nms.IProtoWeaver;
 
 import java.util.Map;
 import java.util.UUID;
@@ -15,18 +14,14 @@ public interface ProtoWeaver extends Bridge {
 
     String getServer();
 
-    IProtoWeaver getProtoWeaver();
+    Security getSecurity();
 
     @NotNull
     Map<UUID, ProxyPlayer> getPlayers();
 
     boolean isConnected();
 
-    boolean isModernProxy();
+    boolean send(@NotNull InternalPacket packet);
 
-    boolean publish(@NotNull InternalPacket packet);
-
-    void onReady(HandlerCallback.Ready data);
-
-    void onPacket(HandlerCallback.Packet data);
+    void ready(ProtoConnection connection);
 }

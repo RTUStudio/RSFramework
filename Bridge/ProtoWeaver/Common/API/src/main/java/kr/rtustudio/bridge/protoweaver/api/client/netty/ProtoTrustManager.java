@@ -36,18 +36,12 @@ public class ProtoTrustManager implements X509TrustManager {
                     }
                 }
             };
-
-    @FunctionalInterface
-    public interface CertificateEventHandler {
-        void handle(byte[] expected, byte[] actual);
-    }
-
+    private static final Object lock = new Object();
     private final File hostsFile;
     private final String hostId;
-    private byte[] trusted = null;
     private final ArrayList<CertificateEventHandler> certificateRejectionHandlers =
             new ArrayList<>();
-    private static final Object lock = new Object();
+    private byte[] trusted = null;
 
     public ProtoTrustManager(String host, int port, String file) {
         hostsFile = new File(file + File.separator + "plugins/RSFramework/protoweaver.hosts");
@@ -115,5 +109,10 @@ public class ProtoTrustManager implements X509TrustManager {
     @Override
     public X509Certificate[] getAcceptedIssuers() {
         return EmptyArrays.EMPTY_X509_CERTIFICATES;
+    }
+
+    @FunctionalInterface
+    public interface CertificateEventHandler {
+        void handle(byte[] expected, byte[] actual);
     }
 }

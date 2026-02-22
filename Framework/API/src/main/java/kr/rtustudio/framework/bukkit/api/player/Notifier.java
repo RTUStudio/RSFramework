@@ -132,7 +132,7 @@ public class Notifier {
     public static void broadcastAll(String minimessage) {
         ProtoWeaver pw = framework().getBridge(ProtoWeaver.class);
         if (pw.isConnected()) {
-            if (pw.publish(new Broadcast(minimessage))) return;
+            if (pw.send(new Broadcast(minimessage))) return;
         }
         broadcast(minimessage);
     }
@@ -147,7 +147,7 @@ public class Notifier {
     public static void broadcastAll(Component component) {
         ProtoWeaver pw = framework().getBridge(ProtoWeaver.class);
         if (pw.isConnected()) {
-            if (pw.publish(new Broadcast(ComponentFormatter.mini(component)))) return;
+            if (pw.send(new Broadcast(ComponentFormatter.mini(component)))) return;
         }
         broadcast(component);
     }
@@ -167,7 +167,7 @@ public class Notifier {
             SendMessage packet =
                     new SendMessage(
                             target, ComponentFormatter.mini(plugin.getPrefix()) + minimessage);
-            framework().getBridge(ProtoWeaver.class).publish(packet);
+            framework().getBridge(ProtoWeaver.class).send(packet);
         } else Notifier.of(plugin, player).announce(minimessage);
     }
 
@@ -175,14 +175,14 @@ public class Notifier {
         Player player = Bukkit.getPlayer(target.uniqueId());
         if (player == null) {
             String message = ComponentFormatter.mini(plugin.getPrefix().append(component));
-            framework().getBridge(ProtoWeaver.class).publish(new SendMessage(target, message));
+            framework().getBridge(ProtoWeaver.class).send(new SendMessage(target, message));
         } else Notifier.of(plugin, player).announce(component);
     }
 
     public static void send(ProxyPlayer target, String minimessage) {
         Player player = Bukkit.getPlayer(target.uniqueId());
         if (player == null) {
-            framework().getBridge(ProtoWeaver.class).publish(new SendMessage(target, minimessage));
+            framework().getBridge(ProtoWeaver.class).send(new SendMessage(target, minimessage));
         } else Notifier.of(framework().getPlugin(), player).send(minimessage);
     }
 
@@ -191,7 +191,7 @@ public class Notifier {
         if (player == null) {
             framework()
                     .getBridge(ProtoWeaver.class)
-                    .publish(new SendMessage(target, ComponentFormatter.mini(component)));
+                    .send(new SendMessage(target, ComponentFormatter.mini(component)));
         } else Notifier.of(framework().getPlugin(), player).send(component);
     }
 

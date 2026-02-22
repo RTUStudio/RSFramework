@@ -32,6 +32,10 @@ public class RedisConfig {
 
     private final String[] nodeAddresses;
 
+    @Builder.Default private final long lockWaitTime = 3000;
+
+    @Builder.Default private final long lockLeaseTime = 5000;
+
     /** Returns the assembled single-server address (e.g. {@code redis://127.0.0.1:6379}). */
     public String getAddress() {
         return "redis://" + host + ":" + port;

@@ -4,11 +4,7 @@ import kr.rtustudio.storage.Storage;
 import kr.rtustudio.storage.StorageLogger;
 import lombok.extern.slf4j.Slf4j;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -24,10 +20,6 @@ import com.google.gson.JsonPrimitive;
 
 @Slf4j
 public class SQLite implements Storage {
-
-    public interface Config {
-        String getFilePath();
-    }
 
     private final Gson gson = new Gson();
     private Connection connection;
@@ -183,5 +175,9 @@ public class SQLite implements Storage {
         } catch (SQLException e) {
             StorageLogger.logError(log, "CLOSE", "connection", e);
         }
+    }
+
+    public interface Config {
+        String getFilePath();
     }
 }

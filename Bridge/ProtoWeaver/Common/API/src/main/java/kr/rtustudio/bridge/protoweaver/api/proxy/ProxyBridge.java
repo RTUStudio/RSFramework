@@ -1,5 +1,6 @@
 package kr.rtustudio.bridge.protoweaver.api.proxy;
 
+import kr.rtustudio.bridge.BridgeChannel;
 import kr.rtustudio.bridge.protoweaver.api.serializer.ProtoSerializer;
 import kr.rtustudio.bridge.protoweaver.api.util.ProtoLogger;
 
@@ -19,13 +20,13 @@ import java.util.function.Consumer;
  */
 public interface ProxyBridge extends ProtoLogger.IProtoLogger, ServerSupplier {
 
-    void register(String channel, Consumer<PacketRegistrar> registrar);
+    void register(BridgeChannel channel, Consumer<PacketRegistrar> registrar);
 
-    void subscribe(String channel, Consumer<Object> handler);
+    void subscribe(BridgeChannel channel, Consumer<Object> handler);
 
-    void publish(String channel, Object message);
+    void publish(BridgeChannel channel, Object message);
 
-    void unsubscribe(String channel);
+    void unsubscribe(BridgeChannel channel);
 
     void shutdown();
 

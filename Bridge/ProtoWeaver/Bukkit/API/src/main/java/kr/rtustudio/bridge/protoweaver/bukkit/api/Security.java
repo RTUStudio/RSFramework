@@ -1,8 +1,8 @@
-package kr.rtustudio.bridge.protoweaver.bukkit.api.nms;
+package kr.rtustudio.bridge.protoweaver.bukkit.api;
 
 import kr.rtustudio.bridge.protoweaver.api.util.ProtoLogger;
 
-public interface IProtoWeaver extends ProtoLogger.IProtoLogger {
+public interface Security extends ProtoLogger.IProtoLogger {
 
     void setup(boolean tls);
 

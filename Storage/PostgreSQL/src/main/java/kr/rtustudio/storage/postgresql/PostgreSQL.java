@@ -25,20 +25,6 @@ import com.zaxxer.hikari.HikariDataSource;
 @Slf4j
 public class PostgreSQL implements Storage {
 
-    public interface Config {
-        String getHost();
-
-        int getPort();
-
-        String getDatabase();
-
-        String getUsername();
-
-        String getPassword();
-
-        String getTablePrefix();
-    }
-
     private final Config config;
     private final Gson gson = new Gson();
     private final String prefix;
@@ -216,5 +202,19 @@ public class PostgreSQL implements Storage {
             hikariDataSource.close();
             hikariDataSource = null;
         }
+    }
+
+    public interface Config {
+        String getHost();
+
+        int getPort();
+
+        String getDatabase();
+
+        String getUsername();
+
+        String getPassword();
+
+        String getTablePrefix();
     }
 }

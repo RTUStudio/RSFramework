@@ -4,13 +4,14 @@ import de.tr7zw.changeme.nbtapi.NBT;
 import it.unimi.dsi.fastutil.objects.Object2BooleanMap;
 import it.unimi.dsi.fastutil.objects.Object2BooleanOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
+import kr.rtustudio.bridge.BridgeChannel;
 import kr.rtustudio.bridge.BridgeRegistry;
-import kr.rtustudio.bridge.Redis;
-import kr.rtustudio.bridge.protoweaver.api.callback.HandlerCallback;
 import kr.rtustudio.bridge.protoweaver.api.protocol.internal.Broadcast;
 import kr.rtustudio.bridge.protoweaver.api.protocol.internal.SendMessage;
 import kr.rtustudio.bridge.protoweaver.api.proxy.ProxyPlayer;
 import kr.rtustudio.bridge.protoweaver.bukkit.api.ProtoWeaver;
+import kr.rtustudio.bridge.redis.Redis;
+import kr.rtustudio.bridge.redis.RedisBridge;
 import kr.rtustudio.framework.bukkit.api.RSPlugin;
 import kr.rtustudio.framework.bukkit.api.command.RSCommand;
 import kr.rtustudio.framework.bukkit.api.configuration.ConfigPath;
@@ -50,25 +51,25 @@ import org.jetbrains.annotations.NotNull;
 @Slf4j(topic = "RSFramework")
 @kr.rtustudio.cdi.annotations.Component
 public class Framework implements kr.rtustudio.framework.bukkit.api.core.Framework {
+    private static final String NMS_PACKAGE_PREFIX = "kr.rtustudio.framework.bukkit.nms.";
+
     @Getter
     private final Component prefix =
             ComponentFormatter.mini("<gradient:#2979FF:#7C4DFF>RSFramework » </gradient>");
 
     @Getter private final Map<String, RSPlugin> plugins = new Object2ObjectOpenHashMap<>();
     @Getter private final Object2BooleanMap<String> hooks = new Object2BooleanOpenHashMap<>();
+    @Getter private final ProviderRegistry providerRegistry = new ProviderRegistry();
+    @Getter private final BridgeRegistry bridgeRegistry = new BridgeRegistry();
+    private final Map<String, StorageManager> storageConfigs = new Object2ObjectOpenHashMap<>();
     @Getter private RSPlugin plugin;
     @Getter private NMS NMS;
     @Getter private String NMSVersion;
-    private static final String NMS_PACKAGE_PREFIX = "kr.rtustudio.framework.bukkit.nms.";
     private kr.rtustudio.bridge.protoweaver.bukkit.api.ProtoWeaver protoWeaver;
-    private final HandlerCallback callback = new HandlerCallback(this::onReady, this::onPacket);
     @Getter private CommandLimit commandLimit;
     @Getter private CommonTranslation commonTranslation;
     @Getter private ModuleFactory moduleFactory;
-    @Getter private final ProviderRegistry providerRegistry = new ProviderRegistry();
-    @Getter private final BridgeRegistry bridgeRegistry = new BridgeRegistry();
     @Getter private Scheduler scheduler;
-    private final Map<String, StorageManager> storageConfigs = new Object2ObjectOpenHashMap<>();
 
     public void loadPlugin(RSPlugin plugin) {
         log.info("loading RSPlugin: {}", plugin.getName());
@@ -107,20 +108,6 @@ public class Framework implements kr.rtustudio.framework.bukkit.api.core.Framewo
     public void closeStorages(@NotNull RSPlugin plugin) {
         StorageManager impl = storageConfigs.remove(plugin.getName());
         if (impl != null) impl.close();
-    }
-
-    private void onReady(HandlerCallback.Ready ready) {
-        protoWeaver.onReady(ready);
-    }
-
-    private void onPacket(HandlerCallback.Packet packet) {
-        protoWeaver.onPacket(packet);
-        if (packet.packet() instanceof Broadcast(String minimessage)) {
-            Notifier.broadcast(minimessage);
-        } else if (packet.packet() instanceof SendMessage(ProxyPlayer target, String minimessage)) {
-            Player player = Bukkit.getPlayer(target.uniqueId());
-            if (player != null) Notifier.of(plugin, player).send(minimessage);
-        }
     }
 
     public boolean isEnabledDependency(String dependency) {
@@ -166,15 +153,26 @@ public class Framework implements kr.rtustudio.framework.bukkit.api.core.Framewo
         ClassLoader classLoader = plugin.getClass().getClassLoader();
         protoWeaver =
                 new kr.rtustudio.bridge.protoweaver.bukkit.core.ProtoWeaver(
-                        plugin.getDataFolder().getPath(),
-                        callback,
-                        protoConfig.toBridgeOptions(classLoader));
+                        plugin.getDataFolder().getPath(), protoConfig.toBridgeOptions(classLoader));
+
+        protoWeaver.subscribe(
+                BridgeChannel.INTERNAL,
+                packet -> {
+                    if (packet instanceof Broadcast(String minimessage)) {
+                        Notifier.broadcast(minimessage);
+                    } else if (packet
+                            instanceof SendMessage(ProxyPlayer target, String minimessage)) {
+                        Player player = Bukkit.getPlayer(target.uniqueId());
+                        if (player != null) Notifier.of(plugin, player).send(minimessage);
+                    }
+                });
+
         bridgeRegistry.register(ProtoWeaver.class, protoWeaver);
         RedisConfig redisConfig =
                 plugin.registerConfiguration(RedisConfig.class, ConfigPath.of("Bridge", "Redis"));
         bridgeRegistry.register(
                 Redis.class,
-                new kr.rtustudio.bridge.redis.Redis(
+                new RedisBridge(
                         redisConfig.toRedisConfig(),
                         kr.rtustudio.bridge.BridgeOptions.builder(classLoader)
                                 .compress(redisConfig.isCompression())
