@@ -1,7 +1,7 @@
 dependencies {
 
-    implementation(project(path = ":Broker:ProtoWeaver:Bukkit:Core", configuration = "shadow"))
-    implementation(project(":Broker:Redisson"))
+    implementation(project(path = ":Bridge:ProtoWeaver:Bukkit:Core", configuration = "shadow"))
+    implementation(project(":Bridge:Redisson"))
 
     implementation(project(":Framework:API"))
 

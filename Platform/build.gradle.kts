@@ -2,7 +2,7 @@ val catalog = the<VersionCatalogsExtension>().named("libs")
 
 subprojects {
     dependencies {
-        compileOnly(project(":Broker:ProtoWeaver:Common:API"))
+        compileOnly(project(":Bridge:ProtoWeaver:Common:API"))
         implementation(catalog.findLibrary("configurate-yaml").get())
     }
 }

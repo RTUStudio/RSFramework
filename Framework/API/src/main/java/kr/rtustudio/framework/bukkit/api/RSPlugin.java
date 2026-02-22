@@ -1,6 +1,6 @@
 package kr.rtustudio.framework.bukkit.api;
 
-import kr.rtustudio.broker.Broker;
+import kr.rtustudio.bridge.Bridge;
 import kr.rtustudio.cdi.LightDI;
 import kr.rtustudio.framework.bukkit.api.command.RSCommand;
 import kr.rtustudio.framework.bukkit.api.configuration.ConfigList;
@@ -319,14 +319,14 @@ public abstract class RSPlugin extends JavaPlugin {
     }
 
     /**
-     * 등록된 브로커 인스턴스를 타입으로 조회한다.
+     * 등록된 브릿지 인스턴스를 타입으로 조회한다.
      *
-     * @param type 브로커 인터페이스 클래스
-     * @param <T> 브로커 타입
-     * @return 등록된 브로커 인스턴스
+     * @param type 브릿지 인터페이스 클래스
+     * @param <T> 브릿지 타입
+     * @return 등록된 브릿지 인스턴스
      */
-    public <T extends Broker> T getBroker(@NotNull Class<T> type) {
-        return this.framework.getBroker(type);
+    public <T extends Bridge> T getBridge(@NotNull Class<T> type) {
+        return this.framework.getBridge(type);
     }
 
     /**

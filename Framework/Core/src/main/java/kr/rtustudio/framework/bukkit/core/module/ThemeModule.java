@@ -19,20 +19,20 @@ public class ThemeModule extends ConfigurationPart
 
     @Comment(
             """
-                    Prefix of plugin name
-                    플러그인 이름 앞에 배치되는 문자입니다""")
+            Prefix of plugin name
+            플러그인 이름의 접두사""")
     private String prefix = "『";
 
     @Comment(
             """
-                    Suffix of plugin name
-                    플러그인 이름 뒤에 배치되는 문자입니다""")
+            Suffix of plugin name
+            플러그인 이름의 접미사""")
     private String suffix = "』";
 
     @Comment(
             """
-                    Hover message of system message
-                    시스템 메세제의 호버 메세지입니다""")
+            Hover message displayed on system messages
+            시스템 메시지에 표시되는 호버 메시지""")
     private String systemMessage =
             "<gradient:#2979FF:#7C4DFF>시스템 메세지</gradient>\n<gray>%servertime_yyyy-MM-dd a h:mm%</gray>";
 
@@ -48,16 +48,14 @@ public class ThemeModule extends ConfigurationPart
     public class Gradient extends ConfigurationPart {
         @Comment(
                 """
-                        Start color of gradient
-                        그라데이션의 시작 색상입니다
-                        """)
+                Start color of gradient
+                그라데이션 시작 색상""")
         private String start = "#2979FF";
 
         @Comment(
                 """
-                        End color of gradient
-                        그라데이션의 종료 색상입니다
-                        """)
+                End color of gradient
+                그라데이션 종료 색상""")
         private String end = "#7C4DFF";
     }
 }

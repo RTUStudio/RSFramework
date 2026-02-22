@@ -1,6 +1,6 @@
 package kr.rtustudio.framework.bukkit.plugin.command.framework;
 
-import kr.rtustudio.broker.protoweaver.api.proxy.ProxyPlayer;
+import kr.rtustudio.bridge.protoweaver.api.proxy.ProxyPlayer;
 import kr.rtustudio.framework.bukkit.api.command.CommandArgs;
 import kr.rtustudio.framework.bukkit.api.command.RSCommand;
 import kr.rtustudio.framework.bukkit.api.core.provider.name.NameProvider;

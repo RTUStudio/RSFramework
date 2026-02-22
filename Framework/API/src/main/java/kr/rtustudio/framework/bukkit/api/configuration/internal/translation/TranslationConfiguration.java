@@ -1,6 +1,6 @@
 package kr.rtustudio.framework.bukkit.api.configuration.internal.translation;
 
-import kr.rtustudio.broker.protoweaver.api.proxy.ProxyPlayer;
+import kr.rtustudio.bridge.protoweaver.api.proxy.ProxyPlayer;
 import kr.rtustudio.cdi.LightDI;
 import kr.rtustudio.framework.bukkit.api.RSPlugin;
 import kr.rtustudio.framework.bukkit.api.core.Framework;
@@ -217,7 +217,7 @@ public class TranslationConfiguration {
     public void reload() {
         File[] files =
                 FileResource.createFolder(
-                                getPlugin().getDataFolder() + "/Translations/" + type.getName())
+                                getPlugin().getDataFolder() + "/Translation/" + type.getName())
                         .listFiles();
         if (files == null) return;
         Set<String> list = plugin.getLanguages();

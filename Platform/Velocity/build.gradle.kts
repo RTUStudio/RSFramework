@@ -7,8 +7,8 @@ tasks.runVelocity {
 }
 
 dependencies {
-    implementation(project(path = ":Broker:ProtoWeaver:Velocity:API", configuration = "shadow"))
-    implementation(project(path = ":Broker:ProtoWeaver:Velocity:Core", configuration = "shadow"))
+    implementation(project(path = ":Bridge:ProtoWeaver:Velocity:API", configuration = "shadow"))
+    implementation(project(path = ":Bridge:ProtoWeaver:Velocity:Core", configuration = "shadow"))
 
     compileOnly(libs.velocity.api)
     annotationProcessor(libs.velocity.api)

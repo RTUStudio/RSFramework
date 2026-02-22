@@ -102,7 +102,9 @@ public class RSConfiguration {
             Class<C> configuration,
             ConfigPath path,
             Consumer<TypeSerializerCollection.Builder> extraSerializer) {
-        C instance = registerImpl(configuration, path, path.last(), extraSerializer);
+        C instance =
+                registerImpl(
+                        configuration, path.folder(), path.version(), path.last(), extraSerializer);
 
         registries.put(
                 configuration,
@@ -149,7 +151,13 @@ public class RSConfiguration {
                                 file -> {
                                     String name = file.getFileName().toString();
                                     String key = name.replace(".yml", "");
-                                    C instance = registerImpl(configuration, path, name, extraSerializer);
+                                    C instance =
+                                            registerImpl(
+                                                    configuration,
+                                                    folderPath,
+                                                    path.version(),
+                                                    name,
+                                                    extraSerializer);
                                     result.put(key, instance);
                                 });
             }
@@ -162,11 +170,10 @@ public class RSConfiguration {
 
     private <C extends ConfigurationPart> C registerImpl(
             Class<C> configuration,
-            ConfigPath path,
+            String folder,
+            Integer version,
             String name,
             Consumer<TypeSerializerCollection.Builder> extraSerializer) {
-        String folder = path.folderPath();
-        Integer version = path.version();
         name = name.endsWith(".yml") ? name : name + ".yml";
         Path configFolder = plugin.getDataFolder().toPath().resolve(folder);
         Path configFile = configFolder.resolve(name);

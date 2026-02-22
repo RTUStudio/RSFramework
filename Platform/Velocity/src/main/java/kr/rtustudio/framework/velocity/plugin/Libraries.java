@@ -20,7 +20,7 @@ class Libraries {
             @NotNull PluginManager pluginManager) {
         this.manager =
                 new VelocityLibraryManager<>(
-                        plugin, logger, dataDirectory, pluginManager, "Libraries");
+                        plugin, logger, dataDirectory, pluginManager, "Library");
         manager.addMavenCentral();
         manager.addJitPack();
         manager.addRepository("https://repo.papermc.io/repository/maven-public/");

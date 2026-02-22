@@ -1,9 +1,9 @@
 package kr.rtustudio.framework.bukkit.api.player;
 
-import kr.rtustudio.broker.protoweaver.api.proxy.ProxyLocation;
-import kr.rtustudio.broker.protoweaver.api.proxy.ProxyPlayer;
-import kr.rtustudio.broker.protoweaver.api.proxy.request.teleport.LocationTeleport;
-import kr.rtustudio.broker.protoweaver.bukkit.api.ProtoWeaver;
+import kr.rtustudio.bridge.protoweaver.api.proxy.ProxyLocation;
+import kr.rtustudio.bridge.protoweaver.api.proxy.ProxyPlayer;
+import kr.rtustudio.bridge.protoweaver.api.proxy.request.teleport.LocationTeleport;
+import kr.rtustudio.bridge.protoweaver.bukkit.api.ProtoWeaver;
 import kr.rtustudio.cdi.LightDI;
 import kr.rtustudio.framework.bukkit.api.core.Framework;
 import kr.rtustudio.framework.bukkit.api.platform.MinecraftVersion;
@@ -49,12 +49,12 @@ public class PlayerTeleport {
 
     /** 현재 서버 이름을 반환한다. */
     private String server() {
-        return framework().getBroker(ProtoWeaver.class).getServer();
+        return framework().getBridge(ProtoWeaver.class).getServer();
     }
 
-    /** ProtoWeaver 브로커를 반환한다. */
+    /** ProtoWeaver 브릿지를 반환한다. */
     private ProtoWeaver protoWeaver() {
-        return framework().getBroker(ProtoWeaver.class);
+        return framework().getBridge(ProtoWeaver.class);
     }
 
     /**
@@ -96,7 +96,7 @@ public class PlayerTeleport {
         if (!pw.isConnected()) return FALSE;
         ProxyPlayer pp = PlayerList.getPlayer(player.getUniqueId());
         var packet =
-                new kr.rtustudio.broker.protoweaver.api.proxy.request.teleport.PlayerTeleport(
+                new kr.rtustudio.bridge.protoweaver.api.proxy.request.teleport.PlayerTeleport(
                         pp, target);
         return CompletableFuture.supplyAsync(() -> pw.publish(packet));
     }

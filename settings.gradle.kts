@@ -18,29 +18,29 @@ include(
 )
 
 include(
-    "Broker",
-    "Broker:Common",
-    "Broker:Redisson",
+    "Bridge",
+    "Bridge:Common",
+    "Bridge:Redisson",
 )
 
 include(
-    "Broker:ProtoWeaver:Common:API",
-    "Broker:ProtoWeaver:Common:Core",
+    "Bridge:ProtoWeaver:Common:API",
+    "Bridge:ProtoWeaver:Common:Core",
 )
 
 include(
-    "Broker:ProtoWeaver:Bukkit:API",
-    "Broker:ProtoWeaver:Bukkit:Core",
+    "Bridge:ProtoWeaver:Bukkit:API",
+    "Bridge:ProtoWeaver:Bukkit:Core",
 )
 
 include(
-    "Broker:ProtoWeaver:Bungee:API",
-    "Broker:ProtoWeaver:Bungee:Core",
+    "Bridge:ProtoWeaver:Bungee:API",
+    "Bridge:ProtoWeaver:Bungee:Core",
 )
 
 include(
-    "Broker:ProtoWeaver:Velocity:API",
-    "Broker:ProtoWeaver:Velocity:Core",
+    "Bridge:ProtoWeaver:Velocity:API",
+    "Bridge:ProtoWeaver:Velocity:Core",
 )
 
 include("Platform")

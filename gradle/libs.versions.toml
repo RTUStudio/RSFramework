@@ -1,6 +1,6 @@
 [versions]
 # Shared
-adventure-platform = "4.4.1"
+adventure-platform = "4.3.4"
 adventure = "4.24.0"
 configurate = "4.2.0-GeyserMC-SNAPSHOT"
 gson = "2.13.1"
@@ -30,7 +30,7 @@ msgpack = "0.9.8"
 bouncycastle = "1.80"
 javassist = "3.30.2-GA"
 
-# NMS / Server
+# Server Versions
 spigot-api = "1.20.1"
 paper-api = "1.20.1"
 folia-api = "1.19.4"
@@ -38,11 +38,13 @@ bungeecord-api = "1.20"
 waterfall-api = "1.20"
 velocity-api = "3.3.0-SNAPSHOT"
 velocity-api-latest = "3.4.0-SNAPSHOT"
+
+# Build Dependencies
 paperweight = "2.0.0-beta.18"
 tiny-remapper = "0.10.4"
 
 # Plugins
-nbt-api = "2.15.2-SNAPSHOT"
+nbt-api = "2.15.5"
 libby = "2.0.0-SNAPSHOT"
 bstats = "3.0.2"
 placeholderapi = "2.11.6"
@@ -106,12 +108,11 @@ netty-transport = { module = "io.netty:netty-transport", version.ref = "netty" }
 netty-handler = { module = "io.netty:netty-handler", version.ref = "netty" }
 netty-codec-http = { module = "io.netty:netty-codec-http", version.ref = "netty" }
 netty-codec-http2 = { module = "io.netty:netty-codec-http2", version.ref = "netty" }
+netty-resolver-dns-classes-macos = { module = "io.netty:netty-resolver-dns-classes-macos", version.ref = "netty" }
+netty-resolver-dns-native-macos = { module = "io.netty:netty-resolver-dns-native-macos", version.ref = "netty" }
+netty-resolver-dns-native-macos-aarch64 = { module = "io.netty:netty-resolver-dns-native-macos", version.ref = "netty" }
 fory = { module = "org.apache.fory:fory-core", version.ref = "fory" }
-msgpack = { module = "org.msgpack:msgpack-core", version.ref = "msgpack" }
-msgpack-jackson = { module = "org.msgpack:jackson-dataformat-msgpack", version.ref = "msgpack" }
 bouncycastle-pkix = { module = "org.bouncycastle:bcpkix-jdk18on", version.ref = "bouncycastle" }
-bouncycastle-prov = { module = "org.bouncycastle:bcprov-jdk18on", version.ref = "bouncycastle" }
-bouncycastle-util = { module = "org.bouncycastle:bcutil-jdk18on", version.ref = "bouncycastle" }
 javassist = { module = "org.javassist:javassist", version.ref = "javassist" }
 
 # Server APIs

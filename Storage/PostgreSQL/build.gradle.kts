@@ -1,7 +1,7 @@
 dependencies {
     implementation(project(":Storage:Common"))
 
-    implementation(libs.hikaricp)
-    implementation(libs.postgresql)
+    compileOnly(libs.hikaricp)
+    compileOnly(libs.postgresql)
     annotationProcessor(libs.lombok)
 }

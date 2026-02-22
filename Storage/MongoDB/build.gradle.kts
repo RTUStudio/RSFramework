@@ -1,7 +1,7 @@
 dependencies {
     implementation(project(":Storage:Common"))
 
-    implementation(libs.mongodb.sync)
-    implementation(libs.mongodb.bson)
+    compileOnly(libs.mongodb.sync)
+    compileOnly(libs.mongodb.bson)
     annotationProcessor(libs.lombok)
 }

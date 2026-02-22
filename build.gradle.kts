@@ -116,6 +116,7 @@ dependencies {
     implementation(libs.libby.bungee)
     implementation(libs.libby.velocity)
     implementation(libs.adventure.platform.bukkit)
+    implementation(libs.adventure.serializer.gson)
 
     compileOnly(libs.lombok)
     add("annotationProcessor", libs.lombok.get().toString())

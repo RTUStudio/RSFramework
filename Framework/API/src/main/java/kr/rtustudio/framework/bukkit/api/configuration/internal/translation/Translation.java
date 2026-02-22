@@ -14,7 +14,7 @@ import org.jetbrains.annotations.NotNull;
 /**
  * 단일 로케일의 번역 YAML 파일을 로드하여 키-값 캐시를 제공하는 클래스입니다.
  *
- * <p>{@code Translations/<type>/<lang>.yml} 파일을 로드하며, 문자열 및 문자열 리스트 타입을 지원합니다.
+ * <p>{@code Translation/<type>/<lang>.yml} 파일을 로드하며, 문자열 및 문자열 리스트 타입을 지원합니다.
  */
 @ToString
 @SuppressWarnings("unused")

@@ -15,9 +15,9 @@ public class ModuleFactory implements kr.rtustudio.framework.bukkit.api.core.mod
     public ModuleFactory(Framework framework) {
         this.configuration = framework.getPlugin().getConfiguration();
         this.configuration.registerConfiguration(
-                CommandModule.class, ConfigPath.relative("Modules", "Command"));
+                CommandModule.class, ConfigPath.of("Module", "Command"));
         this.configuration.registerConfiguration(
-                ThemeModule.class, ConfigPath.relative("Modules", "Theme"));
+                ThemeModule.class, ConfigPath.of("Module", "Theme"));
         register(
                 kr.rtustudio.framework.bukkit.api.core.module.CommandModule.class,
                 this.configuration.get(CommandModule.class));

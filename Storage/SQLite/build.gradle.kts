@@ -1,6 +1,6 @@
 dependencies {
     implementation(project(":Storage:Common"))
 
-    implementation(libs.sqlite)
+    compileOnly(libs.sqlite)
     annotationProcessor(libs.lombok)
 }

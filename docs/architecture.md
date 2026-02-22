@@ -8,8 +8,8 @@ RSFramework는 확장 가능하고 유지보수가 용이한 모듈화된 아키
 ```text
 RSFramework/
 ├── LightDI/             # 자체 제작 경량 의존성 주입(DI) 컨테이너
-├── Broker/              # Pub/Sub 및 메시징 시스템
-│   ├── Common/          # 공통 Broker 인터페이스
+├── Bridge/              # Pub/Sub 및 메시징 시스템
+│   ├── Common/          # 공통 Bridge 인터페이스
 │   ├── Redisson/        # Redis 구현체
 │   └── ProtoWeaver/     # Bungee/Velocity 프록시 통신 구현체
 ├── Framework/           # 프레임워크 핵심

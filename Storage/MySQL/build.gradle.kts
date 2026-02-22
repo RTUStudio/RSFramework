@@ -1,7 +1,7 @@
 dependencies {
     implementation(project(":Storage:Common"))
 
-    implementation(libs.hikaricp)
-    implementation(libs.mysql)
+    compileOnly(libs.hikaricp)
+    compileOnly(libs.mysql)
     annotationProcessor(libs.lombok)
 }

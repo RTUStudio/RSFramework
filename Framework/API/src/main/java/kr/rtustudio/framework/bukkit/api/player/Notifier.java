@@ -1,9 +1,9 @@
 package kr.rtustudio.framework.bukkit.api.player;
 
-import kr.rtustudio.broker.protoweaver.api.protocol.internal.Broadcast;
-import kr.rtustudio.broker.protoweaver.api.protocol.internal.SendMessage;
-import kr.rtustudio.broker.protoweaver.api.proxy.ProxyPlayer;
-import kr.rtustudio.broker.protoweaver.bukkit.api.ProtoWeaver;
+import kr.rtustudio.bridge.protoweaver.api.protocol.internal.Broadcast;
+import kr.rtustudio.bridge.protoweaver.api.protocol.internal.SendMessage;
+import kr.rtustudio.bridge.protoweaver.api.proxy.ProxyPlayer;
+import kr.rtustudio.bridge.protoweaver.bukkit.api.ProtoWeaver;
 import kr.rtustudio.cdi.LightDI;
 import kr.rtustudio.framework.bukkit.api.RSPlugin;
 import kr.rtustudio.framework.bukkit.api.core.Framework;
@@ -130,7 +130,7 @@ public class Notifier {
      * @param minimessage MiniMessage 형식 문자열
      */
     public static void broadcastAll(String minimessage) {
-        ProtoWeaver pw = framework().getBroker(ProtoWeaver.class);
+        ProtoWeaver pw = framework().getBridge(ProtoWeaver.class);
         if (pw.isConnected()) {
             if (pw.publish(new Broadcast(minimessage))) return;
         }
@@ -145,7 +145,7 @@ public class Notifier {
      * @param component 전송할 컴포넌트
      */
     public static void broadcastAll(Component component) {
-        ProtoWeaver pw = framework().getBroker(ProtoWeaver.class);
+        ProtoWeaver pw = framework().getBridge(ProtoWeaver.class);
         if (pw.isConnected()) {
             if (pw.publish(new Broadcast(ComponentFormatter.mini(component)))) return;
         }
@@ -167,7 +167,7 @@ public class Notifier {
             SendMessage packet =
                     new SendMessage(
                             target, ComponentFormatter.mini(plugin.getPrefix()) + minimessage);
-            framework().getBroker(ProtoWeaver.class).publish(packet);
+            framework().getBridge(ProtoWeaver.class).publish(packet);
         } else Notifier.of(plugin, player).announce(minimessage);
     }
 
@@ -175,14 +175,14 @@ public class Notifier {
         Player player = Bukkit.getPlayer(target.uniqueId());
         if (player == null) {
             String message = ComponentFormatter.mini(plugin.getPrefix().append(component));
-            framework().getBroker(ProtoWeaver.class).publish(new SendMessage(target, message));
+            framework().getBridge(ProtoWeaver.class).publish(new SendMessage(target, message));
         } else Notifier.of(plugin, player).announce(component);
     }
 
     public static void send(ProxyPlayer target, String minimessage) {
         Player player = Bukkit.getPlayer(target.uniqueId());
         if (player == null) {
-            framework().getBroker(ProtoWeaver.class).publish(new SendMessage(target, minimessage));
+            framework().getBridge(ProtoWeaver.class).publish(new SendMessage(target, minimessage));
         } else Notifier.of(framework().getPlugin(), player).send(minimessage);
     }
 
@@ -190,7 +190,7 @@ public class Notifier {
         Player player = Bukkit.getPlayer(target.uniqueId());
         if (player == null) {
             framework()
-                    .getBroker(ProtoWeaver.class)
+                    .getBridge(ProtoWeaver.class)
                     .publish(new SendMessage(target, ComponentFormatter.mini(component)));
         } else Notifier.of(framework().getPlugin(), player).send(component);
     }

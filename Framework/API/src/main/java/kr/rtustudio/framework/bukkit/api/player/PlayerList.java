@@ -1,7 +1,7 @@
 package kr.rtustudio.framework.bukkit.api.player;
 
-import kr.rtustudio.broker.protoweaver.api.proxy.ProxyPlayer;
-import kr.rtustudio.broker.protoweaver.bukkit.api.ProtoWeaver;
+import kr.rtustudio.bridge.protoweaver.api.proxy.ProxyPlayer;
+import kr.rtustudio.bridge.protoweaver.bukkit.api.ProtoWeaver;
 import kr.rtustudio.cdi.LightDI;
 import kr.rtustudio.framework.bukkit.api.core.Framework;
 import kr.rtustudio.framework.bukkit.api.platform.MinecraftVersion;
@@ -41,7 +41,7 @@ public class PlayerList {
      */
     @Nullable
     public static ProxyPlayer getPlayer(UUID uniqueId) {
-        ProtoWeaver protoWeaver = framework().getBroker(ProtoWeaver.class);
+        ProtoWeaver protoWeaver = framework().getBridge(ProtoWeaver.class);
         if (protoWeaver.isConnected()) {
             ProxyPlayer player = protoWeaver.getPlayers().get(uniqueId);
             if (player != null) return player;
@@ -68,7 +68,7 @@ public class PlayerList {
      */
     @NotNull
     public static Set<ProxyPlayer> getPlayers(boolean includeProxy) {
-        ProtoWeaver protoWeaver = framework().getBroker(ProtoWeaver.class);
+        ProtoWeaver protoWeaver = framework().getBridge(ProtoWeaver.class);
         if (protoWeaver.isConnected() && includeProxy)
             return new HashSet<>(protoWeaver.getPlayers().values());
         return getLocalPlayers();

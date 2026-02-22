@@ -7,8 +7,8 @@ tasks.runWaterfall {
 }
 
 dependencies {
-    implementation(project(path = ":Broker:ProtoWeaver:Bungee:API", configuration = "shadow"))
-    implementation(project(path = ":Broker:ProtoWeaver:Bungee:Core", configuration = "shadow"))
+    implementation(project(path = ":Bridge:ProtoWeaver:Bungee:API", configuration = "shadow"))
+    implementation(project(path = ":Bridge:ProtoWeaver:Bungee:Core", configuration = "shadow"))
     implementation(libs.libby.bungee)
 
     compileOnly("net.md-5:bungeecord-api:1.20-R0.2")

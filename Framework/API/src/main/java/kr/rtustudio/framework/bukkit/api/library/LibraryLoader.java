@@ -28,7 +28,7 @@ public class LibraryLoader {
 
     public LibraryLoader(@NotNull RSPlugin plugin) {
         this.logger = plugin.getLogger();
-        this.manager = new BukkitLibraryManager(plugin, "Libraries");
+        this.manager = new BukkitLibraryManager(plugin, "Library");
         this.manager.addMavenCentral();
         this.manager.addJitPack();
         this.manager.addRepository("https://repo.papermc.io/repository/maven-public/");

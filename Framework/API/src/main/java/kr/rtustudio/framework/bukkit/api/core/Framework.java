@@ -1,7 +1,7 @@
 package kr.rtustudio.framework.bukkit.api.core;
 
-import kr.rtustudio.broker.Broker;
-import kr.rtustudio.broker.BrokerRegistry;
+import kr.rtustudio.bridge.Bridge;
+import kr.rtustudio.bridge.BridgeRegistry;
 import kr.rtustudio.framework.bukkit.api.RSPlugin;
 import kr.rtustudio.framework.bukkit.api.command.RSCommand;
 import kr.rtustudio.framework.bukkit.api.core.configuration.CommonTranslation;
@@ -53,8 +53,8 @@ public interface Framework {
     /** 프로바이더 레지스트리를 반환한다. */
     ProviderRegistry getProviderRegistry();
 
-    /** 브로커 레지스트리를 반환한다. */
-    BrokerRegistry getBrokerRegistry();
+    /** 브릿지 레지스트리를 반환한다. */
+    BridgeRegistry getBridgeRegistry();
 
     /**
      * 지정한 타입의 모듈을 조회한다.
@@ -90,14 +90,14 @@ public interface Framework {
     }
 
     /**
-     * 지정한 타입의 브로커를 조회한다.
+     * 지정한 타입의 브릿지를 조회한다.
      *
-     * @param type 브로커 인터페이스 클래스
-     * @param <T> 브로커 타입
-     * @return 등록된 브로커 인스턴스
+     * @param type 브릿지 인터페이스 클래스
+     * @param <T> 브릿지 타입
+     * @return 등록된 브릿지 인스턴스
      */
-    default <T extends Broker> T getBroker(@NotNull Class<T> type) {
-        return getBrokerRegistry().get(type);
+    default <T extends Bridge> T getBridge(@NotNull Class<T> type) {
+        return getBridgeRegistry().get(type);
     }
 
     /** 플랫폼별 스케줄러를 반환한다 (Spigot/Paper/Folia 호환). */

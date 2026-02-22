@@ -12,7 +12,7 @@ class Libraries {
     private final BungeeLibraryManager manager;
 
     Libraries(Plugin plugin) {
-        this.manager = new BungeeLibraryManager(plugin, "Libraries");
+        this.manager = new BungeeLibraryManager(plugin, "Library");
         manager.addMavenCentral();
         manager.addJitPack();
         manager.addRepository("https://repo.papermc.io/repository/maven-public/");

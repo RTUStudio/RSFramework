@@ -22,7 +22,7 @@ package kr.rtustudio.framework.bukkit.api.configuration;
  * <h3>{@code relative()} — 접두사 없이 그대로</h3>
  *
  * <pre>{@code
- * ConfigPath.relative("Broker", "Redis")           // Broker/Redis.yml
+ * ConfigPath.relative("Bridge", "Redis")           // Bridge/Redis.yml
  * ConfigPath.relative("Translation", "Message", "ko") // Translation/Message/ko.yml
  * }</pre>
  *
@@ -50,7 +50,7 @@ public record ConfigPath(String[] path, Integer version) {
     /**
      * 접두사 없이 경로를 그대로 사용한다.
      *
-     * <p>{@code ConfigPath.relative("Broker", "Redis")} → {@code Broker/Redis.yml}
+     * <p>{@code ConfigPath.relative("Bridge", "Redis")} → {@code Bridge/Redis.yml}
      *
      * @param path 경로 구성 요소 (최소 1개)
      * @return 새 {@link ConfigPath}

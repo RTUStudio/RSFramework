@@ -5,14 +5,15 @@ plugins {
 val pluginVersion = property("project.plugin.version") as String
 
 dependencies {
-    implementation(project(path = ":Broker:ProtoWeaver:Bukkit:API", configuration = "shadow"))
-    implementation(project(":Broker:Common"))
-    compileOnly(project(":Broker:Redisson"))
+    implementation(project(path = ":Bridge:ProtoWeaver:Bukkit:API", configuration = "shadow"))
+    implementation(project(":Bridge:Common"))
+    compileOnly(project(":Bridge:Redisson"))
 
     compileOnly(project(":Storage:Common"))
 
     compileOnly(libs.libby.bukkit)
 
+    compileOnly(libs.snappy)
     compileOnly(libs.fastutil)
 
     compileOnly(libs.placeholderapi)

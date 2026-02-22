@@ -13,10 +13,10 @@ listOf("API", "Core").forEach { name ->
         dependencies {
             implementation(project(":LightDI"))
 
-            compileOnly(project(":Broker:Common"))
-            compileOnly(project(":Broker:Redisson"))
-            compileOnly(project(":Broker:ProtoWeaver:Common:API"))
-            compileOnly(project(":Broker:ProtoWeaver:Bukkit:API"))
+            compileOnly(project(":Bridge:Common"))
+            compileOnly(project(":Bridge:Redisson"))
+            compileOnly(project(":Bridge:ProtoWeaver:Common:API"))
+            compileOnly(project(":Bridge:ProtoWeaver:Bukkit:API"))
 
             compileOnly("org.spigotmc:spigot-api:$apiVersion-R0.1-SNAPSHOT")
             compileOnly("io.papermc.paper:paper-api:$apiVersion-R0.1-SNAPSHOT")

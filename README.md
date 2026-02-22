@@ -213,7 +213,7 @@ public class MyPlugin extends RSPlugin {
 플레이어의 클라이언트 언어(`Locale`)에 맞춰 자동으로 번역본이 반환됩니다.
 
 ```java
-// Translations/Message/ko.yml 또는 en_us.yml 등에서 "error.no-money" 키를 찾아 반환
+// Translation/Message/ko.yml 또는 en_us.yml 등에서 "error.no-money" 키를 찾아 반환
 String msg = plugin.getConfiguration().getMessage().get(player, "error.no-money");
 notifier.announce(player, msg);
 
