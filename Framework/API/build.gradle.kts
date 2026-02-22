@@ -7,9 +7,8 @@ val pluginVersion = property("project.plugin.version") as String
 dependencies {
     implementation(project(path = ":Bridge:ProtoWeaver:Bukkit:API", configuration = "shadow"))
     implementation(project(":Bridge:Common"))
-    compileOnly(project(":Bridge:Redisson"))
 
-    compileOnly(project(":Storage:Common"))
+    implementation(project(":Storage:Common"))
 
     compileOnly(libs.libby.bukkit)
 
