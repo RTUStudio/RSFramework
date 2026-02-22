@@ -16,11 +16,27 @@ public interface Storage {
     CompletableFuture<Result> add(@NotNull String name, @NotNull JsonObject data);
 
     @NotNull
+    default CompletableFuture<Result> add(@NotNull String name, @NotNull JSON data) {
+        return add(name, data.get());
+    }
+
+    @NotNull
     CompletableFuture<Result> set(
             @NotNull String name, @NotNull JsonObject find, @NotNull JsonObject data);
 
     @NotNull
+    default CompletableFuture<Result> set(
+            @NotNull String name, @NotNull JSON find, @NotNull JSON data) {
+        return set(name, find.get(), data.get());
+    }
+
+    @NotNull
     CompletableFuture<List<JsonObject>> get(@NotNull String name, @NotNull JsonObject find);
+
+    @NotNull
+    default CompletableFuture<List<JsonObject>> get(@NotNull String name, @NotNull JSON find) {
+        return get(name, find.get());
+    }
 
     void close();
 
