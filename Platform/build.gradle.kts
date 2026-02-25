@@ -1,8 +1,6 @@
-val catalog = the<VersionCatalogsExtension>().named("libs")
-
 subprojects {
     dependencies {
-        compileOnly(project(":Bridge:ProtoWeaver:Common:API"))
-        implementation(catalog.findLibrary("configurate-yaml").get())
+        compileOnly(project(":Bridge:Proxium:Common:API"))
+        compileOnly(project(":Configurate"))
     }
 }

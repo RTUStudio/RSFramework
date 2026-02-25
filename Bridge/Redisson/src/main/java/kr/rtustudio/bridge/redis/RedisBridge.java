@@ -10,7 +10,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
-@Slf4j
+@Slf4j(topic = "RSF/Bridge/Redis")
 public class RedisBridge implements Redis {
 
     private final RedisConfig config;
@@ -18,6 +18,7 @@ public class RedisBridge implements Redis {
     private final Object2BooleanOpenHashMap<BridgeChannel> registeredChannels =
             new Object2BooleanOpenHashMap<>();
     private Redisson redisson;
+    private boolean loaded = false;
 
     public RedisBridge(RedisConfig config, ClassLoader classLoader) {
         this(config, BridgeOptions.defaults(classLoader));
@@ -26,18 +27,31 @@ public class RedisBridge implements Redis {
     public RedisBridge(RedisConfig config, BridgeOptions options) {
         this.config = config;
         this.options = options;
+
+        if (!config.isEnabled()) return;
+
+        try {
+            this.redisson = new Redisson(config);
+            this.loaded = true;
+        } catch (Exception e) {
+            log.error("Failed to initialize Redis connection", e);
+            this.loaded = false;
+        }
+    }
+
+    @Override
+    public boolean isLoaded() {
+        return loaded;
     }
 
     private synchronized Redisson getRedisson() {
-        if (redisson == null) {
-            redisson = new Redisson(config);
-        }
-        return redisson;
+        if (loaded) return redisson;
+        throw new IllegalStateException("Redis bridge is not loaded");
     }
 
     @Override
     public void register(BridgeChannel channel, Class<?>... types) {
-        for (Class<?> type : types) options.register(type);
+        options.register(channel, types);
         registeredChannels.put(channel, true);
     }
 

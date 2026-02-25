@@ -1,9 +1,9 @@
 package kr.rtustudio.framework.bukkit.api.player;
 
-import kr.rtustudio.bridge.protoweaver.api.proxy.ProxyLocation;
-import kr.rtustudio.bridge.protoweaver.api.proxy.ProxyPlayer;
-import kr.rtustudio.bridge.protoweaver.api.proxy.request.teleport.LocationTeleport;
-import kr.rtustudio.bridge.protoweaver.bukkit.api.ProtoWeaver;
+import kr.rtustudio.bridge.proxium.api.Proxium;
+import kr.rtustudio.bridge.proxium.api.proxy.ProxyLocation;
+import kr.rtustudio.bridge.proxium.api.proxy.ProxyPlayer;
+import kr.rtustudio.bridge.proxium.api.proxy.request.teleport.LocationTeleport;
 import kr.rtustudio.cdi.LightDI;
 import kr.rtustudio.framework.bukkit.api.core.Framework;
 import kr.rtustudio.framework.bukkit.api.platform.MinecraftVersion;
@@ -21,7 +21,7 @@ import org.jetbrains.annotations.NotNull;
 /**
  * 플레이어 텔레포트를 처리하는 유틸리티 클래스입니다.
  *
- * <p>로컬 서버 내 텔레포트는 Bukkit/Paper API를 사용하고, 타 서버 텔레포트는 ProtoWeaver를 통해 프록시에 요청합니다.
+ * <p>로컬 서버 내 텔레포트는 Bukkit/Paper API를 사용하고, 타 서버 텔레포트는 Proxium를 통해 프록시에 요청합니다.
  */
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 public class PlayerTeleport {
@@ -49,18 +49,18 @@ public class PlayerTeleport {
 
     /** 현재 서버 이름을 반환한다. */
     private String server() {
-        return framework().getBridge(ProtoWeaver.class).getServer();
+        return framework().getBridge(Proxium.class).getServer();
     }
 
-    /** ProtoWeaver 브릿지를 반환한다. */
-    private ProtoWeaver protoWeaver() {
-        return framework().getBridge(ProtoWeaver.class);
+    /** Proxium 브릿지를 반환한다. */
+    private Proxium proxium() {
+        return framework().getBridge(Proxium.class);
     }
 
     /**
      * 프록시 위치로 텔레포트한다.
      *
-     * <p>대상 서버가 현재 서버면 로컬 텔레포트, 다른 서버면 ProtoWeaver를 통해 요청한다.
+     * <p>대상 서버가 현재 서버면 로컬 텔레포트, 다른 서버면 Proxium를 통해 요청한다.
      *
      * @param location 대상 프록시 위치
      * @return 텔레포트 성공 여부
@@ -71,17 +71,17 @@ public class PlayerTeleport {
             if (world == null) return FALSE;
             return teleport(new Location(world, location.x(), location.y(), location.z()));
         }
-        ProtoWeaver pw = protoWeaver();
-        if (!pw.isConnected()) return FALSE;
+        Proxium proxium = proxium();
+        if (!proxium.isConnected()) return FALSE;
         ProxyPlayer pp = PlayerList.getPlayer(player.getUniqueId());
         LocationTeleport packet = new LocationTeleport(pp, location);
-        return CompletableFuture.supplyAsync(() -> pw.send(packet));
+        return CompletableFuture.supplyAsync(() -> proxium.send(packet));
     }
 
     /**
      * 프록시 플레이어에게 텔레포트한다.
      *
-     * <p>대상이 현재 서버에 있으면 로컬 텔레포트, 다른 서버면 ProtoWeaver를 통해 요청한다.
+     * <p>대상이 현재 서버에 있으면 로컬 텔레포트, 다른 서버면 Proxium를 통해 요청한다.
      *
      * @param target 대상 프록시 플레이어
      * @return 텔레포트 성공 여부
@@ -92,13 +92,13 @@ public class PlayerTeleport {
             if (targetPlayer == null) return FALSE;
             return teleport(targetPlayer.getLocation());
         }
-        ProtoWeaver pw = protoWeaver();
-        if (!pw.isConnected()) return FALSE;
+        Proxium proxium = proxium();
+        if (!proxium.isConnected()) return FALSE;
         ProxyPlayer pp = PlayerList.getPlayer(player.getUniqueId());
         var packet =
-                new kr.rtustudio.bridge.protoweaver.api.proxy.request.teleport.PlayerTeleport(
+                new kr.rtustudio.bridge.proxium.api.proxy.request.teleport.PlayerTeleport(
                         pp, target);
-        return CompletableFuture.supplyAsync(() -> pw.send(packet));
+        return CompletableFuture.supplyAsync(() -> proxium.send(packet));
     }
 
     /**

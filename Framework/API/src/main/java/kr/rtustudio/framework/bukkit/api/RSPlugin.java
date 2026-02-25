@@ -2,10 +2,10 @@ package kr.rtustudio.framework.bukkit.api;
 
 import kr.rtustudio.bridge.Bridge;
 import kr.rtustudio.cdi.LightDI;
+import kr.rtustudio.configure.ConfigList;
+import kr.rtustudio.configure.ConfigPath;
+import kr.rtustudio.configure.ConfigurationPart;
 import kr.rtustudio.framework.bukkit.api.command.RSCommand;
-import kr.rtustudio.framework.bukkit.api.configuration.ConfigList;
-import kr.rtustudio.framework.bukkit.api.configuration.ConfigPath;
-import kr.rtustudio.framework.bukkit.api.configuration.ConfigurationPart;
 import kr.rtustudio.framework.bukkit.api.configuration.RSConfiguration;
 import kr.rtustudio.framework.bukkit.api.core.Framework;
 import kr.rtustudio.framework.bukkit.api.core.module.ThemeModule;

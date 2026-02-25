@@ -15,8 +15,9 @@ listOf("API", "Core").forEach { name ->
 
             compileOnly(project(":Bridge:Common"))
             compileOnly(project(":Bridge:Redisson"))
-            compileOnly(project(":Bridge:ProtoWeaver:Common:API"))
-            compileOnly(project(":Bridge:ProtoWeaver:Bukkit:API"))
+            compileOnly(project(":Bridge:Proxium:Common:API"))
+            compileOnly(project(":Bridge:Proxium:Common:Core"))
+            compileOnly(project(":Bridge:Proxium:Bukkit"))
 
             compileOnly("org.spigotmc:spigot-api:$apiVersion-R0.1-SNAPSHOT")
             compileOnly("io.papermc.paper:paper-api:$apiVersion-R0.1-SNAPSHOT")

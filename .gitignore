@@ -34,6 +34,9 @@ bin/
 # VS Code
 .vscode/
 
+# Windsurf
+.windsurf/
+
 # Maven (if using any Maven-related tools or plugins alongside Gradle)
 target/
 

@@ -1,7 +1,7 @@
 package kr.rtustudio.framework.bukkit.core.configuration.storage;
 
+import kr.rtustudio.configure.ConfigPath;
 import kr.rtustudio.framework.bukkit.api.RSPlugin;
-import kr.rtustudio.framework.bukkit.api.configuration.ConfigPath;
 import kr.rtustudio.framework.bukkit.api.configuration.RSConfiguration;
 import lombok.Getter;
 

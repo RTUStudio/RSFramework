@@ -1,6 +1,6 @@
 package kr.rtustudio.framework.bungee.plugin;
 
-import kr.rtustudio.bridge.protoweaver.bungee.api.ProtoWeaver;
+import kr.rtustudio.bridge.proxium.bungee.core.BungeeProxium;
 import lombok.extern.slf4j.Slf4j;
 import net.md_5.bungee.api.plugin.Plugin;
 
@@ -9,7 +9,7 @@ import net.md_5.bungee.api.plugin.Plugin;
 public class RSFramework extends Plugin {
 
     private final Libraries libraries;
-    private ProtoWeaver protoWeaver;
+    private BungeeProxium proxium;
 
     public RSFramework() {
         libraries = new Libraries(this);
@@ -27,9 +27,6 @@ public class RSFramework extends Plugin {
         libraries.load("io.netty:netty-handler:4.1.111.Final");
         libraries.load("io.netty:netty-codec-http:4.1.111.Final");
         libraries.load("io.netty:netty-codec-http2:4.1.111.Final");
-        libraries.load("io.netty:netty-resolver-dns-classes-macos:4.1.111.Final");
-        libraries.load("io.netty:netty-resolver-dns-native-macos:4.1.111.Final:osx-x86_64");
-        libraries.load("io.netty:netty-resolver-dns-native-macos:4.1.111.Final:osx-aarch_64");
 
         // Fory
         libraries.load(
@@ -43,16 +40,14 @@ public class RSFramework extends Plugin {
 
     @Override
     public void onEnable() {
-        protoWeaver =
-                new kr.rtustudio.bridge.protoweaver.bungee.core.ProtoWeaver(
-                        getProxy(), getDataFolder().toPath());
-        getProxy().getPluginManager().registerListener(this, protoWeaver);
+        proxium = new BungeeProxium(getProxy(), getDataFolder().toPath());
+        getProxy().getPluginManager().registerListener(this, proxium);
 
         log.info("RSFramework Bungee loaded.");
     }
 
     @Override
     public void onDisable() {
-        protoWeaver.shutdown();
+        proxium.close();
     }
 }

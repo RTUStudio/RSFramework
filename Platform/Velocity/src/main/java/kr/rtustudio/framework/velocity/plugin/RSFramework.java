@@ -1,6 +1,7 @@
 package kr.rtustudio.framework.velocity.plugin;
 
-import kr.rtustudio.bridge.protoweaver.velocity.api.ProtoWeaver;
+import kr.rtustudio.bridge.proxium.api.Proxium;
+import kr.rtustudio.bridge.proxium.velocity.core.VelocityProxium;
 import lombok.extern.slf4j.Slf4j;
 
 import java.nio.file.Path;
@@ -19,7 +20,7 @@ public class RSFramework {
     private final Path dir;
     private final Libraries libraries;
 
-    private ProtoWeaver protoWeaver;
+    private Proxium proxium;
 
     @Inject
     public RSFramework(ProxyServer server, @DataDirectory Path dir) {
@@ -31,7 +32,10 @@ public class RSFramework {
                         log,
                         dir.getParent().resolve("RSFramework"),
                         server.getPluginManager());
+    }
 
+    @Subscribe
+    public void onInitialize(ProxyInitializeEvent event) {
         // Utilities
         libraries.load("com.google.code.gson:gson:2.13.1");
         libraries.load("com.google.guava:guava:33.4.8-jre");
@@ -45,9 +49,6 @@ public class RSFramework {
         libraries.load("io.netty:netty-handler:4.1.111.Final");
         libraries.load("io.netty:netty-codec-http:4.1.111.Final");
         libraries.load("io.netty:netty-codec-http2:4.1.111.Final");
-        libraries.load("io.netty:netty-resolver-dns-classes-macos:4.1.111.Final");
-        libraries.load("io.netty:netty-resolver-dns-native-macos:4.1.111.Final:osx-x86_64");
-        libraries.load("io.netty:netty-resolver-dns-native-macos:4.1.111.Final:osx-aarch_64");
 
         // Fory
         libraries.load(
@@ -57,14 +58,9 @@ public class RSFramework {
         libraries.load("org.bouncycastle:bcprov-jdk18on:1.80");
         libraries.load("org.bouncycastle:bcutil-jdk18on:1.80");
         libraries.load("org.bouncycastle:bcpkix-jdk18on:1.80");
-    }
 
-    @Subscribe
-    public void onInitialize(ProxyInitializeEvent event) {
-        protoWeaver =
-                new kr.rtustudio.bridge.protoweaver.velocity.core.ProtoWeaver(
-                        server, dir.toAbsolutePath().getParent().getParent());
-        server.getEventManager().register(this, protoWeaver);
+        proxium = new VelocityProxium(server, dir.toAbsolutePath().getParent().getParent());
+        server.getEventManager().register(this, proxium);
 
         log.info("RSFramework Velocity loaded.");
     }

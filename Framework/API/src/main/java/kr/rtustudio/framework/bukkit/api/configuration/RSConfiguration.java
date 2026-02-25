@@ -1,5 +1,10 @@
 package kr.rtustudio.framework.bukkit.api.configuration;
 
+import kr.rtustudio.configure.ConfigList;
+import kr.rtustudio.configure.ConfigPath;
+import kr.rtustudio.configure.Configuration;
+import kr.rtustudio.configure.ConfigurationPart;
+import kr.rtustudio.configure.ConfigurationSerializer;
 import kr.rtustudio.framework.bukkit.api.RSPlugin;
 import kr.rtustudio.framework.bukkit.api.configuration.internal.SettingConfiguration;
 import kr.rtustudio.framework.bukkit.api.configuration.internal.translation.TranslationType;
@@ -96,7 +101,11 @@ public class RSConfiguration {
             Consumer<TypeSerializerCollection.Builder> extraSerializer) {
         C instance =
                 registerImpl(
-                        configuration, path.folder(), path.version(), path.last(), extraSerializer);
+                        configuration,
+                        path.folder(),
+                        path.version(),
+                        path.fileName(),
+                        extraSerializer);
 
         registries.put(
                 configuration,
@@ -166,7 +175,6 @@ public class RSConfiguration {
             Integer version,
             String name,
             Consumer<TypeSerializerCollection.Builder> extraSerializer) {
-        name = name.endsWith(".yml") ? name : name + ".yml";
         Path configFolder = plugin.getDataFolder().toPath().resolve(folder);
         Path configFile = configFolder.resolve(name);
         BufferedReader defaultConfig = null;
@@ -311,19 +319,16 @@ public class RSConfiguration {
         }
 
         public Wrapper(T plugin, ConfigPath path) {
-            this(plugin, path.folder(), path.last(), path.version());
+            this(plugin, path.folder(), path.fileName(), path.version());
         }
 
         public Wrapper(T plugin, String folder, String name, Integer version) {
             this.plugin = plugin;
+            String fileName = name.endsWith(".yml") ? name : name + ".yml";
             String id = plugin.getName();
             String author = String.join(" & ", plugin.getDescription().getAuthors());
             String header = String.format(PluginConfiguration.HEADER, id, author, id, author);
-            this.path =
-                    plugin.getDataFolder()
-                            .toPath()
-                            .resolve(folder)
-                            .resolve(name.endsWith(".yml") ? name : name + ".yml");
+            this.path = plugin.getDataFolder().toPath().resolve(folder).resolve(fileName);
             YamlConfigurationLoader.Builder builder =
                     YamlConfigurationLoader.builder()
                             .path(path)
@@ -334,7 +339,7 @@ public class RSConfiguration {
                                     co ->
                                             ConfigurationSerializer.apply(
                                                     co.header(header).shouldCopyDefaults(true)));
-            final BufferedReader defaultConfig = configFromResource(folder, name);
+            final BufferedReader defaultConfig = configFromResource(folder, fileName);
             if (defaultConfig == null || Files.exists(this.path)) this.loader = builder.build();
             else this.loader = builder.source(() -> defaultConfig).build();
             this.version = version != null ? version : 0;
@@ -357,7 +362,7 @@ public class RSConfiguration {
                     }
                 }
             } catch (Exception e) {
-                log.warn("Could not initialize {}", folder + "/" + name, e);
+                log.warn("Could not initialize {}", folder + "/" + fileName, e);
                 throw new RuntimeException(e);
             }
         }

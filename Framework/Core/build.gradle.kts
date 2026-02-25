@@ -1,9 +1,10 @@
 dependencies {
 
-    implementation(project(path = ":Bridge:ProtoWeaver:Bukkit:Core", configuration = "shadow"))
+    implementation(project(path = ":Bridge:Proxium:Bukkit", configuration = "shadow"))
     implementation(project(":Bridge:Redisson"))
 
     implementation(project(":Framework:API"))
+    compileOnly(project(":Configurate"))
 
     implementation(project(":Storage:Common"))
     implementation(project(":Storage:MySQL"))

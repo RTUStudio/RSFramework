@@ -3,15 +3,11 @@ package kr.rtustudio.bridge.redis.config;
 import lombok.Builder;
 import lombok.Getter;
 
-/**
- * Configuration for Redis connection. Supports single server, sentinel, and cluster modes.
- *
- * <p>When {@code tls} is {@code true}, the address scheme is automatically switched from {@code
- * redis://} to {@code rediss://} (TLS) by {@code BukkitRedission}.
- */
 @Getter
 @Builder
 public class RedisConfig {
+
+    @Builder.Default private final boolean enabled = false;
 
     @Builder.Default private final String host = "127.0.0.1";
 
@@ -36,7 +32,6 @@ public class RedisConfig {
 
     @Builder.Default private final long lockLeaseTime = 5000;
 
-    /** Returns the assembled single-server address (e.g. {@code redis://127.0.0.1:6379}). */
     public String getAddress() {
         return "redis://" + host + ":" + port;
     }

@@ -4,17 +4,37 @@
 
 ## 🌟 통합 아키텍처
 
-브로커 시스템은 구현체(Redis, ProtoWeaver)와 관계없이 `kr.rtustudio.bridge.Bridge`라는 단일 인터페이스로 추상화되어 있습니다.
+브로커 시스템은 구현체(Redis, Proxium)와 관계없이 `kr.rtustudio.bridge.Bridge`라는 단일 인터페이스로 추상화되어 있습니다.
 
 ### 1. Redisson (Redis)
 
 - `Redisson` 클라이언트를 기반으로 구현된 브로커.
-- **Serializer**: 내부적으로 `Gson`의 `TypeAdapter<?>`를 사용하여 패킷을 직렬화합니다.
+- 분산 락(Distributed Lock) 등 Redis 고유 기능을 추가로 지원합니다.
 
-### 2. ProtoWeaver (자체 프록시 통신)
+### 2. Proxium (자체 프록시 통신)
 
-- BungeeCord / Velocity 플러그인 메시징 채널을 활용하는 커스텀 프록시 통신 프레임워크.
-- **Serializer**: `BridgeSerializer`를 자체 `Fory Serializer`로 확장(Bridge)하여 사용합니다.
+- Netty 기반의 커스텀 프록시 통신 프레임워크.
+- BungeeCord / Velocity 프록시와 백엔드 서버 간 TLS 보안 채널을 통해 직접 통신합니다.
+- 프록시 네트워크 플레이어/서버 정보 접근 등 고유 기능을 지원합니다.
+
+> **직렬화**: 두 구현체 모두 `Fory`를 사용하여 동일한 고성능 바이너리 직렬화를 수행합니다.
+
+#### 클래스 계층
+
+- `AbstractProxium` — Bridge 구현, 공통 로직 (register, subscribe, dispatchPacket)
+  - `ProxiumServer` — 서버 측 abstract → `BukkitProxium` extends
+  - `ProxiumProxy` — 프록시 측 abstract, 커넥션 매니저 포함 → `BungeeProxium`, `VelocityProxium` extends
+
+#### 주요 API 타입
+
+| 클래스 | 패키지 | 설명 |
+|-------|--------|------|
+| `Proxium` | `api` | Bridge를 확장한 Proxium 인터페이스 (연결 상태, 플레이어, 서버명 등) |
+| `Protocol` | `api.protocol` | 채널별 프로토콜 정의 (패킷 등록, 핸들러, 압축 등) |
+| `Connection` | `api.netty` | 네트워크 연결 추상화 (프로토콜 업그레이드, 패킷 전송 등) |
+| `RegisteredServer` | `api.proxy` | 프록시에 등록된 백엔드 서버 정보 |
+| `ProxyConnector` | `api.proxy` | 프록시 → 서버 연결 클라이언트 |
+| `ProxyPlayer` | `api.proxy` | 프록시 네트워크 플레이어 정보 |
 
 ## 🛠️ 공통 사용 패턴
 
@@ -23,44 +43,25 @@
 ```java
 import kr.rtustudio.bridge.Bridge;
 import kr.rtustudio.bridge.BridgeChannel;
-import kr.rtustudio.bridge.BridgeSerializer;
+import kr.rtustudio.bridge.proxium.api.Proxium;
 
-Bridge bridge = framework.getBridge(ProtoWeaver.class); // 또는 RedisBridge.class
+Bridge bridge = framework.getBridge(Proxium.class); // 또는 Redis.class
 BridgeChannel channel = BridgeChannel.of("rsf", "test");
 
 // 1. 채널 및 패킷 등록
-bridge.
-
-register(channel, registrar ->{
-        registrar.
-
-register(BuyPacket .class); // 기본 직렬화
-    registrar.
-
-register(SellPacket .class, new SellPacketSerializer()); // 커스텀 직렬화기
-        });
+bridge.register(channel, BuyPacket.class, SellPacket.class);
 
 // 2. 패킷 수신 구독 (Subscribe)
-        bridge.
-
-subscribe(channel, packet ->{
-        if(packet instanceof
-BuyPacket buy){
-        System.out.
-
-println(buy.getPlayerName() +"님이 구매했습니다.");
-        }
-        });
+bridge.subscribe(channel, packet -> {
+    if (packet instanceof BuyPacket buy) {
+        System.out.println(buy.getPlayerName() + "님이 구매했습니다.");
+    }
+});
 
 // 3. 패킷 전송 (Publish)
-        bridge.
-
-publish(channel, new BuyPacket("ipecter", 500));
+bridge.publish(channel, new BuyPacket("ipecter", 500));
 ```
 
-## 🔌 BridgeSerializer 브릿지(Bridge)
+## 🔌 BridgeOptions
 
-플러그인 개발자는 브로커 종류에 구애받지 않고 통합된 `BridgeSerializer<T>`를 구현합니다. 프레임워크 내부에서 다음과 같이 매핑됩니다.
-
-- **Redis 구현체**: `BridgeSerializer` -> `toJson/fromJson`을 거쳐 `Gson TypeAdapter`로 자동 매핑.
-- **ProtoWeaver 구현체**: `BridgeSerializer` -> `BridgeSerializerAdapter`를 통해 ProtoWeaver의 `ObjectSerializer` 구조에 병합.
+`BridgeOptions`는 채널별 패킷 등록 및 직렬화를 관리하는 공통 컴포넌트입니다. 두 구현체 모두 `Fory`를 통해 동일한 직렬화 파이프라인을 사용하므로, 개발자는 구현체 차이를 신경 쓸 필요 없이 동일한 패킷 클래스를 사용할 수 있습니다.

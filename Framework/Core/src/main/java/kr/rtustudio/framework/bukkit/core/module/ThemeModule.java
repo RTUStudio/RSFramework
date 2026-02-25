@@ -1,6 +1,6 @@
 package kr.rtustudio.framework.bukkit.core.module;
 
-import kr.rtustudio.framework.bukkit.api.configuration.ConfigurationPart;
+import kr.rtustudio.configure.ConfigurationPart;
 import lombok.Getter;
 
 import org.spongepowered.configurate.objectmapping.meta.Comment;

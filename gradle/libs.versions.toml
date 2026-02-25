@@ -26,7 +26,7 @@ redisson = "3.45.1"
 # Networking / Serialization
 netty = "4.1.111.Final"
 fory = "0.15.0"
-msgpack = "0.9.8"
+objenesis = "3.4"
 bouncycastle = "1.80"
 javassist = "3.30.2-GA"
 
@@ -108,12 +108,13 @@ netty-transport = { module = "io.netty:netty-transport", version.ref = "netty" }
 netty-handler = { module = "io.netty:netty-handler", version.ref = "netty" }
 netty-codec-http = { module = "io.netty:netty-codec-http", version.ref = "netty" }
 netty-codec-http2 = { module = "io.netty:netty-codec-http2", version.ref = "netty" }
+netty-resolver-dns = { module = "io.netty:netty-resolver-dns", version.ref = "netty" }
 netty-resolver-dns-classes-macos = { module = "io.netty:netty-resolver-dns-classes-macos", version.ref = "netty" }
 netty-resolver-dns-native-macos = { module = "io.netty:netty-resolver-dns-native-macos", version.ref = "netty" }
 netty-resolver-dns-native-macos-aarch64 = { module = "io.netty:netty-resolver-dns-native-macos", version.ref = "netty" }
 fory = { module = "org.apache.fory:fory-core", version.ref = "fory" }
 bouncycastle-pkix = { module = "org.bouncycastle:bcpkix-jdk18on", version.ref = "bouncycastle" }
-javassist = { module = "org.javassist:javassist", version.ref = "javassist" }
+objenesis = { module = "org.objenesis:objenesis", version.ref = "objenesis" }
 
 # Server APIs
 spigot-api = { module = "org.spigotmc:spigot-api", version.ref = "spigot-api" }
@@ -148,7 +149,7 @@ reflections = { module = "org.reflections:reflections", version.ref = "reflectio
 tiny-remapper = { module = "net.fabricmc:tiny-remapper", version.ref = "tiny-remapper" }
 
 [bundles]
-netty = ["netty-buffer", "netty-transport", "netty-handler", "netty-codec-http", "netty-codec-http2"]
+netty = ["netty-buffer", "netty-transport", "netty-handler", "netty-codec-http", "netty-codec-http2", "netty-resolver-dns"]
 
 [plugins]
 freefair-lombok = { id = "io.freefair.lombok", version.ref = "freefair-lombok" }

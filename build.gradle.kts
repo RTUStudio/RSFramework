@@ -19,7 +19,9 @@ allprojects {
 
     apply(plugin = "java")
     apply(plugin = "io.freefair.lombok")
-    apply(plugin = "com.gradleup.shadow")
+    if (project.name != "Configurate") {
+        apply(plugin = "com.gradleup.shadow")
+    }
     apply(plugin = "com.diffplug.spotless")
 
     repositories {
@@ -91,19 +93,21 @@ allprojects {
         options.release.set(javaVersionProp.toInt())
     }
 
-    tasks.jar {
-        finalizedBy(tasks.shadowJar)
-    }
+    if (project.name != "Configurate") {
+        tasks.jar {
+            finalizedBy(tasks.shadowJar)
+        }
 
-    tasks.shadowJar {
-        exclude("META-INF/**")
-        exclude("classpath.index")
+        tasks.shadowJar {
+            exclude("META-INF/**")
+            exclude("classpath.index")
 
-        relocate("com.alessiodp.libby", "kr.rtustudio.libby")
-        relocate("net.kyori.adventure.platform.bukkit", "kr.rtustudio.framework.bukkit.kyori")
-        relocate("de.tr7zw.changeme.nbtapi", "kr.rtustudio.framework.bukkit.api.nbt")
-        relocate("org.spongepowered.configurate", "kr.rtustudio.configurate")
-        relocate("org.bstats", "kr.rtustudio.framework.bstats")
+            relocate("com.alessiodp.libby", "kr.rtustudio.libby")
+            relocate("net.kyori.adventure.platform.bukkit", "kr.rtustudio.framework.bukkit.kyori")
+            relocate("de.tr7zw.changeme.nbtapi", "kr.rtustudio.framework.bukkit.api.nbt")
+            relocate("org.spongepowered.configurate", "kr.rtustudio.configurate")
+            relocate("org.bstats", "kr.rtustudio.framework.bstats")
+        }
     }
 }
 
@@ -117,9 +121,6 @@ dependencies {
     implementation(libs.libby.velocity)
     implementation(libs.adventure.platform.bukkit)
     implementation(libs.adventure.serializer.gson)
-
-    compileOnly(libs.lombok)
-    add("annotationProcessor", libs.lombok.get().toString())
 }
 
 // Plugin Build

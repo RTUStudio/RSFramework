@@ -5,6 +5,7 @@ plugins {
 rootProject.name = "RSFramework"
 
 include("LightDI")
+include("Configurate")
 
 include(
     "Storage",
@@ -24,23 +25,20 @@ include(
 )
 
 include(
-    "Bridge:ProtoWeaver:Common:API",
-    "Bridge:ProtoWeaver:Common:Core",
+    "Bridge:Proxium:Common:API",
+    "Bridge:Proxium:Common:Core",
 )
 
 include(
-    "Bridge:ProtoWeaver:Bukkit:API",
-    "Bridge:ProtoWeaver:Bukkit:Core",
+    "Bridge:Proxium:Bukkit",
 )
 
 include(
-    "Bridge:ProtoWeaver:Bungee:API",
-    "Bridge:ProtoWeaver:Bungee:Core",
+    "Bridge:Proxium:Bungee",
 )
 
 include(
-    "Bridge:ProtoWeaver:Velocity:API",
-    "Bridge:ProtoWeaver:Velocity:Core",
+    "Bridge:Proxium:Velocity",
 )
 
 include("Platform")

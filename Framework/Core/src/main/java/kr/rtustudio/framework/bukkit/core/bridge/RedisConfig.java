@@ -1,6 +1,6 @@
 package kr.rtustudio.framework.bukkit.core.bridge;
 
-import kr.rtustudio.framework.bukkit.api.configuration.ConfigurationPart;
+import kr.rtustudio.configure.ConfigurationPart;
 import lombok.Getter;
 
 import org.spongepowered.configurate.objectmapping.meta.Comment;
@@ -14,6 +14,12 @@ import org.spongepowered.configurate.objectmapping.meta.Comment;
     "InnerClassMayBeStatic"
 })
 public class RedisConfig extends ConfigurationPart {
+    @Comment(
+            """
+                    Enable Redis connection
+                    Redis 연결을 활성화합니다""")
+    public boolean enabled = false;
+
     @Comment(
             """
                     Redis server connection settings
@@ -44,15 +50,10 @@ public class RedisConfig extends ConfigurationPart {
                     Redis 분산 락 설정""")
     public Lock lock;
 
-    @Comment(
-            """
-                    Enable Snappy compression for bridge messages
-                    브릿지 메시지에 Snappy 압축을 사용합니다""")
-    private boolean compression = false;
-
     public kr.rtustudio.bridge.redis.config.RedisConfig toRedisConfig() {
         kr.rtustudio.bridge.redis.config.RedisConfig.RedisConfigBuilder builder =
                 kr.rtustudio.bridge.redis.config.RedisConfig.builder()
+                        .enabled(enabled)
                         .host(connection.host)
                         .port(connection.port)
                         .database(connection.database)

@@ -40,17 +40,19 @@ public class RSFramework extends RSPlugin {
         loadLibrary("org.mariadb.jdbc:mariadb-java-client:3.5.7");
         loadLibrary("org.xerial:sqlite-jdbc:3.51.2.0");
         loadLibrary("org.postgresql:postgresql:42.6.0");
+
+        // Redis
         loadLibrary("org.redisson:redisson:3.45.1");
+        loadLibrary("org.objenesis:objenesis:3.4");
+        loadLibrary("com.esotericsoftware:kryo:5.6.2");
+        loadLibrary("com.fasterxml.jackson.core:jackson-core:2.21.0");
+        loadLibrary("com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.21.0");
+        loadLibrary("com.fasterxml.jackson.core:jackson-databind:2.21.0");
+        loadLibrary("io.netty:netty-codec-dns:4.1.111.Final");
 
         // Netty
-        loadLibrary("io.netty:netty-buffer:4.1.111.Final");
-        loadLibrary("io.netty:netty-transport:4.1.111.Final");
-        loadLibrary("io.netty:netty-handler:4.1.111.Final");
-        loadLibrary("io.netty:netty-codec-http:4.1.111.Final");
         loadLibrary("io.netty:netty-codec-http2:4.1.111.Final");
-        loadLibrary("io.netty:netty-resolver-dns-classes-macos:4.1.111.Final");
-        loadLibrary("io.netty:netty-resolver-dns-native-macos:4.1.111.Final:osx-x86_64");
-        loadLibrary("io.netty:netty-resolver-dns-native-macos:4.1.111.Final:osx-aarch_64");
+        loadLibrary("io.netty:netty-resolver-dns:4.1.111.Final");
 
         // Fory
         loadLibrary(

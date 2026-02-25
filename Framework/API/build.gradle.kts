@@ -5,7 +5,9 @@ plugins {
 val pluginVersion = property("project.plugin.version") as String
 
 dependencies {
-    implementation(project(path = ":Bridge:ProtoWeaver:Bukkit:API", configuration = "shadow"))
+    implementation(project(":Configurate"))
+
+    implementation(project(path = ":Bridge:Proxium:Common:API", configuration = "shadow"))
     implementation(project(":Bridge:Common"))
 
     implementation(project(":Storage:Common"))
@@ -18,7 +20,7 @@ dependencies {
     compileOnly(libs.placeholderapi)
     compileOnly(libs.packetevents)
 
-    implementation(libs.configurate.yaml)
+    // configurate-yaml is provided transitively via :Configurate module
 }
 
 // API Build

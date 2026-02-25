@@ -12,5 +12,7 @@ public interface Bridge {
 
     void unsubscribe(BridgeChannel channel);
 
+    boolean isLoaded();
+
     void close();
 }

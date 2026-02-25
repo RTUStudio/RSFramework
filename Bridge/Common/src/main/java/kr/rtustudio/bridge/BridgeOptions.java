@@ -1,17 +1,23 @@
 package kr.rtustudio.bridge;
 
+import lombok.Getter;
+import lombok.SneakyThrows;
+
 import java.lang.reflect.Modifier;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentSkipListSet;
 
 import org.apache.fory.Fory;
 import org.apache.fory.config.CompatibleMode;
 import org.apache.fory.config.Language;
 import org.apache.fory.exception.InsecureException;
 import org.apache.fory.logging.LoggerFactory;
-import org.xerial.snappy.Snappy;
 
 public final class BridgeOptions {
 
@@ -20,8 +26,9 @@ public final class BridgeOptions {
     }
 
     private final Fory fory;
-    private final boolean compress;
-    private final boolean tls;
+    private final Map<BridgeChannel, ConcurrentSkipListSet<String>> channelTypes =
+            new ConcurrentHashMap<>();
+    @Getter private final boolean tls;
 
     private BridgeOptions(Builder builder) {
         this.fory =
@@ -33,24 +40,7 @@ public final class BridgeOptions {
                         .withAsyncCompilation(true)
                         .withClassLoader(builder.classLoader)
                         .build();
-        this.compress = builder.compress;
         this.tls = builder.tls;
-    }
-
-    private static byte[] snappyCompress(byte[] data) {
-        try {
-            return Snappy.compress(data);
-        } catch (Exception e) {
-            throw new RuntimeException("Snappy compress failed", e);
-        }
-    }
-
-    private static byte[] snappyDecompress(byte[] data) {
-        try {
-            return Snappy.uncompress(data);
-        } catch (Exception e) {
-            throw new RuntimeException("Snappy decompress failed", e);
-        }
     }
 
     public static Builder builder(ClassLoader classLoader) {
@@ -61,16 +51,24 @@ public final class BridgeOptions {
         return builder(classLoader).build();
     }
 
-    public boolean isCompress() {
-        return compress;
+    public void register(BridgeChannel channel, Class<?>... types) {
+        ConcurrentSkipListSet<String> set =
+                channelTypes.computeIfAbsent(channel, k -> new ConcurrentSkipListSet<>());
+        for (Class<?> type : types) {
+            set.add(type.getName());
+            recursiveRegister(type, new ArrayList<>());
+        }
     }
 
-    public boolean isTls() {
-        return tls;
-    }
-
-    public void register(Class<?> type) {
-        recursiveRegister(type, new ArrayList<>());
+    @SneakyThrows
+    public byte[] getChannelSHA1(BridgeChannel channel) {
+        ConcurrentSkipListSet<String> set = channelTypes.get(channel);
+        if (set == null || set.isEmpty()) return new byte[0];
+        MessageDigest md = MessageDigest.getInstance("SHA-1");
+        for (String name : set) {
+            md.update(name.getBytes(StandardCharsets.UTF_8));
+        }
+        return md.digest();
     }
 
     private void recursiveRegister(Class<?> type, List<Class<?>> registered) {
@@ -98,7 +96,7 @@ public final class BridgeOptions {
                         "Unregistered type: " + value.getClass().getName(), e);
             }
         }
-        byte[] payload = compress ? snappyCompress(serialized) : serialized;
+        byte[] payload = serialized;
         byte[] channelBytes = channel.toString().getBytes(StandardCharsets.UTF_8);
         ByteBuffer buf = ByteBuffer.allocate(4 + channelBytes.length + payload.length);
         buf.putInt(channelBytes.length);
@@ -126,7 +124,7 @@ public final class BridgeOptions {
         buf.position(4 + len);
         byte[] payload = new byte[buf.remaining()];
         buf.get(payload);
-        byte[] decompressed = compress ? snappyDecompress(payload) : payload;
+        byte[] decompressed = payload;
         synchronized (fory) {
             try {
                 return fory.deserialize(decompressed);
@@ -140,16 +138,10 @@ public final class BridgeOptions {
     public static final class Builder {
 
         private final ClassLoader classLoader;
-        private boolean compress = false;
         private boolean tls = true;
 
         private Builder(ClassLoader classLoader) {
             this.classLoader = classLoader;
-        }
-
-        public Builder compress(boolean compress) {
-            this.compress = compress;
-            return this;
         }
 
         public Builder tls(boolean tls) {

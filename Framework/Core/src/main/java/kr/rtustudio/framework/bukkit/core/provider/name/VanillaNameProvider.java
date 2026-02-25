@@ -1,6 +1,6 @@
 package kr.rtustudio.framework.bukkit.core.provider.name;
 
-import kr.rtustudio.bridge.protoweaver.api.proxy.ProxyPlayer;
+import kr.rtustudio.bridge.proxium.api.proxy.ProxyPlayer;
 import kr.rtustudio.framework.bukkit.api.core.provider.name.NameProvider;
 import kr.rtustudio.framework.bukkit.api.player.PlayerList;
 

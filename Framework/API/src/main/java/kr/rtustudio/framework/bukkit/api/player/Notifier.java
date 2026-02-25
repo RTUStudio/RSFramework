@@ -1,9 +1,9 @@
 package kr.rtustudio.framework.bukkit.api.player;
 
-import kr.rtustudio.bridge.protoweaver.api.protocol.internal.Broadcast;
-import kr.rtustudio.bridge.protoweaver.api.protocol.internal.SendMessage;
-import kr.rtustudio.bridge.protoweaver.api.proxy.ProxyPlayer;
-import kr.rtustudio.bridge.protoweaver.bukkit.api.ProtoWeaver;
+import kr.rtustudio.bridge.proxium.api.Proxium;
+import kr.rtustudio.bridge.proxium.api.protocol.internal.Broadcast;
+import kr.rtustudio.bridge.proxium.api.protocol.internal.SendMessage;
+import kr.rtustudio.bridge.proxium.api.proxy.ProxyPlayer;
 import kr.rtustudio.cdi.LightDI;
 import kr.rtustudio.framework.bukkit.api.RSPlugin;
 import kr.rtustudio.framework.bukkit.api.core.Framework;
@@ -26,7 +26,7 @@ import org.bukkit.entity.Player;
  * 플레이어 및 콘솔에게 메시지를 전송하는 유틸리티 클래스입니다.
  *
  * <p>접두사 포함 안내({@code announce}), 접두사 없는 전송({@code send}), 타이틀, 액션바, 보스바 등 다양한 전송 방식을 지원합니다.
- * ProtoWeaver를 통한 크로스 서버 브로드캐스트도 지원합니다.
+ * Proxium를 통한 크로스 서버 브로드캐스트도 지원합니다.
  */
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 public class Notifier {
@@ -123,14 +123,14 @@ public class Notifier {
     }
 
     /**
-     * ProtoWeaver를 통해 모든 서버에 메시지를 브로드캐스트한다.
+     * Proxium를 통해 모든 서버에 메시지를 브로드캐스트한다.
      *
-     * <p>ProtoWeaver 연결이 없으면 현재 서버에만 브로드캐스트한다.
+     * <p>Proxium 연결이 없으면 현재 서버에만 브로드캐스트한다.
      *
      * @param minimessage MiniMessage 형식 문자열
      */
     public static void broadcastAll(String minimessage) {
-        ProtoWeaver pw = framework().getBridge(ProtoWeaver.class);
+        Proxium pw = framework().getBridge(Proxium.class);
         if (pw.isConnected()) {
             if (pw.send(new Broadcast(minimessage))) return;
         }
@@ -138,14 +138,14 @@ public class Notifier {
     }
 
     /**
-     * ProtoWeaver를 통해 모든 서버에 컴포넌트를 브로드캐스트한다.
+     * Proxium를 통해 모든 서버에 컴포넌트를 브로드캐스트한다.
      *
-     * <p>ProtoWeaver 연결이 없으면 현재 서버에만 브로드캐스트한다.
+     * <p>Proxium 연결이 없으면 현재 서버에만 브로드캐스트한다.
      *
      * @param component 전송할 컴포넌트
      */
     public static void broadcastAll(Component component) {
-        ProtoWeaver pw = framework().getBridge(ProtoWeaver.class);
+        Proxium pw = framework().getBridge(Proxium.class);
         if (pw.isConnected()) {
             if (pw.send(new Broadcast(ComponentFormatter.mini(component)))) return;
         }
@@ -155,7 +155,7 @@ public class Notifier {
     /**
      * 특정 프록시 플레이어에게 접두사 포함 메시지를 전송한다.
      *
-     * <p>대상이 현재 서버에 없으면 ProtoWeaver를 통해 전송한다.
+     * <p>대상이 현재 서버에 없으면 Proxium를 통해 전송한다.
      *
      * @param plugin 소유 플러그인
      * @param target 대상 프록시 플레이어
@@ -167,7 +167,7 @@ public class Notifier {
             SendMessage packet =
                     new SendMessage(
                             target, ComponentFormatter.mini(plugin.getPrefix()) + minimessage);
-            framework().getBridge(ProtoWeaver.class).send(packet);
+            framework().getBridge(Proxium.class).send(packet);
         } else Notifier.of(plugin, player).announce(minimessage);
     }
 
@@ -175,14 +175,14 @@ public class Notifier {
         Player player = Bukkit.getPlayer(target.uniqueId());
         if (player == null) {
             String message = ComponentFormatter.mini(plugin.getPrefix().append(component));
-            framework().getBridge(ProtoWeaver.class).send(new SendMessage(target, message));
+            framework().getBridge(Proxium.class).send(new SendMessage(target, message));
         } else Notifier.of(plugin, player).announce(component);
     }
 
     public static void send(ProxyPlayer target, String minimessage) {
         Player player = Bukkit.getPlayer(target.uniqueId());
         if (player == null) {
-            framework().getBridge(ProtoWeaver.class).send(new SendMessage(target, minimessage));
+            framework().getBridge(Proxium.class).send(new SendMessage(target, minimessage));
         } else Notifier.of(framework().getPlugin(), player).send(minimessage);
     }
 
@@ -190,7 +190,7 @@ public class Notifier {
         Player player = Bukkit.getPlayer(target.uniqueId());
         if (player == null) {
             framework()
-                    .getBridge(ProtoWeaver.class)
+                    .getBridge(Proxium.class)
                     .send(new SendMessage(target, ComponentFormatter.mini(component)));
         } else Notifier.of(framework().getPlugin(), player).send(component);
     }

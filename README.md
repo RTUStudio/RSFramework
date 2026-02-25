@@ -244,9 +244,7 @@ public class MyPlugin extends RSPlugin {
 ```java
 // Translation/Message/ko.yml 또는 en_us.yml 등에서 "error.no-money" 키를 찾아 반환
 String msg = plugin.getConfiguration().getMessage().get(player, "error.no-money");
-notifier.
-
-announce(player, msg);
+notifier.announce(player, msg);
 
 // 공통 번역 (Framework 모듈 제공)
 String common = plugin.getConfiguration().getMessage().getCommon("prefix");
@@ -262,73 +260,51 @@ String common = plugin.getConfiguration().getMessage().getCommon("prefix");
 import kr.rtustudio.framework.bukkit.api.player.Notifier;
 
 // 1. 단일 대상 전송 (접두사 포함)
-Notifier.of(plugin, player).
-
-announce("<aqua>아이템을 지급받았습니다!");
+Notifier.of(plugin, player).announce("<aqua>아이템을 지급받았습니다!");
 
 // 2. 단일 대상 전송 (접두사 제외)
-Notifier.
-
-of(plugin, player).
-
-send("<yellow>경고 메시지");
+Notifier.of(plugin, player).send("<yellow>경고 메시지");
 
 // 3. 타이틀 및 서브타이틀
-Notifier.
+Notifier.of(plugin, player).title("<bold><gold>레벨 업!", "<gray>새로운 스킬이 해제되었습니다.");
 
-of(plugin, player).
-
-title("<bold><gold>레벨 업!","<gray>새로운 스킬이 해제되었습니다.");
-
-// 4. 서버 전체 브로드캐스트 (ProtoWeaver 연결 시 크로스 서버 전송)
-Notifier.
-
-broadcastAll("<green>새로운 이벤트가 시작되었습니다!");
+// 4. 서버 전체 브로드캐스트 (Proxium 연결 시 크로스 서버 전송)
+Notifier.broadcastAll("<green>새로운 이벤트가 시작되었습니다!");
 ```
 
 ---
 
 ## 📡 브릿지 통신 (Bridge)
 
-Redis나 자체 프록시 채널(ProtoWeaver)을 통해 서버 간 분산 메시징을 완벽하게 지원합니다.
+Redis나 자체 프록시 채널(Proxium)을 통해 서버 간 분산 메시징을 완벽하게 지원합니다.
 `BridgeChannel`을 통해 네임스페이스와 키를 명확하게 분리하여 관리합니다.
 
 ```java
 import kr.rtustudio.bridge.Bridge;
 import kr.rtustudio.bridge.BridgeChannel;
-import kr.rtustudio.bridge.protoweaver.bukkit.api.ProtoWeaver;
+import kr.rtustudio.bridge.proxium.api.Proxium;
 
 // 브릿지 구현체 가져오기 (Redis.class 등 가능)
-Bridge bridge = framework.getBridgeRegistry().get(Redis.class); // 또는 ProtoWeaver.class
-        BridgeChannel channel = BridgeChannel.of("myplugin", "shop");
+Bridge bridge = framework.getBridge(Proxium.class); // 또는 Redis.class
+BridgeChannel channel = BridgeChannel.of("myplugin", "shop");
 
 // 1. 채널 등록 (사용할 데이터 클래스 지정)
-bridge.
-
-        register(channel, BuyRequest .class, SellRequest .class);
+bridge.register(channel, BuyRequest.class, SellRequest.class);
 
 // 2. 메시지 수신(구독)
-bridge.
-
-        subscribe(channel, packet ->{
-        if(packet instanceof
-        BuyRequest buy){
-
-        getLogger().
-
-        info(buy.playerName() +"님이 구매를 요청했습니다.");
-        }
-        });
+bridge.subscribe(channel, packet -> {
+    if (packet instanceof BuyRequest buy) {
+        getLogger().info(buy.playerName() + "님이 구매를 요청했습니다.");
+    }
+});
 
 // 3. 메시지 발송(발행)
-        bridge.
-
-        publish(channel, new BuyRequest("ipecter", "DIAMOND",64));
+bridge.publish(channel, new BuyRequest("ipecter", "DIAMOND", 64));
 ```
 
 ### 구현체 전용 특화 기능
 
-일부 기능은 특정 브릿지 구현체(`Redis` 또는 `ProtoWeaver`)에서만 제공됩니다. 이를 사용하려면 해당 타입으로 캐스팅하거나 레지스트리에서 직접 해당 타입을 가져와야 합니다.
+일부 기능은 특정 브릿지 구현체(`Redis` 또는 `Proxium`)에서만 제공됩니다. 이를 사용하려면 해당 타입으로 캐스팅하거나 레지스트리에서 직접 해당 타입을 가져와야 합니다.
 
 #### 1. Redis 전용 기능 (분산 락)
 
@@ -340,11 +316,9 @@ import kr.rtustudio.bridge.redis.Redis;
 Redis redis = framework.getBridgeRegistry().get(Redis.class);
 
 // 동기식 분산 락 실행 (락 획득 시까지 대기)
-redis.
-
-withLock("player-data-save",() ->{
-        // 안전한 데이터 저장 로직
-        });
+redis.withLock("player-data-save", () -> {
+    // 안전한 데이터 저장 로직
+});
 
 // 한 번만 실행되는 락 (동시 다발적 요청 중 하나만 실행)
 boolean success = redis.tryLockOnce("daily-reward", () -> {
@@ -352,38 +326,25 @@ boolean success = redis.tryLockOnce("daily-reward", () -> {
 });
 ```
 
-#### 2. ProtoWeaver 전용 기능 (프록시 데이터 접근)
+#### 2. Proxium 전용 기능 (프록시 데이터 접근)
 
-ProtoWeaver 브릿지는 프록시 서버(BungeeCord/Velocity)에 연결된 전체 네트워크 플레이어 및 서버 정보에 접근할 수 있습니다.
+Proxium 브릿지는 프록시 서버(BungeeCord/Velocity)에 연결된 전체 네트워크 플레이어 및 서버 정보에 접근할 수 있습니다.
 
 ```java
-import kr.rtustudio.bridge.protoweaver.bukkit.api.ProtoWeaver;
-import kr.rtustudio.bridge.protoweaver.api.proxy.ProxyPlayer;
+import kr.rtustudio.bridge.proxium.api.Proxium;
+import kr.rtustudio.bridge.proxium.api.proxy.ProxyPlayer;
 
-ProtoWeaver proxy = framework.getBridgeRegistry().get(ProtoWeaver.class);
+Proxium proxium = framework.getBridge(Proxium.class);
 
 // 네트워크 전체 접속자 목록 조회
-for(
-ProxyPlayer p :proxy.
+for (ProxyPlayer p : proxium.getPlayers().values()) {
+    System.out.println(p.name() + "님은 현재 " + p.server() + " 서버에 있습니다.");
+}
 
-getPlayers()){
-        System.out.
-
-println(p.name() +"님은 현재 "+p.
-
-server() +" 서버에 있습니다.");
-        }
-
-// 특정 플레이어가 프록시 네트워크에 접속해 있는지 확인
-        proxy.
-
-getPlayer("ipecter").
-
-ifPresent(p ->{
-        System.out.
-
-println("핑: "+p.ping() +"ms");
-        });
+// 연결 상태 확인
+if (proxium.isConnected()) {
+    System.out.println("현재 서버: " + proxium.getServer());
+}
 ```
 
 ---
@@ -398,33 +359,18 @@ Folia 환경과 100% 호환되는 스케줄러입니다. 생성된 스케줄 객
 import kr.rtustudio.framework.bukkit.api.scheduler.CraftScheduler;
 
 // 동기 실행 후 20틱(1초) 뒤 다른 작업 체이닝 연결
-CraftScheduler.sync(plugin, task ->{
-        player.
-
-setHealth(20);
-    player.
-
-sendMessage("체력이 회복되었습니다.");
-}).
-
-delay(task ->{
-        player.
-
-setHealth(1);
-    player.
-
-sendMessage("1초 뒤 다시 체력이 1이 되었습니다.");
-},20L);
+CraftScheduler.sync(plugin, task -> {
+    player.setHealth(20);
+    player.sendMessage("체력이 회복되었습니다.");
+}).delay(task -> {
+    player.setHealth(1);
+    player.sendMessage("1초 뒤 다시 체력이 1이 되었습니다.");
+}, 20L);
 
 // 비동기 지연 실행 (20틱 = 1초)
-        CraftScheduler.
-
-delay(plugin, task ->{
-
-getLogger().
-
-info("비동기로 1초 뒤 실행");
-},20L,true);
+CraftScheduler.delay(plugin, task -> {
+    getLogger().info("비동기로 1초 뒤 실행");
+}, 20L, true);
 ```
 
 ### QuartzScheduler (실시간/Cron 기반)
@@ -436,7 +382,7 @@ import kr.rtustudio.framework.bukkit.api.scheduler.QuartzScheduler;
 import org.quartz.Job;
 
 // 매일 자정에 실행
-QuartzScheduler.run("DailyReset","0 0 0 * * ?",MyJob .class);
+QuartzScheduler.run("DailyReset", "0 0 0 * * ?", MyJob.class);
 ```
 
 ---
@@ -485,13 +431,13 @@ import kr.rtustudio.framework.bukkit.api.registry.CustomItems;
 
 // 아이템 가져오기
 ItemStack sword = CustomItems.from("mmoitems:SWORD:FIRE_SWORD");
-        ItemStack nexoBlock = CustomItems.from("nexo:ruby_block");
+ItemStack nexoBlock = CustomItems.from("nexo:ruby_block");
 
-        // 아이템을 식별자로 변환
-        String id = CustomItems.to(player.getInventory().getItemInMainHand());
+// 아이템을 식별자로 변환
+String id = CustomItems.to(player.getInventory().getItemInMainHand());
 
-        // NBT / Base64 직렬화
-        String serialized = CustomItems.serialize(sword, true); // 압축
+// NBT / Base64 직렬화
+String serialized = CustomItems.serialize(sword, true); // 압축
 ```
 
 ### CustomBlocks

@@ -6,14 +6,6 @@ import java.util.Map;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-/**
- * Registry for {@link Bridge} instances, keyed by interface type.
- *
- * <pre>{@code
- * registry.register(RedisBridge.class, new RedisBridgeImpl(config));
- * RedisBridge bridge = registry.get(RedisBridge.class);
- * }</pre>
- */
 public class BridgeRegistry {
 
     private final Map<Class<? extends Bridge>, Bridge> bridges = new HashMap<>();
@@ -25,7 +17,9 @@ public class BridgeRegistry {
     @Nullable
     @SuppressWarnings("unchecked")
     public <T extends Bridge> T get(@NotNull Class<T> type) {
-        return (T) bridges.get(type);
+        T bridge = (T) bridges.get(type);
+        if (bridge == null || !bridge.isLoaded()) return null;
+        return bridge;
     }
 
     public boolean has(@NotNull Class<? extends Bridge> type) {

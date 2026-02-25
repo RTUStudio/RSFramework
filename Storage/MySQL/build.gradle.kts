@@ -3,5 +3,4 @@ dependencies {
 
     compileOnly(libs.hikaricp)
     compileOnly(libs.mysql)
-    annotationProcessor(libs.lombok)
 }

@@ -1,6 +1,6 @@
 package kr.rtustudio.framework.bukkit.api.configuration.internal.translation;
 
-import kr.rtustudio.bridge.protoweaver.api.proxy.ProxyPlayer;
+import kr.rtustudio.bridge.proxium.api.proxy.ProxyPlayer;
 import kr.rtustudio.cdi.LightDI;
 import kr.rtustudio.framework.bukkit.api.RSPlugin;
 import kr.rtustudio.framework.bukkit.api.core.Framework;

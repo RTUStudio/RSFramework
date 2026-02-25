@@ -1,7 +1,7 @@
 package kr.rtustudio.framework.bukkit.api.player;
 
-import kr.rtustudio.bridge.protoweaver.api.proxy.ProxyPlayer;
-import kr.rtustudio.bridge.protoweaver.bukkit.api.ProtoWeaver;
+import kr.rtustudio.bridge.proxium.api.Proxium;
+import kr.rtustudio.bridge.proxium.api.proxy.ProxyPlayer;
 import kr.rtustudio.cdi.LightDI;
 import kr.rtustudio.framework.bukkit.api.core.Framework;
 import kr.rtustudio.framework.bukkit.api.platform.MinecraftVersion;
@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 import net.kyori.adventure.translation.Translator;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -19,7 +20,7 @@ import org.jetbrains.annotations.Nullable;
 /**
  * 프록시 및 로컬 서버의 온라인 플레이어 목록을 조회하는 유틸리티 클래스입니다.
  *
- * <p>ProtoWeaver 연결 시 프록시 전체 플레이어를, 미연결 시 현재 서버의 로컬 플레이어만 반환합니다.
+ * <p>Proxium 연결 시 프록시 전체 플레이어를, 미연결 시 현재 서버의 로컬 플레이어만 반환합니다.
  */
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class PlayerList {
@@ -34,16 +35,16 @@ public class PlayerList {
     /**
      * UUID로 플레이어를 조회한다.
      *
-     * <p>ProtoWeaver 연결 시 프록시 플레이어 맵에서 직접 조회하며, 미연결 시 로컬 서버의 온라인 플레이어에서 검색합니다.
+     * <p>Proxium 연결 시 프록시 플레이어 맵에서 직접 조회하며, 미연결 시 로컬 서버의 온라인 플레이어에서 검색합니다.
      *
      * @param uniqueId 플레이어 UUID
      * @return 프록시 플레이어, 없으면 {@code null}
      */
     @Nullable
     public static ProxyPlayer getPlayer(UUID uniqueId) {
-        ProtoWeaver protoWeaver = framework().getBridge(ProtoWeaver.class);
-        if (protoWeaver.isConnected()) {
-            ProxyPlayer player = protoWeaver.getPlayers().get(uniqueId);
+        Proxium proxium = framework().getBridge(Proxium.class);
+        if (proxium.isConnected()) {
+            ProxyPlayer player = proxium.getPlayers().get(uniqueId);
             if (player != null) return player;
         }
         Player local = Bukkit.getPlayer(uniqueId);
@@ -68,9 +69,9 @@ public class PlayerList {
      */
     @NotNull
     public static Set<ProxyPlayer> getPlayers(boolean includeProxy) {
-        ProtoWeaver protoWeaver = framework().getBridge(ProtoWeaver.class);
-        if (protoWeaver.isConnected() && includeProxy)
-            return new HashSet<>(protoWeaver.getPlayers().values());
+        Proxium proxium = framework().getBridge(Proxium.class);
+        if (proxium.isConnected() && includeProxy)
+            return new HashSet<>(proxium.getPlayers().values());
         return getLocalPlayers();
     }
 
@@ -81,11 +82,9 @@ public class PlayerList {
      */
     @NotNull
     public static Set<ProxyPlayer> getLocalPlayers() {
-        Set<ProxyPlayer> players = new HashSet<>();
-        for (Player player : Bukkit.getOnlinePlayers()) {
-            players.add(toProxyPlayer(player));
-        }
-        return players;
+        return Bukkit.getOnlinePlayers().stream()
+                .map(PlayerList::toProxyPlayer)
+                .collect(Collectors.toCollection(HashSet::new));
     }
 
     /**
