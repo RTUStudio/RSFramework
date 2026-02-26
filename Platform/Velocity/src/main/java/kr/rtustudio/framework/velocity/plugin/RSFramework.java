@@ -1,7 +1,7 @@
 package kr.rtustudio.framework.velocity.plugin;
 
 import kr.rtustudio.bridge.proxium.api.Proxium;
-import kr.rtustudio.bridge.proxium.velocity.core.VelocityProxium;
+import kr.rtustudio.bridge.proxium.velocity.VelocityProxium;
 import lombok.extern.slf4j.Slf4j;
 
 import java.nio.file.Path;

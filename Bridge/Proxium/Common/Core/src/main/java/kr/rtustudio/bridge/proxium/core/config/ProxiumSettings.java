@@ -2,8 +2,7 @@ package kr.rtustudio.bridge.proxium.core.config;
 
 import kr.rtustudio.bridge.BridgeOptions;
 import kr.rtustudio.bridge.proxium.api.protocol.CompressionType;
-import kr.rtustudio.configure.ConfigurationPart;
-import kr.rtustudio.configure.SimpleConfiguration;
+import kr.rtustudio.configurate.model.ConfigurationPart;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 

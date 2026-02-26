@@ -1,6 +1,6 @@
 package kr.rtustudio.framework.bukkit.core.module;
 
-import kr.rtustudio.configure.ConfigPath;
+import kr.rtustudio.configurate.model.ConfigPath;
 import kr.rtustudio.framework.bukkit.api.configuration.RSConfiguration;
 import kr.rtustudio.framework.bukkit.api.core.module.Module;
 import kr.rtustudio.framework.bukkit.core.Framework;

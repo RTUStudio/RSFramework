@@ -19,10 +19,3 @@ dependencies {
     implementation(project(path = ":Bridge:Proxium:Common:API", configuration = "shadow"))
     implementation(project(path = ":Bridge:Proxium:Common:Core", configuration = "shadow"))
 }
-
-tasks.shadowJar {
-    exclude("kr/rtustudio/configure/**")
-    exclude("org/spongepowered/configurate/**")
-    exclude("org/yaml/snakeyaml/**")
-    exclude("io/leangen/geantyref/**")
-}

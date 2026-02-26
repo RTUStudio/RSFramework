@@ -2,7 +2,7 @@ package kr.rtustudio.framework.bukkit.core.bridge;
 
 import kr.rtustudio.bridge.BridgeOptions;
 import kr.rtustudio.bridge.proxium.api.protocol.CompressionType;
-import kr.rtustudio.configure.ConfigurationPart;
+import kr.rtustudio.configurate.model.ConfigurationPart;
 import lombok.Getter;
 
 import org.spongepowered.configurate.objectmapping.meta.Comment;

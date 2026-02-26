@@ -1,9 +1,9 @@
 package kr.rtustudio.framework.bukkit.api.configuration;
 
 import io.leangen.geantyref.GenericTypeReflector;
-import kr.rtustudio.configure.Configuration;
-import kr.rtustudio.configure.ConfigurationPart;
-import kr.rtustudio.configure.ConfigurationSerializer;
+import kr.rtustudio.configurate.model.Configuration;
+import kr.rtustudio.configurate.model.ConfigurationPart;
+import kr.rtustudio.configurate.model.ConfigurationSerializer;
 import kr.rtustudio.framework.bukkit.api.RSPlugin;
 
 import java.io.BufferedReader;

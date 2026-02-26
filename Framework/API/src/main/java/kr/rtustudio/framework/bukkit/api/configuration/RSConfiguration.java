@@ -1,10 +1,10 @@
 package kr.rtustudio.framework.bukkit.api.configuration;
 
-import kr.rtustudio.configure.ConfigList;
-import kr.rtustudio.configure.ConfigPath;
-import kr.rtustudio.configure.Configuration;
-import kr.rtustudio.configure.ConfigurationPart;
-import kr.rtustudio.configure.ConfigurationSerializer;
+import kr.rtustudio.configurate.model.ConfigList;
+import kr.rtustudio.configurate.model.ConfigPath;
+import kr.rtustudio.configurate.model.Configuration;
+import kr.rtustudio.configurate.model.ConfigurationPart;
+import kr.rtustudio.configurate.model.ConfigurationSerializer;
 import kr.rtustudio.framework.bukkit.api.RSPlugin;
 import kr.rtustudio.framework.bukkit.api.configuration.internal.SettingConfiguration;
 import kr.rtustudio.framework.bukkit.api.configuration.internal.translation.TranslationType;

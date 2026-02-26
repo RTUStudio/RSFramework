@@ -1,6 +1,6 @@
 package kr.rtustudio.framework.bungee.plugin;
 
-import kr.rtustudio.bridge.proxium.bungee.core.BungeeProxium;
+import kr.rtustudio.bridge.proxium.bungee.BungeeProxium;
 import lombok.extern.slf4j.Slf4j;
 import net.md_5.bungee.api.plugin.Plugin;
 
