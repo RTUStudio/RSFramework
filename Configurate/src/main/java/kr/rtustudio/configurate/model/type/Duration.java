@@ -12,8 +12,8 @@ import org.spongepowered.configurate.serialize.SerializationException;
 /**
  * {@code "30s"}, {@code "5m"}, {@code "1h"}, {@code "2d"} 형식의 시간 기간을 표현하는 설정 타입.
  *
- * <p>지원하는 단위: {@code s}(초), {@code m}(분), {@code h}(시), {@code d}(일).
- * 소수점도 허용한다 (예: {@code "1.5h"} = 5400초).
+ * <p>지원하는 단위: {@code s}(초), {@code m}(분), {@code h}(시), {@code d}(일). 소수점도 허용한다 (예: {@code "1.5h"}
+ * = 5400초).
  *
  * <pre>{@code
  * public Duration timeout = Duration.of("30s");

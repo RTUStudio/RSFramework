@@ -12,8 +12,8 @@ import org.spongepowered.configurate.ConfigurateException;
 /**
  * 플랫폼 독립적인 YAML 설정 로더.
  *
- * <p>Bukkit 등 특정 플랫폼에 의존하지 않고 {@link ConfigurationPart} 기반 설정을 로드·리로드한다.
- * Proxium처럼 플랫폼 API가 없는 모듈에서 사용한다.
+ * <p>Bukkit 등 특정 플랫폼에 의존하지 않고 {@link ConfigurationPart} 기반 설정을 로드·리로드한다. Proxium처럼 플랫폼 API가 없는 모듈에서
+ * 사용한다.
  *
  * <pre>{@code
  * SimpleConfiguration<MySettings> config =

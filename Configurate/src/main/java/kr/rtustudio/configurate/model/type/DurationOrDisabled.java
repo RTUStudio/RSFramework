@@ -10,8 +10,8 @@ import org.spongepowered.configurate.serialize.SerializationException;
 /**
  * {@link Duration} 또는 {@code "disabled"} 값을 표현하는 설정 타입.
  *
- * <p>YAML에서 {@code "disabled"} 문자열이면 {@link #USE_DISABLED}로 역직렬화된다.
- * {@link #or(Duration)}으로 폴백 기간을 지정하거나, {@link #value()}로 {@link java.util.Optional}을 직접 확인할 수 있다.
+ * <p>YAML에서 {@code "disabled"} 문자열이면 {@link #USE_DISABLED}로 역직렬화된다. {@link #or(Duration)}으로 폴백 기간을
+ * 지정하거나, {@link #value()}로 {@link java.util.Optional}을 직접 확인할 수 있다.
  */
 @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
 public final class DurationOrDisabled {

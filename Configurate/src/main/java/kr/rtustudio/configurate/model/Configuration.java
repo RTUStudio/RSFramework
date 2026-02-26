@@ -29,8 +29,8 @@ import org.spongepowered.configurate.yaml.YamlConfigurationLoader;
 /**
  * {@link ConfigurationPart} 기반 YAML 설정 파일의 로드·저장·리로드를 담당하는 추상 클래스.
  *
- * <p>{@link YamlConfigurationLoader}로 YAML 파일을 파싱하고, {@link ObjectMapper}로 설정 객체에 매핑한다.
- * 파일이 존재하지 않으면 기본 설정으로 새 파일을 생성하며, 설정 버전 관리를 지원한다.
+ * <p>{@link YamlConfigurationLoader}로 YAML 파일을 파싱하고, {@link ObjectMapper}로 설정 객체에 매핑한다. 파일이 존재하지
+ * 않으면 기본 설정으로 새 파일을 생성하며, 설정 버전 관리를 지원한다.
  *
  * <p>플랫폼별 구현체는 이 클래스를 상속하여 {@link #isConfigType}과 {@link #configVersion}을 구현한다.
  *

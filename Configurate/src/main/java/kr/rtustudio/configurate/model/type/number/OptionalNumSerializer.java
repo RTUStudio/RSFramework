@@ -12,8 +12,8 @@ import org.spongepowered.configurate.serialize.SerializationException;
 /**
  * 숫자 또는 특수 문자열을 {@code Optional} 기반 타입으로 직렬화/역직렬화하는 추상 베이스 클래스.
  *
- * <p>{@link IntOr}와 {@link DoubleOr}의 내부 직렬화기가 이 클래스를 상속한다.
- * {@link BelowZeroToEmpty} 어노테이션이 있으면 음수를 빈 값으로 치환한다.
+ * <p>{@link IntOr}와 {@link DoubleOr}의 내부 직렬화기가 이 클래스를 상속한다. {@link BelowZeroToEmpty} 어노테이션이 있으면 음수를
+ * 빈 값으로 치환한다.
  *
  * @param <T> 래퍼 타입 (예: {@code IntOr.Default})
  * @param <O> Optional 타입 (예: {@code OptionalInt})

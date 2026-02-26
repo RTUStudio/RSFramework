@@ -13,6 +13,7 @@ package kr.rtustudio.configurate.model;
  * <h3>팩토리 메서드</h3>
  *
  * <p>{@link #of(String...)}는 {@code Config/} 접두사를 자동 부여한다:
+ *
  * <pre>{@code
  * ConfigPath.of("Setting")          // Config/Setting.yml
  * ConfigPath.of("Storage", "MySQL") // Config/Storage/MySQL.yml
@@ -20,6 +21,7 @@ package kr.rtustudio.configurate.model;
  * }</pre>
  *
  * <p>{@link #relative(String...)}는 접두사 없이 그대로 사용한다:
+ *
  * <pre>{@code
  * ConfigPath.relative("Bridge", "Redis")              // Bridge/Redis.yml
  * ConfigPath.relative("Translation", "Message", "ko") // Translation/Message/ko.yml

@@ -5,9 +5,8 @@ import java.util.function.Consumer;
 /**
  * YAML 설정 파일의 개별 섹션을 나타내는 베이스 클래스.
  *
- * <p>{@code @ConfigSerializable}과 함께 사용하여 Configurate 객체 매핑 대상으로 등록한다.
- * 비정적 내부 클래스로 선언하면 {@link kr.rtustudio.configurate.model.mapping.InnerClassFieldDiscoverer}가
- * 자동으로 인스턴스를 생성한다.
+ * <p>{@code @ConfigSerializable}과 함께 사용하여 Configurate 객체 매핑 대상으로 등록한다. 비정적 내부 클래스로 선언하면 {@link
+ * kr.rtustudio.configurate.model.mapping.InnerClassFieldDiscoverer}가 자동으로 인스턴스를 생성한다.
  *
  * <pre>{@code
  * @ConfigSerializable

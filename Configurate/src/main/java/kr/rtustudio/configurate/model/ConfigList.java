@@ -5,8 +5,8 @@ import java.util.*;
 /**
  * 폴더 내 YAML 파일들을 파일명 기준 키로 보관하는 불변 설정 컨테이너.
  *
- * <p>복수 등록 시 지정된 폴더의 모든 {@code .yml} 파일을 로드하여 파일명(확장자 제외)을 키로 매핑한다.
- * 내부적으로 {@link java.util.LinkedHashMap}을 사용하므로 삽입 순서가 보존된다.
+ * <p>복수 등록 시 지정된 폴더의 모든 {@code .yml} 파일을 로드하여 파일명(확장자 제외)을 키로 매핑한다. 내부적으로 {@link
+ * java.util.LinkedHashMap}을 사용하므로 삽입 순서가 보존된다.
  *
  * <pre>{@code
  * ConfigList<RegionConfig> regions =

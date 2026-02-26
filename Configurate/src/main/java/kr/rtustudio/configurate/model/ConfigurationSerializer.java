@@ -22,20 +22,23 @@ import org.spongepowered.configurate.serialize.TypeSerializerCollection;
 import org.spongepowered.configurate.util.MapFactories;
 
 /**
- * {@link ConfigurationOptions}와 {@link ObjectMapper.Factory.Builder}에 내장 직렬화기 및 제약 조건을 일괄 등록하는 유틸리티.
+ * {@link ConfigurationOptions}와 {@link ObjectMapper.Factory.Builder}에 내장 직렬화기 및 제약 조건을 일괄 등록하는
+ * 유틸리티.
  *
- * <p>등록되는 직렬화기: {@link kr.rtustudio.configurate.model.serializer.ComponentSerializer ComponentSerializer},
- * {@link kr.rtustudio.configurate.model.serializer.EnumValueSerializer EnumValueSerializer},
- * {@link kr.rtustudio.configurate.model.serializer.collection.map.MapSerializer MapSerializer},
- * {@link kr.rtustudio.configurate.model.serializer.collection.map.FlattenedMapSerializer FlattenedMapSerializer},
- * {@link kr.rtustudio.configurate.model.type.number.IntOr IntOr}, {@link kr.rtustudio.configurate.model.type.number.DoubleOr DoubleOr},
- * {@link kr.rtustudio.configurate.model.type.BooleanOrDefault BooleanOrDefault},
- * {@link kr.rtustudio.configurate.model.type.Duration Duration},
- * {@link kr.rtustudio.configurate.model.type.DurationOrDisabled DurationOrDisabled}
+ * <p>등록되는 직렬화기: {@link kr.rtustudio.configurate.model.serializer.ComponentSerializer
+ * ComponentSerializer}, {@link kr.rtustudio.configurate.model.serializer.EnumValueSerializer
+ * EnumValueSerializer}, {@link
+ * kr.rtustudio.configurate.model.serializer.collection.map.MapSerializer MapSerializer}, {@link
+ * kr.rtustudio.configurate.model.serializer.collection.map.FlattenedMapSerializer
+ * FlattenedMapSerializer}, {@link kr.rtustudio.configurate.model.type.number.IntOr IntOr}, {@link
+ * kr.rtustudio.configurate.model.type.number.DoubleOr DoubleOr}, {@link
+ * kr.rtustudio.configurate.model.type.BooleanOrDefault BooleanOrDefault}, {@link
+ * kr.rtustudio.configurate.model.type.Duration Duration}, {@link
+ * kr.rtustudio.configurate.model.type.DurationOrDisabled DurationOrDisabled}
  *
- * <p>등록되는 제약 조건: {@link kr.rtustudio.configurate.model.constraint.Constraint @Constraint},
- * {@link kr.rtustudio.configurate.model.constraint.Constraints.Min @Min},
- * {@link kr.rtustudio.configurate.model.constraint.Constraints.Max @Max}
+ * <p>등록되는 제약 조건: {@link kr.rtustudio.configurate.model.constraint.Constraint @Constraint}, {@link
+ * kr.rtustudio.configurate.model.constraint.Constraints.Min @Min}, {@link
+ * kr.rtustudio.configurate.model.constraint.Constraints.Max @Max}
  */
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class ConfigurationSerializer {
