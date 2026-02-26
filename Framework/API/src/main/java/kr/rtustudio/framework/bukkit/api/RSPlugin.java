@@ -305,7 +305,7 @@ public abstract class RSPlugin extends JavaPlugin {
      * @param name 스토리지 식별 이름
      * @param type 기본 스토리지 타입
      */
-    protected void registerStorage(@NotNull String name, @NotNull StorageType type) {
+    public void registerStorage(@NotNull String name, @NotNull StorageType type) {
         this.framework.registerStorage(this, name, type);
     }
 
@@ -314,7 +314,7 @@ public abstract class RSPlugin extends JavaPlugin {
      *
      * @param name 스토리지 식별 이름
      */
-    protected void registerStorage(@NotNull String name) {
+    public void registerStorage(@NotNull String name) {
         this.framework.registerStorage(this, name, StorageType.JSON);
     }
 
@@ -356,7 +356,7 @@ public abstract class RSPlugin extends JavaPlugin {
      *
      * @param listener 등록할 {@link RSListener}
      */
-    protected void registerEvent(RSListener<? extends RSPlugin> listener) {
+    public void registerEvent(RSListener<? extends RSPlugin> listener) {
         this.listeners.add(listener);
         Bukkit.getPluginManager().registerEvents(listener, this);
     }
@@ -377,7 +377,7 @@ public abstract class RSPlugin extends JavaPlugin {
      *
      * @param command 등록할 {@link RSCommand}
      */
-    protected void registerCommand(RSCommand<? extends RSPlugin> command) {
+    public void registerCommand(RSCommand<? extends RSPlugin> command) {
         registerCommand(command, false);
     }
 
@@ -387,7 +387,7 @@ public abstract class RSPlugin extends JavaPlugin {
      * @param command 등록할 {@link RSCommand}
      * @param reload {@code true}이면 서버 명령어 맵을 즉시 갱신한다
      */
-    protected void registerCommand(RSCommand<? extends RSPlugin> command, boolean reload) {
+    public void registerCommand(RSCommand<? extends RSPlugin> command, boolean reload) {
         this.commands.add(command);
         this.framework.registerCommand(command, reload);
     }
@@ -423,7 +423,7 @@ public abstract class RSPlugin extends JavaPlugin {
      *
      * @param integrationWrapper 등록할 연동 래퍼
      */
-    protected void registerIntegration(Integration integrationWrapper) {
+    public void registerIntegration(Integration integrationWrapper) {
         if (!integrationWrapper.isAvailable()) return;
         this.integrations.add(integrationWrapper);
         integrationWrapper.register();
