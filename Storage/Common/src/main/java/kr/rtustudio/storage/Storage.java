@@ -13,29 +13,27 @@ import com.google.gson.JsonObject;
 public interface Storage {
 
     @NotNull
-    CompletableFuture<Result> add(@NotNull String name, @NotNull JsonObject data);
+    CompletableFuture<Result> add(@NotNull JsonObject data);
 
     @NotNull
-    default CompletableFuture<Result> add(@NotNull String name, @NotNull JSON data) {
-        return add(name, data.get());
+    default CompletableFuture<Result> add(@NotNull JSON data) {
+        return add(data.get());
     }
 
     @NotNull
-    CompletableFuture<Result> set(
-            @NotNull String name, @NotNull JsonObject find, @NotNull JsonObject data);
+    CompletableFuture<Result> set(@NotNull JsonObject find, @NotNull JsonObject data);
 
     @NotNull
-    default CompletableFuture<Result> set(
-            @NotNull String name, @NotNull JSON find, @NotNull JSON data) {
-        return set(name, find.get(), data.get());
+    default CompletableFuture<Result> set(@NotNull JSON find, @NotNull JSON data) {
+        return set(find.get(), data.get());
     }
 
     @NotNull
-    CompletableFuture<List<JsonObject>> get(@NotNull String name, @NotNull JsonObject find);
+    CompletableFuture<List<JsonObject>> get(@NotNull JsonObject find);
 
     @NotNull
-    default CompletableFuture<List<JsonObject>> get(@NotNull String name, @NotNull JSON find) {
-        return get(name, find.get());
+    default CompletableFuture<List<JsonObject>> get(@NotNull JSON find) {
+        return get(find.get());
     }
 
     void close();

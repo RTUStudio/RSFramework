@@ -12,7 +12,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ConcurrentHashMap;
 
 import org.jspecify.annotations.NonNull;
 
@@ -21,29 +20,23 @@ import com.google.gson.*;
 @Slf4j
 public class Json implements Storage {
 
-    private final File dataFolder;
     private final Gson gson = new GsonBuilder().setPrettyPrinting().create();
-    private final Map<String, Object> tableLocks = new ConcurrentHashMap<>();
+    private final String table;
+    private final File tableFile;
+    private final Object lock = new Object();
 
-    public Json(Config config) {
-        this.dataFolder = new File(config.getDataFolder());
+    public Json(Config config, String table) {
+        this.table = table;
+        File dataFolder = new File(config.getDataFolder());
         if (!dataFolder.exists() && !dataFolder.mkdirs()) {
             log.error("Failed to create data folder: {}", dataFolder.getAbsolutePath());
         }
+        this.tableFile = new File(dataFolder, table + ".json");
     }
 
-    private Object getTableLock(String table) {
-        return tableLocks.computeIfAbsent(table, k -> new Object());
-    }
-
-    private File tableFile(String table) {
-        return new File(dataFolder, table + ".json");
-    }
-
-    private JsonArray readAll(String table) {
-        File file = tableFile(table);
-        if (!file.exists()) return new JsonArray();
-        try (FileReader reader = new FileReader(file)) {
+    private JsonArray readAll() {
+        if (!tableFile.exists()) return new JsonArray();
+        try (FileReader reader = new FileReader(tableFile)) {
             JsonElement el = gson.fromJson(reader, JsonElement.class);
             return (el != null && el.isJsonArray()) ? el.getAsJsonArray() : new JsonArray();
         } catch (IOException e) {
@@ -52,16 +45,12 @@ public class Json implements Storage {
         }
     }
 
-    private void writeAll(String table, JsonArray array) {
-        try (FileWriter writer = new FileWriter(tableFile(table))) {
+    private void writeAll(JsonArray array) {
+        try (FileWriter writer = new FileWriter(tableFile)) {
             gson.toJson(array, writer);
         } catch (IOException e) {
             StorageLogger.logError(log, "WRITE", table, e);
         }
-    }
-
-    private boolean isNull(JsonObject json) {
-        return json == null || json.isEmpty() || json.isJsonNull();
     }
 
     private boolean matches(JsonObject record, JsonObject find) {
@@ -74,14 +63,14 @@ public class Json implements Storage {
     }
 
     @Override
-    public @NonNull CompletableFuture<Result> add(@NonNull String table, @NonNull JsonObject data) {
+    public @NonNull CompletableFuture<Result> add(@NonNull JsonObject data) {
         return CompletableFuture.supplyAsync(
                 () -> {
                     if (isNull(data)) return Result.FAILED;
-                    synchronized (getTableLock(table)) {
-                        JsonArray array = readAll(table);
+                    synchronized (lock) {
+                        JsonArray array = readAll();
                         array.add(data);
-                        writeAll(table, array);
+                        writeAll(array);
                         StorageLogger.logAdd(log, table, data.toString());
                         return Result.UPDATED;
                     }
@@ -90,11 +79,11 @@ public class Json implements Storage {
 
     @Override
     public @NonNull CompletableFuture<Result> set(
-            @NonNull String table, @NonNull JsonObject find, @NonNull JsonObject data) {
+            @NonNull JsonObject find, @NonNull JsonObject data) {
         return CompletableFuture.supplyAsync(
                 () -> {
-                    synchronized (getTableLock(table)) {
-                        JsonArray array = readAll(table);
+                    synchronized (lock) {
+                        JsonArray array = readAll();
                         JsonArray updated = new JsonArray();
                         boolean changed = false;
 
@@ -118,7 +107,7 @@ public class Json implements Storage {
                         }
 
                         if (changed) {
-                            writeAll(table, updated);
+                            writeAll(updated);
                             StorageLogger.logSet(
                                     log, table, (find != null ? find.toString() : "{}"));
                             return Result.UPDATED;
@@ -129,13 +118,12 @@ public class Json implements Storage {
     }
 
     @Override
-    public @NonNull CompletableFuture<List<JsonObject>> get(
-            @NonNull String table, @NonNull JsonObject find) {
+    public @NonNull CompletableFuture<List<JsonObject>> get(@NonNull JsonObject find) {
         return CompletableFuture.supplyAsync(
                 () -> {
-                    synchronized (getTableLock(table)) {
+                    synchronized (lock) {
                         List<JsonObject> result = new ArrayList<>();
-                        for (JsonElement el : readAll(table)) {
+                        for (JsonElement el : readAll()) {
                             if (!el.isJsonObject()) continue;
                             JsonObject record = el.getAsJsonObject();
                             if (matches(record, find)) result.add(record);
@@ -146,10 +134,12 @@ public class Json implements Storage {
                 });
     }
 
-    @Override
-    public void close() {
-        tableLocks.clear();
+    private boolean isNull(JsonObject json) {
+        return json == null || json.size() == 0 || json.isJsonNull();
     }
+
+    @Override
+    public void close() {}
 
     public interface Config {
         String getDataFolder();

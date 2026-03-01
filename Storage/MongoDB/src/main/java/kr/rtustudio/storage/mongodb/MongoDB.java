@@ -32,59 +32,30 @@ import com.mongodb.client.result.UpdateResult;
 @Slf4j
 public class MongoDB implements Storage {
 
+    private final Pool connection;
     private final Gson gson = new Gson();
-    private final MongoClient client;
-    private final MongoDatabase database;
-    private final String prefix;
+    private final String collectionName;
 
-    public MongoDB(Config config) {
-        this.prefix = config.getCollectionPrefix();
-        String serverHost = config.getHost() + ":" + config.getPort();
-        StringBuilder uriBuilder = new StringBuilder("mongodb://");
-        String username = config.getUsername();
-        String password = config.getPassword();
-
-        if (username != null && !username.isEmpty()) {
-            uriBuilder.append(username);
-            if (password != null && !password.isEmpty()) {
-                uriBuilder.append(":").append(password);
-            }
-            uriBuilder.append("@");
-        }
-        uriBuilder.append(serverHost);
-
-        ServerApi serverApi = ServerApi.builder().version(ServerApiVersion.V1).build();
-        MongoClientSettings settings =
-                MongoClientSettings.builder()
-                        .applyConnectionString(new ConnectionString(uriBuilder.toString()))
-                        .serverApi(serverApi)
-                        .build();
-
-        this.client = MongoClients.create(settings);
-        this.database = client.getDatabase(config.getDatabase());
-        log.info("MongoDB connected ({})", serverHost);
-    }
-
-    private boolean isNull(JsonObject json) {
-        return json == null || json.isEmpty() || json.isJsonNull();
+    public MongoDB(Pool connection, Config config, String name) {
+        this.connection = connection;
+        this.collectionName = config.getCollectionPrefix() + name;
     }
 
     @Override
-    public @NonNull CompletableFuture<Result> add(
-            @NotNull String collectionName, @NotNull JsonObject data) {
+    public @NonNull CompletableFuture<Result> add(@NotNull JsonObject data) {
         return CompletableFuture.supplyAsync(
                 () -> {
                     if (isNull(data)) return Result.FAILED;
                     try {
                         MongoCollection<Document> collection =
-                                database.getCollection(prefix + collectionName);
+                                connection.getDatabase().getCollection(collectionName);
                         Document document = Document.parse(gson.toJson(data));
-                        StorageLogger.logAdd(log, collectionName, document.toJson());
+                        StorageLogger.logAdd(log, this.collectionName, document.toJson());
                         return collection.insertOne(document).wasAcknowledged()
                                 ? Result.UPDATED
                                 : Result.FAILED;
                     } catch (Exception e) {
-                        StorageLogger.logError(log, "ADD", collectionName, e);
+                        StorageLogger.logError(log, "ADD", this.collectionName, e);
                         return Result.FAILED;
                     }
                 });
@@ -92,18 +63,18 @@ public class MongoDB implements Storage {
 
     @Override
     public @NonNull CompletableFuture<Result> set(
-            @NotNull String collectionName, @NonNull JsonObject find, @NonNull JsonObject data) {
+            @NonNull JsonObject find, @NonNull JsonObject data) {
         return CompletableFuture.supplyAsync(
                 () -> {
                     try {
                         MongoCollection<Document> collection =
-                                database.getCollection(prefix + collectionName);
+                                connection.getDatabase().getCollection(collectionName);
                         Bson filter = filter(find);
 
                         if (isNull(data)) {
                             StorageLogger.logSet(
                                     log,
-                                    collectionName,
+                                    this.collectionName,
                                     filter.toBsonDocument().toJson() + " (DELETE)");
                             DeleteResult result = collection.deleteMany(filter);
                             if (result.wasAcknowledged()) {
@@ -118,7 +89,7 @@ public class MongoDB implements Storage {
                                     new BsonDocument("$set", BsonDocument.parse(data.toString()));
                             StorageLogger.logSet(
                                     log,
-                                    collectionName,
+                                    this.collectionName,
                                     "filter: "
                                             + filter.toBsonDocument().toJson()
                                             + ", update: "
@@ -134,23 +105,23 @@ public class MongoDB implements Storage {
                             return Result.FAILED;
                         }
                     } catch (Exception e) {
-                        StorageLogger.logError(log, "SET", collectionName, e);
+                        StorageLogger.logError(log, "SET", this.collectionName, e);
                         return Result.FAILED;
                     }
                 });
     }
 
     @Override
-    public @NonNull CompletableFuture<List<JsonObject>> get(
-            @NotNull String collectionName, @NotNull JsonObject find) {
+    public @NonNull CompletableFuture<List<JsonObject>> get(@NotNull JsonObject find) {
         return CompletableFuture.supplyAsync(
                 () -> {
                     List<JsonObject> result = new ArrayList<>();
                     try {
                         MongoCollection<Document> collection =
-                                database.getCollection(prefix + collectionName);
+                                connection.getDatabase().getCollection(collectionName);
                         Bson filter = filter(find);
-                        StorageLogger.logGet(log, collectionName, filter.toBsonDocument().toJson());
+                        StorageLogger.logGet(
+                                log, this.collectionName, filter.toBsonDocument().toJson());
 
                         for (Document document : collection.find(filter)) {
                             if (document != null && !document.isEmpty()) {
@@ -160,7 +131,7 @@ public class MongoDB implements Storage {
                             }
                         }
                     } catch (Exception e) {
-                        StorageLogger.logError(log, "GET", collectionName, e);
+                        StorageLogger.logError(log, "GET", this.collectionName, e);
                     }
                     return result;
                 });
@@ -192,15 +163,61 @@ public class MongoDB implements Storage {
         return filters.isEmpty() ? Filters.empty() : Filters.and(filters);
     }
 
+    private boolean isNull(JsonObject json) {
+        return json == null || json.size() == 0 || json.isJsonNull();
+    }
+
     @Override
-    public void close() {
-        if (client != null) {
-            client.close();
-            log.info("MongoDB disconnected");
+    public void close() {}
+
+    @Slf4j
+    public static class Pool implements AutoCloseable {
+
+        private final MongoClient client;
+        private final MongoDatabase database;
+
+        public Pool(Config config) {
+            String serverHost = config.getHost() + ":" + config.getPort();
+            StringBuilder uriBuilder = new StringBuilder("mongodb://");
+            String username = config.getUsername();
+            String password = config.getPassword();
+
+            if (username != null && !username.isEmpty()) {
+                uriBuilder.append(username);
+                if (password != null && !password.isEmpty()) {
+                    uriBuilder.append(":").append(password);
+                }
+                uriBuilder.append("@");
+            }
+            uriBuilder.append(serverHost);
+
+            ServerApi serverApi = ServerApi.builder().version(ServerApiVersion.V1).build();
+            MongoClientSettings settings =
+                    MongoClientSettings.builder()
+                            .applyConnectionString(new ConnectionString(uriBuilder.toString()))
+                            .serverApi(serverApi)
+                            .build();
+
+            this.client = MongoClients.create(settings);
+            this.database = client.getDatabase(config.getDatabase());
+            log.info("MongoDB connected ({})", serverHost);
+        }
+
+        public MongoDatabase getDatabase() {
+            return database;
+        }
+
+        @Override
+        public void close() {
+            if (client != null) {
+                client.close();
+                log.info("MongoDB disconnected");
+            }
         }
     }
 
     public interface Config {
+
         String getHost();
 
         int getPort();

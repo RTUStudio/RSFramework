@@ -12,9 +12,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
+import java.util.regex.Matcher;
 
-import org.apache.commons.lang3.tuple.Pair;
-import org.jetbrains.annotations.NotNull;
 import org.jspecify.annotations.NonNull;
 
 import com.google.gson.Gson;
@@ -27,85 +26,40 @@ import com.zaxxer.hikari.HikariDataSource;
 @Slf4j
 public class MariaDB implements Storage {
 
+    private static final Gson GSON = new Gson();
+
+    private final Pool connection;
     private final Config config;
-    private final Gson gson = new Gson();
-    private final String prefix;
-    private HikariDataSource hikariDataSource;
+    private final String table;
 
-    public MariaDB(Config config, List<String> tables) {
+    public MariaDB(Pool connection, Config config, String table) {
+        this.connection = connection;
         this.config = config;
-        this.prefix = config.getTablePrefix();
-        this.hikariDataSource = new HikariDataSource(hikariConfig());
-        initializeTables(tables);
+        this.table = config.getTablePrefix() + table;
+        initializeTable();
     }
 
-    private void initializeTables(List<String> tables) {
-        try (Connection connection = hikariDataSource.getConnection()) {
-            for (String table : tables) {
-                String query =
-                        "CREATE TABLE IF NOT EXISTS `"
-                                + prefix
-                                + table
-                                + "` (`data` JSON NOT NULL);";
-                try (PreparedStatement ps = connection.prepareStatement(query)) {
-                    ps.execute();
-                }
-            }
+    private void initializeTable() {
+        String query = "CREATE TABLE IF NOT EXISTS `" + table + "` (`data` JSON NOT NULL);";
+        try (Connection conn = connection.getConnection();
+                PreparedStatement ps = conn.prepareStatement(query)) {
+            ps.execute();
         } catch (SQLException e) {
-            log.error("Failed to create tables", e);
+            StorageLogger.logError(log, "INIT", table, e);
         }
-    }
-
-    private boolean isNull(JsonObject json) {
-        return json == null || json.isEmpty() || json.isJsonNull();
-    }
-
-    @NotNull
-    private HikariConfig hikariConfig() {
-        String serverHost = config.getHost() + ":" + config.getPort();
-        String url = "jdbc:mariadb://" + serverHost + "/" + config.getDatabase();
-        HikariConfig hikariConfig = new HikariConfig();
-        hikariConfig.setDriverClassName("org.mariadb.jdbc.MariaDbDataSource");
-        hikariConfig.setJdbcUrl(url);
-        hikariConfig.setUsername(config.getUsername());
-        hikariConfig.setPassword(config.getPassword());
-        hikariConfig.setMaximumPoolSize(30);
-        hikariConfig.addDataSourceProperty("cachePrepStmts", "true");
-        hikariConfig.addDataSourceProperty("prepStmtCacheSize", "500");
-        hikariConfig.addDataSourceProperty("prepStmtCacheSqlLimit", "2048");
-        return hikariConfig;
-    }
-
-    private String getDebugQuery(String query, List<Object> values) {
-        String finalQuery = query;
-        for (Object value : values) {
-            String formattedValue;
-            if (value instanceof String) {
-                formattedValue = "'" + value.toString().replace("'", "''") + "'";
-            } else if (value == null) {
-                formattedValue = "NULL";
-            } else {
-                formattedValue = value.toString();
-            }
-            finalQuery =
-                    finalQuery.replaceFirst(
-                            "\\?", java.util.regex.Matcher.quoteReplacement(formattedValue));
-        }
-        return finalQuery;
     }
 
     @Override
-    public @NonNull CompletableFuture<Result> add(@NotNull String table, @NotNull JsonObject data) {
+    public @NonNull CompletableFuture<Result> add(@NonNull JsonObject data) {
         return CompletableFuture.supplyAsync(
                 () -> {
                     if (isNull(data)) return Result.FAILED;
-                    String json = gson.toJson(data);
-                    String query =
-                            "INSERT INTO `" + prefix + table + "` (data) VALUES (CAST(? AS JSON));";
-                    try (Connection connection = hikariDataSource.getConnection();
-                            PreparedStatement ps = connection.prepareStatement(query)) {
+                    String json = GSON.toJson(data);
+                    String query = "INSERT INTO `" + table + "` (data) VALUES (CAST(? AS JSON));";
+                    try (Connection conn = connection.getConnection();
+                            PreparedStatement ps = conn.prepareStatement(query)) {
                         ps.setString(1, json);
-                        StorageLogger.logAdd(log, table, getDebugQuery(query, List.of(json)));
+                        StorageLogger.logAdd(log, table, debugQuery(query, List.of(json)));
                         return ps.executeUpdate() > 0 ? Result.UPDATED : Result.UNCHANGED;
                     } catch (SQLException e) {
                         StorageLogger.logError(log, "ADD", table, e);
@@ -116,16 +70,15 @@ public class MariaDB implements Storage {
 
     @Override
     public @NonNull CompletableFuture<Result> set(
-            @NotNull String table, @NonNull JsonObject find, @NonNull JsonObject data) {
+            @NonNull JsonObject find, @NonNull JsonObject data) {
         return CompletableFuture.supplyAsync(
                 () -> {
                     StringBuilder query = new StringBuilder();
                     List<Object> values = new ArrayList<>();
                     if (isNull(data)) {
-                        query.append("DELETE FROM `").append(prefix).append(table).append("`");
+                        query.append("DELETE FROM `").append(table).append("`");
                     } else {
                         query.append("UPDATE `")
-                                .append(prefix)
                                 .append(table)
                                 .append("` SET data = JSON_SET(data, ");
                         List<String> jsonSetArgs = new ArrayList<>();
@@ -148,21 +101,17 @@ public class MariaDB implements Storage {
                                 }
                             } else {
                                 jsonSetArgs.add("CAST(? AS JSON)");
-                                values.add(gson.toJson(element));
+                                values.add(GSON.toJson(element));
                             }
                         }
                         query.append(String.join(", ", jsonSetArgs)).append(")");
                     }
-                    if (!isNull(find)) {
-                        Pair<String, List<Object>> filterPair = filter(find);
-                        query.append(filterPair.getLeft());
-                        values.addAll(filterPair.getRight());
-                    }
+                    appendFilter(query, values, find);
                     query.append(";");
-                    try (Connection connection = hikariDataSource.getConnection();
-                            PreparedStatement ps = connection.prepareStatement(query.toString())) {
+                    try (Connection conn = connection.getConnection();
+                            PreparedStatement ps = conn.prepareStatement(query.toString())) {
                         setParameters(ps, values);
-                        StorageLogger.logSet(log, table, getDebugQuery(query.toString(), values));
+                        StorageLogger.logSet(log, table, debugQuery(query.toString(), values));
                         return ps.executeUpdate() > 0 ? Result.UPDATED : Result.UNCHANGED;
                     } catch (SQLException e) {
                         StorageLogger.logError(log, "SET", table, e);
@@ -172,30 +121,22 @@ public class MariaDB implements Storage {
     }
 
     @Override
-    public @NonNull CompletableFuture<List<JsonObject>> get(
-            @NotNull String table, @NotNull JsonObject find) {
+    public @NonNull CompletableFuture<List<JsonObject>> get(@NonNull JsonObject find) {
         return CompletableFuture.supplyAsync(
                 () -> {
                     List<JsonObject> result = new ArrayList<>();
                     StringBuilder query =
-                            new StringBuilder("SELECT `data` FROM `")
-                                    .append(prefix)
-                                    .append(table)
-                                    .append("`");
+                            new StringBuilder("SELECT `data` FROM `").append(table).append("`");
                     List<Object> values = new ArrayList<>();
-                    if (!isNull(find)) {
-                        Pair<String, List<Object>> filterPair = filter(find);
-                        query.append(filterPair.getLeft());
-                        values.addAll(filterPair.getRight());
-                    }
+                    appendFilter(query, values, find);
                     query.append(";");
-                    try (Connection connection = hikariDataSource.getConnection();
-                            PreparedStatement ps = connection.prepareStatement(query.toString())) {
+                    try (Connection conn = connection.getConnection();
+                            PreparedStatement ps = conn.prepareStatement(query.toString())) {
                         setParameters(ps, values);
-                        StorageLogger.logGet(log, table, getDebugQuery(query.toString(), values));
+                        StorageLogger.logGet(log, table, debugQuery(query.toString(), values));
                         try (ResultSet rs = ps.executeQuery()) {
                             while (rs.next()) {
-                                result.add(gson.fromJson(rs.getString("data"), JsonObject.class));
+                                result.add(GSON.fromJson(rs.getString("data"), JsonObject.class));
                             }
                         }
                     } catch (SQLException e) {
@@ -205,10 +146,10 @@ public class MariaDB implements Storage {
                 });
     }
 
-    private Pair<String, List<Object>> filter(JsonObject find) {
-        StringBuilder query = new StringBuilder(" WHERE ");
+    private void appendFilter(StringBuilder query, List<Object> values, JsonObject find) {
+        if (isNull(find)) return;
+        query.append(" WHERE ");
         List<String> filters = new ArrayList<>();
-        List<Object> values = new ArrayList<>();
         for (Map.Entry<String, JsonElement> entry : find.entrySet()) {
             StringBuilder filter = new StringBuilder();
             if (config.isUseArrowOperator()) {
@@ -218,7 +159,6 @@ public class MariaDB implements Storage {
                         .append(entry.getKey())
                         .append("'))");
             }
-
             if (entry.getValue().isJsonNull()) {
                 filter.append(" IS NULL");
             } else if (entry.getValue() instanceof JsonPrimitive primitive) {
@@ -228,12 +168,15 @@ public class MariaDB implements Storage {
                 else if (primitive.isString()) values.add(primitive.getAsString());
             } else {
                 filter.append(" = CAST(? as JSON)");
-                values.add(gson.toJson(entry.getValue()));
+                values.add(GSON.toJson(entry.getValue()));
             }
             filters.add(filter.toString());
         }
         query.append(String.join(" AND ", filters));
-        return Pair.of(query.toString(), values);
+    }
+
+    private boolean isNull(JsonObject json) {
+        return json == null || json.size() == 0 || json.isJsonNull();
     }
 
     private void setParameters(PreparedStatement statement, List<Object> values)
@@ -243,15 +186,59 @@ public class MariaDB implements Storage {
         }
     }
 
+    private String debugQuery(String query, List<Object> values) {
+        String result = query;
+        for (Object value : values) {
+            String formatted;
+            if (value instanceof String) {
+                formatted = "'" + value.toString().replace("'", "''") + "'";
+            } else if (value == null) {
+                formatted = "NULL";
+            } else {
+                formatted = value.toString();
+            }
+            result = result.replaceFirst("\\?", Matcher.quoteReplacement(formatted));
+        }
+        return result;
+    }
+
     @Override
-    public void close() {
-        if (hikariDataSource != null && !hikariDataSource.isClosed()) {
-            hikariDataSource.close();
-            hikariDataSource = null;
+    public void close() {}
+
+    public static class Pool implements AutoCloseable {
+
+        private HikariDataSource dataSource;
+
+        public Pool(Config config) {
+            String serverHost = config.getHost() + ":" + config.getPort();
+            String url = "jdbc:mariadb://" + serverHost + "/" + config.getDatabase();
+            HikariConfig hikariConfig = new HikariConfig();
+            hikariConfig.setDriverClassName("org.mariadb.jdbc.MariaDbDataSource");
+            hikariConfig.setJdbcUrl(url);
+            hikariConfig.setUsername(config.getUsername());
+            hikariConfig.setPassword(config.getPassword());
+            hikariConfig.setMaximumPoolSize(30);
+            hikariConfig.addDataSourceProperty("cachePrepStmts", "true");
+            hikariConfig.addDataSourceProperty("prepStmtCacheSize", "500");
+            hikariConfig.addDataSourceProperty("prepStmtCacheSqlLimit", "2048");
+            this.dataSource = new HikariDataSource(hikariConfig);
+        }
+
+        public Connection getConnection() throws SQLException {
+            return dataSource.getConnection();
+        }
+
+        @Override
+        public void close() {
+            if (dataSource != null && !dataSource.isClosed()) {
+                dataSource.close();
+                dataSource = null;
+            }
         }
     }
 
     public interface Config {
+
         String getHost();
 
         int getPort();
