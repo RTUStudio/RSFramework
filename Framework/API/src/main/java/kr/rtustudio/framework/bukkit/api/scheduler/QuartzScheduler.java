@@ -39,15 +39,33 @@ public class QuartzScheduler {
      */
     public QuartzScheduler(String name, String cron, Class<? extends Job> job)
             throws SchedulerException {
-        JobDetail detail = createOrGet(job);
+        Scheduler sched = scheduler();
+        JobKey jobKey = new JobKey(job.getName(), "rsframework");
+        boolean isNew = !jobs.containsKey(jobKey);
+        JobDetail detail;
+        if (isNew) {
+            detail =
+                    JobBuilder.newJob(job)
+                            .withIdentity(jobKey)
+                            .storeDurably()
+                            .usingJobData(new JobDataMap())
+                            .build();
+        } else {
+            detail = jobs.get(jobKey);
+        }
         this.trigger =
                 TriggerBuilder.newTrigger()
-                        .withIdentity("rsframework", name)
+                        .withIdentity(name, "rsframework")
                         .withSchedule(CronScheduleBuilder.cronSchedule(cron))
                         .forJob(detail)
                         .startNow()
                         .build();
-        scheduler().scheduleJob(trigger);
+        if (isNew) {
+            sched.scheduleJob(detail, trigger);
+            jobs.put(jobKey, detail);
+        } else {
+            sched.scheduleJob(trigger);
+        }
     }
 
     private static Scheduler scheduler() throws SchedulerException {
@@ -73,12 +91,6 @@ public class QuartzScheduler {
         }
     }
 
-    private JobDetail createOrGet(Class<? extends Job> job) {
-        JobDetail newJob = JobBuilder.newJob(job).usingJobData(new JobDataMap()).build();
-        if (jobs.containsKey(newJob.getKey())) return jobs.get(newJob.getKey());
-        jobs.put(newJob.getKey(), newJob);
-        return newJob;
-    }
 
     /**
      * 다음 실행까지 남은 시간을 밀리초로 반환한다.
