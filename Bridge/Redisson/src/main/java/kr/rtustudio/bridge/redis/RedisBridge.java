@@ -6,6 +6,8 @@ import kr.rtustudio.bridge.BridgeOptions;
 import kr.rtustudio.bridge.redis.config.RedisConfig;
 import lombok.extern.slf4j.Slf4j;
 
+import java.nio.charset.StandardCharsets;
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
@@ -13,10 +15,14 @@ import java.util.function.Supplier;
 @Slf4j(topic = "RSF/Bridge/Redis")
 public class RedisBridge implements Redis {
 
+    private static final int UUID_LENGTH = 36;
+
     private final RedisConfig config;
     private final BridgeOptions options;
     private final Object2BooleanOpenHashMap<BridgeChannel> registeredChannels =
             new Object2BooleanOpenHashMap<>();
+    private final byte[] serverIdBytes =
+            UUID.randomUUID().toString().getBytes(StandardCharsets.UTF_8);
     private Redisson redisson;
     private boolean loaded = false;
 
@@ -69,7 +75,11 @@ public class RedisBridge implements Redis {
                         byte[].class,
                         (ch, frame) -> {
                             try {
-                                handler.accept(options.decode(frame));
+                                if (isSelf(frame)) return;
+                                byte[] payload = new byte[frame.length - UUID_LENGTH];
+                                System.arraycopy(
+                                        frame, UUID_LENGTH, payload, 0, payload.length);
+                                handler.accept(options.decode(payload));
                             } catch (Exception e) {
                                 log.error("Failed to decode message on channel: {}", ch, e);
                             }
@@ -84,7 +94,19 @@ public class RedisBridge implements Redis {
                     channel);
             return;
         }
-        getRedisson().publish(channel.toString(), options.encode(channel, message));
+        byte[] encoded = options.encode(channel, message);
+        byte[] wrapped = new byte[UUID_LENGTH + encoded.length];
+        System.arraycopy(serverIdBytes, 0, wrapped, 0, UUID_LENGTH);
+        System.arraycopy(encoded, 0, wrapped, UUID_LENGTH, encoded.length);
+        getRedisson().publish(channel.toString(), wrapped);
+    }
+
+    private boolean isSelf(byte[] frame) {
+        if (frame.length <= UUID_LENGTH) return false;
+        for (int i = 0; i < UUID_LENGTH; i++) {
+            if (frame[i] != serverIdBytes[i]) return false;
+        }
+        return true;
     }
 
     @Override
