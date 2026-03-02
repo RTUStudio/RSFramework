@@ -39,7 +39,7 @@ public class InventoryListener extends RSListener<RSPlugin> {
             } catch (Exception ex) {
                 e.setCancelled(true);
                 Component errorMessage =
-                        ComponentFormatter.mini(message.get(player, "error.inventory"));
+                        ComponentFormatter.mini(message.getCommon(player, "error.inventory"));
                 plugin.console(errorMessage);
                 plugin.getAdventure().player(player).sendMessage(errorMessage);
                 log.error("Error in inventory click handler", ex);
@@ -65,7 +65,7 @@ public class InventoryListener extends RSListener<RSPlugin> {
             } catch (Exception ex) {
                 e.setCancelled(true);
                 Component errorMessage =
-                        ComponentFormatter.mini(message.get(player, "error.inventory"));
+                        ComponentFormatter.mini(message.getCommon(player, "error.inventory"));
                 plugin.console(errorMessage);
                 plugin.getAdventure().player(player).sendMessage(errorMessage);
                 log.error("Error in inventory click handler", ex);
@@ -87,7 +87,7 @@ public class InventoryListener extends RSListener<RSPlugin> {
                 rsInv.onClose(holderEvent);
             } catch (Exception ex) {
                 Component errorMessage =
-                        ComponentFormatter.mini(message.get(player, "error.inventory"));
+                        ComponentFormatter.mini(message.getCommon(player, "error.inventory"));
                 plugin.console(errorMessage);
                 plugin.getAdventure().player(player).sendMessage(errorMessage);
                 log.error("Error in inventory click handler", ex);
