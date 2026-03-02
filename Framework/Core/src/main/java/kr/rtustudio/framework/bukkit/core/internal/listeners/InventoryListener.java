@@ -15,7 +15,7 @@ import org.bukkit.event.inventory.InventoryDragEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
 
-@Slf4j
+@Slf4j(topic = "RSFramework")
 @SuppressWarnings("unused")
 public class InventoryListener extends RSListener<RSPlugin> {
     public InventoryListener(RSPlugin plugin) {
@@ -40,7 +40,6 @@ public class InventoryListener extends RSListener<RSPlugin> {
                 e.setCancelled(true);
                 Component errorMessage =
                         ComponentFormatter.mini(message.getCommon(player, "error.inventory"));
-                plugin.console(errorMessage);
                 plugin.getAdventure().player(player).sendMessage(errorMessage);
                 log.error("Error in inventory click handler", ex);
             }
@@ -66,7 +65,6 @@ public class InventoryListener extends RSListener<RSPlugin> {
                 e.setCancelled(true);
                 Component errorMessage =
                         ComponentFormatter.mini(message.getCommon(player, "error.inventory"));
-                plugin.console(errorMessage);
                 plugin.getAdventure().player(player).sendMessage(errorMessage);
                 log.error("Error in inventory click handler", ex);
             }
@@ -88,7 +86,6 @@ public class InventoryListener extends RSListener<RSPlugin> {
             } catch (Exception ex) {
                 Component errorMessage =
                         ComponentFormatter.mini(message.getCommon(player, "error.inventory"));
-                plugin.console(errorMessage);
                 plugin.getAdventure().player(player).sendMessage(errorMessage);
                 log.error("Error in inventory click handler", ex);
             }
