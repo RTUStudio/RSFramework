@@ -132,6 +132,7 @@ public class SubCommand extends RSCommand<MyPlugin> {
 ```
 
 `enable()`에서 등록 시 `true`를 전달하면 `/{명령어} reload` 서브 명령어가 자동 추가된다.
+이 자동 생성된 `reload` 명령어는 프레임워크가 자체적으로 처리하므로 **별도의 번역 파일 정의, 탭 자동완성 구현, 또는 `execute()` 로직 작성이 전혀 필요하지 않습니다.** 오직 `reload()` 메서드만 오버라이드하여 리로드 시 실행할 커스텀 로직을 정의하면 됩니다.
 
 ```java
 @Override
