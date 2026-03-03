@@ -87,36 +87,61 @@ public class StorageManager {
         RSConfiguration.Wrapper<?> config = configuration.getConfig(type);
         Storage storage =
                 switch (type) {
-                    case JSON -> new Json((kr.rtustudio.framework.bukkit.core.configuration.storage.Json) config, name);
+                    case JSON ->
+                            new Json(
+                                    (kr.rtustudio.framework.bukkit.core.configuration.storage.Json)
+                                            config,
+                                    name);
                     case SQLITE -> {
                         kr.rtustudio.framework.bukkit.core.configuration.storage.SQLite cfg =
-                                (kr.rtustudio.framework.bukkit.core.configuration.storage.SQLite) config;
+                                (kr.rtustudio.framework.bukkit.core.configuration.storage.SQLite)
+                                        config;
                         File parent = new File(cfg.getFilePath()).getParentFile();
                         if (parent != null) parent.mkdirs();
                         yield new SQLite(cfg, name);
                     }
                     case MYSQL -> {
                         MySQL cfg = (MySQL) config;
-                        var conn = (kr.rtustudio.storage.mysql.MySQL.Pool)
-                                connections.computeIfAbsent(type, k -> new kr.rtustudio.storage.mysql.MySQL.Pool(cfg));
+                        var conn =
+                                (kr.rtustudio.storage.mysql.MySQL.Pool)
+                                        connections.computeIfAbsent(
+                                                type,
+                                                k ->
+                                                        new kr.rtustudio.storage.mysql.MySQL.Pool(
+                                                                cfg));
                         yield new kr.rtustudio.storage.mysql.MySQL(conn, cfg, name);
                     }
                     case MARIADB -> {
                         MariaDB cfg = (MariaDB) config;
-                        var conn = (kr.rtustudio.storage.mariadb.MariaDB.Pool)
-                                connections.computeIfAbsent(type, k -> new kr.rtustudio.storage.mariadb.MariaDB.Pool(cfg));
+                        var conn =
+                                (kr.rtustudio.storage.mariadb.MariaDB.Pool)
+                                        connections.computeIfAbsent(
+                                                type,
+                                                k ->
+                                                        new kr.rtustudio.storage.mariadb.MariaDB
+                                                                .Pool(cfg));
                         yield new kr.rtustudio.storage.mariadb.MariaDB(conn, cfg, name);
                     }
                     case MONGODB -> {
                         MongoDB cfg = (MongoDB) config;
-                        var conn = (kr.rtustudio.storage.mongodb.MongoDB.Pool)
-                                connections.computeIfAbsent(type, k -> new kr.rtustudio.storage.mongodb.MongoDB.Pool(cfg));
+                        var conn =
+                                (kr.rtustudio.storage.mongodb.MongoDB.Pool)
+                                        connections.computeIfAbsent(
+                                                type,
+                                                k ->
+                                                        new kr.rtustudio.storage.mongodb.MongoDB
+                                                                .Pool(cfg));
                         yield new kr.rtustudio.storage.mongodb.MongoDB(conn, cfg, name);
                     }
                     case POSTGRESQL -> {
                         PostgreSQL cfg = (PostgreSQL) config;
-                        var conn = (kr.rtustudio.storage.postgresql.PostgreSQL.Pool)
-                                connections.computeIfAbsent(type, k -> new kr.rtustudio.storage.postgresql.PostgreSQL.Pool(cfg));
+                        var conn =
+                                (kr.rtustudio.storage.postgresql.PostgreSQL.Pool)
+                                        connections.computeIfAbsent(
+                                                type,
+                                                k ->
+                                                        new kr.rtustudio.storage.postgresql
+                                                                .PostgreSQL.Pool(cfg));
                         yield new kr.rtustudio.storage.postgresql.PostgreSQL(conn, cfg, name);
                     }
                 };

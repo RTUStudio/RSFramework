@@ -177,8 +177,13 @@ public class PostgreSQL implements Storage {
         private HikariDataSource dataSource;
 
         public Pool(Config config) {
-            String url = "jdbc:postgresql://" + config.getHost() + ":" + config.getPort()
-                    + "/" + config.getDatabase();
+            String url =
+                    "jdbc:postgresql://"
+                            + config.getHost()
+                            + ":"
+                            + config.getPort()
+                            + "/"
+                            + config.getDatabase();
             HikariConfig hikariConfig = new HikariConfig();
             hikariConfig.setJdbcUrl(url);
             hikariConfig.setUsername(config.getUsername());

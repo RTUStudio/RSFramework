@@ -77,8 +77,7 @@ public class RedisBridge implements Redis {
                             try {
                                 if (isSelf(frame)) return;
                                 byte[] payload = new byte[frame.length - UUID_LENGTH];
-                                System.arraycopy(
-                                        frame, UUID_LENGTH, payload, 0, payload.length);
+                                System.arraycopy(frame, UUID_LENGTH, payload, 0, payload.length);
                                 handler.accept(options.decode(payload));
                             } catch (Exception e) {
                                 log.error("Failed to decode message on channel: {}", ch, e);

@@ -211,8 +211,12 @@ public class MySQL implements Storage {
 
         public Pool(Config config) {
             String serverHost = config.getHost() + ":" + config.getPort();
-            String url = "jdbc:mysql://" + serverHost + "/" + config.getDatabase()
-                    + "?serverTimezone=UTC&useUniCode=yes&characterEncoding=UTF-8";
+            String url =
+                    "jdbc:mysql://"
+                            + serverHost
+                            + "/"
+                            + config.getDatabase()
+                            + "?serverTimezone=UTC&useUniCode=yes&characterEncoding=UTF-8";
             HikariConfig hikariConfig = new HikariConfig();
             hikariConfig.setDriverClassName("com.mysql.cj.jdbc.Driver");
             hikariConfig.setJdbcUrl(url);
