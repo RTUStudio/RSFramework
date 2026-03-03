@@ -101,7 +101,7 @@ import java.util.List;
 public class MainCommand extends RSCommand<MyPlugin> {
 
     public MainCommand(MyPlugin plugin) {
-        super(plugin, "myplugin", PermissionDefault.OP, 5000);
+        super(plugin, "test", PermissionDefault.OP, 5000);
         registerCommand(new SubCommand(plugin));
     }
 
@@ -112,16 +112,21 @@ public class MainCommand extends RSCommand<MyPlugin> {
     }
 
     @Override
-    protected List<String> tabComplete(CommandArgs data) {
-        if (data.args().length == 1) {
-            return List.of("sub", "help");
-        }
-        return super.tabComplete(data);
+    protected void reload() {
+        plugin.getLogger().info("커스텀 설정이 리로드되었습니다!");
+    }
+}
+
+public class SubCommand extends RSCommand<MyPlugin> {
+
+    public SubCommand(MyPlugin plugin) {
+        super(plugin, "sub", PermissionDefault.OP, 1000);
     }
 
     @Override
-    protected void reload() {
-        plugin.getLogger().info("커스텀 설정이 리로드되었습니다!");
+    protected Result execute(CommandArgs data) {
+        notifier.announce(data.player(), "서브 명령어 실행됨!");
+        return Result.SUCCESS;
     }
 }
 ```
@@ -133,6 +138,38 @@ public class MainCommand extends RSCommand<MyPlugin> {
 protected void enable() {
     framework.registerCommand(new MainCommand(this), true);
 }
+```
+
+### 명령어 다국어 번역 및 구조 정의
+
+`RSCommand` 생성자에 전달되는 식별자(예: `"test"`)는 `Translation/Command/{언어}.yml` 파일에서 명령어의 이름, 설명, 사용법, 서브 명령어 등을 정의하는 최상위 키로 사용됩니다. 이를 통해 명령어의 메타데이터를 소스 코드가 아닌 설정 파일에서 유연하게 관리할 수 있습니다.
+
+**기본 구조 (단일 명령어):**
+```yaml
+test:
+  name: "테스트"
+```
+
+**서브 명령어가 포함된 계층형 구조:**
+```yaml
+test:
+  name: "테스트"
+  command:
+    sub:
+      name: "서브"
+```
+
+**설명(`description`) 및 사용법(`usage`)을 포함한 상세 구조:**
+```yaml
+test:
+  name: "테스트"
+  description: "테스트 명령어 입니다"
+  usage: "/테스트"
+  command:
+    sub:
+      name: "서브"
+      description: "서브 테스트 명령어 입니다"
+      usage: "/테스트 서브"
 ```
 
 ---
@@ -187,7 +224,7 @@ protected void enable() {
 }
 ```
 
-`/reload` 호출 시 파일 추가·삭제까지 자동 반영된다. 상세 내부 구조는 [docs/configuration.md](docs/configuration.md) 참조.
+`/reload` 호출 시 파일 추가·삭제까지 자동 반영된다. 상세 내부 구조는 `docs/configuration.md` 참조.
 
 ---
 
@@ -265,7 +302,7 @@ for (ProxyPlayer p : proxium.getPlayers().values()) {
 }
 ```
 
-상세 아키텍처는 [docs/bridge.md](docs/bridge.md) 참조.
+상세 아키텍처는 `docs/bridge.md` 참조.
 
 ---
 
@@ -287,7 +324,7 @@ if (storage != null && storage.isConnected()) {
 
 **지원 타입**: JSON, SQLite, MySQL, MariaDB, PostgreSQL, MongoDB
 
-상세 내용은 [docs/storage.md](docs/storage.md) 참조.
+상세 내용은 `docs/storage.md` 참조.
 
 ---
 
