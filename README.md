@@ -274,7 +274,7 @@ test:
 ```yaml
 test:
   name: "테스트"
-  command:
+  commands:
     sub:
       name: "서브"
 ```
@@ -285,7 +285,7 @@ test:
   name: "테스트"
   description: "테스트 명령어 입니다"
   usage: "/테스트"
-  command:
+  commands:
     sub:
       name: "서브"
       description: "서브 테스트 명령어 입니다"
