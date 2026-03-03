@@ -32,13 +32,44 @@ RSFramework/
 └── docs/                       기술 문서 (bridge, configuration, storage)
 ```
 
-**빌드 산출물**: 루트 `shadowJar` 태스크가 모든 모듈을 하나의 플러그인 JAR로 합친다 → `builds/plugin/RSFramework-{version}.jar`
+**빌드 산출물**: 루트 `shadowJar` 태스크가 모든 모듈을 하나의 플러그인 JAR로 합칩니다. (`builds/plugin/RSFramework-{version}.jar`)
+
+---
+
+## 공통 제공 필드 (`protected final`)
+
+`RSCommand`, `RSListener`, `RSInventory`는 모두 동일한 공통 필드를 `protected final`로 제공합니다. `getPlugin()`, `getFramework()` 같은 Getter 없이 **필드에 직접 접근**하여 사용합니다.
+
+| 필드 | 타입 | 설명 |
+|------|------|------|
+| `plugin` | `T` (플러그인 타입) | 소유 플러그인 인스턴스 |
+| `framework` | `Framework` | 프레임워크 코어 |
+| `message` | `MessageTranslation` | 다국어 메시지 번역 |
+| `command` | `CommandTranslation` | 다국어 명령어 번역 |
+| `notifier` | `Notifier` | 메시지 전송 유틸리티 |
+
+`RSCommand`는 추가로 다음 필드를 제공한다.
+
+| 필드         | 타입              | 설명                                            |
+|------------|-----------------|-----------------------------------------------|
+| `sender`   | `CommandSender` | 명령어 실행자 (getter 접근)                           |
+| `player`   | `Player`        | 명령어 실행 플레이어 (플레이어가 아닌 경우 null 반환) |
+| `audience` | `Audience`      | Adventure Audience (getter 접근)                |
+
+```java
+// ✅ 올바른 사용
+plugin.reloadConfiguration(MyConfig.class);
+notifier.announce(player, "완료!");
+
+// ❌ 불필요한 getter 호출
+getPlugin().reloadConfiguration(MyConfig.class);
+```
 
 ---
 
 ## 시작하기
 
-`RSPlugin`을 상속받아 메인 클래스를 작성한다.
+`RSPlugin`을 상속받아 메인 클래스를 작성합니다.
 
 ```java
 import kr.rtustudio.framework.bukkit.api.RSPlugin;
@@ -55,15 +86,49 @@ public class MyPlugin extends RSPlugin {
 }
 ```
 
-`RSPlugin`은 `onLoad` → `initialize()` → `load()` → `onEnable` → `enable()` → `onDisable` → `disable()` 순서로 라이프사이클을 제공한다.
+`RSPlugin`은 `onLoad` → `initialize()` → `load()` → `onEnable` → `enable()` → `onDisable` → `disable()` 순서로 라이프사이클을 제공합니다.
+
+### 자동 로깅
+
+프레임워크가 플러그인의 **활성화, 비활성화, 리로드** 시점에 콘솔 메시지를 자동으로 출력합니다. 개발자가 직접 로깅 코드를 작성할 필요가 없습니다.
+
+```java
+// ✅ 올바른 예시 — 로깅 없이 깔끔하게
+@Override
+protected void enable() {
+    registerConfiguration(PerkConfig.class, ConfigPath.of("Perk"));
+    registerCommand(new MainCommand(this), true);
+    registerEvent(new PlayerAttack(this));
+}
+
+@Override
+protected void disable() {
+    if (perkModule != null) {
+        perkModule.close();
+    }
+}
+```
+
+```java
+// ❌ 잘못된 예시 — 프레임워크가 이미 출력하므로 중복됨
+@Override
+protected void enable() {
+    // ...
+    getLogger().info("MyPlugin Enabled!");    // 불필요
+}
+
+@Override
+protected void disable() {
+    // ...
+    getLogger().info("MyPlugin Disabled!");   // 불필요
+}
+```
 
 ---
 
 ## 이벤트 리스너 (RSListener)
 
-`RSListener<T>`를 상속하면 DI를 통해 자동 등록된다.
-
-**제공 필드** (`protected final`): `plugin`, `framework`, `message`, `command`, `notifier`
+`RSListener<T>`를 상속하면 DI를 통해 이벤트가 자동으로 등록됩니다.
 
 ```java
 import kr.rtustudio.framework.bukkit.api.listener.RSListener;
@@ -87,52 +152,49 @@ public class JoinListener extends RSListener<MyPlugin> {
 
 ## 명령어 시스템 (RSCommand)
 
-계층형 구조, 권한 자동 등록, 쿨다운, 탭 자동완성을 지원한다.
-
-`RSCommand`도 `RSListener`와 동일한 `protected final` 필드를 제공한다.
+계층형 구조, 권한 자동 등록, 쿨다운, 탭 자동완성을 지원합니다.
 
 ```java
 import kr.rtustudio.framework.bukkit.api.command.RSCommand;
 import kr.rtustudio.framework.bukkit.api.command.CommandArgs;
 import org.bukkit.permissions.PermissionDefault;
 
-import java.util.List;
-
 public class MainCommand extends RSCommand<MyPlugin> {
 
     public MainCommand(MyPlugin plugin) {
-        super(plugin, "test", PermissionDefault.OP, 5000);
+        super(plugin, "test", PermissionDefault.OP);
         registerCommand(new SubCommand(plugin));
     }
 
     @Override
     protected Result execute(CommandArgs data) {
-        notifier.announce(data.player(), "메인 명령어 실행됨!");
+        notifier.announce("메인 명령어 실행됨!");
         return Result.SUCCESS;
     }
 
     @Override
-    protected void reload() {
-        plugin.getLogger().info("커스텀 설정이 리로드되었습니다!");
+    protected void reload(CommandArgs data) {
+        plugin.reloadConfiguration(TestConfig.class);
+        plugin.reloadConfigurations(ListConfig.class);
     }
 }
 
 public class SubCommand extends RSCommand<MyPlugin> {
 
     public SubCommand(MyPlugin plugin) {
-        super(plugin, "sub", PermissionDefault.OP, 1000);
+        super(plugin, "sub", PermissionDefault.OP);
     }
 
     @Override
     protected Result execute(CommandArgs data) {
-        notifier.announce(data.player(), "서브 명령어 실행됨!");
+        notifier.announce("서브 명령어 실행됨!");
         return Result.SUCCESS;
     }
 }
 ```
 
-`enable()`에서 등록 시 `true`를 전달하면 `/{명령어} reload` 서브 명령어가 자동 추가된다.
-이 자동 생성된 `reload` 명령어는 프레임워크가 자체적으로 처리하므로 **별도의 번역 파일 정의, 탭 자동완성 구현, 또는 `execute()` 로직 작성이 전혀 필요하지 않습니다.** 오직 `reload()` 메서드만 오버라이드하여 리로드 시 실행할 커스텀 로직을 정의하면 됩니다.
+`enable()`에서 등록 시 `true`를 전달하면 `/{명령어} reload` 서브 명령어가 자동 추가됩니다.
+이 자동 생성된 `reload` 명령어는 프레임워크가 자체적으로 처리하여 완료 메시지까지 출력하므로 **별도의 번역 파일 정의, 탭 자동완성 구현, 또는 `execute()` 로직 작성이 전혀 필요하지 않습니다.** 오직 `reload()` 메서드만 오버라이드하여 리로드 시 실행할 커스텀 로직을 정의하면 됩니다.
 
 ```java
 @Override
@@ -140,6 +202,63 @@ protected void enable() {
     framework.registerCommand(new MainCommand(this), true);
 }
 ```
+
+### Result (명령어 실행 결과)
+
+`execute()` 메서드의 반환값에 따라 프레임워크가 **자동으로 공통 안내 메시지를 발송**합니다. 개발자가 직접 메시지를 작성하거나 조건 분기를 할 필요가 없습니다.
+
+| Result | 설명 | 프레임워크 동작 |
+|--------|------|----------------|
+| `SUCCESS` | 성공 | 없음 |
+| `FAILURE` | 실패 (개별 처리 필요) | 없음 — 필요 시 직접 `notifier`로 안내 |
+| `ONLY_PLAYER` | 플레이어만 실행 가능 | 자동 안내 메시지 출력 |
+| `ONLY_CONSOLE` | 콘솔만 실행 가능 | 자동 안내 메시지 출력 |
+| `NO_PERMISSION` | 권한 없음 | 자동 안내 메시지 출력 |
+| `NOT_FOUND_ONLINE_PLAYER` | 온라인 플레이어를 찾을 수 없음 | 자동 안내 메시지 출력 |
+| `NOT_FOUND_OFFLINE_PLAYER` | 오프라인 플레이어를 찾을 수 없음 | 자동 안내 메시지 출력 |
+| `NOT_FOUND_ITEM` | 아이템을 찾을 수 없음 | 자동 안내 메시지 출력 |
+| `WRONG_USAGE` | 잘못된 사용법 | 서브 명령어 목록 및 usage 자동 표시 |
+
+```java
+// ✅ 올바른 예시 1 — player() 메서드로 간단히 체크
+@Override
+protected Result execute(CommandArgs data) {
+    Player player = player();
+    if (player == null) return Result.ONLY_PLAYER;
+    
+    notifier.announce("환영합니다!");
+    return Result.SUCCESS;
+}
+```
+
+```java
+// ✅ 올바른 예시 2 — 대상 플레이어가 온라인이어야 하는 경우
+@Override
+protected Result execute(CommandArgs data) {
+    Player target = Bukkit.getPlayer(data.get(0));
+    if (target == null) return Result.NOT_FOUND_ONLINE_PLAYER;
+    
+    notifier.announce(target.getName() + "님에게 아이템을 지급했습니다!");
+    return Result.SUCCESS;
+}
+```
+
+```java
+// ❌ 잘못된 예시 — 프레임워크가 이미 처리하는 메시지를 직접 작성
+@Override
+protected Result execute(CommandArgs data) {
+    Player target = Bukkit.getPlayer(data.get(0));
+    if (target == null) {
+        getSender().sendMessage("온라인 플레이어를 찾을 수 없습니다."); // 불필요 (NOT_FOUND_ONLINE_PLAYER 반환으로 대체)
+        return Result.FAILURE;
+    }
+    
+    return Result.SUCCESS;
+}
+```
+
+> **메시지 전송 시 `getSender().sendMessage()`가 아닌 `notifier`를 사용합니다.** `notifier`는 MiniMessage 포맷과 접두사를 자동으로 처리합니다.  
+> `RSCommand`의 `execute()`와 `tabComplete()` 내부에서는 명령어 실행자(sender/player)가 자동으로 수신자로 설정되므로, `notifier.announce("메시지")` 처럼 대상 지정 없이 사용할 수 있다. (명시적으로 지정하려면 `audience()` 사용 가능)
 
 ### 명령어 다국어 번역 및 구조 정의
 
@@ -177,10 +296,10 @@ test:
 
 ## 설정 파일 관리 (Configuration)
 
-Sponge Configurate 기반 YAML 객체 매핑. `ConfigurationPart`를 상속하거나 `@ConfigSerializable` record를 사용한다.
+Sponge Configurate 기반 YAML 객체 매핑을 지원합니다. `ConfigurationPart`를 상속하거나 `@ConfigSerializable` record를 사용합니다.
 
-> `@ConfigSerializable`을 일반 클래스에 붙이면 기본 생성자(NoArgsConstructor)가 필요하다.
-> `record`를 사용하면 생성자 제약 없이 불변 객체를 매핑할 수 있다.
+> `@ConfigSerializable`을 일반 클래스에 붙이면 기본 생성자(NoArgsConstructor)가 필요합니다.
+> `record`를 사용하면 생성자 제약 없이 불변 객체를 매핑할 수 있습니다.
 
 ### 설정 모델 정의
 
@@ -225,43 +344,50 @@ protected void enable() {
 }
 ```
 
-`/reload` 호출 시 파일 추가·삭제까지 자동 반영된다. 상세 내부 구조는 `docs/configuration.md` 참조.
+`/reload` 호출 시 파일 추가·삭제까지 자동 반영됩니다. 상세 내부 구조는 `docs/configuration.md`를 참조하세요.
 
 ---
 
 ## 다국어 지원 (Translation)
 
-플레이어 클라이언트 언어(`Locale`)에 맞춰 자동으로 번역본을 반환한다.
+플레이어 클라이언트 언어(`Locale`)에 맞춰 자동으로 번역본을 반환합니다.
 
 ```java
 // Translation/Message/{locale}.yml 에서 키로 검색
-String msg = plugin.getConfiguration().getMessage().get(player, "error.no-money");
+String msg = message.get(player, "error.no-money");
 notifier.announce(player, msg);
 
 // 프레임워크 공통 번역
-String common = plugin.getConfiguration().getMessage().getCommon("prefix");
+String common = message.getCommon("prefix");
 ```
 
 ---
 
 ## 메시지 전송 (Notifier)
 
-MiniMessage 포맷 지원. 채팅, 액션바, 타이틀, 보스바, 크로스서버 브로드캐스트를 제공한다.
+MiniMessage 포맷 지원. 채팅, 액션바, 타이틀, 보스바, 크로스서버 브로드캐스트를 제공합니다.
+
+> **`getSender().sendMessage()` 또는 `player.sendMessage()`를 직접 호출하지 마세요.** 항상 `notifier`를 통해 메시지를 전송합니다.
+> `RSCommand`의 `execute()`와 `tabComplete()` 내부에서는 명령어 실행자가 자동으로 수신자로 설정되므로 대상 지정 파라미터를 생략할 수 있습니다.
 
 ```java
-import kr.rtustudio.framework.bukkit.api.player.Notifier;
+// RSCommand 외부 (RSListener, RSInventory 등)
+notifier.announce(player, "<aqua>아이템을 지급받았습니다!");       // 접두사 포함
+notifier.send(player, "<yellow>경고 메시지");                    // 접두사 제외
+notifier.title(player, "<bold><gold>레벨 업!", "<gray>새 스킬 해제");
 
-Notifier.of(plugin, player).announce("<aqua>아이템을 지급받았습니다!");       // 접두사 포함
-Notifier.of(plugin, player).send("<yellow>경고 메시지");                    // 접두사 제외
-Notifier.of(plugin, player).title("<bold><gold>레벨 업!", "<gray>새 스킬 해제");
-Notifier.broadcastAll("<green>새로운 이벤트가 시작되었습니다!");              // 전체 서버
+// RSCommand 내부 (파라미터 생략 가능)
+notifier.announce("<aqua>명령어 실행 완료!");
+
+// 전체 서버
+Notifier.broadcastAll("<green>새로운 이벤트가 시작되었습니다!");
 ```
 
 ---
 
 ## 브릿지 통신 (Bridge)
 
-Redis(Redisson) 또는 Proxium을 통한 서버 간 Pub/Sub 메시징. 구현체와 관계없이 동일한 코드 패턴을 사용한다.
+Redis(Redisson) 또는 Proxium을 통한 서버 간 Pub/Sub 메시징입니다. 구현체와 관계없이 동일한 코드 패턴을 사용합니다.
 
 ```java
 import kr.rtustudio.bridge.Bridge;
@@ -303,13 +429,13 @@ for (ProxyPlayer p : proxium.getPlayers().values()) {
 }
 ```
 
-상세 아키텍처는 `docs/bridge.md` 참조.
+상세 아키텍처는 `docs/bridge.md`를 참조하세요.
 
 ---
 
 ## 스토리지 (Storage)
 
-다양한 데이터베이스를 통합 관리한다. 설정 변경 시 변경된 커넥션만 재연결한다.
+다양한 데이터베이스를 통합 관리합니다. 설정 변경 시 변경된 커넥션만 재연결합니다.
 
 ```java
 import kr.rtustudio.storage.Storage;
@@ -325,7 +451,7 @@ if (storage != null && storage.isConnected()) {
 
 **지원 타입**: JSON, SQLite, MySQL, MariaDB, PostgreSQL, MongoDB
 
-상세 내용은 `docs/storage.md` 참조.
+상세 내용은 `docs/storage.md`를 참조하세요.
 
 ---
 
@@ -333,7 +459,7 @@ if (storage != null && storage.isConnected()) {
 
 ### CraftScheduler (Bukkit/Paper/Folia)
 
-Folia 호환. 체이닝을 통해 후속 작업을 연결할 수 있다.
+Folia와 호환되며 체이닝을 통해 후속 작업을 연결할 수 있습니다.
 
 ```java
 import kr.rtustudio.framework.bukkit.api.scheduler.CraftScheduler;
@@ -345,7 +471,7 @@ CraftScheduler.sync(plugin, task -> {
 }, 20L);
 
 CraftScheduler.delay(plugin, task -> {
-    getLogger().info("비동기 1초 뒤 실행");
+    plugin.getLogger().info("비동기 1초 뒤 실행");
 }, 20L, true);
 ```
 
@@ -360,8 +486,6 @@ QuartzScheduler.run("DailyReset", "0 0 0 * * ?", MyJob.class);
 ---
 
 ## 인벤토리 UI (RSInventory)
-
-`RSInventory`도 `plugin`, `framework`, `message`, `command`, `notifier`를 `protected final` 필드로 제공한다.
 
 ```java
 import kr.rtustudio.framework.bukkit.api.inventory.RSInventory;
@@ -390,7 +514,7 @@ public class MyGUI extends RSInventory<MyPlugin> {
 
 ## 커스텀 블록/아이템 통합 (Registry)
 
-Nexo, Oraxen, ItemsAdder, MMOItems, EcoItems 등을 단일 API로 통합한다. 식별자는 `플러그인:아이디` 형식.
+Nexo, Oraxen, ItemsAdder, MMOItems, EcoItems 등을 단일 API로 통합합니다. 식별자는 `플러그인:아이디` 형식을 사용합니다.
 
 ```java
 import kr.rtustudio.framework.bukkit.api.registry.CustomItems;
