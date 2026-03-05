@@ -19,9 +19,11 @@ public class MinecraftVersion {
 
     private static final String VERSION_STR = fromAPI(Bukkit.getBukkitVersion());
     private static final Version VERSION = new Version(VERSION_STR);
-    private static final boolean IS_PAPER = hasClass("com.destroystokyo.paper.PaperConfig")
-            || hasClass("io.papermc.paper.configuration.Configuration");
-    private static final boolean IS_FOLIA = hasClass("io.papermc.paper.threadedregions.RegionizedServer");
+    private static final boolean IS_PAPER =
+            hasClass("com.destroystokyo.paper.PaperConfig")
+                    || hasClass("io.papermc.paper.configuration.Configuration");
+    private static final boolean IS_FOLIA =
+            hasClass("io.papermc.paper.threadedregions.RegionizedServer");
 
     @NotNull
     public static String fromAPI(String version) {
