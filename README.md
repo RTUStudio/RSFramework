@@ -2,7 +2,7 @@
 
 모듈화된 Bukkit/Paper 플러그인 개발 프레임워크.
 
-> **버전**: 4.2.0 · **Java**: 21 · **지원 서버**: 1.20.1+ (Spigot/Paper/Folia) · **라이선스**: GPL-3.0
+> **버전**: 4.3.0 · **Java**: 21 · **지원 서버**: 1.20.1+ (Spigot/Paper/Folia) · **라이선스**: GPL-3.0
 
 ---
 
@@ -13,14 +13,14 @@ RSFramework/
 ├── LightDI/                    경량 DI 컨테이너 (kr.rtustudio.cdi)
 ├── Configurate/                YAML 객체 매핑 래퍼 (kr.rtustudio.configurate.model)
 ├── Storage/                    통합 스토리지 시스템
-│   ├── Common/                 공통 API (Storage, StorageType)
+│   ├── Common/                 공통 API (Storage, JSON, StorageType)
 │   ├── MySQL / MariaDB / PostgreSQL / MongoDB / SQLite / Json
-├── Bridge/                     서버 간 Pub/Sub 브로커
-│   ├── Common/                 Bridge 인터페이스, BridgeChannel, BridgeOptions
+├── Bridge/                     서버 간 통신 브로커
+│   ├── Common/                 Bridge 인터페이스, BridgeChannel
 │   ├── Redisson/               Redis 구현체
 │   └── Proxium/                Netty 기반 자체 프록시 통신
 │       ├── Common/API          Proxium 공개 API
-│       ├── Common/Core         AbstractProxium, ProxiumServer, ProxiumProxy
+│       ├── Common/Core         ProxiumProxy, ProxiumServer
 │       ├── Bukkit / Bungee / Velocity
 ├── Platform/                   플랫폼 어댑터
 │   ├── Spigot / Paper / Folia  Bukkit 계열
@@ -48,7 +48,7 @@ RSFramework/
 | `command` | `CommandTranslation` | 다국어 명령어 번역 |
 | `notifier` | `Notifier` | 메시지 전송 유틸리티 |
 
-`RSCommand`는 추가로 다음 필드를 제공한다.
+`RSCommand`는 추가로 다음 필드를 제공합니다.
 
 | 필드         | 타입              | 설명                                            |
 |------------|-----------------|-----------------------------------------------|
@@ -115,12 +115,6 @@ protected void disable() {
 protected void enable() {
     // ...
     getLogger().info("MyPlugin Enabled!");    // 불필요
-}
-
-@Override
-protected void disable() {
-    // ...
-    getLogger().info("MyPlugin Disabled!");   // 불필요
 }
 ```
 
@@ -199,13 +193,13 @@ public class SubCommand extends RSCommand<MyPlugin> {
 ```java
 @Override
 protected void enable() {
-    framework.registerCommand(new MainCommand(this), true);
+    registerCommand(new MainCommand(this), true);
 }
 ```
 
 ### Result (명령어 실행 결과)
 
-`execute()` 메서드의 반환값에 따라 프레임워크가 **자동으로 공통 안내 메시지를 발송**합니다. 개발자가 직접 메시지를 작성하거나 조건 분기를 할 필요가 없습니다.
+`execute()` 메서드의 반환값에 따라 프레임워크가 **자동으로 공통 안내 메시지를 발송**합니다.
 
 | Result | 설명 | 프레임워크 동작 |
 |--------|------|----------------|
@@ -220,7 +214,7 @@ protected void enable() {
 | `WRONG_USAGE` | 잘못된 사용법 | 서브 명령어 목록 및 usage 자동 표시 |
 
 ```java
-// ✅ 올바른 예시 1 — player() 메서드로 간단히 체크
+// ✅ 올바른 예시
 @Override
 protected Result execute(CommandArgs data) {
     Player player = player();
@@ -232,55 +226,31 @@ protected Result execute(CommandArgs data) {
 ```
 
 ```java
-// ✅ 올바른 예시 2 — 대상 플레이어가 온라인이어야 하는 경우
-@Override
-protected Result execute(CommandArgs data) {
-    Player target = Bukkit.getPlayer(data.get(0));
-    if (target == null) return Result.NOT_FOUND_ONLINE_PLAYER;
-    
-    notifier.announce(target.getName() + "님에게 아이템을 지급했습니다!");
-    return Result.SUCCESS;
-}
-```
-
-```java
 // ❌ 잘못된 예시 — 프레임워크가 이미 처리하는 메시지를 직접 작성
 @Override
 protected Result execute(CommandArgs data) {
     Player target = Bukkit.getPlayer(data.get(0));
     if (target == null) {
-        getSender().sendMessage("온라인 플레이어를 찾을 수 없습니다."); // 불필요 (NOT_FOUND_ONLINE_PLAYER 반환으로 대체)
+        getSender().sendMessage("온라인 플레이어를 찾을 수 없습니다."); // 불필요
         return Result.FAILURE;
     }
-    
     return Result.SUCCESS;
 }
 ```
 
 > **메시지 전송 시 `getSender().sendMessage()`가 아닌 `notifier`를 사용합니다.** `notifier`는 MiniMessage 포맷과 접두사를 자동으로 처리합니다.  
-> `RSCommand`의 `execute()`와 `tabComplete()` 내부에서는 명령어 실행자(sender/player)가 자동으로 수신자로 설정되므로, `notifier.announce("메시지")` 처럼 대상 지정 없이 사용할 수 있다. (명시적으로 지정하려면 `audience()` 사용 가능)
+> `RSCommand`의 `execute()`와 `tabComplete()` 내부에서는 명령어 실행자(sender/player)가 자동으로 수신자로 설정되므로, `notifier.announce("메시지")` 처럼 대상 지정 없이 사용할 수 있습니다.
 
 ### 명령어 다국어 번역 및 구조 정의
 
-`RSCommand` 생성자에 전달되는 식별자(예: `"test"`)는 `Translation/Command/{언어}.yml` 파일에서 명령어의 이름, 설명, 사용법, 서브 명령어 등을 정의하는 최상위 키로 사용됩니다. 이를 통해 명령어의 메타데이터를 소스 코드가 아닌 설정 파일에서 유연하게 관리할 수 있습니다.
+`RSCommand` 생성자에 전달되는 식별자(예: `"test"`)는 `Translation/Command/{언어}.yml` 파일에서 명령어의 이름, 설명, 사용법, 서브 명령어 등을 정의하는 최상위 키로 사용됩니다.
 
-**기본 구조 (단일 명령어):**
 ```yaml
+# 기본 구조
 test:
   name: "테스트"
-```
 
-**서브 명령어가 포함된 계층형 구조:**
-```yaml
-test:
-  name: "테스트"
-  commands:
-    sub:
-      name: "서브"
-```
-
-**설명(`description`) 및 사용법(`usage`)을 포함한 상세 구조:**
-```yaml
+# 서브 명령어 포함
 test:
   name: "테스트"
   description: "테스트 명령어 입니다"
@@ -296,29 +266,42 @@ test:
 
 ## 설정 파일 관리 (Configuration)
 
-Sponge Configurate 기반 YAML 객체 매핑을 지원합니다. `ConfigurationPart`를 상속하거나 `@ConfigSerializable` record를 사용합니다.
+Sponge Configurate 기반 YAML 객체 매핑을 지원합니다. `ConfigurationPart`를 상속하여 사용합니다.
 
-> `@ConfigSerializable`을 일반 클래스에 붙이면 기본 생성자(NoArgsConstructor)가 필요합니다.
-> `record`를 사용하면 생성자 제약 없이 불변 객체를 매핑할 수 있습니다.
-
-### 설정 모델 정의
+> **`@SuppressWarnings` 필수** — Configurate는 리플렉션으로 필드를 직접 조작하므로, IDE 경고를 억제해야 합니다.
 
 ```java
 import kr.rtustudio.configurate.model.ConfigurationPart;
+import kr.rtustudio.configurate.model.constraint.Constraints.Min;
+import lombok.Getter;
+import org.spongepowered.configurate.objectmapping.meta.Comment;
 
+@Getter
+@SuppressWarnings({
+    "unused",
+    "CanBeFinal",
+    "FieldCanBeLocal",
+    "FieldMayBeFinal",
+    "InnerClassMayBeStatic"
+})
 public class MyConfig extends ConfigurationPart {
-    public String welcomeMessage = "<green>환영합니다!";
-    public int maxPlayers = 100;
-}
-```
 
-```java
-import org.spongepowered.configurate.objectmapping.ConfigSerializable;
+    @Comment("Welcome message (MiniMessage format)")
+    private String welcomeMessage = "<green>환영합니다!";
 
-@ConfigSerializable
-public record MyConfig(String welcomeMessage, int maxPlayers) {
-    public MyConfig() {
-        this("<green>환영합니다!", 100);
+    @Min(1)
+    @Comment("Maximum players")
+    private int maxPlayers = 100;
+
+    public Connection connection;
+
+    @Getter
+    public class Connection extends ConfigurationPart {
+        @Comment("Server address")
+        private String host = "127.0.0.1";
+
+        @Comment("Server port")
+        private int port = 25565;
     }
 }
 ```
@@ -330,21 +313,27 @@ import kr.rtustudio.configurate.model.ConfigPath;
 import kr.rtustudio.configurate.model.ConfigList;
 
 @Override
-protected void enable() {
+protected void initialize() {
     // 단일 파일: Config/Setting.yml
     registerConfiguration(MyConfig.class, ConfigPath.of("Setting"));
-    MyConfig config = getConfiguration(MyConfig.class);
 
     // 폴더: Config/Regions/*.yml
     registerConfigurations(RegionConfig.class, ConfigPath.of("Regions"));
+}
+
+public void doSomething() {
+    MyConfig config = getConfiguration(MyConfig.class);
     ConfigList<RegionConfig> regions = getConfigurations(RegionConfig.class);
 
     RegionConfig spawn = regions.get("spawn");     // spawn.yml
-    for (RegionConfig r : regions.values()) { ... }
+    for (RegionConfig r : regions.values()) { /* ... */ }
+
+    // 리로드
+    reloadConfiguration(MyConfig.class);
 }
 ```
 
-`/reload` 호출 시 파일 추가·삭제까지 자동 반영됩니다. 상세 내부 구조는 `docs/configuration.md`를 참조하세요.
+상세 내용은 `docs/configuration.md`를 참조하세요.
 
 ---
 
@@ -368,7 +357,6 @@ String common = message.getCommon("prefix");
 MiniMessage 포맷 지원. 채팅, 액션바, 타이틀, 보스바, 크로스서버 브로드캐스트를 제공합니다.
 
 > **`getSender().sendMessage()` 또는 `player.sendMessage()`를 직접 호출하지 마세요.** 항상 `notifier`를 통해 메시지를 전송합니다.
-> `RSCommand`의 `execute()`와 `tabComplete()` 내부에서는 명령어 실행자가 자동으로 수신자로 설정되므로 대상 지정 파라미터를 생략할 수 있습니다.
 
 ```java
 // RSCommand 외부 (RSListener, RSInventory 등)
@@ -387,24 +375,52 @@ Notifier.broadcastAll("<green>새로운 이벤트가 시작되었습니다!");
 
 ## 브릿지 통신 (Bridge)
 
-Redis(Redisson) 또는 Proxium을 통한 서버 간 Pub/Sub 메시징입니다. 구현체와 관계없이 동일한 코드 패턴을 사용합니다.
+서버 간 **Pub/Sub** 브로드캐스트와 **RPC** 요청-응답을 지원합니다.
+
+### Pub/Sub
 
 ```java
-import kr.rtustudio.bridge.Bridge;
 import kr.rtustudio.bridge.BridgeChannel;
+import kr.rtustudio.bridge.proxium.api.Proxium;
 
-Bridge bridge = framework.getBridge(Proxium.class); // 또는 Redis.class
+Proxium proxium = getBridge(Proxium.class);
 BridgeChannel channel = BridgeChannel.of("myplugin", "shop");
 
-bridge.register(channel, BuyRequest.class, SellRequest.class);
-
-bridge.subscribe(channel, packet -> {
-    if (packet instanceof BuyRequest buy) {
-        getLogger().info(buy.playerName() + "님이 구매를 요청했습니다.");
-    }
+// 타입 안전 구독
+proxium.subscribe(channel, BuyRequest.class, buy -> {
+    getLogger().info(buy.playerName() + "님이 구매를 요청했습니다.");
 });
 
-bridge.publish(channel, new BuyRequest("ipecter", "DIAMOND", 64));
+// 발행
+proxium.publish(channel, new BuyRequest("ipecter", "DIAMOND", 64));
+```
+
+### RPC (원격 프로시저 호출)
+
+```java
+// 응답 서버 (데이터 보유)
+proxium.respond(channel)
+    .on(BalanceRequest.class, (sender, req) -> {
+        return new BalanceResponse(req.uuid(), getBalance(req.uuid()));
+    })
+    .error(e -> log.error("RPC 실패: " + e.getMessage()));
+
+// 요청 서버 (데이터 필요)
+proxium.request("Survival-1", channel, new BalanceRequest(uuid))
+    .on(BalanceResponse.class, (sender, res) -> {
+        player.sendMessage("잔고: " + res.balance());
+    })
+    .error(e -> player.sendMessage("요청 실패: " + e.type()));
+```
+
+### 네트워크 플레이어 조회
+
+```java
+import kr.rtustudio.bridge.proxium.api.proxy.ProxyPlayer;
+
+for (ProxyPlayer p : proxium.getPlayers().values()) {
+    System.out.println(p.getName() + " → " + p.getServer());
+}
 ```
 
 ### Redis 전용 — 분산 락
@@ -412,21 +428,9 @@ bridge.publish(channel, new BuyRequest("ipecter", "DIAMOND", 64));
 ```java
 import kr.rtustudio.bridge.redis.Redis;
 
-Redis redis = framework.getBridgeRegistry().get(Redis.class);
+Redis redis = getBridge(Redis.class);
 redis.withLock("player-data-save", () -> { /* 안전한 저장 */ });
 boolean ok = redis.tryLockOnce("daily-reward", () -> { /* 보상 지급 */ });
-```
-
-### Proxium 전용 — 네트워크 정보
-
-```java
-import kr.rtustudio.bridge.proxium.api.Proxium;
-import kr.rtustudio.bridge.proxium.api.proxy.ProxyPlayer;
-
-Proxium proxium = framework.getBridge(Proxium.class);
-for (ProxyPlayer p : proxium.getPlayers().values()) {
-    System.out.println(p.name() + " → " + p.server());
-}
 ```
 
 상세 아키텍처는 `docs/bridge.md`를 참조하세요.
@@ -435,21 +439,39 @@ for (ProxyPlayer p : proxium.getPlayers().values()) {
 
 ## 스토리지 (Storage)
 
-다양한 데이터베이스를 통합 관리합니다. 설정 변경 시 변경된 커넥션만 재연결합니다.
+JSON 문서 기반 통합 API로 모든 데이터베이스를 동일한 인터페이스(`add` / `set` / `get`)로 관리합니다.
+
+**지원 타입**: JSON, SQLite, MySQL, MariaDB, PostgreSQL, MongoDB
 
 ```java
 import kr.rtustudio.storage.Storage;
 import kr.rtustudio.storage.StorageType;
+import kr.rtustudio.storage.JSON;
 
-registerStorage("UserData", StorageType.MYSQL);
+// 등록
+registerStorage("PlayerData", StorageType.MARIADB);
 
-Storage storage = getStorage("UserData");
-if (storage != null && storage.isConnected()) {
-    Object connection = storage.getConnection();
-}
+// 사용
+Storage storage = getStorage("PlayerData");
+
+// 삽입
+storage.add(JSON.of("uuid", uuid.toString())
+    .append("name", "IPECTER")
+    .append("coins", 1000));
+
+// 조회
+storage.get(JSON.of("uuid", uuid.toString())).thenAccept(results -> {
+    if (!results.isEmpty()) {
+        int coins = results.get(0).get("coins").getAsInt();
+    }
+});
+
+// 수정
+storage.set(
+    JSON.of("uuid", uuid.toString()),
+    JSON.of("uuid", uuid.toString()).append("coins", 2000)
+);
 ```
-
-**지원 타입**: JSON, SQLite, MySQL, MariaDB, PostgreSQL, MongoDB
 
 상세 내용은 `docs/storage.md`를 참조하세요.
 
