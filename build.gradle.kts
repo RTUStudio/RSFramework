@@ -126,8 +126,6 @@ dependencies {
 
 // Plugin Build
 tasks.shadowJar {
-    file("$rootDir/builds").delete()
-
     archiveClassifier.set(null as String?)
     archiveBaseName.set(pluginName)
     archiveVersion.set(pluginVersion)
