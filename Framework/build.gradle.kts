@@ -46,6 +46,7 @@ listOf("API", "Core").forEach { name ->
 dependencies {
     implementation(project(":Framework:API"))
     implementation(project(":Framework:Core"))
+    implementation(project(":Platform:Spigot"))
 }
 
 tasks.jar {

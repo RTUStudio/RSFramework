@@ -51,7 +51,8 @@ public class BukkitProxium extends ProxiumServer {
                     TeleportRequest.class,
                     PlayerEvent.class,
                     RequestPacket.class,
-                    ResponsePacket.class);
+                    ResponsePacket.class,
+                    BroadcastMessage.class);
             register(
                     BridgeChannel.AUDIENCE,
                     BridgeChannel.class,

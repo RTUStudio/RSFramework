@@ -8,6 +8,8 @@ dependencies {
     implementation(project(path = ":Bridge:Proxium:Bukkit", configuration = "shadow"))
 
     compileOnly(project(":Framework:API"))
+    compileOnly(project(":Bridge:Common"))
+    compileOnly(project(":Bridge:Proxium:Common:API"))
 
     compileOnly("org.spigotmc:spigot-api:$apiVersion-R0.1-SNAPSHOT")
 

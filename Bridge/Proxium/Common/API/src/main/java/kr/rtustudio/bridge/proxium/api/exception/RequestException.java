@@ -28,5 +28,4 @@ public class RequestException extends RuntimeException {
     public Throwable cause() {
         return getCause();
     }
-
 }

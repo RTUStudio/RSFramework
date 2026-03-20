@@ -2,10 +2,10 @@ package kr.rtustudio.bridge.proxium.core;
 
 import kr.rtustudio.bridge.BridgeChannel;
 import kr.rtustudio.bridge.BridgeOptions;
-import kr.rtustudio.bridge.proxium.api.context.RequestContext;
 import kr.rtustudio.bridge.proxium.api.ProxiumPipeline;
-import kr.rtustudio.bridge.proxium.api.context.ResponseContext;
 import kr.rtustudio.bridge.proxium.api.configuration.ProxiumConfig;
+import kr.rtustudio.bridge.proxium.api.context.RequestContext;
+import kr.rtustudio.bridge.proxium.api.context.ResponseContext;
 import kr.rtustudio.bridge.proxium.api.exception.RequestException;
 import kr.rtustudio.bridge.proxium.api.exception.ResponseStatus;
 import kr.rtustudio.bridge.proxium.api.handler.ResponseHandler;
@@ -173,8 +173,7 @@ public abstract class AbstractProxium implements ProxiumPipeline {
         if (future == null) return true;
 
         switch (response.status()) {
-            case SUCCESS -> future.complete(
-                    new Object[]{response.sender(), response.payload()});
+            case SUCCESS -> future.complete(new Object[] {response.sender(), response.payload()});
             case NO_HANDLER ->
                     future.completeExceptionally(
                             new RequestException(
@@ -259,9 +258,10 @@ public abstract class AbstractProxium implements ProxiumPipeline {
         Consumer<RequestException> errorHandler = respondErrorHandlers.get(channel);
         if (errorHandler != null) {
             Throwable cause = err instanceof CompletionException ? err.getCause() : err;
-            RequestException exception = cause instanceof RequestException re
-                    ? re
-                    : new RequestException(ResponseStatus.ERROR, cause.getMessage(), cause);
+            RequestException exception =
+                    cause instanceof RequestException re
+                            ? re
+                            : new RequestException(ResponseStatus.ERROR, cause.getMessage(), cause);
             try {
                 errorHandler.accept(exception);
             } catch (Exception e) {

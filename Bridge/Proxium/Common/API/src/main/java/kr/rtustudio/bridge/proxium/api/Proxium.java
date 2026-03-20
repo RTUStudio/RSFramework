@@ -57,9 +57,9 @@ public interface Proxium extends Bridge {
     /**
      * 대상 서버로 단일 RPC 요청(Request)을 전송한다.
      *
-     * <p>반환된 {@link RequestContext}의 {@link RequestContext#on(Class, java.util.function.BiConsumer)}을 통해
-     * 여러 응답 타입에 대한 핸들러를 체이닝 방식으로 등록할 수 있다.
-     * 요청 페이로드 타입은 자동으로 채널에 등록된다.
+     * <p>반환된 {@link RequestContext}의 {@link RequestContext#on(Class,
+     * java.util.function.BiConsumer)}을 통해 여러 응답 타입에 대한 핸들러를 체이닝 방식으로 등록할 수 있다. 요청 페이로드 타입은 자동으로 채널에
+     * 등록된다.
      *
      * @param target 대상 서버 이름
      * @param channel 브릿지 채널
@@ -93,9 +93,9 @@ public interface Proxium extends Bridge {
     /**
      * 특정 채널에 대한 응답 핸들러 등록기를 반환한다.
      *
-     * <p>반환된 {@link ResponseContext}의 {@link ResponseContext#on(Class, kr.rtustudio.bridge.proxium.api.handler.ResponseHandler)}을 통해
-     * 여러 요청 타입에 대한 핸들러를 체이닝 방식으로 등록할 수 있다.
-     * 등록된 요청 타입은 자동으로 채널에 등록된다.
+     * <p>반환된 {@link ResponseContext}의 {@link ResponseContext#on(Class,
+     * kr.rtustudio.bridge.proxium.api.handler.ResponseHandler)}을 통해 여러 요청 타입에 대한 핸들러를 체이닝 방식으로 등록할
+     * 수 있다. 등록된 요청 타입은 자동으로 채널에 등록된다.
      *
      * @param channel 브릿지 채널
      * @return 핸들러 등록기

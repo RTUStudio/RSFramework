@@ -13,6 +13,7 @@ import java.util.function.Consumer;
  * RPC 요청에 대한 응답을 타입별로 처리할 수 있는 체이닝 빌더.
  *
  * <p>예시:
+ *
  * <pre>{@code
  * proxium.request("Survival-1", channel, new BalanceRequest(uuid), Duration.ofSeconds(5))
  *     .on(BalanceResponse.class, (sender, response) -> player.sendMessage("잔고: " + response.balance()))
@@ -45,12 +46,13 @@ public class RequestContext {
      */
     public <R> RequestContext on(Class<R> type, BiConsumer<String, R> handler) {
         typeCallback.accept(type);
-        future.thenAccept(result -> {
-            Object payload = result[1];
-            if (type.isInstance(payload)) {
-                handler.accept((String) result[0], type.cast(payload));
-            }
-        });
+        future.thenAccept(
+                result -> {
+                    Object payload = result[1];
+                    if (type.isInstance(payload)) {
+                        handler.accept((String) result[0], type.cast(payload));
+                    }
+                });
         return this;
     }
 
@@ -61,20 +63,22 @@ public class RequestContext {
      * @return 체이닝을 위한 자기 자신
      */
     public RequestContext error(Consumer<RequestException> handler) {
-        future.whenComplete((result, throwable) -> {
-            if (throwable != null) {
-                Throwable cause = throwable instanceof CompletionException
-                        ? throwable.getCause() : throwable;
-                if (cause instanceof RequestException e) {
-                    handler.accept(e);
-                } else if (cause instanceof TimeoutException te) {
-                    handler.accept(new RequestException(
-                            ResponseStatus.TIMEOUT,
-                            "RPC request timed out",
-                            te));
-                }
-            }
-        });
+        future.whenComplete(
+                (result, throwable) -> {
+                    if (throwable != null) {
+                        Throwable cause =
+                                throwable instanceof CompletionException
+                                        ? throwable.getCause()
+                                        : throwable;
+                        if (cause instanceof RequestException e) {
+                            handler.accept(e);
+                        } else if (cause instanceof TimeoutException te) {
+                            handler.accept(
+                                    new RequestException(
+                                            ResponseStatus.TIMEOUT, "RPC request timed out", te));
+                        }
+                    }
+                });
         return this;
     }
 

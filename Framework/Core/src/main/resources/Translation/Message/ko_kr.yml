@@ -19,4 +19,8 @@ data-name-type:
   exist: "<red>이미 사용중인 이름입니다</red>"
 command:
   empty: "<red>메세지가 비어있습니다</red>"
+  success: "<green>명령어를 성공적으로 실행했습니다</green>"
   item: "<white>아이템 ID: <aqua>{id}</aqua></white>"
+test:
+  not-loaded: "<red>Proxium이 로드되지 않았습니다</red>"
+  not-connected: "<red>프록시에 연결되어 있지 않습니다</red>"

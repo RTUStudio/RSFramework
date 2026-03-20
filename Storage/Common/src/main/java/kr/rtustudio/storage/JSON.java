@@ -3,6 +3,8 @@ package kr.rtustudio.storage;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
+import org.jetbrains.annotations.NotNull;
+
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
@@ -12,55 +14,67 @@ public class JSON {
 
     private final JsonObject json = new JsonObject();
 
+    @NotNull
     public static JSON of() {
         return new JSON();
     }
 
-    public static JSON of(String key, JsonElement value) {
+    @NotNull
+    public static JSON of(@NotNull String key, @NotNull JsonElement value) {
         return new JSON().append(key, value);
     }
 
-    public static JSON of(String key, Number value) {
+    @NotNull
+    public static JSON of(@NotNull String key, @NotNull Number value) {
         return new JSON().append(key, value);
     }
 
-    public static JSON of(String key, String value) {
+    @NotNull
+    public static JSON of(@NotNull String key, @NotNull String value) {
         return new JSON().append(key, value);
     }
 
-    public static JSON of(String key, Boolean value) {
+    @NotNull
+    public static JSON of(@NotNull String key, @NotNull Boolean value) {
         return new JSON().append(key, value);
     }
 
-    public static JSON of(String key, Character value) {
+    @NotNull
+    public static JSON of(@NotNull String key, @NotNull Character value) {
         return new JSON().append(key, value);
     }
 
-    public JSON append(String key, JsonElement value) {
+    @NotNull
+    public JSON append(@NotNull String key, @NotNull JsonElement value) {
         json.add(key, value);
         return this;
     }
 
-    public JSON append(String key, Number value) {
+    @NotNull
+    public JSON append(@NotNull String key, @NotNull Number value) {
         json.addProperty(key, value);
         return this;
     }
 
-    public JSON append(String key, String value) {
+    @NotNull
+    public JSON append(@NotNull String key, @NotNull String value) {
         json.addProperty(key, value);
         return this;
     }
 
-    public JSON append(String key, Boolean value) {
+    @NotNull
+    public JSON append(@NotNull String key, @NotNull Boolean value) {
         json.addProperty(key, value);
         return this;
     }
 
-    public JSON append(String key, Character value) {
+    @NotNull
+    public JSON append(@NotNull String key, @NotNull Character value) {
         json.addProperty(key, value);
         return this;
     }
 
+    @NotNull
     public JsonObject get() {
         return json;
     }

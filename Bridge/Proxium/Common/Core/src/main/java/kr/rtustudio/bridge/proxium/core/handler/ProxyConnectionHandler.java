@@ -59,8 +59,7 @@ public class ProxyConnectionHandler implements ConnectionHandler {
     }
 
     private String resolveServerName(Connection connection) {
-        ProxiumNode server =
-                proxium.getProxiumNode(connection.getRemoteAddress()).orElse(null);
+        ProxiumNode server = proxium.getProxiumNode(connection.getRemoteAddress()).orElse(null);
         return server != null ? server.name() : "Unknown";
     }
 
@@ -74,4 +73,3 @@ public class ProxyConnectionHandler implements ConnectionHandler {
         log.warn("Disconnected from {}", resolveServerName(connection));
     }
 }
-

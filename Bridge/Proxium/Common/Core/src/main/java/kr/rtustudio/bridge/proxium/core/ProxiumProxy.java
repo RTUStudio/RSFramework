@@ -40,8 +40,7 @@ public abstract class ProxiumProxy extends AbstractProxium {
     private static final int MAX_RETRIES = 10;
     private static final long RETRY_DELAY_SECONDS = 5;
 
-    private final ConcurrentHashMap<String, ProxiumNode> serversByName =
-            new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<String, ProxiumNode> serversByName = new ConcurrentHashMap<>();
 
     private final Map<Connection, Set<BridgeChannel>> serverSubscriptions =
             new ConcurrentHashMap<>();

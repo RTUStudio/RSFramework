@@ -5,6 +5,7 @@ import kr.rtustudio.bridge.BridgeOptions;
 import kr.rtustudio.bridge.proxium.api.ProxiumNode;
 import kr.rtustudio.bridge.proxium.api.netty.Connection;
 import kr.rtustudio.bridge.proxium.api.protocol.Protocol;
+import kr.rtustudio.bridge.proxium.api.protocol.internal.BroadcastMessage;
 import kr.rtustudio.bridge.proxium.api.protocol.internal.PlayerEvent;
 import kr.rtustudio.bridge.proxium.api.protocol.internal.PlayerList;
 import kr.rtustudio.bridge.proxium.api.protocol.internal.RequestPacket;
@@ -16,6 +17,7 @@ import kr.rtustudio.bridge.proxium.api.proxy.request.TeleportRequest;
 import kr.rtustudio.bridge.proxium.core.MutableProxyPlayer;
 import kr.rtustudio.bridge.proxium.core.ProxiumProxy;
 import kr.rtustudio.bridge.proxium.core.configuration.ProxiumConfig;
+import kr.rtustudio.bridge.proxium.core.handler.ProxyConnectionHandler;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
@@ -74,7 +76,8 @@ public class VelocityProxium extends ProxiumProxy {
                 TeleportRequest.class,
                 PlayerEvent.class,
                 RequestPacket.class,
-                ResponsePacket.class);
+                ResponsePacket.class,
+                BroadcastMessage.class);
 
         registerInternalSubscription();
 
@@ -89,7 +92,7 @@ public class VelocityProxium extends ProxiumProxy {
 
     @Override
     protected void configureProtocol(Protocol.Builder builder) {
-        builder.setProxyHandler(() -> new ConnectionHandler(this));
+        builder.setProxyHandler(() -> new ProxyConnectionHandler(this));
         if (isModernProxy()) {
             builder.setProxyAuthHandler(VelocityAuth::new);
         }

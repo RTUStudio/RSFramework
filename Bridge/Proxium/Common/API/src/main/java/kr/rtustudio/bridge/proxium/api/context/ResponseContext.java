@@ -10,6 +10,7 @@ import java.util.function.Consumer;
  * 특정 채널에 대한 응답 핸들러를 체이닝 방식으로 등록하는 등록기.
  *
  * <p>예시:
+ *
  * <pre>{@code
  * proxium.respond(channel)
  *     .on(BalanceRequest.class, (sender, req) -> new BalanceResponse(getBalance(req.uuid())))

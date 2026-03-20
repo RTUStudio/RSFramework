@@ -115,6 +115,7 @@ dependencies {
     implementation(project(":Framework"))
     implementation(project(":Platform:Bungee"))
     implementation(project(":Platform:Velocity"))
+    implementation(project(":Platform:Spigot"))
 
     implementation(libs.libby.bukkit)
     implementation(libs.libby.bungee)

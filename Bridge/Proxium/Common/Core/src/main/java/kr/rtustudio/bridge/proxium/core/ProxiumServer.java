@@ -25,7 +25,8 @@ import org.jspecify.annotations.Nullable;
 @Getter
 public abstract class ProxiumServer extends AbstractProxium {
 
-    private static final java.time.Duration DEFAULT_REQUEST_TIMEOUT = java.time.Duration.ofSeconds(5);
+    private static final java.time.Duration DEFAULT_REQUEST_TIMEOUT =
+            java.time.Duration.ofSeconds(5);
 
     private final Map<String, ProxiumNode> knownServers = new ConcurrentHashMap<>();
 

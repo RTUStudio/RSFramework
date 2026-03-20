@@ -4,7 +4,7 @@ dependencies {
     implementation(project(":Bridge:Redisson"))
 
     implementation(project(":Framework:API"))
-    compileOnly(project(":Configurate"))
+    implementation(project(":Configurate"))
 
     implementation(project(":Storage:Common"))
     implementation(project(":Storage:MySQL"))

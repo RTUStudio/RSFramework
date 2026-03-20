@@ -5,18 +5,32 @@ common:
 rsf:
   name: "rsf"
   commands:
-    broadcast:
-      name: "broadcast"
-      description: "Send broadcast message"
-      usage: "/rsf broadcast {message}"
     information:
       name: "information"
       description: "Check software information of server"
-    send:
-      name: "send"
-      description: "Send message to player"
-      usage: "/rsf send {player} {message}"
     item:
       name: "item"
       description: "Check item information from id or item on hand"
       usage: "/rsf item [ID]"
+proxium:
+  name: "proxium"
+  commands:
+    actionbar:
+      name: "actionbar"
+      description: "Send actionbar message"
+      usage: "/proxium actionbar {player} [message]"
+    title:
+      name: "title"
+      description: "Send title message"
+      usage: "/proxium title {player} [title] [subtitle]"
+    broadcast:
+      name: "broadcast"
+      description: "Send broadcast message"
+      usage: "/proxium broadcast [message]"
+    send:
+      name: "send"
+      description: "Send message to player"
+      usage: "/proxium send {player} [message]"
+    test:
+      name: "test"
+      description: "Run Proxium integration tests"
