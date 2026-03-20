@@ -48,7 +48,9 @@ public class TranslationConfiguration {
     }
 
     private String resolveLocale(ProxyPlayer player) {
-        return player != null && player.locale() != null ? player.locale().toString() : null;
+        if (player == null) return null;
+        Player bukkit = org.bukkit.Bukkit.getPlayer(player.getUniqueId());
+        return bukkit != null ? bukkit.getLocale() : null;
     }
 
     /**
@@ -185,9 +187,9 @@ public class TranslationConfiguration {
 
     @NotNull
     public String getCommon(ProxyPlayer player, String key) {
-        if (player != null && player.locale() != null)
-            return getCommon(player.locale().toString(), key);
-        return getCommon(key);
+        if (player == null) return getCommon(key);
+        Player bukkit = org.bukkit.Bukkit.getPlayer(player.getUniqueId());
+        return bukkit != null ? getCommon(bukkit.getLocale(), key) : getCommon(key);
     }
 
     @NotNull
@@ -208,9 +210,9 @@ public class TranslationConfiguration {
 
     @NotNull
     public List<String> getCommonList(ProxyPlayer player, String key) {
-        if (player != null && player.locale() != null)
-            return getCommonList(player.locale().toString(), key);
-        return getCommonList(key);
+        if (player == null) return getCommonList(key);
+        Player bukkit = org.bukkit.Bukkit.getPlayer(player.getUniqueId());
+        return bukkit != null ? getCommonList(bukkit.getLocale(), key) : getCommonList(key);
     }
 
     /** 모든 로케일의 번역 파일을 다시 로드한다. */

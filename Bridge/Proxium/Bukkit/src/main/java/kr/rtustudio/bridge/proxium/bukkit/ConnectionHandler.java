@@ -6,24 +6,18 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j(topic = "Proxium")
 @RequiredArgsConstructor
-public class ConnectionHandler implements kr.rtustudio.bridge.proxium.api.ConnectionHandler {
+public class ConnectionHandler
+        implements kr.rtustudio.bridge.proxium.api.handler.ConnectionHandler {
 
-    private static Connection proxy;
     private final BukkitProxium proxium;
-
-    public static Connection getProxy() {
-        if (proxy == null || !proxy.isOpen()) return null;
-        return proxy;
-    }
 
     @Override
     public void onReady(Connection connection) {
-        String platform = proxium.getSecurity().isModernProxy() ? "Velocity" : "BungeeCord/Other";
+        String platform = proxium.getSecurity().isModernProxy() ? "velocity" : "bungeecord";
         log.info("Connected to {}", platform);
         log.info("┠ Address: {}", connection.getRemoteAddressString());
         log.info("┖ Channel: {}", connection.getProtocol().getChannel());
         proxium.ready(connection);
-        proxy = connection;
     }
 
     @Override
@@ -31,5 +25,12 @@ public class ConnectionHandler implements kr.rtustudio.bridge.proxium.api.Connec
         if (packet instanceof byte[] frame) {
             proxium.dispatchPacket(frame);
         }
+    }
+
+    @Override
+    public void onDisconnect(Connection connection) {
+        String platform = proxium.getSecurity().isModernProxy() ? "velocity" : "bungeecord";
+        log.warn("Disconnected from {}. Operating in standalone mode.", platform);
+        proxium.setNode(null);
     }
 }

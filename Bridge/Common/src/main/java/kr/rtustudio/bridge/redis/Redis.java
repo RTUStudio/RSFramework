@@ -2,30 +2,36 @@ package kr.rtustudio.bridge.redis;
 
 import kr.rtustudio.bridge.Bridge;
 
+import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
+
+import org.jetbrains.annotations.NotNull;
 
 public interface Redis extends Bridge {
 
-    <T> T withLock(String key, Supplier<T> action);
+    <T> T withLock(@NotNull String key, @NotNull Supplier<T> action);
 
     <T> T withLock(
-            String key,
+            @NotNull String key,
             long waitTime,
             long leaseTime,
-            java.util.concurrent.TimeUnit timeUnit,
-            Supplier<T> action);
+            @NotNull TimeUnit timeUnit,
+            @NotNull Supplier<T> action);
 
-    boolean withLock(String key, Runnable action);
+    boolean withLock(@NotNull String key, @NotNull Runnable action);
 
     boolean withLock(
-            String key,
+            @NotNull String key,
             long waitTime,
             long leaseTime,
-            java.util.concurrent.TimeUnit timeUnit,
-            Runnable action);
+            @NotNull TimeUnit timeUnit,
+            @NotNull Runnable action);
 
-    boolean tryLockOnce(String key, Runnable action);
+    boolean tryLockOnce(@NotNull String key, @NotNull Runnable action);
 
     boolean tryLockOnce(
-            String key, long leaseTime, java.util.concurrent.TimeUnit timeUnit, Runnable action);
+            @NotNull String key,
+            long leaseTime,
+            @NotNull TimeUnit timeUnit,
+            @NotNull Runnable action);
 }

@@ -5,11 +5,10 @@ import it.unimi.dsi.fastutil.objects.Object2BooleanMap;
 import it.unimi.dsi.fastutil.objects.Object2BooleanOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import kr.rtustudio.bridge.BridgeChannel;
-import kr.rtustudio.bridge.BridgeOptions;
 import kr.rtustudio.bridge.BridgeRegistry;
 import kr.rtustudio.bridge.proxium.api.Proxium;
-import kr.rtustudio.bridge.proxium.api.protocol.internal.Broadcast;
-import kr.rtustudio.bridge.proxium.api.protocol.internal.SendMessage;
+import kr.rtustudio.bridge.proxium.api.protocol.internal.BroadcastMessage;
+import kr.rtustudio.bridge.proxium.api.protocol.internal.PlayerMessage;
 import kr.rtustudio.bridge.proxium.api.proxy.ProxyPlayer;
 import kr.rtustudio.bridge.proxium.bukkit.BukkitProxium;
 import kr.rtustudio.bridge.redis.Redis;
@@ -130,8 +129,6 @@ public class Framework implements kr.rtustudio.framework.bukkit.api.core.Framewo
         moduleFactory = new ModuleFactory(this);
         providerRegistry.register(NameProvider.class, new VanillaNameProvider());
         scheduler = new Scheduler(plugin);
-        plugin.registerConfiguration(ProxiumConfig.class, ConfigPath.of("Bridge", "Proxium"));
-        plugin.registerConfiguration(RedisConfig.class, ConfigPath.of("Bridge", "Redis"));
         loadBridges(plugin);
     }
 
@@ -153,26 +150,26 @@ public class Framework implements kr.rtustudio.framework.bukkit.api.core.Framewo
     private void loadBridges(RSPlugin plugin) {
         ClassLoader classLoader = plugin.getClass().getClassLoader();
 
+        ProxiumConfig pc =
+                plugin.registerConfiguration(
+                        ProxiumConfig.class, ConfigPath.of("Bridge", "Proxium"));
+        RedisConfig rc =
+                plugin.registerConfiguration(RedisConfig.class, ConfigPath.of("Bridge", "Redis"));
+
         Proxium existingProxium = bridgeRegistry.get(Proxium.class);
         if (existingProxium == null) {
-            ProxiumConfig proxiumConfig = plugin.getConfiguration(ProxiumConfig.class);
-            proxium =
-                    new BukkitProxium(
-                            plugin.getDataFolder().getPath(),
-                            proxiumConfig.toBridgeOptions(classLoader),
-                            proxiumConfig.getCompression(),
-                            proxiumConfig.getMaxPacketSize());
+            proxium = new BukkitProxium(classLoader, plugin.getDataFolder().getPath(), pc);
 
             proxium.subscribe(
                     BridgeChannel.INTERNAL,
                     packet -> {
-                        if (packet instanceof Broadcast broadcast) {
-                            Notifier.broadcast(broadcast.minimessage());
-                        } else if (packet instanceof SendMessage sendMessage) {
-                            ProxyPlayer target = sendMessage.player();
-                            Player player = Bukkit.getPlayer(target.uniqueId());
+                        if (packet instanceof BroadcastMessage broadcast) {
+                            Notifier.broadcast(broadcast.message());
+                        } else if (packet instanceof PlayerMessage playerMessage) {
+                            ProxyPlayer target = playerMessage.player();
+                            Player player = Bukkit.getPlayer(target.getUniqueId());
                             if (player != null)
-                                Notifier.of(plugin, player).send(sendMessage.minimessage());
+                                Notifier.of(plugin, player).send(playerMessage.message());
                         }
                     });
 
@@ -181,11 +178,7 @@ public class Framework implements kr.rtustudio.framework.bukkit.api.core.Framewo
 
         Redis rds = bridgeRegistry.get(Redis.class);
         if (rds == null) {
-            RedisConfig redisConfig = plugin.getConfiguration(RedisConfig.class);
-            bridgeRegistry.register(
-                    Redis.class,
-                    new RedisBridge(
-                            redisConfig.toRedisConfig(), BridgeOptions.defaults(classLoader)));
+            bridgeRegistry.register(Redis.class, new RedisBridge(classLoader, rc.toRedisConfig()));
         }
     }
 

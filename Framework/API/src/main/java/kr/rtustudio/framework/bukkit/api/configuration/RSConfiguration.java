@@ -346,6 +346,10 @@ public class RSConfiguration {
             try {
                 if (Files.notExists(path)) {
                     if (defaultConfig == null) {
+                        if (path.getParent() != null) {
+                            Files.createDirectories(path.getParent());
+                        }
+                        Files.createFile(path);
                         this.config = CommentedConfigurationNode.root(this.loader.defaultOptions());
                     } else this.config = this.loader.load();
                     if (this.version > 0)

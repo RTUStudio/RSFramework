@@ -17,9 +17,7 @@ public class BridgeRegistry {
     @Nullable
     @SuppressWarnings("unchecked")
     public <T extends Bridge> T get(@NotNull Class<T> type) {
-        T bridge = (T) bridges.get(type);
-        if (bridge == null || !bridge.isLoaded()) return null;
-        return bridge;
+        return (T) bridges.get(type);
     }
 
     public boolean has(@NotNull Class<? extends Bridge> type) {

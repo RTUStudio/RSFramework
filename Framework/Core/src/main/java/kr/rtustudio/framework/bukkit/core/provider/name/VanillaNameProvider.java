@@ -18,7 +18,7 @@ public class VanillaNameProvider implements NameProvider {
     @Override
     public List<String> names(Scope scope) {
         if (scope == Scope.GLOBAL) {
-            return PlayerList.getPlayers(true).stream().map(ProxyPlayer::name).toList();
+            return PlayerList.getPlayers().stream().map(ProxyPlayer::getName).toList();
         }
         return Bukkit.getOnlinePlayers().stream().map(Player::getName).toList();
     }
@@ -27,15 +27,15 @@ public class VanillaNameProvider implements NameProvider {
     @Override
     public String getName(UUID uniqueId) {
         ProxyPlayer player = PlayerList.getPlayer(uniqueId);
-        return player != null ? player.name() : null;
+        return player != null ? player.getName() : null;
     }
 
     @Nullable
     @Override
     public UUID getUniqueId(String name) {
         return PlayerList.getPlayers().stream()
-                .filter(p -> p.name().equalsIgnoreCase(name))
-                .map(ProxyPlayer::uniqueId)
+                .filter(p -> p.getName().equalsIgnoreCase(name))
+                .map(ProxyPlayer::getUniqueId)
                 .findFirst()
                 .orElse(null);
     }

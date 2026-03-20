@@ -4,7 +4,8 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.ByteToMessageDecoder;
-import kr.rtustudio.bridge.proxium.api.ConnectionHandler;
+import kr.rtustudio.bridge.BridgeOptions;
+import kr.rtustudio.bridge.proxium.api.handler.ConnectionHandler;
 import kr.rtustudio.bridge.proxium.api.util.DrunkenBishop;
 import kr.rtustudio.bridge.proxium.api.util.ProxiumConstants;
 import lombok.Setter;
@@ -14,7 +15,7 @@ import java.net.SocketException;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
-@Slf4j
+@Slf4j(topic = "Proxium")
 public class PacketHandler extends ByteToMessageDecoder {
 
     private static ConcurrentHashMap<String, Integer> connectionCount;
@@ -47,8 +48,7 @@ public class PacketHandler extends ByteToMessageDecoder {
                     connectionCount.getOrDefault(connection.getProtocol().toString(), 1) - 1);
             this.handler.onDisconnect(connection);
         } catch (Exception e) {
-            connection.getProtocol().logErr("Threw an error on disconnect!");
-            log.error("Error on disconnect", e);
+            log.error("[{}] Threw an error on disconnect!", connection.getProtocol(), e);
         }
     }
 
@@ -63,28 +63,32 @@ public class PacketHandler extends ByteToMessageDecoder {
             return;
         }
 
+        BridgeOptions options = connection.getProtocol().getOptions();
         Object packet = null;
         try {
             byte[] bytes = new byte[packetLen];
             byteBuf.readBytes(bytes);
-            packet = connection.getProtocol().deserialize(bytes);
+            packet = options.deserializeRaw(bytes);
             handler.handlePacket(connection, packet);
 
         } catch (IllegalArgumentException e) {
-            connection.getProtocol().logWarn("Ignoring an " + e.getMessage());
+            log.warn("[{}] Ignoring an {}", connection.getProtocol(), e.getMessage());
         } catch (Exception e) {
             if (packet != null)
-                connection
-                        .getProtocol()
-                        .logErr("Threw an error when trying to handle: " + packet.getClass() + "!");
-            log.error("Error handling packet", e);
+                log.error(
+                        "[{}] Threw an error when trying to handle: {}!",
+                        connection.getProtocol(),
+                        packet.getClass(),
+                        e);
+            else log.error("[{}] Error handling packet", connection.getProtocol(), e);
         }
     }
 
     // Done with two bufs to prevent the user from messing with the internal data
     public Sender send(Object packet) {
         try {
-            byte[] packetBuf = connection.getProtocol().serialize(packet);
+            BridgeOptions options = connection.getProtocol().getOptions();
+            byte[] packetBuf = options.serializeRaw(packet);
             if (packetBuf.length == 0)
                 return new Sender(connection, ctx.newSucceededFuture(), false);
 
@@ -96,13 +100,14 @@ public class PacketHandler extends ByteToMessageDecoder {
             return sender;
 
         } catch (IllegalArgumentException e) {
-            connection.getProtocol().logErr("Tried to send an " + e.getMessage());
+            log.error("[{}] Tried to send an {}", connection.getProtocol(), e.getMessage());
             return new Sender(connection, ctx.newSucceededFuture(), false);
         } catch (Exception e) {
-            connection
-                    .getProtocol()
-                    .logErr("Threw an error when trying to send: " + packet.getClass() + "!");
-            log.error("Error sending packet", e);
+            log.error(
+                    "[{}] Threw an error when trying to send: {}!",
+                    connection.getProtocol(),
+                    packet.getClass(),
+                    e);
             return new Sender(connection, ctx.newSucceededFuture(), false);
         }
     }

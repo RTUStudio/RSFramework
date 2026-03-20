@@ -3,7 +3,7 @@ package kr.rtustudio.bridge.proxium.api.netty;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelPipeline;
 import io.netty.handler.codec.compression.*;
-import kr.rtustudio.bridge.proxium.api.ConnectionHandler;
+import kr.rtustudio.bridge.proxium.api.handler.ConnectionHandler;
 import kr.rtustudio.bridge.proxium.api.protocol.CompressionType;
 import kr.rtustudio.bridge.proxium.api.protocol.Protocol;
 import kr.rtustudio.bridge.proxium.api.protocol.Side;
@@ -115,8 +115,7 @@ public class Connection {
 
             this.handler.onReady(this);
         } catch (Exception e) {
-            protocol.logErr("Threw an error on initialization!");
-            log.error("Error during protocol upgrade", e);
+            log.error("[{}] Threw an error on initialization!", protocol, e);
         }
     }
 

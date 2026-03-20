@@ -1,15 +1,12 @@
 package kr.rtustudio.bridge.proxium.core.handler;
 
 import kr.rtustudio.bridge.BridgeChannel;
-import kr.rtustudio.bridge.proxium.api.ConnectionHandler;
+import kr.rtustudio.bridge.proxium.api.ProxiumNode;
+import kr.rtustudio.bridge.proxium.api.handler.ConnectionHandler;
 import kr.rtustudio.bridge.proxium.api.netty.Connection;
 import kr.rtustudio.bridge.proxium.core.ProxiumProxy;
 import lombok.extern.slf4j.Slf4j;
 
-import java.net.InetSocketAddress;
-import java.net.SocketAddress;
-import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -17,50 +14,23 @@ import java.util.concurrent.ConcurrentHashMap;
 @Slf4j(topic = "Proxium")
 public class ProxyConnectionHandler implements ConnectionHandler {
 
-    private static final Map<Connection, Set<BridgeChannel>> servers = new ConcurrentHashMap<>();
-
-    private final ProxiumProxy proxium;
+    protected final ProxiumProxy proxium;
 
     public ProxyConnectionHandler(ProxiumProxy proxium) {
         this.proxium = proxium;
     }
 
-    public static Connection getServer(SocketAddress address) {
-        String targetAddress = addressKey(address);
-        return servers.keySet().stream()
-                .filter(server -> addressKey(server.getRemoteAddress()).equals(targetAddress))
-                .findFirst()
-                .orElse(null);
-    }
-
-    private static String addressKey(SocketAddress address) {
-        if (address instanceof InetSocketAddress inetAddress) {
-            String host =
-                    (inetAddress.getAddress() != null)
-                            ? inetAddress.getAddress().getHostAddress()
-                            : inetAddress.getHostString();
-            if ("localhost".equalsIgnoreCase(host)) {
-                host = "127.0.0.1";
-            }
-            return host + ":" + inetAddress.getPort();
-        }
-        return String.valueOf(address);
-    }
-
-    public static List<Connection> getServers() {
-        return servers.keySet().stream().filter(Connection::isOpen).toList();
-    }
-
     @Override
     public void onReady(Connection connection) {
-        servers.put(connection, ConcurrentHashMap.newKeySet());
-        logConnection(connection);
+        proxium.getServerSubscriptions().put(connection, ConcurrentHashMap.newKeySet());
         proxium.ready(connection);
+        logConnection(connection);
     }
 
     @Override
     public void onDisconnect(Connection connection) {
-        servers.remove(connection);
+        proxium.getServerSubscriptions().remove(connection);
+        logDisconnection(connection);
     }
 
     @Override
@@ -73,24 +43,35 @@ public class ProxyConnectionHandler implements ConnectionHandler {
         Object decoded = proxium.dispatchPacket(frame);
 
         if (decoded instanceof BridgeChannel subscribedChannel) {
-            Set<BridgeChannel> subs = servers.get(connection);
+            Set<BridgeChannel> subs = proxium.getServerSubscriptions().get(connection);
             if (subs != null) subs.add(subscribedChannel);
             return;
         }
 
-        getServers().stream()
+        proxium.getConnectedServers().stream()
                 .filter(conn -> !conn.equals(connection))
                 .filter(
                         conn -> {
-                            Set<BridgeChannel> subs = servers.get(conn);
+                            Set<BridgeChannel> subs = proxium.getServerSubscriptions().get(conn);
                             return subs != null && subs.contains(channel);
                         })
                 .forEach(conn -> conn.send(frame));
     }
 
-    protected void logConnection(Connection connection) {
-        log.info("Connected to Server");
+    private String resolveServerName(Connection connection) {
+        ProxiumNode server =
+                proxium.getProxiumNode(connection.getRemoteAddress()).orElse(null);
+        return server != null ? server.name() : "Unknown";
+    }
+
+    private void logConnection(Connection connection) {
+        log.info("Connected to {}", resolveServerName(connection));
         log.info("┠ Address: {}", connection.getRemoteAddressString());
         log.info("┖ Channel: {}", connection.getProtocol().getChannel());
     }
+
+    private void logDisconnection(Connection connection) {
+        log.warn("Disconnected from {}", resolveServerName(connection));
+    }
 }
+

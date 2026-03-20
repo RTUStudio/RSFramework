@@ -31,7 +31,7 @@ public class StorageConfiguration extends RSConfiguration.Wrapper<RSPlugin> {
                         key ->
                                 storageMap.put(
                                         key,
-                                        StorageType.get(getString(key, StorageType.JSON.name()))));
+                                        StorageType.fromString(getString(key, StorageType.JSON.name()))));
         if (!storageMap.isEmpty()) loadConfigs();
     }
 

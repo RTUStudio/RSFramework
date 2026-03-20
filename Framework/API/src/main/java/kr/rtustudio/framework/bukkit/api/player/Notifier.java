@@ -1,8 +1,9 @@
 package kr.rtustudio.framework.bukkit.api.player;
 
+import kr.rtustudio.bridge.BridgeChannel;
 import kr.rtustudio.bridge.proxium.api.Proxium;
-import kr.rtustudio.bridge.proxium.api.protocol.internal.Broadcast;
-import kr.rtustudio.bridge.proxium.api.protocol.internal.SendMessage;
+import kr.rtustudio.bridge.proxium.api.protocol.internal.BroadcastMessage;
+import kr.rtustudio.bridge.proxium.api.protocol.internal.PlayerMessage;
 import kr.rtustudio.bridge.proxium.api.proxy.ProxyPlayer;
 import kr.rtustudio.cdi.LightDI;
 import kr.rtustudio.framework.bukkit.api.RSPlugin;
@@ -14,6 +15,7 @@ import lombok.RequiredArgsConstructor;
 import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.bossbar.BossBar;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.title.Title;
 
 import java.util.function.Predicate;
@@ -132,7 +134,8 @@ public class Notifier {
     public static void broadcastAll(String minimessage) {
         Proxium pw = framework().getBridge(Proxium.class);
         if (pw.isConnected()) {
-            if (pw.send(new Broadcast(minimessage))) return;
+            pw.publish(BridgeChannel.AUDIENCE, new BroadcastMessage(minimessage));
+            return;
         }
         broadcast(minimessage);
     }
@@ -147,7 +150,10 @@ public class Notifier {
     public static void broadcastAll(Component component) {
         Proxium pw = framework().getBridge(Proxium.class);
         if (pw.isConnected()) {
-            if (pw.send(new Broadcast(ComponentFormatter.mini(component)))) return;
+            pw.publish(
+                    BridgeChannel.AUDIENCE,
+                    new BroadcastMessage(MiniMessage.miniMessage().serialize(component)));
+            return;
         }
         broadcast(component);
     }
@@ -162,36 +168,50 @@ public class Notifier {
      * @param minimessage MiniMessage 형식 문자열
      */
     public static void announce(RSPlugin plugin, ProxyPlayer target, String minimessage) {
-        Player player = Bukkit.getPlayer(target.uniqueId());
+        Player player = Bukkit.getPlayer(target.getUniqueId());
         if (player == null) {
-            SendMessage packet =
-                    new SendMessage(
-                            target, ComponentFormatter.mini(plugin.getPrefix()) + minimessage);
-            framework().getBridge(Proxium.class).send(packet);
+            PlayerMessage packet =
+                    new PlayerMessage(
+                            target,
+                            MiniMessage.miniMessage()
+                                    .serialize(
+                                            plugin.getPrefix()
+                                                    .append(ComponentFormatter.mini(minimessage))));
+            framework().getBridge(Proxium.class).publish(BridgeChannel.AUDIENCE, packet);
         } else Notifier.of(plugin, player).announce(minimessage);
     }
 
     public static void announce(RSPlugin plugin, ProxyPlayer target, Component component) {
-        Player player = Bukkit.getPlayer(target.uniqueId());
+        Player player = Bukkit.getPlayer(target.getUniqueId());
         if (player == null) {
-            String message = ComponentFormatter.mini(plugin.getPrefix().append(component));
-            framework().getBridge(Proxium.class).send(new SendMessage(target, message));
+            Component messageComponent = plugin.getPrefix().append(component);
+            framework()
+                    .getBridge(Proxium.class)
+                    .publish(
+                            BridgeChannel.AUDIENCE,
+                            new PlayerMessage(
+                                    target, MiniMessage.miniMessage().serialize(messageComponent)));
         } else Notifier.of(plugin, player).announce(component);
     }
 
     public static void send(ProxyPlayer target, String minimessage) {
-        Player player = Bukkit.getPlayer(target.uniqueId());
+        Player player = Bukkit.getPlayer(target.getUniqueId());
         if (player == null) {
-            framework().getBridge(Proxium.class).send(new SendMessage(target, minimessage));
+            framework()
+                    .getBridge(Proxium.class)
+                    .publish(BridgeChannel.AUDIENCE, new PlayerMessage(target, minimessage));
         } else Notifier.of(framework().getPlugin(), player).send(minimessage);
     }
 
     public static void send(ProxyPlayer target, Component component) {
-        Player player = Bukkit.getPlayer(target.uniqueId());
+        Player player = Bukkit.getPlayer(target.getUniqueId());
         if (player == null) {
             framework()
                     .getBridge(Proxium.class)
-                    .send(new SendMessage(target, ComponentFormatter.mini(component)));
+                    .publish(
+                            BridgeChannel.AUDIENCE,
+                            new PlayerMessage(
+                                    target, MiniMessage.miniMessage().serialize(component)));
         } else Notifier.of(framework().getPlugin(), player).send(component);
     }
 
@@ -364,6 +384,16 @@ public class Notifier {
 
     public void actionbar(String minimessage) {
         actionbar(ComponentFormatter.mini(minimessage));
+    }
+
+    public void sendActionBar(Component message) {
+        if (this.receiver == null) throw new UnsupportedOperationException("Audience is null");
+        receiver.sendActionBar(message);
+    }
+
+    public void showTitle(net.kyori.adventure.title.Title title) {
+        if (this.receiver == null) throw new UnsupportedOperationException("Audience is null");
+        receiver.showTitle(title);
     }
 
     // ── Boss Bar ──

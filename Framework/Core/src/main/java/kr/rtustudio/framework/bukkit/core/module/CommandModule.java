@@ -7,10 +7,10 @@ import org.spongepowered.configurate.objectmapping.meta.Comment;
 
 @Getter
 @SuppressWarnings({
+    "unused",
     "CanBeFinal",
     "FieldCanBeLocal",
     "FieldMayBeFinal",
-    "NotNullFieldNotInitialized",
     "InnerClassMayBeStatic"
 })
 public class CommandModule extends ConfigurationPart
@@ -25,8 +25,8 @@ public class CommandModule extends ConfigurationPart
     public class Execute extends ConfigurationPart {
         @Comment(
                 """
-                        Command cooldown (tick)
-                        명령어 재사용 대기 시간 (틱)""")
+                Minimum interval between command executions per player (ticks, 20 ticks = 1s)
+                플레이어별 명령어 실행 최소 간격 (틱, 20틱 = 1초)""")
         private int limit = 30;
     }
 }

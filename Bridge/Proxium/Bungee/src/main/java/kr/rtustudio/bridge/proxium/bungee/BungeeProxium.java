@@ -1,27 +1,25 @@
 package kr.rtustudio.bridge.proxium.bungee;
 
 import kr.rtustudio.bridge.BridgeChannel;
+import kr.rtustudio.bridge.BridgeOptions;
+import kr.rtustudio.bridge.proxium.api.ProxiumNode;
 import kr.rtustudio.bridge.proxium.api.netty.Connection;
 import kr.rtustudio.bridge.proxium.api.protocol.Protocol;
-import kr.rtustudio.bridge.proxium.api.protocol.internal.Broadcast;
+import kr.rtustudio.bridge.proxium.api.protocol.internal.PlayerEvent;
 import kr.rtustudio.bridge.proxium.api.protocol.internal.PlayerList;
-import kr.rtustudio.bridge.proxium.api.protocol.internal.SendMessage;
-import kr.rtustudio.bridge.proxium.api.protocol.internal.ServerName;
+import kr.rtustudio.bridge.proxium.api.protocol.internal.RequestPacket;
+import kr.rtustudio.bridge.proxium.api.protocol.internal.ResponsePacket;
+import kr.rtustudio.bridge.proxium.api.protocol.internal.TransactionPacket;
 import kr.rtustudio.bridge.proxium.api.proxy.ProxyPlayer;
-import kr.rtustudio.bridge.proxium.api.proxy.RegisteredServer;
 import kr.rtustudio.bridge.proxium.api.proxy.request.TeleportRequest;
-import kr.rtustudio.bridge.proxium.api.proxy.request.teleport.LocationTeleport;
-import kr.rtustudio.bridge.proxium.api.proxy.request.teleport.PlayerTeleport;
+import kr.rtustudio.bridge.proxium.core.MutableProxyPlayer;
 import kr.rtustudio.bridge.proxium.core.ProxiumProxy;
-import kr.rtustudio.bridge.proxium.core.config.ProxiumSettings;
-import kr.rtustudio.bridge.proxium.core.protocol.ServerPacketHandler;
+import kr.rtustudio.bridge.proxium.core.configuration.ProxiumConfig;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import net.md_5.bungee.api.ProxyServer;
-import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
-import net.md_5.bungee.api.connection.Server;
 import net.md_5.bungee.api.event.ServerConnectedEvent;
 import net.md_5.bungee.api.event.ServerDisconnectEvent;
 import net.md_5.bungee.api.event.ServerKickEvent;
@@ -30,7 +28,9 @@ import net.md_5.bungee.event.EventHandler;
 
 import java.net.InetSocketAddress;
 import java.nio.file.Path;
-import java.util.*;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
 
@@ -43,65 +43,45 @@ public class BungeeProxium extends ProxiumProxy implements Listener {
     private final Map<UUID, TeleportRequest> teleportRequests = new ConcurrentHashMap<>();
 
     public BungeeProxium(ProxyServer server, Path dataFolder) {
-        this(server, dataFolder, ProxiumSettings.load(dataFolder));
+        this(server, dataFolder, ProxiumConfig.load(dataFolder));
     }
 
-    private BungeeProxium(ProxyServer server, Path dataFolder, ProxiumSettings settings) {
-        super(
-                settings.toBridgeOptions(BungeeProxium.class.getClassLoader()),
-                dataFolder,
-                settings,
-                toRegisteredServers(server));
+    private BungeeProxium(ProxyServer server, Path dataFolder, ProxiumConfig settings) {
+        super(new BridgeOptions(BungeeProxium.class.getClassLoader()), dataFolder, settings);
         this.proxyServer = server;
 
-        Protocol.Builder protocol = Protocol.create(BridgeChannel.INTERNAL);
-        protocol.setOptions(options);
-        protocol.setCompression(settings.getCompression());
-        protocol.setMaxPacketSize(settings.getMaxPacketSize());
-
-        options.register(
+        register(
                 BridgeChannel.INTERNAL,
                 BridgeChannel.class,
-                SendMessage.class,
-                Broadcast.class,
-                ServerName.class,
+                ProxiumNode.class,
                 PlayerList.class,
-                LocationTeleport.class,
-                PlayerTeleport.class);
-        registeredChannels.add(BridgeChannel.INTERNAL);
+                TeleportRequest.class,
+                PlayerEvent.class,
+                RequestPacket.class,
+                ResponsePacket.class);
 
         registerInternalSubscription();
 
-        protocol.setProxyHandler(() -> new ConnectionHandler(this)).load();
+        start(settings);
+
+        getProxiumNodes().forEach(this::registerServer);
     }
 
-    private static String addressKey(InetSocketAddress address) {
-        String host =
-                (address.getAddress() != null)
-                        ? address.getAddress().getHostAddress()
-                        : address.getHostString();
-        if ("localhost".equalsIgnoreCase(host)) {
-            host = "127.0.0.1";
-        }
-        return host + ":" + address.getPort();
-    }
-
-    private static List<RegisteredServer> toRegisteredServers(ProxyServer server) {
-        return server.getServersCopy().values().stream()
-                .map(s -> new RegisteredServer(s.getName(), s.getSocketAddress()))
-                .toList();
+    @Override
+    protected void configureProtocol(Protocol.Builder builder) {
+        builder.setProxyHandler(() -> new ConnectionHandler(this));
     }
 
     @Override
     protected void onChannelRegistered(BridgeChannel channel) {
-        loadChannelProtocol(channel);
+        startChannelProtocol(channel);
     }
 
     @Override
     public void subscribe(BridgeChannel channel, Consumer<Object> handler) {
         super.subscribe(channel, handler);
         if (!registeredChannels.contains(channel)) {
-            loadChannelProtocol(channel);
+            startChannelProtocol(channel);
         }
     }
 
@@ -122,16 +102,16 @@ public class BungeeProxium extends ProxiumProxy implements Listener {
         for (var entry : proxyServer.getServersCopy().entrySet()) {
             if (!(entry.getValue().getSocketAddress() instanceof InetSocketAddress addr)) continue;
             if (!remoteAddress.equals(addressKey(addr))) continue;
-            connection.send(
-                    options.encode(
-                            BridgeChannel.INTERNAL, new ServerName(entry.getKey(), "BungeeCord")));
+            ProxiumNode node =
+                    new ProxiumNode(entry.getKey(), addr.getHostString(), addr.getPort());
+            registerServer(node);
+            connection.send(options.encode(BridgeChannel.INTERNAL, node));
+
+            if (!players.isEmpty()) {
+                connection.send(options.encode(BridgeChannel.INTERNAL, new PlayerList(players)));
+            }
             return;
         }
-    }
-
-    @Override
-    protected Object createStandaloneServerName() {
-        return new ServerName("Standalone Server", "BungeeCord");
     }
 
     // TODO: fix minimessage for bungee
@@ -141,16 +121,8 @@ public class BungeeProxium extends ProxiumProxy implements Listener {
                 packet -> {
                     if (packet instanceof TeleportRequest request) {
                         handleTeleport(request);
-                    } else if (packet instanceof Broadcast broadcast) {
-                        for (ProxiedPlayer player : proxyServer.getPlayers()) {
-                            player.sendMessage(
-                                    TextComponent.fromLegacyText(broadcast.minimessage()));
-                        }
-                    } else if (packet instanceof SendMessage message) {
-                        ProxiedPlayer player = proxyServer.getPlayer(message.player().uniqueId());
-                        if (player != null) {
-                            player.sendMessage(TextComponent.fromLegacyText(message.minimessage()));
-                        }
+                    } else if (packet instanceof TransactionPacket) {
+                        routeBridgePacket(packet);
                     }
                 });
     }
@@ -159,7 +131,7 @@ public class BungeeProxium extends ProxiumProxy implements Listener {
         ServerInfo info = this.proxyServer.getServerInfo(request.server());
         if (info == null) return;
 
-        ProxiedPlayer player = this.proxyServer.getPlayer(request.player().uniqueId());
+        ProxiedPlayer player = this.proxyServer.getPlayer(request.player().getUniqueId());
         if (player == null) return;
 
         teleportRequests.put(player.getUniqueId(), request);
@@ -168,66 +140,78 @@ public class BungeeProxium extends ProxiumProxy implements Listener {
                 (result, error) -> {
                     if (error != null || !result) {
                         teleportRequests.remove(player.getUniqueId());
-                        Connection target = ConnectionHandler.getServer(info.getSocketAddress());
+                        Connection target = getConnection(info.getSocketAddress());
                         if (target != null)
                             target.send(options.encode(BridgeChannel.INTERNAL, request));
                     }
                 });
     }
 
-    private void loadChannelProtocol(BridgeChannel channel) {
-        Protocol.Builder protocol = Protocol.create(channel);
-        protocol.setCompression(getSettings().getCompression());
-        protocol.setMaxPacketSize(getSettings().getMaxPacketSize());
-        protocol.setProxyHandler(ServerPacketHandler::new).load();
-    }
-
     @Override
-    public List<RegisteredServer> getRegisteredServers() {
-        return toRegisteredServers(proxyServer);
+    public List<ProxiumNode> getProxiumNodes() {
+        return proxyServer.getServersCopy().values().stream()
+                .map(
+                        s -> {
+                            InetSocketAddress a = (InetSocketAddress) s.getSocketAddress();
+                            return new ProxiumNode(s.getName(), a.getHostString(), a.getPort());
+                        })
+                .toList();
     }
 
     @EventHandler
     private void onJoin(ServerConnectedEvent e) {
-        updatePlayerList();
-
         ProxiedPlayer bungeePlayer = e.getPlayer();
-        Optional.ofNullable(bungeePlayer.getServer())
-                .map(Server::getInfo)
-                .map(info -> ConnectionHandler.getServer(info.getSocketAddress()))
-                .ifPresent(
-                        conn -> {
-                            TeleportRequest tpr =
-                                    teleportRequests.remove(bungeePlayer.getUniqueId());
-                            if (tpr != null) {
-                                conn.send(options.encode(BridgeChannel.INTERNAL, tpr));
-                            }
-                        });
+        if (bungeePlayer.getServer() == null) return;
+
+        String serverName = e.getServer().getInfo().getName();
+        ProxiumNode serverNode = getServer(serverName);
+
+        ProxyPlayer proxyPlayer = players.get(bungeePlayer.getUniqueId());
+        PlayerEvent.Action action;
+
+        if (proxyPlayer == null) {
+            proxyPlayer =
+                    new MutableProxyPlayer(
+                            this, bungeePlayer.getUniqueId(), bungeePlayer.getName(), serverNode);
+            players.put(bungeePlayer.getUniqueId(), proxyPlayer);
+            action = PlayerEvent.Action.JOIN;
+        } else {
+            ((MutableProxyPlayer) proxyPlayer).setNode(serverNode);
+            action = PlayerEvent.Action.SWITCH;
+        }
+
+        broadcastPlayerEvent(new PlayerEvent(action, proxyPlayer));
+
+        TeleportRequest tpr = teleportRequests.remove(bungeePlayer.getUniqueId());
+        if (tpr != null && serverName.equals(tpr.server())) {
+            Connection conn = getConnection(e.getServer().getInfo().getSocketAddress());
+            if (conn != null) {
+                conn.send(options.encode(BridgeChannel.INTERNAL, tpr));
+            }
+        }
     }
 
     @EventHandler
     private void onServerDisconnect(ServerDisconnectEvent e) {
-        updatePlayerList();
+        handlePlayerLeave(e.getPlayer().getUniqueId());
         teleportRequests.remove(e.getPlayer().getUniqueId());
     }
 
     @EventHandler
     private void onServerKick(ServerKickEvent e) {
-        updatePlayerList();
+        handlePlayerLeave(e.getPlayer().getUniqueId());
         teleportRequests.remove(e.getPlayer().getUniqueId());
     }
 
-    private void updatePlayerList() {
-        Map<UUID, ProxyPlayer> proxyPlayers = new HashMap<>();
-        for (ProxiedPlayer p : proxyServer.getPlayers()) {
-            if (p.getServer() == null) continue;
-            Locale locale = Objects.requireNonNullElse(p.getLocale(), Locale.US);
-            String serverName = p.getServer().getInfo().getName();
-            proxyPlayers.put(
-                    p.getUniqueId(),
-                    new ProxyPlayer(p.getUniqueId(), p.getName(), locale, serverName));
+    private void handlePlayerLeave(UUID uniqueId) {
+        ProxyPlayer removed = players.remove(uniqueId);
+        if (removed != null) {
+            broadcastPlayerEvent(new PlayerEvent(PlayerEvent.Action.LEAVE, removed));
         }
-        byte[] frame = options.encode(BridgeChannel.INTERNAL, new PlayerList(proxyPlayers));
-        ConnectionHandler.getServers().forEach(conn -> conn.send(frame));
+    }
+
+    private void broadcastPlayerEvent(PlayerEvent event) {
+        byte[] frame = options.encode(BridgeChannel.INTERNAL, event);
+        getConnectedServers().forEach(conn -> conn.send(frame));
     }
 }

@@ -1,31 +1,33 @@
 package kr.rtustudio.bridge.proxium.velocity;
 
 import kr.rtustudio.bridge.BridgeChannel;
+import kr.rtustudio.bridge.BridgeOptions;
+import kr.rtustudio.bridge.proxium.api.ProxiumNode;
 import kr.rtustudio.bridge.proxium.api.netty.Connection;
 import kr.rtustudio.bridge.proxium.api.protocol.Protocol;
-import kr.rtustudio.bridge.proxium.api.protocol.internal.Broadcast;
+import kr.rtustudio.bridge.proxium.api.protocol.internal.PlayerEvent;
 import kr.rtustudio.bridge.proxium.api.protocol.internal.PlayerList;
-import kr.rtustudio.bridge.proxium.api.protocol.internal.SendMessage;
-import kr.rtustudio.bridge.proxium.api.protocol.internal.ServerName;
+import kr.rtustudio.bridge.proxium.api.protocol.internal.RequestPacket;
+import kr.rtustudio.bridge.proxium.api.protocol.internal.ResponsePacket;
+import kr.rtustudio.bridge.proxium.api.protocol.internal.TransactionPacket;
 import kr.rtustudio.bridge.proxium.api.protocol.velocity.VelocityAuth;
 import kr.rtustudio.bridge.proxium.api.proxy.ProxyPlayer;
-import kr.rtustudio.bridge.proxium.api.proxy.RegisteredServer;
 import kr.rtustudio.bridge.proxium.api.proxy.request.TeleportRequest;
-import kr.rtustudio.bridge.proxium.api.proxy.request.teleport.LocationTeleport;
-import kr.rtustudio.bridge.proxium.api.proxy.request.teleport.PlayerTeleport;
+import kr.rtustudio.bridge.proxium.core.MutableProxyPlayer;
 import kr.rtustudio.bridge.proxium.core.ProxiumProxy;
-import kr.rtustudio.bridge.proxium.core.config.ProxiumSettings;
-import kr.rtustudio.bridge.proxium.core.protocol.ServerPacketHandler;
+import kr.rtustudio.bridge.proxium.core.configuration.ProxiumConfig;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
-import net.kyori.adventure.text.minimessage.MiniMessage;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.InetSocketAddress;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.*;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
 
@@ -45,9 +47,6 @@ import com.velocitypowered.api.proxy.server.ServerInfo;
 @Slf4j(topic = "Proxium")
 @Getter
 public class VelocityProxium extends ProxiumProxy {
-
-    private static final MiniMessage MINI_MESSAGE = MiniMessage.miniMessage();
-
     private final ProxyServer proxyServer;
     private final Path dir;
     private final Toml velocityConfig;
@@ -55,71 +54,63 @@ public class VelocityProxium extends ProxiumProxy {
     private final Map<UUID, TeleportRequest> teleportRequests = new ConcurrentHashMap<>();
 
     public VelocityProxium(ProxyServer server, Path dir) {
-        this(server, dir, ProxiumSettings.load(dir.resolve("plugins/RSFramework")));
+        this(server, dir, ProxiumConfig.load(dir.resolve("plugins/RSFramework")));
     }
 
-    private VelocityProxium(ProxyServer server, Path dir, ProxiumSettings settings) {
+    private VelocityProxium(ProxyServer server, Path dir, ProxiumConfig settings) {
         super(
-                settings.toBridgeOptions(VelocityProxium.class.getClassLoader()),
+                new BridgeOptions(VelocityProxium.class.getClassLoader()),
                 dir.resolve("plugins/RSFramework"),
-                settings,
-                toRegisteredServers(server));
+                settings);
         this.proxyServer = server;
         this.dir = dir;
         this.velocityConfig = new Toml().read(new File(dir.toFile(), "velocity.toml"));
 
-        Protocol.Builder protocol = Protocol.create(BridgeChannel.INTERNAL);
-        protocol.setOptions(options);
-        protocol.setCompression(settings.getCompression());
-        protocol.setMaxPacketSize(settings.getMaxPacketSize());
-
-        options.register(
+        register(
                 BridgeChannel.INTERNAL,
                 BridgeChannel.class,
-                SendMessage.class,
-                Broadcast.class,
-                ServerName.class,
+                ProxiumNode.class,
                 PlayerList.class,
-                LocationTeleport.class,
-                PlayerTeleport.class);
-        registeredChannels.add(BridgeChannel.INTERNAL);
+                TeleportRequest.class,
+                PlayerEvent.class,
+                RequestPacket.class,
+                ResponsePacket.class);
 
         registerInternalSubscription();
 
         if (isModernProxy()) {
             log.info("Detected modern proxy");
             loadForwardingSecret();
-            protocol.setProxyAuthHandler(VelocityAuth::new);
         }
-        protocol.setProxyHandler(() -> new ConnectionHandler(this)).load();
+        start(settings);
+
+        getProxiumNodes().forEach(this::registerServer);
     }
 
-    private static List<RegisteredServer> toRegisteredServers(ProxyServer server) {
-        return server.getAllServers().stream()
-                .map(
-                        s ->
-                                new RegisteredServer(
-                                        s.getServerInfo().getName(),
-                                        s.getServerInfo().getAddress()))
-                .toList();
+    @Override
+    protected void configureProtocol(Protocol.Builder builder) {
+        builder.setProxyHandler(() -> new ConnectionHandler(this));
+        if (isModernProxy()) {
+            builder.setProxyAuthHandler(VelocityAuth::new);
+        }
     }
 
     @Override
     protected void onChannelRegistered(BridgeChannel channel) {
-        loadChannelProtocol(channel);
+        startChannelProtocol(channel);
     }
 
     @Override
     public void subscribe(BridgeChannel channel, Consumer<Object> handler) {
         super.subscribe(channel, handler);
         if (!registeredChannels.contains(channel)) {
-            loadChannelProtocol(channel);
+            startChannelProtocol(channel);
         }
     }
 
     @Override
     public String getServer() {
-        return "Velocity Proxy";
+        return "Velocity";
     }
 
     @Override
@@ -130,13 +121,21 @@ public class VelocityProxium extends ProxiumProxy {
 
     @Override
     protected void onServerConnected(Connection connection) {
-        String motd = proxyServer.getConfiguration().getMotd().toString();
-        connection.send(options.encode(BridgeChannel.INTERNAL, new ServerName(motd, "Velocity")));
-    }
+        String remoteAddress = addressKey(connection.getRemoteAddress());
+        for (var server : proxyServer.getAllServers()) {
+            if (!(server.getServerInfo().getAddress() instanceof InetSocketAddress addr)) continue;
+            if (!remoteAddress.equals(addressKey(addr))) continue;
+            ProxiumNode node =
+                    new ProxiumNode(
+                            server.getServerInfo().getName(), addr.getHostString(), addr.getPort());
+            registerServer(node);
+            connection.send(options.encode(BridgeChannel.INTERNAL, node));
 
-    @Override
-    protected Object createStandaloneServerName() {
-        return new ServerName("Standalone Server", "Velocity");
+            if (!players.isEmpty()) {
+                connection.send(options.encode(BridgeChannel.INTERNAL, new PlayerList(players)));
+            }
+            return;
+        }
     }
 
     private void registerInternalSubscription() {
@@ -145,18 +144,8 @@ public class VelocityProxium extends ProxiumProxy {
                 packet -> {
                     if (packet instanceof TeleportRequest request) {
                         handleTeleport(request);
-                    } else if (packet instanceof Broadcast broadcast) {
-                        for (Player player : proxyServer.getAllPlayers()) {
-                            player.sendMessage(MINI_MESSAGE.deserialize(broadcast.minimessage()));
-                        }
-                    } else if (packet instanceof SendMessage message) {
-                        proxyServer
-                                .getPlayer(message.player().uniqueId())
-                                .ifPresent(
-                                        player ->
-                                                player.sendMessage(
-                                                        MINI_MESSAGE.deserialize(
-                                                                message.minimessage())));
+                    } else if (packet instanceof TransactionPacket) {
+                        routeBridgePacket(packet);
                     }
                 });
     }
@@ -165,7 +154,7 @@ public class VelocityProxium extends ProxiumProxy {
         var targetServer = proxyServer.getServer(request.server()).orElse(null);
         if (targetServer == null) return;
 
-        Player player = proxyServer.getPlayer(request.player().uniqueId()).orElse(null);
+        Player player = proxyServer.getPlayer(request.player().getUniqueId()).orElse(null);
         if (player == null) return;
 
         teleportRequests.put(player.getUniqueId(), request);
@@ -176,25 +165,12 @@ public class VelocityProxium extends ProxiumProxy {
                             if (throwable != null || !result) {
                                 teleportRequests.remove(player.getUniqueId());
                                 Connection target =
-                                        ConnectionHandler.getServer(
-                                                targetServer.getServerInfo().getAddress());
+                                        getConnection(targetServer.getServerInfo().getAddress());
                                 if (target != null) {
                                     target.send(options.encode(BridgeChannel.INTERNAL, request));
                                 }
                             }
                         });
-    }
-
-    private void loadChannelProtocol(BridgeChannel channel) {
-        Protocol.Builder protocol = Protocol.create(channel);
-        protocol.setCompression(getSettings().getCompression());
-        protocol.setMaxPacketSize(getSettings().getMaxPacketSize());
-
-        if (isModernProxy()) {
-            protocol.setProxyAuthHandler(VelocityAuth::new);
-        }
-
-        protocol.setProxyHandler(ServerPacketHandler::new).load();
     }
 
     private void loadForwardingSecret() {
@@ -234,13 +210,15 @@ public class VelocityProxium extends ProxiumProxy {
     @Subscribe
     public void onRegister(ServerRegisteredEvent event) {
         ServerInfo info = event.registeredServer().getServerInfo();
-        registerServer(new RegisteredServer(info.getName(), info.getAddress()));
+        InetSocketAddress addr = (InetSocketAddress) info.getAddress();
+        registerServer(new ProxiumNode(info.getName(), addr.getHostString(), addr.getPort()));
     }
 
     @Subscribe
     public void onUnregister(ServerUnregisteredEvent event) {
         ServerInfo info = event.unregisteredServer().getServerInfo();
-        unregisterServer(new RegisteredServer(info.getName(), info.getAddress()));
+        InetSocketAddress addr2 = (InetSocketAddress) info.getAddress();
+        unregisterServer(new ProxiumNode(info.getName(), addr2.getHostString(), addr2.getPort()));
     }
 
     @Subscribe
@@ -250,51 +228,71 @@ public class VelocityProxium extends ProxiumProxy {
 
     @Subscribe
     private void onJoin(ServerPostConnectEvent e) {
-        updatePlayerList();
-
         Player player = e.getPlayer();
-        player.getCurrentServer()
-                .map(ServerConnection::getServerInfo)
-                .map(info -> ConnectionHandler.getServer(info.getAddress()))
-                .ifPresent(
-                        connection -> {
-                            TeleportRequest tpr = teleportRequests.remove(player.getUniqueId());
-                            if (tpr != null) {
-                                connection.send(options.encode(BridgeChannel.INTERNAL, tpr));
-                            }
-                        });
+        ServerConnection current = player.getCurrentServer().orElse(null);
+        if (current == null) return;
+
+        String serverName = current.getServerInfo().getName();
+        ProxiumNode serverNode = getServer(serverName);
+
+        ProxyPlayer proxyPlayer = players.get(player.getUniqueId());
+        PlayerEvent.Action action;
+
+        if (proxyPlayer == null) {
+            proxyPlayer =
+                    new MutableProxyPlayer(
+                            this, player.getUniqueId(), player.getUsername(), serverNode);
+            players.put(player.getUniqueId(), proxyPlayer);
+            action = PlayerEvent.Action.JOIN;
+        } else {
+            ((MutableProxyPlayer) proxyPlayer).setNode(serverNode);
+            action = PlayerEvent.Action.SWITCH;
+        }
+
+        broadcastPlayerEvent(new PlayerEvent(action, proxyPlayer));
+
+        TeleportRequest tpr = teleportRequests.remove(player.getUniqueId());
+        if (tpr != null && serverName.equals(tpr.server())) {
+            Connection connection = getConnection(current.getServerInfo().getAddress());
+            if (connection != null) {
+                connection.send(options.encode(BridgeChannel.INTERNAL, tpr));
+            }
+        }
     }
 
     @Subscribe
     private void onKick(KickedFromServerEvent e) {
-        updatePlayerList();
+        handlePlayerLeave(e.getPlayer().getUniqueId());
         teleportRequests.remove(e.getPlayer().getUniqueId());
     }
 
     @Subscribe
     private void onQuit(DisconnectEvent e) {
-        updatePlayerList();
+        handlePlayerLeave(e.getPlayer().getUniqueId());
         teleportRequests.remove(e.getPlayer().getUniqueId());
     }
 
-    private void updatePlayerList() {
-        Map<UUID, ProxyPlayer> proxyPlayers = new HashMap<>();
-        for (Player player : proxyServer.getAllPlayers()) {
-            ServerConnection server = player.getCurrentServer().orElse(null);
-            if (server == null) continue;
-            Locale locale = Objects.requireNonNullElse(player.getEffectiveLocale(), Locale.US);
-            String serverName = server.getServerInfo().getName();
-            proxyPlayers.put(
-                    player.getUniqueId(),
-                    new ProxyPlayer(
-                            player.getUniqueId(), player.getUsername(), locale, serverName));
+    private void handlePlayerLeave(UUID uniqueId) {
+        ProxyPlayer removed = players.remove(uniqueId);
+        if (removed != null) {
+            broadcastPlayerEvent(new PlayerEvent(PlayerEvent.Action.LEAVE, removed));
         }
-        byte[] listFrame = options.encode(BridgeChannel.INTERNAL, new PlayerList(proxyPlayers));
-        ConnectionHandler.getServers().forEach(conn -> conn.send(listFrame));
+    }
+
+    private void broadcastPlayerEvent(PlayerEvent event) {
+        byte[] frame = options.encode(BridgeChannel.INTERNAL, event);
+        getConnectedServers().forEach(conn -> conn.send(frame));
     }
 
     @Override
-    public List<RegisteredServer> getRegisteredServers() {
-        return toRegisteredServers(proxyServer);
+    public List<ProxiumNode> getProxiumNodes() {
+        return proxyServer.getAllServers().stream()
+                .map(
+                        rs -> {
+                            ServerInfo info = rs.getServerInfo();
+                            InetSocketAddress a = (InetSocketAddress) info.getAddress();
+                            return new ProxiumNode(info.getName(), a.getHostString(), a.getPort());
+                        })
+                .toList();
     }
 }

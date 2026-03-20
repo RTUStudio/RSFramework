@@ -1,14 +1,13 @@
 package kr.rtustudio.bridge;
 
-import lombok.Getter;
 import lombok.SneakyThrows;
 
 import java.lang.reflect.Modifier;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentSkipListSet;
@@ -28,9 +27,8 @@ public final class BridgeOptions {
     private final Fory fory;
     private final Map<BridgeChannel, ConcurrentSkipListSet<String>> channelTypes =
             new ConcurrentHashMap<>();
-    @Getter private final boolean tls;
 
-    private BridgeOptions(Builder builder) {
+    public BridgeOptions(ClassLoader classLoader) {
         this.fory =
                 Fory.builder()
                         .withJdkClassSerializableCheck(false)
@@ -38,17 +36,8 @@ public final class BridgeOptions {
                         .withLanguage(Language.JAVA)
                         .withCompatibleMode(CompatibleMode.COMPATIBLE)
                         .withAsyncCompilation(true)
-                        .withClassLoader(builder.classLoader)
+                        .withClassLoader(classLoader)
                         .build();
-        this.tls = builder.tls;
-    }
-
-    public static Builder builder(ClassLoader classLoader) {
-        return new Builder(classLoader);
-    }
-
-    public static BridgeOptions defaults(ClassLoader classLoader) {
-        return builder(classLoader).build();
     }
 
     public void register(BridgeChannel channel, Class<?>... types) {
@@ -56,7 +45,7 @@ public final class BridgeOptions {
                 channelTypes.computeIfAbsent(channel, k -> new ConcurrentSkipListSet<>());
         for (Class<?> type : types) {
             set.add(type.getName());
-            recursiveRegister(type, new ArrayList<>());
+            recursiveRegister(type, new HashSet<>());
         }
     }
 
@@ -71,19 +60,42 @@ public final class BridgeOptions {
         return md.digest();
     }
 
-    private void recursiveRegister(Class<?> type, List<Class<?>> registered) {
+    private void recursiveRegister(Class<?> type, Set<Class<?>> registered) {
         if (type == null
                 || type == Object.class
-                || registered.contains(type)
+                || !registered.add(type)
                 || Modifier.isAbstract(type.getModifiers())) return;
         synchronized (fory) {
             fory.register(type);
         }
-        registered.add(type);
         for (java.lang.reflect.Field field : type.getDeclaredFields()) {
             recursiveRegister(field.getType(), registered);
         }
         if (!type.isEnum()) recursiveRegister(type.getSuperclass(), registered);
+    }
+
+    /** 객체를 채널 헤더 없이 순수 바이트 배열로 직렬화한다. Protocol 내부 핸드셰이크에서 사용. */
+    public byte[] serializeRaw(Object value) {
+        synchronized (fory) {
+            try {
+                return fory.serialize(value);
+            } catch (InsecureException e) {
+                throw new IllegalArgumentException(
+                        "Unregistered type: " + value.getClass().getName(), e);
+            }
+        }
+    }
+
+    /** 순수 바이트 배열을 객체로 역직렬화한다. Protocol 내부 핸드셰이크에서 사용. */
+    public Object deserializeRaw(byte[] data) {
+        synchronized (fory) {
+            try {
+                return fory.deserialize(data);
+            } catch (InsecureException e) {
+                String name = e.getMessage().replace("class ", "").split(" is not registered")[0];
+                throw new IllegalArgumentException("Unregistered type: " + name, e);
+            }
+        }
     }
 
     public byte[] encode(BridgeChannel channel, Object value) {
@@ -96,12 +108,11 @@ public final class BridgeOptions {
                         "Unregistered type: " + value.getClass().getName(), e);
             }
         }
-        byte[] payload = serialized;
         byte[] channelBytes = channel.toString().getBytes(StandardCharsets.UTF_8);
-        ByteBuffer buf = ByteBuffer.allocate(4 + channelBytes.length + payload.length);
+        ByteBuffer buf = ByteBuffer.allocate(4 + channelBytes.length + serialized.length);
         buf.putInt(channelBytes.length);
         buf.put(channelBytes);
-        buf.put(payload);
+        buf.put(serialized);
         return buf.array();
     }
 
@@ -124,33 +135,13 @@ public final class BridgeOptions {
         buf.position(4 + len);
         byte[] payload = new byte[buf.remaining()];
         buf.get(payload);
-        byte[] decompressed = payload;
         synchronized (fory) {
             try {
-                return fory.deserialize(decompressed);
+                return fory.deserialize(payload);
             } catch (InsecureException e) {
                 String name = e.getMessage().replace("class ", "").split(" is not registered")[0];
                 throw new IllegalArgumentException("Unregistered type: " + name, e);
             }
-        }
-    }
-
-    public static final class Builder {
-
-        private final ClassLoader classLoader;
-        private boolean tls = true;
-
-        private Builder(ClassLoader classLoader) {
-            this.classLoader = classLoader;
-        }
-
-        public Builder tls(boolean tls) {
-            this.tls = tls;
-            return this;
-        }
-
-        public BridgeOptions build() {
-            return new BridgeOptions(this);
         }
     }
 }

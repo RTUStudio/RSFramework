@@ -6,7 +6,7 @@ import kr.rtustudio.bridge.BridgeOptions;
 import kr.rtustudio.bridge.redis.config.RedisConfig;
 import lombok.extern.slf4j.Slf4j;
 
-import java.nio.charset.StandardCharsets;
+import java.nio.ByteBuffer;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
@@ -15,26 +15,33 @@ import java.util.function.Supplier;
 @Slf4j(topic = "RSF/Bridge/Redis")
 public class RedisBridge implements Redis {
 
-    private static final int UUID_LENGTH = 36;
-
     private final RedisConfig config;
     private final BridgeOptions options;
     private final Object2BooleanOpenHashMap<BridgeChannel> registeredChannels =
             new Object2BooleanOpenHashMap<>();
-    private final byte[] serverIdBytes =
-            UUID.randomUUID().toString().getBytes(StandardCharsets.UTF_8);
+    private final byte[] serverIdBytes;
+
     private Redisson redisson;
     private boolean loaded = false;
 
-    public RedisBridge(RedisConfig config, ClassLoader classLoader) {
-        this(config, BridgeOptions.defaults(classLoader));
+    public RedisBridge(ClassLoader classLoader, RedisConfig config) {
+        this(config, new BridgeOptions(classLoader));
     }
 
     public RedisBridge(RedisConfig config, BridgeOptions options) {
         this.config = config;
         this.options = options;
 
-        if (!config.isEnabled()) return;
+        UUID uuid = UUID.randomUUID();
+        this.serverIdBytes = new byte[16];
+        ByteBuffer.wrap(serverIdBytes)
+                .putLong(uuid.getMostSignificantBits())
+                .putLong(uuid.getLeastSignificantBits());
+
+        if (!config.isEnabled()) {
+            this.loaded = false;
+            return;
+        }
 
         try {
             this.redisson = new Redisson(config);
@@ -45,14 +52,14 @@ public class RedisBridge implements Redis {
         }
     }
 
-    @Override
-    public boolean isLoaded() {
-        return loaded;
-    }
-
     private synchronized Redisson getRedisson() {
         if (loaded) return redisson;
         throw new IllegalStateException("Redis bridge is not loaded");
+    }
+
+    @Override
+    public boolean isConnected() {
+        return loaded && redisson != null;
     }
 
     @Override
@@ -76,8 +83,8 @@ public class RedisBridge implements Redis {
                         (ch, frame) -> {
                             try {
                                 if (isSelf(frame)) return;
-                                byte[] payload = new byte[frame.length - UUID_LENGTH];
-                                System.arraycopy(frame, UUID_LENGTH, payload, 0, payload.length);
+                                byte[] payload = new byte[frame.length - 16];
+                                System.arraycopy(frame, 16, payload, 0, payload.length);
                                 handler.accept(options.decode(payload));
                             } catch (Exception e) {
                                 log.error("Failed to decode message on channel: {}", ch, e);
@@ -94,15 +101,15 @@ public class RedisBridge implements Redis {
             return;
         }
         byte[] encoded = options.encode(channel, message);
-        byte[] wrapped = new byte[UUID_LENGTH + encoded.length];
-        System.arraycopy(serverIdBytes, 0, wrapped, 0, UUID_LENGTH);
-        System.arraycopy(encoded, 0, wrapped, UUID_LENGTH, encoded.length);
+        byte[] wrapped = new byte[16 + encoded.length];
+        System.arraycopy(serverIdBytes, 0, wrapped, 0, 16);
+        System.arraycopy(encoded, 0, wrapped, 16, encoded.length);
         getRedisson().publish(channel.toString(), wrapped);
     }
 
     private boolean isSelf(byte[] frame) {
-        if (frame.length <= UUID_LENGTH) return false;
-        for (int i = 0; i < UUID_LENGTH; i++) {
+        if (frame.length <= 16) return false;
+        for (int i = 0; i < 16; i++) {
             if (frame[i] != serverIdBytes[i]) return false;
         }
         return true;
@@ -118,7 +125,11 @@ public class RedisBridge implements Redis {
 
     @Override
     public void close() {
+        if (redisson != null) {
+            redisson.shutdown();
+        }
         registeredChannels.clear();
+
         if (redisson != null) {
             redisson.shutdown();
             redisson = null;

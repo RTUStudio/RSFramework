@@ -3,6 +3,7 @@ package kr.rtustudio.framework.bukkit.plugin;
 import kr.rtustudio.cdi.LightDI;
 import kr.rtustudio.framework.bukkit.api.RSPlugin;
 import kr.rtustudio.framework.bukkit.plugin.command.FrameworkCommand;
+import kr.rtustudio.framework.bukkit.plugin.command.proxium.ProxiumCommand;
 import lombok.Getter;
 
 import java.util.ArrayList;
@@ -87,6 +88,7 @@ public class RSFramework extends RSPlugin {
     protected void enable() {
         getFramework().enable(this);
         registerCommand(new FrameworkCommand(this), true);
+        registerCommand(new ProxiumCommand(this), true);
     }
 
     @Override

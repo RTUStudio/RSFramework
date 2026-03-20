@@ -7,10 +7,10 @@ import org.spongepowered.configurate.objectmapping.meta.Comment;
 
 @Getter
 @SuppressWarnings({
+    "unused",
     "CanBeFinal",
     "FieldCanBeLocal",
     "FieldMayBeFinal",
-    "NotNullFieldNotInitialized",
     "InnerClassMayBeStatic"
 })
 public class ThemeModule extends ConfigurationPart
@@ -19,20 +19,20 @@ public class ThemeModule extends ConfigurationPart
 
     @Comment(
             """
-                    Prefix of plugin name
-                    플러그인 이름의 접두사""")
+            Prefix character wrapping the plugin name in messages
+            메시지에서 플러그인 이름을 감싸는 접두 문자""")
     private String prefix = "『";
 
     @Comment(
             """
-                    Suffix of plugin name
-                    플러그인 이름의 접미사""")
+            Suffix character wrapping the plugin name in messages
+            메시지에서 플러그인 이름을 감싸는 접미 문자""")
     private String suffix = "』";
 
     @Comment(
             """
-                    Hover message displayed on system messages
-                    시스템 메시지에 표시되는 호버 메시지""")
+            Hover tooltip displayed when hovering over system messages (MiniMessage format)
+            시스템 메시지 위에 마우스를 올렸을 때 표시되는 툴팁 (MiniMessage 형식)""")
     private String systemMessage =
             "<gradient:#2979FF:#7C4DFF>시스템 메세지</gradient>\n<gray>%servertime_yyyy-MM-dd a h:mm%</gray>";
 
@@ -48,14 +48,14 @@ public class ThemeModule extends ConfigurationPart
     public class Gradient extends ConfigurationPart {
         @Comment(
                 """
-                        Start color of gradient
-                        그라데이션 시작 색상""")
+                Start color of the plugin name gradient (hex)
+                플러그인 이름 그라데이션 시작 색상 (16진수)""")
         private String start = "#2979FF";
 
         @Comment(
                 """
-                        End color of gradient
-                        그라데이션 종료 색상""")
+                End color of the plugin name gradient (hex)
+                플러그인 이름 그라데이션 종료 색상 (16진수)""")
         private String end = "#7C4DFF";
     }
 }

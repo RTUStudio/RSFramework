@@ -1,6 +1,7 @@
 package kr.rtustudio.bridge.proxium.api.protocol.handler;
 
 import kr.rtustudio.bridge.BridgeChannel;
+import kr.rtustudio.bridge.BridgeOptions;
 import kr.rtustudio.bridge.proxium.api.netty.Connection;
 import kr.rtustudio.bridge.proxium.api.netty.Sender;
 import kr.rtustudio.bridge.proxium.api.protocol.Protocol;
@@ -13,8 +14,9 @@ public class InternalConnectionHandler {
     @Getter
     protected static final Protocol protocol =
             Protocol.create(BridgeChannel.PROXIUM)
-                    .setServerHandler(ServerConnectionHandler.class)
-                    .setProxyHandler(ProxyConnectionHandler.class)
+                    .setServerHandler(ServerHandshakeHandler::new)
+                    .setProxyHandler(ProxyHandshakeHandler::new)
+                    .setOptions(new BridgeOptions(InternalConnectionHandler.class.getClassLoader()))
                     .addPacket(AuthStatus.class)
                     .addPacket(ProtocolStatus.class)
                     .load();
