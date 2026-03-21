@@ -10,7 +10,6 @@ import kr.rtustudio.bridge.proxium.api.protocol.internal.PlayerEvent;
 import kr.rtustudio.bridge.proxium.api.protocol.internal.PlayerList;
 import kr.rtustudio.bridge.proxium.api.protocol.internal.RequestPacket;
 import kr.rtustudio.bridge.proxium.api.protocol.internal.ResponsePacket;
-import kr.rtustudio.bridge.proxium.api.protocol.internal.TransactionPacket;
 import kr.rtustudio.bridge.proxium.api.protocol.velocity.VelocityAuth;
 import kr.rtustudio.bridge.proxium.api.proxy.ProxyPlayer;
 import kr.rtustudio.bridge.proxium.api.proxy.request.TeleportRequest;
@@ -31,7 +30,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.function.Consumer;
 
 import com.moandjiezana.toml.Toml;
 import com.velocitypowered.api.event.Subscribe;
@@ -104,14 +102,6 @@ public class VelocityProxium extends ProxiumProxy {
     }
 
     @Override
-    public void subscribe(BridgeChannel channel, Consumer<Object> handler) {
-        super.subscribe(channel, handler);
-        if (!registeredChannels.contains(channel)) {
-            startChannelProtocol(channel);
-        }
-    }
-
-    @Override
     public String getServer() {
         return "Velocity";
     }
@@ -142,15 +132,9 @@ public class VelocityProxium extends ProxiumProxy {
     }
 
     private void registerInternalSubscription() {
-        subscribe(
-                BridgeChannel.INTERNAL,
-                packet -> {
-                    if (packet instanceof TeleportRequest request) {
-                        handleTeleport(request);
-                    } else if (packet instanceof TransactionPacket) {
-                        routeBridgePacket(packet);
-                    }
-                });
+        subscribe(BridgeChannel.INTERNAL, TeleportRequest.class, this::handleTeleport);
+        subscribe(BridgeChannel.INTERNAL, RequestPacket.class, pkt -> routeBridgePacket(pkt));
+        subscribe(BridgeChannel.INTERNAL, ResponsePacket.class, pkt -> routeBridgePacket(pkt));
     }
 
     private void handleTeleport(TeleportRequest request) {

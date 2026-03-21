@@ -7,7 +7,10 @@ import kr.rtustudio.bridge.redis.config.RedisConfig;
 import lombok.extern.slf4j.Slf4j;
 
 import java.nio.ByteBuffer;
+import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
@@ -19,6 +22,9 @@ public class RedisBridge implements Redis {
     private final BridgeOptions options;
     private final Object2BooleanOpenHashMap<BridgeChannel> registeredChannels =
             new Object2BooleanOpenHashMap<>();
+    private final Map<BridgeChannel, Map<Class<?>, Consumer<?>>> channelHandlers =
+            new ConcurrentHashMap<>();
+    private final Set<BridgeChannel> subscribedChannels = ConcurrentHashMap.newKeySet();
     private final byte[] serverIdBytes;
 
     private Redisson redisson;
@@ -69,27 +75,38 @@ public class RedisBridge implements Redis {
     }
 
     @Override
-    public void subscribe(BridgeChannel channel, Consumer<Object> handler) {
-        if (!registeredChannels.containsKey(channel)) {
-            log.warn(
-                    "No types registered for channel: {}. Call register() before subscribe().",
-                    channel);
-            return;
+    public <T> void subscribe(BridgeChannel channel, Class<T> type, Consumer<T> handler) {
+        register(channel, type);
+        channelHandlers.computeIfAbsent(channel, k -> new ConcurrentHashMap<>()).put(type, handler);
+
+        if (subscribedChannels.add(channel)) {
+            getRedisson()
+                    .subscribe(
+                            channel.toString(),
+                            byte[].class,
+                            (ch, frame) -> {
+                                try {
+                                    if (isSelf(frame)) return;
+                                    byte[] payload = new byte[frame.length - 16];
+                                    System.arraycopy(frame, 16, payload, 0, payload.length);
+                                    Object decoded = options.decode(payload);
+                                    Map<Class<?>, Consumer<?>> handlers =
+                                            channelHandlers.get(channel);
+                                    if (handlers == null) return;
+                                    @SuppressWarnings("unchecked")
+                                    Consumer<Object> h =
+                                            (Consumer<Object>) handlers.get(decoded.getClass());
+                                    if (h == null) {
+                                        //noinspection unchecked
+                                        h = (Consumer<Object>) handlers.get(Object.class);
+                                    }
+                                    if (h != null) h.accept(decoded);
+                                } catch (Exception e) {
+                                    log.error(
+                                            "Failed to decode message on channel: {}", ch, e);
+                                }
+                            });
         }
-        getRedisson()
-                .subscribe(
-                        channel.toString(),
-                        byte[].class,
-                        (ch, frame) -> {
-                            try {
-                                if (isSelf(frame)) return;
-                                byte[] payload = new byte[frame.length - 16];
-                                System.arraycopy(frame, 16, payload, 0, payload.length);
-                                handler.accept(options.decode(payload));
-                            } catch (Exception e) {
-                                log.error("Failed to decode message on channel: {}", ch, e);
-                            }
-                        });
     }
 
     @Override

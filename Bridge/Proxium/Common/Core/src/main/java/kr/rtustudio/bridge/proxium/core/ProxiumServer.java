@@ -3,12 +3,14 @@ package kr.rtustudio.bridge.proxium.core;
 import kr.rtustudio.bridge.BridgeChannel;
 import kr.rtustudio.bridge.BridgeOptions;
 import kr.rtustudio.bridge.proxium.api.ProxiumNode;
+import kr.rtustudio.bridge.proxium.api.configuration.ProxiumConfig;
 import kr.rtustudio.bridge.proxium.api.netty.Connection;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 import java.net.InetSocketAddress;
+import java.time.Duration;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
@@ -25,10 +27,8 @@ import org.jspecify.annotations.Nullable;
 @Getter
 public abstract class ProxiumServer extends AbstractProxium {
 
-    private static final java.time.Duration DEFAULT_REQUEST_TIMEOUT =
-            java.time.Duration.ofSeconds(5);
-
     private final Map<String, ProxiumNode> knownServers = new ConcurrentHashMap<>();
+    private final ProxiumConfig settings;
 
     /** 현재 서버 노드 (이름 + 주소). 프록시 연결 후 프록시가 전달한 ProxiumNode로 설정된다. */
     @Setter @Nullable private ProxiumNode node;
@@ -38,13 +38,14 @@ public abstract class ProxiumServer extends AbstractProxium {
 
     @Nullable private Connection connection;
 
-    protected ProxiumServer(BridgeOptions options) {
+    protected ProxiumServer(BridgeOptions options, ProxiumConfig settings) {
         super(options);
+        this.settings = settings;
     }
 
     @Override
-    public java.time.Duration getRequestTimeout() {
-        return DEFAULT_REQUEST_TIMEOUT;
+    public Duration getRequestTimeout() {
+        return settings.getRequestTimeout();
     }
 
     @Override
@@ -80,8 +81,8 @@ public abstract class ProxiumServer extends AbstractProxium {
     }
 
     @Override
-    public void subscribe(BridgeChannel channel, Consumer<Object> handler) {
-        super.subscribe(channel, handler);
+    public <T> void subscribe(BridgeChannel channel, Class<T> type, Consumer<T> handler) {
+        super.subscribe(channel, type, handler);
         if (connection != null) {
             send(channel);
         }
@@ -106,7 +107,7 @@ public abstract class ProxiumServer extends AbstractProxium {
     @Override
     public void ready(Connection connection) {
         this.connection = connection;
-        InetSocketAddress remoteAddr = (InetSocketAddress) connection.getRemoteAddress();
+        InetSocketAddress remoteAddr = connection.getRemoteAddress();
         this.proxy = new ProxiumNode("Proxy", remoteAddr.getHostString(), remoteAddr.getPort());
         send(BridgeChannel.INTERNAL);
     }

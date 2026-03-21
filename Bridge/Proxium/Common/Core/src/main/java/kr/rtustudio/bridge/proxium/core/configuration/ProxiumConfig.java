@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
 import java.nio.file.Path;
+import java.time.Duration;
 
 import org.spongepowered.configurate.objectmapping.meta.Comment;
 
@@ -57,8 +58,8 @@ public class ProxiumConfig extends ConfigurationPart
     private long requestTimeout = 5000;
 
     @Override
-    public java.time.Duration getRequestTimeout() {
-        return java.time.Duration.ofMillis(requestTimeout);
+    public Duration getRequestTimeout() {
+        return Duration.ofMillis(requestTimeout);
     }
 
     /**

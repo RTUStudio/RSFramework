@@ -39,7 +39,7 @@ public abstract class AbstractProxium implements ProxiumPipeline {
 
     protected final BridgeOptions options;
     protected final Set<BridgeChannel> registeredChannels = ConcurrentHashMap.newKeySet();
-    protected final Map<BridgeChannel, Consumer<Object>> channelHandlers =
+    protected final Map<BridgeChannel, Map<Class<?>, Consumer<?>>> channelHandlers =
             new ConcurrentHashMap<>();
     protected final Map<UUID, CompletableFuture<Object[]>> pendingRequests =
             new ConcurrentHashMap<>();
@@ -47,6 +47,7 @@ public abstract class AbstractProxium implements ProxiumPipeline {
             new ConcurrentHashMap<>();
     protected final Map<BridgeChannel, Consumer<RequestException>> respondErrorHandlers =
             new ConcurrentHashMap<>();
+
     protected final Map<UUID, ProxyPlayer> players = new ConcurrentHashMap<>();
 
     @Override
@@ -62,8 +63,9 @@ public abstract class AbstractProxium implements ProxiumPipeline {
     @Override
     public void register(BridgeChannel channel, Class<?>... types) {
         options.register(channel, types);
-        registeredChannels.add(channel);
-        onChannelRegistered(channel);
+        if (registeredChannels.add(channel)) {
+            onChannelRegistered(channel);
+        }
     }
 
     /**
@@ -87,8 +89,10 @@ public abstract class AbstractProxium implements ProxiumPipeline {
     }
 
     @Override
-    public void subscribe(BridgeChannel channel, Consumer<Object> handler) {
-        channelHandlers.merge(channel, handler, Consumer::andThen);
+    public <T> void subscribe(BridgeChannel channel, Class<T> type, Consumer<T> handler) {
+        register(channel, type);
+        channelHandlers.computeIfAbsent(channel, k -> new ConcurrentHashMap<>()).put(type, handler);
+        log.info("Channel subscribed: {} [{}]", channel, type.getSimpleName());
     }
 
     @Override
@@ -110,8 +114,8 @@ public abstract class AbstractProxium implements ProxiumPipeline {
             return null;
         }
 
-        Consumer<Object> handler = channelHandlers.get(channel);
-        if (handler == null) {
+        Map<Class<?>, Consumer<?>> handlers = channelHandlers.get(channel);
+        if (handlers == null) {
             return null; // 구독자가 없으면 원본 바이트 배열을 파싱하지 않고 null 반환 -> ProxyConnectionHandler 에서 순수 바이트
             // 릴레이 스위칭 처리됨
         }
@@ -124,10 +128,20 @@ public abstract class AbstractProxium implements ProxiumPipeline {
             return null;
         }
 
-        try {
-            handler.accept(decoded);
-        } catch (Exception e) {
-            log.error("Error in handler for channel: {}", channel, e);
+        // 타입별 핸들러 매칭: 정확한 타입 → Object.class 폴백
+        @SuppressWarnings("unchecked")
+        Consumer<Object> handler = (Consumer<Object>) handlers.get(decoded.getClass());
+        if (handler == null) {
+            //noinspection unchecked
+            handler = (Consumer<Object>) handlers.get(Object.class);
+        }
+
+        if (handler != null) {
+            try {
+                handler.accept(decoded);
+            } catch (Exception e) {
+                log.error("Error in handler for channel: {}", channel, e);
+            }
         }
         return decoded;
     }
@@ -143,12 +157,12 @@ public abstract class AbstractProxium implements ProxiumPipeline {
         return new ResponseContext(
                 (type, handler) -> {
                     register(channel, type);
-                    responseHandlers
-                            .computeIfAbsent(channel, k -> new ConcurrentHashMap<>())
-                            .put(type, handler);
+                    responseHandlers.computeIfAbsent(channel, k -> new ConcurrentHashMap<>()).put(type, handler);
+                    log.info("Channel respond registered: {} [{}]", channel, type.getSimpleName());
                 },
                 errorHandler -> respondErrorHandlers.put(channel, errorHandler));
     }
+
 
     /**
      * 트랜잭션 패킷 처리기 (Request/Response).
@@ -256,17 +270,19 @@ public abstract class AbstractProxium implements ProxiumPipeline {
 
     private void invokeRespondErrorHandler(BridgeChannel channel, Throwable err) {
         Consumer<RequestException> errorHandler = respondErrorHandlers.get(channel);
+        Throwable cause = err instanceof CompletionException ? err.getCause() : err;
+        RequestException exception =
+                cause instanceof RequestException re
+                        ? re
+                        : new RequestException(ResponseStatus.ERROR, cause.getMessage(), cause);
         if (errorHandler != null) {
-            Throwable cause = err instanceof CompletionException ? err.getCause() : err;
-            RequestException exception =
-                    cause instanceof RequestException re
-                            ? re
-                            : new RequestException(ResponseStatus.ERROR, cause.getMessage(), cause);
             try {
                 errorHandler.accept(exception);
             } catch (Exception e) {
                 log.error("Error in respond error handler for channel {}", channel, e);
             }
+        } else {
+            log.error("Error in respond handler for channel {}", channel, cause);
         }
     }
 

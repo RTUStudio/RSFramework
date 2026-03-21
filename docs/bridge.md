@@ -90,27 +90,23 @@ proxium.register(channel, BalanceRequest.class, BalanceResponse.class);
 채널을 구독하고 있는 **모든 노드**에게 메시지를 브로드캐스트합니다.  
 `Bridge` 인터페이스 기능이므로 Proxium · Redis 모두 동일하게 사용 가능합니다.
 
-### 구독 — 타입 안전 (권장)
+### 구독
 
 ```java
 // register 호출 불필요 — subscribe 내부에서 자동 등록
 proxium.subscribe(channel, TradePacket.class, trade -> {
     player.sendMessage(trade.getSender() + "님이 " + trade.getItem() + " 교환 요청");
 });
-```
 
-### 구독 — Raw (instanceof 직접 분기)
-
-```java
-proxium.register(channel, TradePacket.class, ChatPacket.class);
-proxium.subscribe(channel, packet -> {
-    if (packet instanceof TradePacket trade) {
-        // 교환 처리
-    } else if (packet instanceof ChatPacket chat) {
-        // 채팅 처리
-    }
+// 동일 채널에 여러 타입 핸들러를 개별 등록 가능
+proxium.subscribe(channel, ChatPacket.class, chat -> {
+    Bukkit.broadcast(Component.text("[Chat] " + chat.message()));
 });
 ```
+
+> [!NOTE]
+> 같은 채널에 같은 타입으로 다시 `subscribe()`를 호출하면 기존 핸들러가 **교체**됩니다.  
+> 다른 타입이면 기존 핸들러를 유지하면서 **추가**됩니다.
 
 ### 발행
 
@@ -188,6 +184,9 @@ proxium.respond(channel)
 > ```java
 > R handle(String sender, T request) throws Exception;
 > ```
+> 
+> 동일 채널에 `respond()`를 여러 번 호출해도 기존 핸들러는 유지됩니다.
+> 같은 타입으로 다시 등록하면 해당 타입의 핸들러만 교체됩니다.
 
 ### 4.3. 요청 전송 — `request()`
 
@@ -315,7 +314,6 @@ if (node != null) {
 > - **비동기 실행** — `.on()`, `.error()` 콜백은 **Netty I/O 스레드**에서 실행됩니다.
 >   Bukkit API 호출 시 `Bukkit.getScheduler().runTask()`로 메인 스레드에 전환하세요.
 > - **메인 스레드 블로킹 금지** — `asFuture().join()`을 메인 스레드에서 호출하면 서버가 멈출 수 있습니다.
-> - **한 채널 한 respond** — 동일한 채널에서 `respond()`를 여러 번 호출하면 나중 등록이 앞의 핸들러를 덮어씁니다.
 > - **양방향 등록** — 요청 측과 응답 측 **모두** 동일한 채널을 사용해야 합니다.
 > - **타입 등록 시점** — 가능한 서버 시작 시점(onEnable)에 `subscribe()`, `respond()` 등을 호출하여 타입을 등록하세요.
 
@@ -497,8 +495,7 @@ request-timeout: 5000      # RPC 기본 타임아웃 (ms)
 | 메서드 | 설명 |
 |--------|------|
 | `register(channel, types...)` | 채널에 데이터 클래스 바인딩 |
-| `subscribe(channel, handler)` | 채널 구독 (raw) |
-| `subscribe(channel, type, handler)` | 채널 구독 (타입 안전, 자동 등록) |
+| `subscribe(channel, type, handler)` | 채널 구독 (타입별, 자동 등록) |
 | `publish(channel, message)` | 메시지 브로드캐스트 |
 | `unsubscribe(channel)` | 구독 취소 |
 | `isConnected()` | 네트워크 연결 상태 확인 |
@@ -516,7 +513,7 @@ request-timeout: 5000      # RPC 기본 타임아웃 (ms)
 | `request(target, channel, payload, timeout)` | `RequestContext` | RPC 요청 (명시적 타임아웃) |
 | `request(target, channel, payload)` | `RequestContext` | RPC 요청 (기본 타임아웃) |
 | `getRequestTimeout()` | `Duration` | 구성된 기본 타임아웃 |
-| `respond(channel)` | `ResponseContext` | RPC 응답 핸들러 등록 |
+| `respond(channel)` | `ResponseContext` | RPC 응답 핸들러 등록기 |
 
 ### RequestContext — `request()` 반환
 

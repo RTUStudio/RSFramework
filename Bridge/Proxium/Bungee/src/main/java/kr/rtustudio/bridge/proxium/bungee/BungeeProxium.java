@@ -10,7 +10,6 @@ import kr.rtustudio.bridge.proxium.api.protocol.internal.PlayerEvent;
 import kr.rtustudio.bridge.proxium.api.protocol.internal.PlayerList;
 import kr.rtustudio.bridge.proxium.api.protocol.internal.RequestPacket;
 import kr.rtustudio.bridge.proxium.api.protocol.internal.ResponsePacket;
-import kr.rtustudio.bridge.proxium.api.protocol.internal.TransactionPacket;
 import kr.rtustudio.bridge.proxium.api.proxy.ProxyPlayer;
 import kr.rtustudio.bridge.proxium.api.proxy.request.TeleportRequest;
 import kr.rtustudio.bridge.proxium.core.MutableProxyPlayer;
@@ -34,7 +33,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.function.Consumer;
+
 
 @Slf4j(topic = "Proxium")
 @Getter
@@ -81,14 +80,6 @@ public class BungeeProxium extends ProxiumProxy implements Listener {
     }
 
     @Override
-    public void subscribe(BridgeChannel channel, Consumer<Object> handler) {
-        super.subscribe(channel, handler);
-        if (!registeredChannels.contains(channel)) {
-            startChannelProtocol(channel);
-        }
-    }
-
-    @Override
     public String getServer() {
         return "BungeeCord Proxy";
     }
@@ -119,15 +110,9 @@ public class BungeeProxium extends ProxiumProxy implements Listener {
 
     // TODO: fix minimessage for bungee
     private void registerInternalSubscription() {
-        subscribe(
-                BridgeChannel.INTERNAL,
-                packet -> {
-                    if (packet instanceof TeleportRequest request) {
-                        handleTeleport(request);
-                    } else if (packet instanceof TransactionPacket) {
-                        routeBridgePacket(packet);
-                    }
-                });
+        subscribe(BridgeChannel.INTERNAL, TeleportRequest.class, this::handleTeleport);
+        subscribe(BridgeChannel.INTERNAL, RequestPacket.class, pkt -> routeBridgePacket(pkt));
+        subscribe(BridgeChannel.INTERNAL, ResponsePacket.class, pkt -> routeBridgePacket(pkt));
     }
 
     private void handleTeleport(TeleportRequest request) {

@@ -16,6 +16,7 @@ import lombok.extern.slf4j.Slf4j;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.nio.file.Path;
+import java.time.Duration;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -63,7 +64,7 @@ public abstract class ProxiumProxy extends AbstractProxium {
     }
 
     @Override
-    public java.time.Duration getRequestTimeout() {
+    public Duration getRequestTimeout() {
         return settings.getRequestTimeout();
     }
 

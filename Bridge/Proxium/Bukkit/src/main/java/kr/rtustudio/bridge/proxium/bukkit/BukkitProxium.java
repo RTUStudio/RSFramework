@@ -38,7 +38,7 @@ public class BukkitProxium extends ProxiumServer {
     private boolean loaded = false;
 
     public BukkitProxium(ClassLoader classLoader, String sslFolder, ProxiumConfig settings) {
-        super(new BridgeOptions(classLoader));
+        super(new BridgeOptions(classLoader), settings);
         this.security = new Security(sslFolder);
         this.security.setup(settings.getTls().isEnabled());
 
@@ -83,41 +83,35 @@ public class BukkitProxium extends ProxiumServer {
     }
 
     private void registerInternalSubscription() {
-        subscribe(
-                BridgeChannel.INTERNAL,
-                packet -> {
-                    if (packet instanceof PlayerList playerList) {
-                        Set<UUID> incomingUuids = playerList.players().keySet();
-                        this.players.keySet().removeIf(uuid -> !incomingUuids.contains(uuid));
+        subscribe(BridgeChannel.INTERNAL, PlayerList.class, this::handlePlayerList);
+        subscribe(BridgeChannel.INTERNAL, PlayerEvent.class, this::handlePlayerEvent);
+        subscribe(BridgeChannel.INTERNAL, TeleportRequest.class, this::handleTeleport);
+        subscribe(BridgeChannel.INTERNAL, ProxiumNode.class, this::setNode);
+        subscribe(BridgeChannel.INTERNAL, RequestPacket.class, pkt -> handleBridgePacket(pkt));
+        subscribe(BridgeChannel.INTERNAL, ResponsePacket.class, pkt -> handleBridgePacket(pkt));
+    }
 
-                        playerList
-                                .players()
-                                .forEach(
-                                        (uuid, pp) -> {
-                                            ProxyPlayer local = this.players.get(uuid);
-                                            if (local != null) {
-                                                ((MutableProxyPlayer) local).setNode(pp.getNode());
-                                            } else {
-                                                this.players.put(
-                                                        uuid,
-                                                        new MutableProxyPlayer(
-                                                                this,
-                                                                pp.getUniqueId(),
-                                                                pp.getName(),
-                                                                pp.getNode()));
-                                            }
-                                        });
-                    } else if (packet instanceof PlayerEvent event) {
-                        handlePlayerEvent(event);
-                    } else if (packet instanceof TeleportRequest request) {
-                        handleTeleport(request);
-                    } else if (packet instanceof ProxiumNode sn) {
-                        setNode(sn);
-                    } else if (packet instanceof RequestPacket
-                            || packet instanceof ResponsePacket) {
-                        handleBridgePacket(packet);
-                    }
-                });
+    private void handlePlayerList(PlayerList playerList) {
+        Set<UUID> incomingUuids = playerList.players().keySet();
+        this.players.keySet().removeIf(uuid -> !incomingUuids.contains(uuid));
+
+        playerList
+                .players()
+                .forEach(
+                        (uuid, pp) -> {
+                            ProxyPlayer local = this.players.get(uuid);
+                            if (local != null) {
+                                ((MutableProxyPlayer) local).setNode(pp.getNode());
+                            } else {
+                                this.players.put(
+                                        uuid,
+                                        new MutableProxyPlayer(
+                                                this,
+                                                pp.getUniqueId(),
+                                                pp.getName(),
+                                                pp.getNode()));
+                            }
+                        });
     }
 
     private void handlePlayerEvent(PlayerEvent event) {

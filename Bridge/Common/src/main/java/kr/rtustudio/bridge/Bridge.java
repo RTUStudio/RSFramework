@@ -21,12 +21,16 @@ public interface Bridge {
     void register(BridgeChannel channel, Class<?>... types);
 
     /**
-     * 특정 채널로 수신되는 브로드캐스트 메시지를 처리할 구독 핸들러를 등록한다.
+     * 특정 채널에 메시지 타입별 구독 핸들러를 등록한다.
+     *
+     * <p>동일 채널에 여러 타입의 핸들러를 개별적으로 등록할 수 있다. 동일 타입에 대해 다시 호출하면 기존 핸들러가 교체된다.
      *
      * @param channel 구독할 채널
-     * @param handler 수신된 메시지(Object)를 처리할 콜백 함수
+     * @param type 수신할 메시지 타입 클래스
+     * @param handler 수신된 메시지를 처리할 콜백 함수
+     * @param <T> 메시지 타입
      */
-    void subscribe(BridgeChannel channel, Consumer<Object> handler);
+    <T> void subscribe(BridgeChannel channel, Class<T> type, Consumer<T> handler);
 
     /**
      * 특정 채널을 구독하고 있는 모든 노드에게 메시지를 발행(Broadcast)한다.
@@ -35,27 +39,6 @@ public interface Bridge {
      * @param message 전송할 패킷 객체
      */
     void publish(BridgeChannel channel, Object message);
-
-    /**
-     * 특정 채널에서 지정한 타입의 메시지만 필터링하여 수신하는 구독을 등록한다.
-     *
-     * <p>한 채널에 여러 타입별 핸들러를 등록할 수 있으며, 타입 캐스팅 없이 안전하게 사용할 수 있다.
-     *
-     * @param channel 구독할 채널
-     * @param type 수신할 메시지 타입 클래스
-     * @param handler 수신된 메시지를 처리할 콜백 함수
-     * @param <T> 메시지 타입
-     */
-    default <T> void subscribe(BridgeChannel channel, Class<T> type, Consumer<T> handler) {
-        register(channel, type);
-        subscribe(
-                channel,
-                packet -> {
-                    if (type.isInstance(packet)) {
-                        handler.accept(type.cast(packet));
-                    }
-                });
-    }
 
     /**
      * 특정 채널의 구독을 취소하고 등록된 핸들러들을 제거한다.

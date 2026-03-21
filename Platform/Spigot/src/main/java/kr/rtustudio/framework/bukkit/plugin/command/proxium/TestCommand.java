@@ -75,7 +75,6 @@ public class TestCommand extends RSCommand<RSFramework> {
                             return new BroadcastMessage("[Test] Pong from " + serverName);
                         })
                 .error(e -> log.severe("[Test] [2/2] RPC Responder error: " + e.type()));
-
         // Send request to self (through proxy)
         long sendTime = System.currentTimeMillis();
         proxium.request(

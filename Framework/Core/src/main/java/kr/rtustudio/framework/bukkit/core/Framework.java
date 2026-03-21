@@ -162,15 +162,16 @@ public class Framework implements kr.rtustudio.framework.bukkit.api.core.Framewo
 
             proxium.subscribe(
                     BridgeChannel.INTERNAL,
-                    packet -> {
-                        if (packet instanceof BroadcastMessage broadcast) {
-                            Notifier.broadcast(broadcast.message());
-                        } else if (packet instanceof PlayerMessage playerMessage) {
-                            ProxyPlayer target = playerMessage.player();
-                            Player player = Bukkit.getPlayer(target.getUniqueId());
-                            if (player != null)
-                                Notifier.of(plugin, player).send(playerMessage.message());
-                        }
+                    BroadcastMessage.class,
+                    broadcast -> Notifier.broadcast(broadcast.message()));
+            proxium.subscribe(
+                    BridgeChannel.INTERNAL,
+                    PlayerMessage.class,
+                    playerMessage -> {
+                        ProxyPlayer target = playerMessage.player();
+                        Player player = Bukkit.getPlayer(target.getUniqueId());
+                        if (player != null)
+                            Notifier.of(plugin, player).send(playerMessage.message());
                     });
 
             bridgeRegistry.register(Proxium.class, proxium);
