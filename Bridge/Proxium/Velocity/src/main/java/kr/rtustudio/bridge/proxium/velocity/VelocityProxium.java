@@ -73,6 +73,7 @@ public class VelocityProxium extends ProxiumProxy {
                 PlayerList.class,
                 TeleportRequest.class,
                 PlayerEvent.class,
+                MutableProxyPlayer.class,
                 RequestPacket.class,
                 ResponsePacket.class,
                 BroadcastMessage.class);
@@ -161,6 +162,12 @@ public class VelocityProxium extends ProxiumProxy {
     }
 
     private void loadForwardingSecret() {
+        String envSecret = System.getenv("VELOCITY_FORWARDING_SECRET");
+        if (envSecret != null && !envSecret.isEmpty()) {
+            VelocityAuth.setSecret(envSecret.getBytes(StandardCharsets.UTF_8));
+            return;
+        }
+
         String secretPath = velocityConfig.getString("forwarding-secret-file", "");
         if (secretPath.isEmpty()) return;
 
@@ -180,6 +187,9 @@ public class VelocityProxium extends ProxiumProxy {
     private boolean isModernProxy() {
         String mode = velocityConfig.getString("player-info-forwarding-mode", "");
         if (!List.of("modern", "bungeeguard").contains(mode.toLowerCase())) return false;
+
+        String envSecret = System.getenv("VELOCITY_FORWARDING_SECRET");
+        if (envSecret != null && !envSecret.isEmpty()) return true;
 
         String secretPath = velocityConfig.getString("forwarding-secret-file", "");
         if (secretPath.isEmpty()) return false;

@@ -102,8 +102,7 @@ public class RedisBridge implements Redis {
                                     }
                                     if (h != null) h.accept(decoded);
                                 } catch (Exception e) {
-                                    log.error(
-                                            "Failed to decode message on channel: {}", ch, e);
+                                    log.error("Failed to decode message on channel: {}", ch, e);
                                 }
                             });
         }

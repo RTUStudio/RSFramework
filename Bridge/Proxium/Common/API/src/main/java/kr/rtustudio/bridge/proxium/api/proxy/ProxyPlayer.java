@@ -26,7 +26,7 @@ import org.jspecify.annotations.Nullable;
 @EqualsAndHashCode(of = "uniqueId")
 public class ProxyPlayer {
 
-    private final ProxiumPipeline proxium;
+    private final transient ProxiumPipeline proxium;
     private final UUID uniqueId;
     private final String name;
     @Nullable protected ProxiumNode node;

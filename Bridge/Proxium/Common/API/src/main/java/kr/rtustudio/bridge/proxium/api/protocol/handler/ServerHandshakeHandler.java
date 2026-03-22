@@ -103,6 +103,13 @@ public class ServerHandshakeHandler extends InternalConnectionHandler implements
 
     @Override
     public void onDisconnect(Connection connection) {
-        log.info("[{}] Disconnected from: {}", protocol, connection.getRemoteAddress());
+        if (wasUpgraded(connection)) {
+            log.info("[{}] Disconnected from: {}", protocol, connection.getRemoteAddress());
+        } else {
+            log.debug(
+                    "[{}] Disconnected from: {} (before upgrade)",
+                    protocol,
+                    connection.getRemoteAddress());
+        }
     }
 }

@@ -50,6 +50,7 @@ public class BukkitProxium extends ProxiumServer {
                     PlayerList.class,
                     TeleportRequest.class,
                     PlayerEvent.class,
+                    MutableProxyPlayer.class,
                     RequestPacket.class,
                     ResponsePacket.class,
                     BroadcastMessage.class);

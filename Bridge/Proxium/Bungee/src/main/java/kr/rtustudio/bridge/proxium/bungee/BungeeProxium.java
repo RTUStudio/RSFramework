@@ -34,7 +34,6 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
-
 @Slf4j(topic = "Proxium")
 @Getter
 public class BungeeProxium extends ProxiumProxy implements Listener {
@@ -58,6 +57,7 @@ public class BungeeProxium extends ProxiumProxy implements Listener {
                 PlayerList.class,
                 TeleportRequest.class,
                 PlayerEvent.class,
+                MutableProxyPlayer.class,
                 RequestPacket.class,
                 ResponsePacket.class,
                 BroadcastMessage.class);

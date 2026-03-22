@@ -67,7 +67,8 @@ public interface Proxium extends Bridge {
      * @param <T> 요청 패킷 타입
      * @return 응답 핸들러를 등록할 수 있는 RequestContext
      */
-    <T> RequestContext request(ProxiumNode target, BridgeChannel channel, T request, Duration timeout);
+    <T> RequestContext request(
+            ProxiumNode target, BridgeChannel channel, T request, Duration timeout);
 
     /**
      * 대상 서버로 구성에 설정된 기본 타임아웃으로 RPC 요청을 전송한다.
@@ -93,7 +94,8 @@ public interface Proxium extends Bridge {
      * @return 응답 핸들러를 등록할 수 있는 RequestContext
      * @throws IllegalArgumentException 대상 서버를 찾을 수 없는 경우
      */
-    default <T> RequestContext request(String target, BridgeChannel channel, T request, Duration timeout) {
+    default <T> RequestContext request(
+            String target, BridgeChannel channel, T request, Duration timeout) {
         ProxiumNode node = getServer(target);
         if (node == null) throw new IllegalArgumentException("Unknown server: " + target);
         return request(node, channel, request, timeout);
@@ -123,8 +125,7 @@ public interface Proxium extends Bridge {
     /**
      * 특정 채널에 대한 응답 핸들러 등록기를 반환한다.
      *
-     * <p>동일 채널에 여러 번 호출하면 기존 핸들러는 유지되고 새로운 타입의 핸들러만 추가된다.
-     * 동일 타입에 대해 다시 등록하면 기존 핸들러가 교체된다.
+     * <p>동일 채널에 여러 번 호출하면 기존 핸들러는 유지되고 새로운 타입의 핸들러만 추가된다. 동일 타입에 대해 다시 등록하면 기존 핸들러가 교체된다.
      *
      * @param channel 브릿지 채널
      * @return 핸들러 등록기

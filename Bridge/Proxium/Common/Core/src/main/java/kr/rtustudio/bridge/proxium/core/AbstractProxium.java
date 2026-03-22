@@ -158,12 +158,13 @@ public abstract class AbstractProxium implements ProxiumPipeline {
         return new ResponseContext(
                 (type, handler) -> {
                     register(channel, type);
-                    responseHandlers.computeIfAbsent(channel, k -> new ConcurrentHashMap<>()).put(type, handler);
+                    responseHandlers
+                            .computeIfAbsent(channel, k -> new ConcurrentHashMap<>())
+                            .put(type, handler);
                     log.info("Channel respond registered: {} [{}]", channel, type.getSimpleName());
                 },
                 errorHandler -> respondErrorHandlers.put(channel, errorHandler));
     }
-
 
     /**
      * 트랜잭션 패킷 처리기 (Request/Response).
