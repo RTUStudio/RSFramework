@@ -26,12 +26,17 @@ public class VelocityAuth implements ServerAuthHandler, ProxyAuthHandler {
 
     @Override
     public byte[] getSecret() {
+        if (secret != null) return secret;
+
         File file = new File("forwarding.secret");
         if (!file.exists()) return null;
 
         try {
             @Cleanup BufferedReader reader = new BufferedReader(new FileReader(file));
-            return reader.readLine().getBytes(StandardCharsets.UTF_8);
+            String line = reader.readLine();
+            if (line == null) return null;
+            secret = line.getBytes(StandardCharsets.UTF_8);
+            return secret;
         } catch (IOException ignore) {
             return null;
         }

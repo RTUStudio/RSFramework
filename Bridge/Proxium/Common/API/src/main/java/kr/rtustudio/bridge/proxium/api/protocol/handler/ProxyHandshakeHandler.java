@@ -90,7 +90,16 @@ public class ProxyHandshakeHandler extends InternalConnectionHandler implements 
                         connection.disconnect();
                         return;
                     }
-                    connection.send(authHandler.getSecret());
+                    byte[] secret = authHandler.getSecret();
+                    if (secret == null) {
+                        log.error(
+                                "[{}] Auth handler returned a null secret for server at: {}. Closing connection",
+                                protocol,
+                                connection.getRemoteAddress());
+                        connection.disconnect();
+                        return;
+                    }
+                    connection.send(secret);
                 }
                 case DENIED -> {
                     log.error(
