@@ -64,11 +64,11 @@ public class ProxyConnectionHandler implements ConnectionHandler {
     }
 
     private void logConnection(Connection connection) {
-        log.info(
-                "Connected to {}\n┠ Address: {}\n┖ Channel: {}",
-                resolveServerName(connection),
-                connection.getRemoteAddressString(),
-                connection.getProtocol().getChannel());
+        synchronized (log) {
+            log.info("Connected to {}", resolveServerName(connection));
+            log.info("┠ Address: {}", connection.getRemoteAddressString());
+            log.info("┖ Channel: {}", connection.getProtocol().getChannel());
+        }
     }
 
     private void logDisconnection(Connection connection) {
