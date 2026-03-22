@@ -65,8 +65,6 @@ public class BungeeProxium extends ProxiumProxy implements Listener {
         registerInternalSubscription();
 
         start(settings);
-
-        getProxiumNodes().forEach(this::registerServer);
     }
 
     @Override

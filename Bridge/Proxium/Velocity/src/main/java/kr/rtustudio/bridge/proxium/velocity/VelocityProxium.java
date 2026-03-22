@@ -85,8 +85,6 @@ public class VelocityProxium extends ProxiumProxy {
             loadForwardingSecret();
         }
         start(settings);
-
-        getProxiumNodes().forEach(this::registerServer);
     }
 
     @Override
