@@ -2,6 +2,7 @@ package kr.rtustudio.bridge.proxium.core;
 
 import kr.rtustudio.bridge.BridgeChannel;
 import kr.rtustudio.bridge.BridgeOptions;
+import kr.rtustudio.bridge.proxium.api.ProxiumNode;
 import kr.rtustudio.bridge.proxium.api.ProxiumPipeline;
 import kr.rtustudio.bridge.proxium.api.configuration.ProxiumConfig;
 import kr.rtustudio.bridge.proxium.api.context.RequestContext;
@@ -288,7 +289,7 @@ public abstract class AbstractProxium implements ProxiumPipeline {
 
     @Override
     public <T> RequestContext request(
-            String target, BridgeChannel channel, T request, Duration timeout) {
+            ProxiumNode target, BridgeChannel channel, T request, Duration timeout) {
         register(channel, request.getClass());
         UUID requestId = UUID.randomUUID();
         CompletableFuture<Object[]> future = new CompletableFuture<>();
@@ -298,7 +299,7 @@ public abstract class AbstractProxium implements ProxiumPipeline {
                 RequestPacket.builder()
                         .requestId(requestId)
                         .sender(getServer())
-                        .target(target)
+                        .target(target.name())
                         .channel(channel)
                         .payload(request)
                         .build();

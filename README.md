@@ -2,7 +2,7 @@
 
 모듈화된 Bukkit/Paper 플러그인 개발 프레임워크.
 
-> **버전**: 4.3.0 · **Java**: 21 · **지원 서버**: 1.20.1+ (Spigot/Paper/Folia) · **라이선스**: GPL-3.0
+> **버전**: 4.3.2 · **Java**: 21 · **지원 서버**: 1.20.1+ (Spigot/Paper/Folia) · **라이선스**: GPL-3.0
 
 ---
 
@@ -54,6 +54,23 @@ RSFramework/
 // ✅ 필드에 직접 접근
 plugin.reloadConfiguration(MyConfig.class);
 notifier.announce(player, "완료!");
+```
+
+---
+
+## 의존성
+
+```kotlin
+repositories {
+    maven {
+        name = "RTUStudio"
+        url = uri("https://repo.codemc.io/repository/rtustudio/")
+    }
+}
+
+dependencies {
+    compileOnly("kr.rtustudio:framework-api:4.3.2")
+}
 ```
 
 ---

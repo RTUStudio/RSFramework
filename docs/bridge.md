@@ -26,20 +26,7 @@ Bridge (공통 인터페이스)
 import kr.rtustudio.bridge.proxium.api.Proxium;
 
 // RSPlugin 내부에서
-Proxium proxium = getFramework().getBridge(Proxium.class);
-
-// 연결 상태 확인
-if (proxium == null || !proxium.isLoaded()) {
-    getLogger().warning("Proxium이 로드되지 않았습니다.");
-    return;
-}
-
-// 프록시에 연결되어 있는지 확인
-String serverName = proxium.getServer();
-if (serverName == null) {
-    getLogger().warning("프록시에 연결되어 있지 않습니다.");
-    return;
-}
+Proxium proxium = getBridge(Proxium.class);
 ```
 
 ---

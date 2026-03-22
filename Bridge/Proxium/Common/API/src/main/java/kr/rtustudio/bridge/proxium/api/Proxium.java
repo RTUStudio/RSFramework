@@ -60,23 +60,54 @@ public interface Proxium extends Bridge {
      * <p>반환된 {@link RequestContext}의 {@link RequestContext#on(Class,
      * java.util.function.BiConsumer)}을 통해 여러 응답 타입에 대한 핸들러를 체이닝 방식으로 등록할 수 있다.
      *
-     * @param target 대상 서버 이름
+     * @param target 대상 서버 노드
      * @param channel 브릿지 채널
      * @param request 전송할 페이로드 객체
      * @param timeout 응답 대기 제한 시간
      * @param <T> 요청 패킷 타입
      * @return 응답 핸들러를 등록할 수 있는 RequestContext
      */
-    <T> RequestContext request(String target, BridgeChannel channel, T request, Duration timeout);
+    <T> RequestContext request(ProxiumNode target, BridgeChannel channel, T request, Duration timeout);
 
     /**
      * 대상 서버로 구성에 설정된 기본 타임아웃으로 RPC 요청을 전송한다.
+     *
+     * @param target 대상 서버 노드
+     * @param channel 브릿지 채널
+     * @param request 전송할 페이로드 객체
+     * @param <T> 요청 패킷 타입
+     * @return 응답 핸들러를 등록할 수 있는 RequestContext
+     */
+    default <T> RequestContext request(ProxiumNode target, BridgeChannel channel, T request) {
+        return request(target, channel, request, getRequestTimeout());
+    }
+
+    /**
+     * 대상 서버 이름으로 RPC 요청을 전송한다. 서버 이름은 내부적으로 {@link ProxiumNode}로 변환된다.
+     *
+     * @param target 대상 서버 이름
+     * @param channel 브릿지 채널
+     * @param request 전송할 페이로드 객체
+     * @param timeout 응답 대기 제한 시간
+     * @param <T> 요청 패킷 타입
+     * @return 응답 핸들러를 등록할 수 있는 RequestContext
+     * @throws IllegalArgumentException 대상 서버를 찾을 수 없는 경우
+     */
+    default <T> RequestContext request(String target, BridgeChannel channel, T request, Duration timeout) {
+        ProxiumNode node = getServer(target);
+        if (node == null) throw new IllegalArgumentException("Unknown server: " + target);
+        return request(node, channel, request, timeout);
+    }
+
+    /**
+     * 대상 서버 이름으로 기본 타임아웃을 사용하여 RPC 요청을 전송한다.
      *
      * @param target 대상 서버 이름
      * @param channel 브릿지 채널
      * @param request 전송할 페이로드 객체
      * @param <T> 요청 패킷 타입
      * @return 응답 핸들러를 등록할 수 있는 RequestContext
+     * @throws IllegalArgumentException 대상 서버를 찾을 수 없는 경우
      */
     default <T> RequestContext request(String target, BridgeChannel channel, T request) {
         return request(target, channel, request, getRequestTimeout());
