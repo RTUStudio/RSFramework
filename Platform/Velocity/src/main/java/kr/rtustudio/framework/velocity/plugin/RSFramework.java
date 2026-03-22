@@ -35,7 +35,7 @@ public class RSFramework {
     }
 
     @Subscribe
-    public void onInitialize(ProxyInitializeEvent event) {
+    private void onInitialize(ProxyInitializeEvent event) {
         // Utilities
         libraries.load("com.google.code.gson:gson:2.13.1");
         libraries.load("com.google.guava:guava:33.4.8-jre");

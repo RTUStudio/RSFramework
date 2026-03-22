@@ -36,6 +36,7 @@ import com.velocitypowered.api.event.Subscribe;
 import com.velocitypowered.api.event.connection.DisconnectEvent;
 import com.velocitypowered.api.event.player.KickedFromServerEvent;
 import com.velocitypowered.api.event.player.ServerPostConnectEvent;
+import com.velocitypowered.api.event.proxy.ProxyInitializeEvent;
 import com.velocitypowered.api.event.proxy.ProxyShutdownEvent;
 import com.velocitypowered.api.event.proxy.server.ServerRegisteredEvent;
 import com.velocitypowered.api.event.proxy.server.ServerUnregisteredEvent;
@@ -47,9 +48,9 @@ import com.velocitypowered.api.proxy.server.ServerInfo;
 @Slf4j(topic = "Proxium")
 @Getter
 public class VelocityProxium extends ProxiumProxy {
-    private final ProxyServer proxyServer;
+    private final ProxyServer server;
     private final Path dir;
-    private final Toml velocityConfig;
+    private final Toml config;
 
     private final Map<UUID, TeleportRequest> teleportRequests = new ConcurrentHashMap<>();
 
@@ -62,9 +63,9 @@ public class VelocityProxium extends ProxiumProxy {
                 new BridgeOptions(VelocityProxium.class.getClassLoader()),
                 dir.resolve("plugins/RSFramework"),
                 settings);
-        this.proxyServer = server;
+        this.server = server;
         this.dir = dir;
-        this.velocityConfig = new Toml().read(new File(dir.toFile(), "velocity.toml"));
+        this.config = new Toml().read(new File(dir.toFile(), "velocity.toml"));
 
         register(
                 BridgeChannel.INTERNAL,
@@ -114,7 +115,7 @@ public class VelocityProxium extends ProxiumProxy {
     @Override
     protected void onServerConnected(Connection connection) {
         String remoteAddress = addressKey(connection.getRemoteAddress());
-        for (var server : proxyServer.getAllServers()) {
+        for (var server : server.getAllServers()) {
             if (!(server.getServerInfo().getAddress() instanceof InetSocketAddress addr)) continue;
             if (!remoteAddress.equals(addressKey(addr))) continue;
             ProxiumNode node =
@@ -137,10 +138,10 @@ public class VelocityProxium extends ProxiumProxy {
     }
 
     private void handleTeleport(TeleportRequest request) {
-        var targetServer = proxyServer.getServer(request.server()).orElse(null);
+        var targetServer = server.getServer(request.server()).orElse(null);
         if (targetServer == null) return;
 
-        Player player = proxyServer.getPlayer(request.player().getUniqueId()).orElse(null);
+        Player player = server.getPlayer(request.player().getUniqueId()).orElse(null);
         if (player == null) return;
 
         teleportRequests.put(player.getUniqueId(), request);
@@ -166,7 +167,7 @@ public class VelocityProxium extends ProxiumProxy {
             return;
         }
 
-        String secretPath = velocityConfig.getString("forwarding-secret-file", "");
+        String secretPath = config.getString("forwarding-secret-file", "");
         if (secretPath.isEmpty()) return;
 
         File file = new File(dir.toFile(), secretPath);
@@ -183,13 +184,13 @@ public class VelocityProxium extends ProxiumProxy {
     }
 
     private boolean isModernProxy() {
-        String mode = velocityConfig.getString("player-info-forwarding-mode", "");
+        String mode = config.getString("player-info-forwarding-mode", "");
         if (!List.of("modern", "bungeeguard").contains(mode.toLowerCase())) return false;
 
         String envSecret = System.getenv("VELOCITY_FORWARDING_SECRET");
         if (envSecret != null && !envSecret.isEmpty()) return true;
 
-        String secretPath = velocityConfig.getString("forwarding-secret-file", "");
+        String secretPath = config.getString("forwarding-secret-file", "");
         if (secretPath.isEmpty()) return false;
 
         File file = new File(dir.toFile(), secretPath);
@@ -203,22 +204,27 @@ public class VelocityProxium extends ProxiumProxy {
     }
 
     @Subscribe
-    public void onRegister(ServerRegisteredEvent event) {
+    private void onProxyInitialize(ProxyInitializeEvent event) {
+        server.getEventManager().register(this, this);
+    }
+
+    @Subscribe
+    private void onProxyShutdown(ProxyShutdownEvent event) {
+        close();
+    }
+
+    @Subscribe
+    private void onRegister(ServerRegisteredEvent event) {
         ServerInfo info = event.registeredServer().getServerInfo();
         InetSocketAddress addr = (InetSocketAddress) info.getAddress();
         registerServer(new ProxiumNode(info.getName(), addr.getHostString(), addr.getPort()));
     }
 
     @Subscribe
-    public void onUnregister(ServerUnregisteredEvent event) {
+    private void onUnregister(ServerUnregisteredEvent event) {
         ServerInfo info = event.unregisteredServer().getServerInfo();
         InetSocketAddress addr2 = (InetSocketAddress) info.getAddress();
         unregisterServer(new ProxiumNode(info.getName(), addr2.getHostString(), addr2.getPort()));
-    }
-
-    @Subscribe
-    public void onProxyShutdown(ProxyShutdownEvent event) {
-        close();
     }
 
     @Subscribe
@@ -281,7 +287,7 @@ public class VelocityProxium extends ProxiumProxy {
 
     @Override
     public List<ProxiumNode> getProxiumNodes() {
-        return proxyServer.getAllServers().stream()
+        return server.getAllServers().stream()
                 .map(
                         rs -> {
                             ServerInfo info = rs.getServerInfo();
