@@ -115,6 +115,6 @@ public class ProxyHandshakeHandler extends InternalConnectionHandler implements 
     @Override
     public void onDisconnect(Connection connection) {
         if (protocol != null && wasUpgraded(connection))
-            log.info("[{}] Disconnected from: {}", protocol, connection.getRemoteAddress());
+            log.debug("[{}] Disconnected from: {}", protocol, connection.getRemoteAddress());
     }
 }

@@ -277,7 +277,7 @@ public abstract class ProxiumProxy extends AbstractProxium {
                 .onConnectionLost(
                         conn -> {
                             if (connected.get()) {
-                                log.debug(
+                                log.info(
                                         "Lost connection to '{}', reconnecting in {}s",
                                         server.name(),
                                         RETRY_DELAY_SECONDS);
@@ -287,7 +287,7 @@ public abstract class ProxiumProxy extends AbstractProxium {
                                         TimeUnit.SECONDS);
                             } else if (attempt + 1 < MAX_RETRIES) {
                                 log.debug(
-                                        "Connection to '{}' failed, retrying in {}s ({}/{})",
+                                        "Server '{}' not reachable, retrying in {}s ({}/{})",
                                         server.name(),
                                         RETRY_DELAY_SECONDS,
                                         attempt + 2,
@@ -298,7 +298,7 @@ public abstract class ProxiumProxy extends AbstractProxium {
                                         TimeUnit.SECONDS);
                             } else {
                                 log.warn(
-                                        "Failed to connect to '{}' after {} attempts",
+                                        "Server '{}' is not reachable after {} attempts",
                                         server.name(),
                                         MAX_RETRIES);
                             }
@@ -325,7 +325,10 @@ public abstract class ProxiumProxy extends AbstractProxium {
     @ApiStatus.Internal
     public void registerServer(ProxiumNode server) {
         if (serversByName.putIfAbsent(server.name(), server) == null) {
-            ProxiumAPI.getLoadedProtocols().forEach(this::startProtocol);
+            for (Protocol protocol : ProxiumAPI.getLoadedProtocols()) {
+                if (protocol.getChannel().equals(BridgeChannel.PROXIUM)) continue;
+                connectToServer(protocol, server);
+            }
         }
     }
 

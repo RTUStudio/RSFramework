@@ -30,7 +30,7 @@ public class ConnectionHandler
     @Override
     public void onDisconnect(Connection connection) {
         String platform = proxium.getSecurity().isModernProxy() ? "velocity" : "bungeecord";
-        log.warn("Disconnected from {}. Operating in standalone mode.", platform);
+        log.info("Disconnected from {}. Operating in standalone mode.", platform);
         proxium.setNode(null);
     }
 }
