@@ -14,9 +14,11 @@ public class ConnectionHandler
     @Override
     public void onReady(Connection connection) {
         String platform = proxium.getSecurity().isModernProxy() ? "velocity" : "bungeecord";
-        log.info("Connected to {}", platform);
-        log.info("┠ Address: {}", connection.getRemoteAddressString());
-        log.info("┖ Channel: {}", connection.getProtocol().getChannel());
+        log.info(
+                "Connected to {}\n┠ Address: {}\n┖ Channel: {}",
+                platform,
+                connection.getRemoteAddressString(),
+                connection.getProtocol().getChannel());
         proxium.ready(connection);
     }
 
