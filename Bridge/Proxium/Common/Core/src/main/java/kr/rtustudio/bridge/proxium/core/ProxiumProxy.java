@@ -7,6 +7,7 @@ import kr.rtustudio.bridge.proxium.api.ProxiumNode;
 import kr.rtustudio.bridge.proxium.api.configuration.ProxiumConfig;
 import kr.rtustudio.bridge.proxium.api.netty.Connection;
 import kr.rtustudio.bridge.proxium.api.protocol.Protocol;
+import kr.rtustudio.bridge.proxium.api.protocol.internal.Disconnect;
 import kr.rtustudio.bridge.proxium.api.protocol.internal.PlayerList;
 import kr.rtustudio.bridge.proxium.api.protocol.internal.TransactionPacket;
 import kr.rtustudio.bridge.proxium.api.proxy.ProxyConnector;
@@ -86,7 +87,7 @@ public abstract class ProxiumProxy extends AbstractProxium {
             frame =
                     options.encode(
                             BridgeChannel.INTERNAL,
-                            new kr.rtustudio.bridge.proxium.api.protocol.internal.Disconnect());
+                            new Disconnect());
             disconnectFrame = frame;
         }
         return frame;
