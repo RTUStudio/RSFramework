@@ -114,10 +114,7 @@ public abstract class ProxiumServer extends AbstractProxium {
         this.connection = connection;
         InetSocketAddress remoteAddr = connection.getRemoteAddress();
         this.proxy = new ProxiumNode("Proxy", remoteAddr.getHostString(), remoteAddr.getPort());
-        this.disconnectFrame =
-                options.encode(
-                        BridgeChannel.INTERNAL,
-                        new Disconnect());
+        this.disconnectFrame = options.encode(BridgeChannel.INTERNAL, new Disconnect());
         send(BridgeChannel.INTERNAL);
     }
 

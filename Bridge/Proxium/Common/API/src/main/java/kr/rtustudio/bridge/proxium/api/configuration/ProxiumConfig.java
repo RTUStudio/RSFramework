@@ -18,6 +18,16 @@ public interface ProxiumConfig {
         return Duration.ofSeconds(5);
     }
 
+    /** 프록시가 대상 서버에 연결을 재시도할 최대 횟수를 반환한다. */
+    default long getMaxRetries() {
+        return Long.MAX_VALUE;
+    }
+
+    /** 프록시가 서버에 연결을 재시도할 간격(초)을 반환한다. */
+    default long getRetryDelaySeconds() {
+        return 5;
+    }
+
     interface Tls {
         boolean isEnabled();
     }

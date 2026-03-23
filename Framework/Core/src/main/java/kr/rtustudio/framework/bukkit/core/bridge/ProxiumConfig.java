@@ -38,6 +38,20 @@ public class ProxiumConfig extends ConfigurationPart
                     이 크기를 초과하는 패킷은 거부됩니다""")
     private int maxPacketSize = 67108864;
 
+    @Comment(
+            """
+                    Maximum number of connection retry attempts
+                    Set to a high value (like 9223372036854775807) for infinite background retries
+                    프록시의 최대 연결 재시도 횟수
+                    백그라운드에서 무한히 재시도하려면 큰 값으로 설정하세요""")
+    private long maxRetries = Long.MAX_VALUE;
+
+    @Comment(
+            """
+                    Delay in seconds between connection retry attempts
+                    프록시의 재시도 대기 간격 (초 단위)""")
+    private long retryDelaySeconds = 5;
+
     @Getter
     public class Tls extends ConfigurationPart
             implements kr.rtustudio.bridge.proxium.api.configuration.ProxiumConfig.Tls {

@@ -40,9 +40,6 @@ import org.jetbrains.annotations.ApiStatus;
 @Getter
 public abstract class ProxiumProxy extends AbstractProxium {
 
-    private static final int MAX_RETRIES = 10;
-    private static final long RETRY_DELAY_SECONDS = 5;
-
     private final ConcurrentHashMap<String, ProxiumNode> serversByName = new ConcurrentHashMap<>();
 
     private final Map<Connection, Set<BridgeChannel>> serverSubscriptions =
@@ -84,10 +81,7 @@ public abstract class ProxiumProxy extends AbstractProxium {
     private byte[] getDisconnectFrame() {
         byte[] frame = disconnectFrame;
         if (frame == null) {
-            frame =
-                    options.encode(
-                            BridgeChannel.INTERNAL,
-                            new Disconnect());
+            frame = options.encode(BridgeChannel.INTERNAL, new Disconnect());
             disconnectFrame = frame;
         }
         return frame;
@@ -301,7 +295,7 @@ public abstract class ProxiumProxy extends AbstractProxium {
     }
 
     private void connectToServer(
-            Protocol protocol, ProxiumNode server, int attempt, boolean wasConnected) {
+            Protocol protocol, ProxiumNode server, long attempt, boolean wasConnected) {
         ProxyConnector connector =
                 new ProxyConnector(
                         server.getSocketAddress(),
@@ -320,31 +314,34 @@ public abstract class ProxiumProxy extends AbstractProxium {
                                 return;
                             }
 
+                            long retryDelay = settings.getRetryDelaySeconds();
+                            long maxRetries = settings.getMaxRetries();
+
                             if (connected.get()) {
                                 log.info(
                                         "Lost connection to '{}', reconnecting in {}s",
                                         server.name(),
-                                        RETRY_DELAY_SECONDS);
+                                        retryDelay);
                                 retryScheduler.schedule(
                                         () -> connectToServer(protocol, server, 0, true),
-                                        RETRY_DELAY_SECONDS,
+                                        retryDelay,
                                         TimeUnit.SECONDS);
-                            } else if (attempt + 1 < MAX_RETRIES) {
+                            } else if (attempt + 1 < maxRetries) {
                                 log.debug(
                                         "Server '{}' not reachable, retrying in {}s ({}/{})",
                                         server.name(),
-                                        RETRY_DELAY_SECONDS,
+                                        retryDelay,
                                         attempt + 2,
-                                        MAX_RETRIES);
+                                        maxRetries == Long.MAX_VALUE ? "∞" : maxRetries);
                                 retryScheduler.schedule(
                                         () -> connectToServer(protocol, server, attempt + 1, false),
-                                        RETRY_DELAY_SECONDS,
+                                        retryDelay,
                                         TimeUnit.SECONDS);
                             } else {
                                 log.warn(
                                         "Server '{}' is not reachable after {} attempts",
                                         server.name(),
-                                        MAX_RETRIES);
+                                        maxRetries);
                             }
                         })
                 .connect(protocol);

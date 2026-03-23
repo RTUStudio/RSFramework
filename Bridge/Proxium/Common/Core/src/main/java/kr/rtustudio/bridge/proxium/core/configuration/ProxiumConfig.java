@@ -57,6 +57,20 @@ public class ProxiumConfig extends ConfigurationPart
                     request() 호출 시 타임아웃을 명시하지 않으면 이 값이 사용됩니다""")
     private long requestTimeout = 5000;
 
+    @Comment(
+            """
+                    Maximum number of connection retry attempts
+                    Set to a high value (like 9223372036854775807) for infinite background retries
+                    프록시의 최대 연결 재시도 횟수
+                    백그라운드에서 무한히 재시도하려면 큰 값으로 설정하세요""")
+    private long maxRetries = Long.MAX_VALUE;
+
+    @Comment(
+            """
+                    Delay in seconds between connection retry attempts
+                    프록시의 재시도 대기 간격 (초 단위)""")
+    private long retryDelaySeconds = 5;
+
     /**
      * 데이터 폴더 경로에서 설정을 로드한다.
      *
