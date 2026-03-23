@@ -164,7 +164,7 @@ public abstract class ProxiumProxy extends AbstractProxium {
     }
 
     @Override
-    public ProxiumNode getName(String name) {
+    public ProxiumNode getNode(String name) {
         return serversByName.get(name);
     }
 

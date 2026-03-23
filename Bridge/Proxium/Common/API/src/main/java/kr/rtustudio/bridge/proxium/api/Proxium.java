@@ -56,7 +56,7 @@ public interface Proxium extends Bridge {
      * @param name server's unique identifier
      * @return the server node, or {@code null} if not found
      */
-    @Nullable ProxiumNode getName(String name);
+    @Nullable ProxiumNode getNode(String name);
 
     /**
      * Returns a proxy player by UUID.
@@ -114,7 +114,7 @@ public interface Proxium extends Bridge {
      */
     default <T> RequestContext request(
             String target, BridgeChannel channel, T request, Duration timeout) {
-        ProxiumNode node = getName(target);
+        ProxiumNode node = getNode(target);
         if (node == null) throw new IllegalArgumentException("Unknown server: " + target);
         return request(node, channel, request, timeout);
     }

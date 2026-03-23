@@ -60,8 +60,11 @@ public abstract class ProxiumServer extends AbstractProxium {
     }
 
     @Override
-    public ProxiumNode getName(String name) {
-        return knownServers.get(name);
+    public ProxiumNode getNode(String name) {
+        ProxiumNode n = knownServers.get(name);
+        if (n != null) return n;
+        if (node != null && name.equals(node.name())) return node;
+        return null;
     }
 
     @Override

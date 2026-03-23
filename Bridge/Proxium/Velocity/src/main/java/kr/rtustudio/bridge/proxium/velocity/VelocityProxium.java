@@ -155,7 +155,7 @@ public class VelocityProxium extends ProxiumProxy {
         if (current == null) return;
 
         String serverName = current.getServerInfo().getName();
-        ProxiumNode serverNode = getName(serverName);
+        ProxiumNode serverNode = getNode(serverName);
 
         ProxyPlayer proxyPlayer = players.get(player.getUniqueId());
         PlayerEvent.Action action;

@@ -41,7 +41,7 @@ public final class BridgeOptions {
                         .withDeserializeUnknownClass(false)
                         .withLanguage(Language.JAVA)
                         .withCompatibleMode(CompatibleMode.COMPATIBLE)
-                        .withAsyncCompilation(true)
+                        .withAsyncCompilation(false)
                         .withClassLoader(classLoader)
                         .build();
     }
