@@ -7,7 +7,6 @@ import kr.rtustudio.bridge.proxium.api.ProxiumNode;
 import kr.rtustudio.bridge.proxium.api.configuration.ProxiumConfig;
 import kr.rtustudio.bridge.proxium.api.netty.Connection;
 import kr.rtustudio.bridge.proxium.api.protocol.Protocol;
-import kr.rtustudio.bridge.proxium.api.protocol.internal.Disconnect;
 import kr.rtustudio.bridge.proxium.api.protocol.internal.PlayerList;
 import kr.rtustudio.bridge.proxium.api.protocol.internal.TransactionPacket;
 import kr.rtustudio.bridge.proxium.api.proxy.ProxyConnector;
@@ -48,6 +47,7 @@ public abstract class ProxiumProxy extends AbstractProxium {
     private final Map<Connection, Set<BridgeChannel>> serverSubscriptions =
             new ConcurrentHashMap<>();
     private final AtomicBoolean shuttingDown = new AtomicBoolean(false);
+    private volatile byte[] disconnectFrame;
     private final Set<String> gracefulDisconnects = ConcurrentHashMap.newKeySet();
 
     public boolean isShuttingDown() {
@@ -78,6 +78,18 @@ public abstract class ProxiumProxy extends AbstractProxium {
         this.settings = settings;
         ProxiumAPI.PROTOCOL_LOADED.register(this::startProtocol);
         ProxiumAPI.getLoadedProtocols().forEach(this::startProtocol);
+    }
+
+    private byte[] getDisconnectFrame() {
+        byte[] frame = disconnectFrame;
+        if (frame == null) {
+            frame =
+                    options.encode(
+                            BridgeChannel.INTERNAL,
+                            new kr.rtustudio.bridge.proxium.api.protocol.internal.Disconnect());
+            disconnectFrame = frame;
+        }
+        return frame;
     }
 
     /** SocketAddress를 정규화된 \"host:port\" 문자열로 변환한다. */
@@ -343,13 +355,13 @@ public abstract class ProxiumProxy extends AbstractProxium {
     public void shutdown() {
         shuttingDown.set(true);
         retryScheduler.shutdownNow();
-        byte[] disconnectFrame = options.encode(BridgeChannel.INTERNAL, new Disconnect());
+        byte[] frame = getDisconnectFrame();
         serverSubscriptions
                 .keySet()
                 .forEach(
                         conn -> {
                             if (conn.isOpen()) {
-                                conn.send(disconnectFrame);
+                                if (frame != null) conn.send(frame);
                                 conn.disconnect();
                             }
                         });

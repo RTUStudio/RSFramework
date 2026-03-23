@@ -19,6 +19,8 @@ import org.bukkit.permissions.PermissionDefault;
  */
 public class TestCommand extends RSCommand<RSFramework> {
 
+    private static final int RPC_ITERATIONS = 5;
+
     public TestCommand(RSFramework plugin) {
         super(plugin, "test", PermissionDefault.OP);
     }
@@ -55,58 +57,80 @@ public class TestCommand extends RSCommand<RSFramework> {
             log.severe("[Test] [1/2] Pub/Sub: ❌ Failed — " + e.getMessage());
         }
 
-        // ─── 2. RPC Test ───
-        // Use BroadcastMessage (already pre-registered on AUDIENCE channel)
-        // as the RPC request/response type. Handler key = channel + type.
-        log.info("[Test] [2/2] RPC: Sending BroadcastMessage request → " + serverName + "...");
+        // ─── 2. RPC Test (5 iterations) ───
+        log.info(
+                "[Test] [2/2] RPC: Running "
+                        + RPC_ITERATIONS
+                        + " iterations → "
+                        + serverName
+                        + "...");
 
-        // Register responder for BroadcastMessage on INTERNAL channel
-        // (types already registered; responseHandlers map is separate from subscriptions)
+        // Register responder once
         proxium.respond(BridgeChannel.INTERNAL)
                 .on(
                         BroadcastMessage.class,
-                        (sender, req) -> {
-                            log.info(
-                                    "[Test] [2/2] RPC: Responder received request from '"
-                                            + sender
-                                            + "' (msg="
-                                            + req.message()
-                                            + ")");
-                            return new BroadcastMessage("[Test] Pong from " + serverName);
-                        })
-                .error(e -> log.severe("[Test] [2/2] RPC Responder error: " + e.type()));
-        // Send request to self (through proxy)
+                        (sender, req) -> new BroadcastMessage("[Test] Pong from " + serverName))
+                .error(e -> log.severe("[Test] RPC Responder error: " + e.type()));
+
+        // Run iterations sequentially using CountDownLatch chaining
+        long[] rtts = new long[RPC_ITERATIONS];
+        runRpcIteration(proxium, serverName, log, rtts, 0);
+
+        return Result.SUCCESS;
+    }
+
+    private void runRpcIteration(
+            Proxium proxium, String serverName, Logger log, long[] rtts, int index) {
+        if (index >= RPC_ITERATIONS) {
+            // All iterations complete — print summary
+            long min = Long.MAX_VALUE, max = 0, sum = 0;
+            for (long rtt : rtts) {
+                min = Math.min(min, rtt);
+                max = Math.max(max, rtt);
+                sum += rtt;
+            }
+            log.info("[Test] ───────────────────────────────────────");
+            log.info(
+                    "[Test] RPC Summary ("
+                            + RPC_ITERATIONS
+                            + " calls): min="
+                            + min
+                            + "ms, max="
+                            + max
+                            + "ms, avg="
+                            + (sum / RPC_ITERATIONS)
+                            + "ms");
+            log.info("[Test] ═══════════════════════════════════════");
+            log.info("[Test] All tests completed!");
+            log.info("[Test] ═══════════════════════════════════════");
+            return;
+        }
+
         long sendTime = System.currentTimeMillis();
         proxium.request(
                         serverName,
                         BridgeChannel.INTERNAL,
-                        new BroadcastMessage("[Test] Ping"),
+                        new BroadcastMessage("[Test] Ping #" + (index + 1)),
                         Duration.ofSeconds(5))
                 .on(
                         BroadcastMessage.class,
                         (sender, resp) -> {
                             long rtt = System.currentTimeMillis() - sendTime;
-                            log.info(
-                                    "[Test] [2/2] RPC: ✅ Got response from '"
-                                            + sender
-                                            + "' (msg="
-                                            + resp.message()
-                                            + ", RTT="
-                                            + rtt
-                                            + "ms)");
-                            log.info("[Test] ═══════════════════════════════════════");
-                            log.info("[Test] All tests completed!");
-                            log.info("[Test] ═══════════════════════════════════════");
+                            rtts[index] = rtt;
+                            log.info("[Test] [2/2] RPC #" + (index + 1) + ": ✅ RTT=" + rtt + "ms");
+                            // Chain next iteration
+                            runRpcIteration(proxium, serverName, log, rtts, index + 1);
                         })
                 .error(
                         e -> {
-                            log.severe("[Test] [2/2] RPC: ❌ Failed — " + e.type());
+                            log.severe(
+                                    "[Test] [2/2] RPC #"
+                                            + (index + 1)
+                                            + ": ❌ Failed — "
+                                            + e.type());
                             if (e.getCause() != null) {
-                                log.severe(
-                                        "[Test] [2/2] RPC: Cause — " + e.getCause().getMessage());
+                                log.severe("[Test] Cause — " + e.getCause().getMessage());
                             }
                         });
-
-        return Result.SUCCESS;
     }
 }
