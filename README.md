@@ -69,7 +69,7 @@ repositories {
 }
 
 dependencies {
-    compileOnly("kr.rtustudio:framework-api:4.4.1")
+    compileOnly("kr.rtustudio:framework-api:4.4.3")
 }
 ```
 
