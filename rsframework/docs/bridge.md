@@ -277,11 +277,11 @@ RPC 실패 시 `.error()` 핸들러에 `RequestException`이 전달됩니다.
 // 전체 플레이어 조회
 Map<UUID, ProxyPlayer> players = proxium.getPlayers();
 
-// 특정 플레이어 조회
+// 플레이어 정보 상세 조회
 ProxyPlayer player = proxium.getPlayer(uuid);
 if (player != null) {
     String name = player.getName();
-    ProxiumNode server = player.getServer();  // 현재 접속 중인 서버
+    ProxiumNode server = player.getNode();  // 현재 접속 중인 서버 노드 정보
 }
 
 // 서버 노드 정보 조회
@@ -303,6 +303,8 @@ if (node != null) {
 > - **메인 스레드 블로킹 금지** — `asFuture().join()`을 메인 스레드에서 호출하면 서버가 멈출 수 있습니다.
 > - **양방향 등록** — 요청 측과 응답 측 **모두** 동일한 채널을 사용해야 합니다.
 > - **타입 등록 시점** — 가능한 서버 시작 시점(onEnable)에 `subscribe()`, `respond()` 등을 호출하여 타입을 등록하세요.
+> - **RPC 벤치마크 및 JIT Warmup** — Proxium은 내부적으로 Fory 직렬화의 *비동기 JIT 컴파일*을 지원합니다. 첫 RPC 호출은 컴파일 오버헤드로 인해 약 `50ms+`가 소요될 수 있으나, 두 번째 호출부터는 JIT 캐싱으로 인해 **로컬 기준 `2~4ms`**의 초고속(RTT) 성능을 보장합니다.
+> - **Graceful Shutdown** — 서버 종료 시 내부적으로 `Disconnect` 패킷을 전송하여 클러스터 상태를 즉시 동기화합니다. "Lost connection to lobby"와 같은 불필요한 자동 재접속 로그가 출력되지 않으며, 의도치 않은 비정상 종료 시에만 자동 재접속이 시도됩니다.
 
 ---
 
