@@ -1,6 +1,5 @@
 package kr.rtustudio.framework.velocity.plugin;
 
-import kr.rtustudio.bridge.proxium.api.Proxium;
 import kr.rtustudio.bridge.proxium.velocity.VelocityProxium;
 import lombok.extern.slf4j.Slf4j;
 
@@ -20,7 +19,7 @@ public class RSFramework {
     private final Path dir;
     private final Libraries libraries;
 
-    private Proxium proxium;
+    private VelocityProxium proxium;
 
     @Inject
     public RSFramework(ProxyServer server, @DataDirectory Path dir) {
@@ -59,8 +58,8 @@ public class RSFramework {
         libraries.load("org.bouncycastle:bcutil-jdk18on:1.80");
         libraries.load("org.bouncycastle:bcpkix-jdk18on:1.80");
 
-        proxium = new VelocityProxium(server, dir.toAbsolutePath().getParent().getParent());
-        server.getEventManager().register(this, proxium);
+        this.proxium = new VelocityProxium(server, dir.toAbsolutePath().getParent().getParent());
+        this.server.getEventManager().register(this, proxium);
 
         log.info("RSFramework Velocity loaded.");
     }

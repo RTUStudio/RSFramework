@@ -93,7 +93,6 @@ public abstract class AbstractProxium implements ProxiumPipeline {
     public <T> void subscribe(BridgeChannel channel, Class<T> type, Consumer<T> handler) {
         register(channel, type);
         channelHandlers.computeIfAbsent(channel, k -> new ConcurrentHashMap<>()).put(type, handler);
-        log.info("Channel subscribed: {} [{}]", channel, type.getSimpleName());
     }
 
     @Override
@@ -183,7 +182,7 @@ public abstract class AbstractProxium implements ProxiumPipeline {
     }
 
     private boolean handleIncomingResponse(ResponsePacket response) {
-        if (!Objects.equals(getServer(), response.target())) return false;
+        if (!Objects.equals(getName(), response.target())) return false;
 
         CompletableFuture<Object[]> future = pendingRequests.remove(response.requestId());
         if (future == null) return true;
@@ -211,7 +210,7 @@ public abstract class AbstractProxium implements ProxiumPipeline {
     }
 
     private boolean handleIncomingRequest(RequestPacket request) {
-        if (!Objects.equals(getServer(), request.target())) return false;
+        if (!Objects.equals(getName(), request.target())) return false;
 
         Map<Class<?>, ResponseHandler<?, ?>> handlers = responseHandlers.get(request.channel());
         if (handlers == null || handlers.isEmpty()) {
@@ -260,7 +259,7 @@ public abstract class AbstractProxium implements ProxiumPipeline {
         send(
                 ResponsePacket.builder()
                         .requestId(request.requestId())
-                        .sender(getServer())
+                        .sender(getName())
                         .target(request.sender())
                         .channel(request.channel())
                         .status(status)
@@ -299,7 +298,7 @@ public abstract class AbstractProxium implements ProxiumPipeline {
         RequestPacket packet =
                 RequestPacket.builder()
                         .requestId(requestId)
-                        .sender(getServer())
+                        .sender(getName())
                         .target(target.name())
                         .channel(channel)
                         .payload(request)

@@ -7,6 +7,11 @@ import java.util.function.Supplier;
 
 import org.jetbrains.annotations.NotNull;
 
+/**
+ * Redis-based bridge interface providing pub/sub communication and distributed locking.
+ *
+ * <p>Redis 기반 브릿지 인터페이스. Pub/Sub 통신 및 분산 락을 제공한다.
+ */
 public interface Redis extends Bridge {
 
     <T> T withLock(@NotNull String key, @NotNull Supplier<T> action);

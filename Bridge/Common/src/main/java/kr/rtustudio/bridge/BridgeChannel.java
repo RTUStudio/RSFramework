@@ -4,6 +4,16 @@ import net.kyori.adventure.key.Key;
 
 import org.jetbrains.annotations.NotNull;
 
+/**
+ * Identifies a message channel using a namespace and key pair. Predefined channels include {@link
+ * #INTERNAL}, {@link #PROXIUM}, and {@link #AUDIENCE}.
+ *
+ * <p>네임스페이스와 키 쌍으로 메시지 채널을 식별하는 레코드. {@link #INTERNAL}, {@link #PROXIUM}, {@link #AUDIENCE} 등 미리
+ * 정의된 채널을 포함한다.
+ *
+ * @param namespace channel namespace
+ * @param key channel key
+ */
 public record BridgeChannel(@NotNull String namespace, @NotNull String key) {
 
     public static final BridgeChannel INTERNAL = new BridgeChannel("rsframework", "internal");

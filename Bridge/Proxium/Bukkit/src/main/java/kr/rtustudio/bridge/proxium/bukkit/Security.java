@@ -8,11 +8,23 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j(topic = "Proxium")
 public class Security {
 
+    private static final boolean IS_PAPER =
+            hasClass("com.destroystokyo.paper.PaperConfig")
+                    || hasClass("io.papermc.paper.configuration.Configuration");
     private final String sslFolder;
     @Getter private boolean modernProxy = false;
 
     public Security(String sslFolder) {
         this.sslFolder = sslFolder;
+    }
+
+    private static boolean hasClass(String className) {
+        try {
+            Class.forName(className);
+            return true;
+        } catch (ClassNotFoundException e) {
+            return false;
+        }
     }
 
     public void setup(boolean tls) {
@@ -33,10 +45,6 @@ public class Security {
         }
     }
 
-    private static final boolean IS_PAPER =
-            hasClass("com.destroystokyo.paper.PaperConfig")
-                    || hasClass("io.papermc.paper.configuration.Configuration");
-
     public boolean isPaper() {
         return IS_PAPER;
     }
@@ -46,15 +54,6 @@ public class Security {
             var config = GlobalConfiguration.get();
             return config.proxies.velocity.enabled;
         } catch (Exception e) {
-            return false;
-        }
-    }
-
-    private static boolean hasClass(String className) {
-        try {
-            Class.forName(className);
-            return true;
-        } catch (ClassNotFoundException e) {
             return false;
         }
     }

@@ -18,6 +18,12 @@ import org.apache.fory.config.Language;
 import org.apache.fory.exception.InsecureException;
 import org.apache.fory.logging.LoggerFactory;
 
+/**
+ * Manages Fory-based serialization for bridge packet encoding/decoding. Handles channel-scoped type
+ * registration and SHA-1 fingerprinting.
+ *
+ * <p>브릿지 패킷 인코딩/디코딩을 위한 Fory 기반 직렬화 관리 클래스. 채널 단위 타입 등록 및 SHA-1 핑거프린팅을 처리한다.
+ */
 public final class BridgeOptions {
 
     static {
@@ -74,7 +80,12 @@ public final class BridgeOptions {
         if (!type.isEnum()) recursiveRegister(type.getSuperclass(), registered);
     }
 
-    /** 객체를 채널 헤더 없이 순수 바이트 배열로 직렬화한다. Protocol 내부 핸드셰이크에서 사용. */
+    /**
+     * Serializes an object to a raw byte array without channel header. Used for protocol
+     * handshakes.
+     *
+     * <p>객체를 채널 헤더 없이 순수 바이트 배열로 직렬화한다. Protocol 내부 핸드셰이크에서 사용.
+     */
     public byte[] serializeRaw(Object value) {
         synchronized (fory) {
             try {
@@ -86,7 +97,11 @@ public final class BridgeOptions {
         }
     }
 
-    /** 순수 바이트 배열을 객체로 역직렬화한다. Protocol 내부 핸드셰이크에서 사용. */
+    /**
+     * Deserializes a raw byte array back to an object. Used for protocol handshakes.
+     *
+     * <p>순수 바이트 배열을 객체로 역직렬화한다. Protocol 내부 핸드셰이크에서 사용.
+     */
     public Object deserializeRaw(byte[] data) {
         synchronized (fory) {
             try {

@@ -33,7 +33,7 @@ public class TestCommand extends RSCommand<RSFramework> {
             return Result.FAILURE;
         }
 
-        String serverName = proxium.getServer();
+        String serverName = proxium.getName();
         if (serverName == null) {
             notifier.announce(message.get(player(), "test.not-connected"));
             return Result.FAILURE;

@@ -5,11 +5,7 @@ import kr.rtustudio.bridge.BridgeOptions;
 import kr.rtustudio.bridge.proxium.api.ProxiumNode;
 import kr.rtustudio.bridge.proxium.api.netty.Connection;
 import kr.rtustudio.bridge.proxium.api.protocol.Protocol;
-import kr.rtustudio.bridge.proxium.api.protocol.internal.BroadcastMessage;
-import kr.rtustudio.bridge.proxium.api.protocol.internal.PlayerEvent;
-import kr.rtustudio.bridge.proxium.api.protocol.internal.PlayerList;
-import kr.rtustudio.bridge.proxium.api.protocol.internal.RequestPacket;
-import kr.rtustudio.bridge.proxium.api.protocol.internal.ResponsePacket;
+import kr.rtustudio.bridge.proxium.api.protocol.internal.*;
 import kr.rtustudio.bridge.proxium.api.protocol.velocity.VelocityAuth;
 import kr.rtustudio.bridge.proxium.api.proxy.ProxyPlayer;
 import kr.rtustudio.bridge.proxium.api.proxy.request.TeleportRequest;
@@ -36,7 +32,6 @@ import com.velocitypowered.api.event.Subscribe;
 import com.velocitypowered.api.event.connection.DisconnectEvent;
 import com.velocitypowered.api.event.player.KickedFromServerEvent;
 import com.velocitypowered.api.event.player.ServerPostConnectEvent;
-import com.velocitypowered.api.event.proxy.ProxyInitializeEvent;
 import com.velocitypowered.api.event.proxy.ProxyShutdownEvent;
 import com.velocitypowered.api.event.proxy.server.ServerRegisteredEvent;
 import com.velocitypowered.api.event.proxy.server.ServerUnregisteredEvent;
@@ -72,6 +67,7 @@ public class VelocityProxium extends ProxiumProxy {
                 BridgeChannel.class,
                 ProxiumNode.class,
                 PlayerList.class,
+                Disconnect.class,
                 TeleportRequest.class,
                 PlayerEvent.class,
                 MutableProxyPlayer.class,
@@ -85,7 +81,22 @@ public class VelocityProxium extends ProxiumProxy {
             log.info("Detected modern proxy");
             loadForwardingSecret();
         }
+
         start(settings);
+
+        // 프록시 초기화 시 velocity.toml에 등록된 모든 서버에 연결 시도
+        server.getAllServers()
+                .forEach(
+                        s -> {
+                            ServerInfo info = s.getServerInfo();
+                            if (info.getAddress() instanceof InetSocketAddress addr) {
+                                registerServer(
+                                        new ProxiumNode(
+                                                info.getName(),
+                                                addr.getHostString(),
+                                                addr.getPort()));
+                            }
+                        });
     }
 
     @Override
@@ -102,8 +113,8 @@ public class VelocityProxium extends ProxiumProxy {
     }
 
     @Override
-    public String getServer() {
-        return "Velocity";
+    public String getName() {
+        return "velocity";
     }
 
     @Override
@@ -112,24 +123,77 @@ public class VelocityProxium extends ProxiumProxy {
         teleportRequests.clear();
     }
 
-    @Override
-    protected void onServerConnected(Connection connection) {
-        String remoteAddress = addressKey(connection.getRemoteAddress());
-        for (var server : server.getAllServers()) {
-            if (!(server.getServerInfo().getAddress() instanceof InetSocketAddress addr)) continue;
-            if (!remoteAddress.equals(addressKey(addr))) continue;
-            ProxiumNode node =
-                    new ProxiumNode(
-                            server.getServerInfo().getName(), addr.getHostString(), addr.getPort());
-            registerServer(node);
-            connection.send(options.encode(BridgeChannel.INTERNAL, node));
+    // ── 이벤트 핸들러 ──
 
-            if (!players.isEmpty()) {
-                connection.send(options.encode(BridgeChannel.INTERNAL, new PlayerList(players)));
-            }
-            return;
+    @Subscribe
+    private void onProxyShutdown(ProxyShutdownEvent event) {
+        close();
+    }
+
+    @Subscribe
+    private void onRegistered(ServerRegisteredEvent event) {
+        ServerInfo info = event.registeredServer().getServerInfo();
+        if (info.getAddress() instanceof InetSocketAddress addr) {
+            registerServer(new ProxiumNode(info.getName(), addr.getHostString(), addr.getPort()));
         }
     }
+
+    @Subscribe
+    private void onUnregistered(ServerUnregisteredEvent event) {
+        ServerInfo info = event.unregisteredServer().getServerInfo();
+        InetSocketAddress address = info.getAddress();
+        unregisterServer(
+                new ProxiumNode(info.getName(), address.getHostString(), address.getPort()));
+    }
+
+    // ── 플레이어 이벤트 ──
+
+    @Subscribe
+    private void onJoin(ServerPostConnectEvent e) {
+        Player player = e.getPlayer();
+        ServerConnection current = player.getCurrentServer().orElse(null);
+        if (current == null) return;
+
+        String serverName = current.getServerInfo().getName();
+        ProxiumNode serverNode = getName(serverName);
+
+        ProxyPlayer proxyPlayer = players.get(player.getUniqueId());
+        PlayerEvent.Action action;
+
+        if (proxyPlayer == null) {
+            proxyPlayer =
+                    new ProxyPlayer(this, player.getUniqueId(), player.getUsername(), serverNode);
+            players.put(player.getUniqueId(), proxyPlayer);
+            action = PlayerEvent.Action.JOIN;
+        } else {
+            ((MutableProxyPlayer) proxyPlayer).setNode(serverNode);
+            action = PlayerEvent.Action.SWITCH;
+        }
+
+        broadcastPlayerEvent(new PlayerEvent(action, proxyPlayer));
+
+        TeleportRequest tpr = teleportRequests.remove(player.getUniqueId());
+        if (tpr != null && serverName.equals(tpr.server())) {
+            Connection connection = getConnection(current.getServerInfo().getAddress());
+            if (connection != null) {
+                connection.send(options.encode(BridgeChannel.INTERNAL, tpr));
+            }
+        }
+    }
+
+    @Subscribe
+    private void onKick(KickedFromServerEvent e) {
+        handlePlayerLeave(e.getPlayer().getUniqueId());
+        teleportRequests.remove(e.getPlayer().getUniqueId());
+    }
+
+    @Subscribe
+    private void onQuit(DisconnectEvent e) {
+        handlePlayerLeave(e.getPlayer().getUniqueId());
+        teleportRequests.remove(e.getPlayer().getUniqueId());
+    }
+
+    // ── 내부 로직 ──
 
     private void registerInternalSubscription() {
         subscribe(BridgeChannel.INTERNAL, TeleportRequest.class, this::handleTeleport);
@@ -158,6 +222,18 @@ public class VelocityProxium extends ProxiumProxy {
                                 }
                             }
                         });
+    }
+
+    private void handlePlayerLeave(UUID uniqueId) {
+        ProxyPlayer removed = players.remove(uniqueId);
+        if (removed != null) {
+            broadcastPlayerEvent(new PlayerEvent(PlayerEvent.Action.LEAVE, removed));
+        }
+    }
+
+    private void broadcastPlayerEvent(PlayerEvent event) {
+        byte[] frame = options.encode(BridgeChannel.INTERNAL, event);
+        getConnectedServers().forEach(conn -> conn.send(frame));
     }
 
     private void loadForwardingSecret() {
@@ -201,99 +277,5 @@ public class VelocityProxium extends ProxiumProxy {
         } catch (IOException e) {
             return false;
         }
-    }
-
-    @Subscribe
-    private void onProxyInitialize(ProxyInitializeEvent event) {
-        server.getEventManager().register(this, this);
-    }
-
-    @Subscribe
-    private void onProxyShutdown(ProxyShutdownEvent event) {
-        close();
-    }
-
-    @Subscribe
-    private void onRegister(ServerRegisteredEvent event) {
-        ServerInfo info = event.registeredServer().getServerInfo();
-        InetSocketAddress addr = (InetSocketAddress) info.getAddress();
-        registerServer(new ProxiumNode(info.getName(), addr.getHostString(), addr.getPort()));
-    }
-
-    @Subscribe
-    private void onUnregister(ServerUnregisteredEvent event) {
-        ServerInfo info = event.unregisteredServer().getServerInfo();
-        InetSocketAddress addr2 = (InetSocketAddress) info.getAddress();
-        unregisterServer(new ProxiumNode(info.getName(), addr2.getHostString(), addr2.getPort()));
-    }
-
-    @Subscribe
-    private void onJoin(ServerPostConnectEvent e) {
-        Player player = e.getPlayer();
-        ServerConnection current = player.getCurrentServer().orElse(null);
-        if (current == null) return;
-
-        String serverName = current.getServerInfo().getName();
-        ProxiumNode serverNode = getServer(serverName);
-
-        ProxyPlayer proxyPlayer = players.get(player.getUniqueId());
-        PlayerEvent.Action action;
-
-        if (proxyPlayer == null) {
-            proxyPlayer =
-                    new MutableProxyPlayer(
-                            this, player.getUniqueId(), player.getUsername(), serverNode);
-            players.put(player.getUniqueId(), proxyPlayer);
-            action = PlayerEvent.Action.JOIN;
-        } else {
-            ((MutableProxyPlayer) proxyPlayer).setNode(serverNode);
-            action = PlayerEvent.Action.SWITCH;
-        }
-
-        broadcastPlayerEvent(new PlayerEvent(action, proxyPlayer));
-
-        TeleportRequest tpr = teleportRequests.remove(player.getUniqueId());
-        if (tpr != null && serverName.equals(tpr.server())) {
-            Connection connection = getConnection(current.getServerInfo().getAddress());
-            if (connection != null) {
-                connection.send(options.encode(BridgeChannel.INTERNAL, tpr));
-            }
-        }
-    }
-
-    @Subscribe
-    private void onKick(KickedFromServerEvent e) {
-        handlePlayerLeave(e.getPlayer().getUniqueId());
-        teleportRequests.remove(e.getPlayer().getUniqueId());
-    }
-
-    @Subscribe
-    private void onQuit(DisconnectEvent e) {
-        handlePlayerLeave(e.getPlayer().getUniqueId());
-        teleportRequests.remove(e.getPlayer().getUniqueId());
-    }
-
-    private void handlePlayerLeave(UUID uniqueId) {
-        ProxyPlayer removed = players.remove(uniqueId);
-        if (removed != null) {
-            broadcastPlayerEvent(new PlayerEvent(PlayerEvent.Action.LEAVE, removed));
-        }
-    }
-
-    private void broadcastPlayerEvent(PlayerEvent event) {
-        byte[] frame = options.encode(BridgeChannel.INTERNAL, event);
-        getConnectedServers().forEach(conn -> conn.send(frame));
-    }
-
-    @Override
-    public List<ProxiumNode> getProxiumNodes() {
-        return server.getAllServers().stream()
-                .map(
-                        rs -> {
-                            ServerInfo info = rs.getServerInfo();
-                            InetSocketAddress a = (InetSocketAddress) info.getAddress();
-                            return new ProxiumNode(info.getName(), a.getHostString(), a.getPort());
-                        })
-                .toList();
     }
 }

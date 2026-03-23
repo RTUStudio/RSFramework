@@ -5,14 +5,7 @@ import kr.rtustudio.bridge.BridgeOptions;
 import kr.rtustudio.bridge.proxium.api.ProxiumNode;
 import kr.rtustudio.bridge.proxium.api.configuration.ProxiumConfig;
 import kr.rtustudio.bridge.proxium.api.protocol.Protocol;
-import kr.rtustudio.bridge.proxium.api.protocol.internal.BroadcastMessage;
-import kr.rtustudio.bridge.proxium.api.protocol.internal.PlayerActionBar;
-import kr.rtustudio.bridge.proxium.api.protocol.internal.PlayerEvent;
-import kr.rtustudio.bridge.proxium.api.protocol.internal.PlayerList;
-import kr.rtustudio.bridge.proxium.api.protocol.internal.PlayerMessage;
-import kr.rtustudio.bridge.proxium.api.protocol.internal.PlayerTitle;
-import kr.rtustudio.bridge.proxium.api.protocol.internal.RequestPacket;
-import kr.rtustudio.bridge.proxium.api.protocol.internal.ResponsePacket;
+import kr.rtustudio.bridge.proxium.api.protocol.internal.*;
 import kr.rtustudio.bridge.proxium.api.protocol.velocity.VelocityAuth;
 import kr.rtustudio.bridge.proxium.api.proxy.ProxyLocation;
 import kr.rtustudio.bridge.proxium.api.proxy.ProxyPlayer;
@@ -48,6 +41,7 @@ public class BukkitProxium extends ProxiumServer {
                     BridgeChannel.class,
                     ProxiumNode.class,
                     PlayerList.class,
+                    Disconnect.class,
                     TeleportRequest.class,
                     PlayerEvent.class,
                     MutableProxyPlayer.class,
@@ -76,6 +70,13 @@ public class BukkitProxium extends ProxiumServer {
             log.error("Failed to initialize Proxium", e);
             this.loaded = false;
         }
+    }
+
+    /** ProxyLocation을 Bukkit Location으로 변환한다. */
+    public static Location toBukkit(ProxyLocation loc) {
+        World world = Bukkit.getWorld(loc.world());
+        if (world == null) return null;
+        return new Location(world, loc.x(), loc.y(), loc.z(), loc.yaw(), loc.pitch());
     }
 
     @Override
@@ -122,9 +123,7 @@ public class BukkitProxium extends ProxiumServer {
         switch (event.action()) {
             case JOIN -> {
                 if (local == null) {
-                    local =
-                            new MutableProxyPlayer(
-                                    this, pp.getUniqueId(), pp.getName(), pp.getNode());
+                    local = new ProxyPlayer(this, pp.getUniqueId(), pp.getName(), pp.getNode());
                     players.put(local.getUniqueId(), local);
                 }
             }
@@ -132,9 +131,7 @@ public class BukkitProxium extends ProxiumServer {
                 if (local != null) {
                     ((MutableProxyPlayer) local).setNode(pp.getNode());
                 } else {
-                    local =
-                            new MutableProxyPlayer(
-                                    this, pp.getUniqueId(), pp.getName(), pp.getNode());
+                    local = new ProxyPlayer(this, pp.getUniqueId(), pp.getName(), pp.getNode());
                     players.put(local.getUniqueId(), local);
                 }
             }
@@ -168,12 +165,5 @@ public class BukkitProxium extends ProxiumServer {
         } else {
             player.teleport(location);
         }
-    }
-
-    /** ProxyLocation을 Bukkit Location으로 변환한다. */
-    public static Location toBukkit(ProxyLocation loc) {
-        World world = Bukkit.getWorld(loc.world());
-        if (world == null) return null;
-        return new Location(world, loc.x(), loc.y(), loc.z(), loc.yaw(), loc.pitch());
     }
 }

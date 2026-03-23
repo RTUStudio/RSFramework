@@ -3,7 +3,7 @@ plugins {
 }
 
 tasks.runVelocity {
-    velocityVersion("3.4.0-SNAPSHOT")
+    velocityVersion("3.5.0-SNAPSHOT")
 }
 
 dependencies {

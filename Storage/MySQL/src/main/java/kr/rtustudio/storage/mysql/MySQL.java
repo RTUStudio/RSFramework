@@ -205,6 +205,23 @@ public class MySQL implements Storage {
     @Override
     public void close() {}
 
+    public interface Config {
+
+        String getHost();
+
+        int getPort();
+
+        String getDatabase();
+
+        String getUsername();
+
+        String getPassword();
+
+        String getTablePrefix();
+
+        boolean isUseArrowOperator();
+    }
+
     public static class Pool implements AutoCloseable {
 
         private HikariDataSource dataSource;
@@ -240,22 +257,5 @@ public class MySQL implements Storage {
                 dataSource = null;
             }
         }
-    }
-
-    public interface Config {
-
-        String getHost();
-
-        int getPort();
-
-        String getDatabase();
-
-        String getUsername();
-
-        String getPassword();
-
-        String getTablePrefix();
-
-        boolean isUseArrowOperator();
     }
 }

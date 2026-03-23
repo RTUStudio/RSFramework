@@ -172,6 +172,21 @@ public class PostgreSQL implements Storage {
     @Override
     public void close() {}
 
+    public interface Config {
+
+        String getHost();
+
+        int getPort();
+
+        String getDatabase();
+
+        String getUsername();
+
+        String getPassword();
+
+        String getTablePrefix();
+    }
+
     public static class Pool implements AutoCloseable {
 
         private HikariDataSource dataSource;
@@ -206,20 +221,5 @@ public class PostgreSQL implements Storage {
                 dataSource = null;
             }
         }
-    }
-
-    public interface Config {
-
-        String getHost();
-
-        int getPort();
-
-        String getDatabase();
-
-        String getUsername();
-
-        String getPassword();
-
-        String getTablePrefix();
     }
 }

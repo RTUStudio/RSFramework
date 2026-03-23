@@ -170,6 +170,21 @@ public class MongoDB implements Storage {
     @Override
     public void close() {}
 
+    public interface Config {
+
+        String getHost();
+
+        int getPort();
+
+        String getDatabase();
+
+        String getUsername();
+
+        String getPassword();
+
+        String getCollectionPrefix();
+    }
+
     @Slf4j
     public static class Pool implements AutoCloseable {
 
@@ -214,20 +229,5 @@ public class MongoDB implements Storage {
                 log.info("MongoDB disconnected");
             }
         }
-    }
-
-    public interface Config {
-
-        String getHost();
-
-        int getPort();
-
-        String getDatabase();
-
-        String getUsername();
-
-        String getPassword();
-
-        String getCollectionPrefix();
     }
 }

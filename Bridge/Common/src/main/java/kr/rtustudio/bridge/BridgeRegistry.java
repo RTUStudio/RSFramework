@@ -6,6 +6,11 @@ import java.util.Map;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+/**
+ * Registry for managing bridge instances by their interface type.
+ *
+ * <p>브릿지 인스턴스를 인터페이스 타입별로 관리하는 레지스트리.
+ */
 public class BridgeRegistry {
 
     private final Map<Class<? extends Bridge>, Bridge> bridges = new HashMap<>();

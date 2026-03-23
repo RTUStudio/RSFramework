@@ -34,10 +34,9 @@ javassist = "3.30.2-GA"
 spigot-api = "1.20.1"
 paper-api = "1.20.1"
 folia-api = "1.19.4"
-bungeecord-api = "1.20"
-waterfall-api = "1.20"
+
 velocity-api = "3.3.0-SNAPSHOT"
-velocity-api-latest = "3.4.0-SNAPSHOT"
+velocity-api-latest = "3.5.0-SNAPSHOT"
 
 # Build Dependencies
 paperweight = "2.0.0-beta.18"
@@ -64,9 +63,9 @@ jsr305 = "3.0.2"
 freefair-lombok = "8.14.2"
 shadow = "9.0.2"
 spotless = "7.2.1"
-run-paper = "2.3.1"
-run-waterfall = "2.3.1"
-run-velocity = "2.3.1"
+run-paper = "3.0.2"
+
+run-velocity = "3.0.2"
 foojay = "0.8.0"
 reflections = "0.10.2"
 
@@ -120,15 +119,14 @@ objenesis = { module = "org.objenesis:objenesis", version.ref = "objenesis" }
 spigot-api = { module = "org.spigotmc:spigot-api", version.ref = "spigot-api" }
 paper-api = { module = "io.papermc.paper:paper-api", version.ref = "paper-api" }
 folia-api = { module = "dev.folia:folia-api", version.ref = "folia-api" }
-bungeecord-api = { module = "net.md-5:bungeecord-api", version.ref = "bungeecord-api" }
-waterfall-api = { module = "io.github.waterfallmc:waterfall-api", version.ref = "waterfall-api" }
+
 velocity-api = { module = "com.velocitypowered:velocity-api", version.ref = "velocity-api" }
 velocity-api-latest = { module = "com.velocitypowered:velocity-api", version.ref = "velocity-api-latest" }
 
 # Plugin dependencies
 nbt-api = { module = "de.tr7zw:item-nbt-api", version.ref = "nbt-api" }
 libby-bukkit = { module = "com.alessiodp.libby:libby-bukkit", version.ref = "libby" }
-libby-bungee = { module = "com.alessiodp.libby:libby-bungee", version.ref = "libby" }
+
 libby-velocity = { module = "com.alessiodp.libby:libby-velocity", version.ref = "libby" }
 bstats = { module = "org.bstats:bstats-bukkit", version.ref = "bstats" }
 placeholderapi = { module = "me.clip:placeholderapi", version.ref = "placeholderapi" }
@@ -157,6 +155,6 @@ shadow = { id = "com.gradleup.shadow", version.ref = "shadow" }
 paperweight = { id = "io.papermc.paperweight.userdev", version.ref = "paperweight" }
 spotless = { id = "com.diffplug.spotless", version.ref = "spotless" }
 run-paper = { id = "xyz.jpenilla.run-paper", version.ref = "run-paper" }
-run-waterfall = { id = "xyz.jpenilla.run-waterfall", version.ref = "run-waterfall" }
+
 run-velocity = { id = "xyz.jpenilla.run-velocity", version.ref = "run-velocity" }
 foojay = { id = "org.gradle.toolchains.foojay-resolver-convention", version.ref = "foojay" }

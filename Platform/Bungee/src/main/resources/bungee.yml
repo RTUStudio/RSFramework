@@ -1,4 +1,0 @@
-name: "${name}"
-main: kr.rtustudio.framework.bungee.plugin.RSFramework
-version: "${version}"
-author: "${author}"

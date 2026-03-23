@@ -16,13 +16,13 @@ import org.jspecify.annotations.Nullable;
  */
 public class MutableProxyPlayer extends ProxyPlayer {
 
+    /** 서버 노드를 갱신한다. 내부 시스템 전용. */
+    @Setter @Nullable private ProxiumNode node;
+
     public MutableProxyPlayer(
             ProxiumPipeline proxium, UUID uniqueId, String name, @Nullable ProxiumNode node) {
         super(proxium, uniqueId, name, node);
     }
-
-    /** 서버 노드를 갱신한다. 내부 시스템 전용. */
-    @Setter @Nullable private ProxiumNode node;
 
     @Override
     @Nullable

@@ -7,6 +7,8 @@ import kr.rtustudio.bridge.proxium.api.ProxiumNode;
 import kr.rtustudio.bridge.proxium.api.configuration.ProxiumConfig;
 import kr.rtustudio.bridge.proxium.api.netty.Connection;
 import kr.rtustudio.bridge.proxium.api.protocol.Protocol;
+import kr.rtustudio.bridge.proxium.api.protocol.internal.Disconnect;
+import kr.rtustudio.bridge.proxium.api.protocol.internal.PlayerList;
 import kr.rtustudio.bridge.proxium.api.protocol.internal.TransactionPacket;
 import kr.rtustudio.bridge.proxium.api.proxy.ProxyConnector;
 import lombok.Getter;
@@ -30,7 +32,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import org.jetbrains.annotations.ApiStatus;
 
 /**
- * 프록시 측(Bungee/Velocity 등) Proxium 플랫폼 기반 클래스.
+ * 프록시 측 Proxium 플랫폼 기반 클래스.
  *
  * <p>다수의 백엔드 서버 커넥션을 관리하고, 프로토콜별 아웃바운드 커넥터를 통해 서버와 통신한다.
  */
@@ -45,6 +47,21 @@ public abstract class ProxiumProxy extends AbstractProxium {
 
     private final Map<Connection, Set<BridgeChannel>> serverSubscriptions =
             new ConcurrentHashMap<>();
+    private final AtomicBoolean shuttingDown = new AtomicBoolean(false);
+    private final Set<String> gracefulDisconnects = ConcurrentHashMap.newKeySet();
+
+    public boolean isShuttingDown() {
+        return shuttingDown.get();
+    }
+
+    public boolean isGracefulDisconnect(String addressKey) {
+        return gracefulDisconnects.remove(addressKey);
+    }
+
+    public void markGracefulDisconnect(String addressKey) {
+        gracefulDisconnects.add(addressKey);
+    }
+
     private final ProxiumConfig settings;
     private final Path dataFolder;
     private final ScheduledExecutorService retryScheduler =
@@ -61,6 +78,18 @@ public abstract class ProxiumProxy extends AbstractProxium {
         this.settings = settings;
         ProxiumAPI.PROTOCOL_LOADED.register(this::startProtocol);
         ProxiumAPI.getLoadedProtocols().forEach(this::startProtocol);
+    }
+
+    /** SocketAddress를 정규화된 \"host:port\" 문자열로 변환한다. */
+    public static String addressKey(SocketAddress address) {
+        if (address instanceof InetSocketAddress inetAddress) {
+            String host =
+                    (inetAddress.getAddress() != null)
+                            ? inetAddress.getAddress().getHostAddress()
+                            : inetAddress.getHostString();
+            return host.replace("localhost", "127.0.0.1") + ":" + inetAddress.getPort();
+        }
+        return String.valueOf(address);
     }
 
     @Override
@@ -86,6 +115,8 @@ public abstract class ProxiumProxy extends AbstractProxium {
         builder.load();
     }
 
+    // ── 주소 정규화 ──
+
     /**
      * 채널별 Protocol을 생성하고 로드한다.
      *
@@ -95,20 +126,6 @@ public abstract class ProxiumProxy extends AbstractProxium {
         Protocol.Builder builder = createProtocol(channel, settings);
         configureProtocol(builder);
         builder.load();
-    }
-
-    // ── 주소 정규화 ──
-
-    /** SocketAddress를 정규화된 "host:port" 문자열로 변환한다. */
-    protected static String addressKey(SocketAddress address) {
-        if (address instanceof InetSocketAddress inetAddress) {
-            String host =
-                    (inetAddress.getAddress() != null)
-                            ? inetAddress.getAddress().getHostAddress()
-                            : inetAddress.getHostString();
-            return host.replace("localhost", "127.0.0.1") + ":" + inetAddress.getPort();
-        }
-        return String.valueOf(address);
     }
 
     // ── 서버 조회 ──
@@ -147,7 +164,7 @@ public abstract class ProxiumProxy extends AbstractProxium {
     }
 
     @Override
-    public ProxiumNode getServer(String name) {
+    public ProxiumNode getName(String name) {
         return serversByName.get(name);
     }
 
@@ -226,14 +243,20 @@ public abstract class ProxiumProxy extends AbstractProxium {
     @Override
     public void ready(Connection connection) {
         if (!connection.isOpen()) return;
-        onServerConnected(connection);
+
+        String remoteAddr = addressKey(connection.getRemoteAddress());
+        ProxiumNode node =
+                serversByName.values().stream()
+                        .filter(s -> remoteAddr.equals(addressKey(s.getSocketAddress())))
+                        .findFirst()
+                        .orElse(null);
+        if (node == null) return;
+
+        connection.send(options.encode(BridgeChannel.INTERNAL, node));
+        if (!players.isEmpty()) {
+            connection.send(options.encode(BridgeChannel.INTERNAL, new PlayerList(players)));
+        }
     }
-
-    /** 백엔드 서버가 연결되었을 때의 플랫폼별 처리 (ProxiumNode 전송 등). */
-    protected abstract void onServerConnected(Connection connection);
-
-    /** 이 프록시의 등록된 서버 목록을 반환한다. */
-    public abstract List<ProxiumNode> getProxiumNodes();
 
     // ── 프로토콜 커넥터 ──
 
@@ -276,6 +299,14 @@ public abstract class ProxiumProxy extends AbstractProxium {
                 .onConnectionEstablished(conn -> connected.set(true))
                 .onConnectionLost(
                         conn -> {
+                            if (shuttingDown.get()) return;
+
+                            String addrKey = addressKey(server.getSocketAddress());
+                            if (isGracefulDisconnect(addrKey)) {
+                                // 서버가 정상 종료 신호를 보냄 — 재연결하지 않음
+                                return;
+                            }
+
                             if (connected.get()) {
                                 log.info(
                                         "Lost connection to '{}', reconnecting in {}s",
@@ -310,11 +341,15 @@ public abstract class ProxiumProxy extends AbstractProxium {
 
     @ApiStatus.Internal
     public void shutdown() {
+        shuttingDown.set(true);
+        retryScheduler.shutdownNow();
+        byte[] disconnectFrame = options.encode(BridgeChannel.INTERNAL, new Disconnect());
         serverSubscriptions
                 .keySet()
                 .forEach(
                         conn -> {
                             if (conn.isOpen()) {
+                                conn.send(disconnectFrame);
                                 conn.disconnect();
                             }
                         });

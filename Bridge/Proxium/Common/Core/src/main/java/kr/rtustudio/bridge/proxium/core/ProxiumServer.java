@@ -55,12 +55,12 @@ public abstract class ProxiumServer extends AbstractProxium {
     }
 
     @Override
-    public String getServer() {
+    public String getName() {
         return node != null ? node.name() : null;
     }
 
     @Override
-    public ProxiumNode getServer(String name) {
+    public ProxiumNode getName(String name) {
         return knownServers.get(name);
     }
 
@@ -114,6 +114,14 @@ public abstract class ProxiumServer extends AbstractProxium {
 
     @Override
     public void close() {
+        Connection conn = connection;
+        if (conn != null && conn.isOpen()) {
+            conn.send(
+                    options.encode(
+                            BridgeChannel.INTERNAL,
+                            new kr.rtustudio.bridge.proxium.api.protocol.internal.Disconnect()));
+            conn.disconnect();
+        }
         channelHandlers.clear();
         registeredChannels.clear();
         connection = null;

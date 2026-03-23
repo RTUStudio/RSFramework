@@ -13,9 +13,8 @@ public class ConnectionHandler
 
     @Override
     public void onReady(Connection connection) {
-        String platform = proxium.getSecurity().isModernProxy() ? "velocity" : "bungeecord";
         synchronized (log) {
-            log.info("Connected to {}", platform);
+            log.info("Connected to velocity");
             log.info("┠ Address: {}", connection.getRemoteAddressString());
             log.info("┖ Channel: {}", connection.getProtocol().getChannel());
         }
@@ -31,8 +30,7 @@ public class ConnectionHandler
 
     @Override
     public void onDisconnect(Connection connection) {
-        String platform = proxium.getSecurity().isModernProxy() ? "velocity" : "bungeecord";
-        log.info("Disconnected from {}. Operating in standalone mode.", platform);
+        log.info("Disconnected from velocity. Operating in standalone mode.");
         proxium.setNode(null);
     }
 }

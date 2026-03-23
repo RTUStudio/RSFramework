@@ -34,10 +34,6 @@ include(
 )
 
 include(
-    "Bridge:Proxium:Bungee",
-)
-
-include(
     "Bridge:Proxium:Velocity",
 )
 
@@ -72,5 +68,4 @@ include(
 
 include(
     "Platform:Velocity",
-    "Platform:Bungee",
 )
