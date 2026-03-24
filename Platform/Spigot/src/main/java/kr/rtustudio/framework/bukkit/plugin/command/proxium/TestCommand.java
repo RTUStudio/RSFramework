@@ -13,13 +13,13 @@ import java.util.logging.Logger;
 import org.bukkit.permissions.PermissionDefault;
 
 /**
- * Proxium RPC / Pub-Sub 통합 테스트 콘솔 명령어.
+ * Proxium 트랜잭션 / Pub-Sub 통합 테스트 콘솔 명령어.
  *
  * <p>사용법: {@code proxium test}
  */
 public class TestCommand extends RSCommand<RSFramework> {
 
-    private static final int RPC_ITERATIONS = 5;
+    private static final int TX_ITERATIONS = 5;
 
     public TestCommand(RSFramework plugin) {
         super(plugin, "test", PermissionDefault.OP);
@@ -57,10 +57,10 @@ public class TestCommand extends RSCommand<RSFramework> {
             log.severe("[Test] [1/2] Pub/Sub: ❌ Failed — " + e.getMessage());
         }
 
-        // ─── 2. RPC Test (5 iterations) ───
+        // ─── 2. Transaction Test (5 iterations) ───
         log.info(
-                "[Test] [2/2] RPC: Running "
-                        + RPC_ITERATIONS
+                "[Test] [2/2] Transaction: Running "
+                        + TX_ITERATIONS
                         + " iterations → "
                         + serverName
                         + "...");
@@ -70,10 +70,10 @@ public class TestCommand extends RSCommand<RSFramework> {
                 .on(
                         BroadcastMessage.class,
                         (sender, req) -> new BroadcastMessage("[Test] Pong from " + serverName))
-                .error(e -> log.severe("[Test] RPC Responder error: " + e.type()));
+                .error(e -> log.severe("[Test] Transaction Responder error: " + e.type()));
 
         // Run iterations sequentially using CountDownLatch chaining
-        long[] rtts = new long[RPC_ITERATIONS];
+        long[] rtts = new long[TX_ITERATIONS];
         runRpcIteration(proxium, serverName, log, rtts, 0);
 
         return Result.SUCCESS;
@@ -81,7 +81,7 @@ public class TestCommand extends RSCommand<RSFramework> {
 
     private void runRpcIteration(
             Proxium proxium, String serverName, Logger log, long[] rtts, int index) {
-        if (index >= RPC_ITERATIONS) {
+        if (index >= TX_ITERATIONS) {
             // All iterations complete — print summary
             long min = Long.MAX_VALUE, max = 0, sum = 0;
             for (long rtt : rtts) {
@@ -91,14 +91,14 @@ public class TestCommand extends RSCommand<RSFramework> {
             }
             log.info("[Test] ───────────────────────────────────────");
             log.info(
-                    "[Test] RPC Summary ("
-                            + RPC_ITERATIONS
+                    "[Test] Transaction Summary ("
+                            + TX_ITERATIONS
                             + " calls): min="
                             + min
                             + "ms, max="
                             + max
                             + "ms, avg="
-                            + (sum / RPC_ITERATIONS)
+                            + (sum / TX_ITERATIONS)
                             + "ms");
             log.info("[Test] ═══════════════════════════════════════");
             log.info("[Test] All tests completed!");
@@ -117,14 +117,19 @@ public class TestCommand extends RSCommand<RSFramework> {
                         (sender, resp) -> {
                             long rtt = System.currentTimeMillis() - sendTime;
                             rtts[index] = rtt;
-                            log.info("[Test] [2/2] RPC #" + (index + 1) + ": ✅ RTT=" + rtt + "ms");
+                            log.info(
+                                    "[Test] [2/2] Transaction #"
+                                            + (index + 1)
+                                            + ": ✅ RTT="
+                                            + rtt
+                                            + "ms");
                             // Chain next iteration
                             runRpcIteration(proxium, serverName, log, rtts, index + 1);
                         })
                 .error(
                         e -> {
                             log.severe(
-                                    "[Test] [2/2] RPC #"
+                                    "[Test] [2/2] Transaction #"
                                             + (index + 1)
                                             + ": ❌ Failed — "
                                             + e.type());

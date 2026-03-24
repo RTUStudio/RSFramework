@@ -8,6 +8,7 @@ import kr.rtustudio.bridge.context.ResponseContext;
 import kr.rtustudio.bridge.context.ResponseStatus;
 import kr.rtustudio.bridge.exception.RequestException;
 import kr.rtustudio.bridge.handler.ResponseHandler;
+import kr.rtustudio.bridge.proxium.api.ProxiumNode;
 import kr.rtustudio.bridge.proxium.api.ProxiumPipeline;
 import kr.rtustudio.bridge.proxium.api.configuration.ProxiumConfig;
 import kr.rtustudio.bridge.proxium.api.protocol.Protocol;
@@ -160,7 +161,7 @@ public abstract class AbstractProxium implements ProxiumPipeline {
                     responseHandlers
                             .computeIfAbsent(channel, k -> new ConcurrentHashMap<>())
                             .put(type, handler);
-                    log.info("Channel respond registered: {} [{}]", channel, type.getSimpleName());
+                    log.debug("Channel respond registered: {} [{}]", channel, type.getSimpleName());
                 },
                 errorHandler -> respondErrorHandlers.put(channel, errorHandler));
     }
@@ -182,13 +183,19 @@ public abstract class AbstractProxium implements ProxiumPipeline {
     }
 
     private boolean handleIncomingResponse(ResponsePacket response) {
-        if (!Objects.equals(getName(), response.target())) return false;
+        if (!Objects.equals(getName(), response.target().name())) return false;
 
         CompletableFuture<Object[]> future = pendingRequests.remove(response.requestId());
         if (future == null) return true;
 
         switch (response.status()) {
-            case SUCCESS -> future.complete(new Object[] {response.sender(), response.payload()});
+            case SUCCESS -> {
+                Object decodedPayload =
+                        response.payload() == null
+                                ? null
+                                : options.deserializeRaw(response.payload());
+                future.complete(new Object[] {response.sender() == null ? null : response.sender().name(), decodedPayload});
+            }
             case NO_HANDLER ->
                     future.completeExceptionally(
                             new RequestException(
@@ -204,13 +211,13 @@ public abstract class AbstractProxium implements ProxiumPipeline {
                     future.completeExceptionally(
                             new RequestException(
                                     response.status(),
-                                    "RPC failed with status: " + response.status()));
+                                    "Transaction failed with status: " + response.status()));
         }
         return true;
     }
 
     private boolean handleIncomingRequest(RequestPacket request) {
-        if (!Objects.equals(getName(), request.target())) return false;
+        if (!Objects.equals(getName(), request.target().name())) return false;
 
         Map<Class<?>, ResponseHandler<?, ?>> handlers = responseHandlers.get(request.channel());
         if (handlers == null || handlers.isEmpty()) {
@@ -218,8 +225,19 @@ public abstract class AbstractProxium implements ProxiumPipeline {
             return true;
         }
 
+        Object decodedPayload;
+        try {
+            decodedPayload =
+                    request.payload() == null ? null : options.deserializeRaw(request.payload());
+        } catch (Exception e) {
+            log.error("Failed to decode request payload for channel {}", request.channel(), e);
+            sendResponse(request, ResponseStatus.ERROR, null);
+            return true;
+        }
+
         // 타입별 핸들러 매칭: 정확한 타입 → Object.class 폴백
-        ResponseHandler<?, ?> raw = handlers.get(request.payload().getClass());
+        ResponseHandler<?, ?> raw =
+                handlers.get(decodedPayload != null ? decodedPayload.getClass() : Object.class);
         if (raw == null) raw = handlers.get(Object.class);
         if (raw == null) {
             sendResponse(request, ResponseStatus.NO_HANDLER, null);
@@ -233,7 +251,7 @@ public abstract class AbstractProxium implements ProxiumPipeline {
             executeResponseHandler(
                             () -> {
                                 try {
-                                    return handler.handle(request.sender(), request.payload());
+                                    return handler.handle(request.sender(), decodedPayload);
                                 } catch (Exception e) {
                                     throw new CompletionException(e);
                                 }
@@ -256,14 +274,14 @@ public abstract class AbstractProxium implements ProxiumPipeline {
     }
 
     private void sendResponse(RequestPacket request, ResponseStatus status, Object payload) {
-        send(
+        dispatchOutboundPacket(
                 ResponsePacket.builder()
                         .requestId(request.requestId())
-                        .sender(getName())
+                        .sender(null)
                         .target(request.sender())
                         .channel(request.channel())
                         .status(status)
-                        .payload(payload)
+                        .payload(payload == null ? null : options.serializeRaw(payload))
                         .build());
     }
 
@@ -298,10 +316,10 @@ public abstract class AbstractProxium implements ProxiumPipeline {
         RequestPacket packet =
                 RequestPacket.builder()
                         .requestId(requestId)
-                        .sender(getName())
-                        .target(target.name())
+                        .sender(null)
+                        .target((ProxiumNode) target)
                         .channel(channel)
-                        .payload(request)
+                        .payload(request == null ? null : options.serializeRaw(request))
                         .build();
 
         dispatchOutboundPacket(packet);

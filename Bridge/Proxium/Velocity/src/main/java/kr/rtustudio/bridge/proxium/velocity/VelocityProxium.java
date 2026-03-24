@@ -198,8 +198,6 @@ public class VelocityProxium extends ProxiumProxy {
 
     private void registerInternalSubscription() {
         subscribe(BridgeChannel.INTERNAL, TeleportRequest.class, this::handleTeleport);
-        subscribe(BridgeChannel.INTERNAL, RequestPacket.class, pkt -> routeBridgePacket(pkt));
-        subscribe(BridgeChannel.INTERNAL, ResponsePacket.class, pkt -> routeBridgePacket(pkt));
     }
 
     private void handleTeleport(TeleportRequest request) {

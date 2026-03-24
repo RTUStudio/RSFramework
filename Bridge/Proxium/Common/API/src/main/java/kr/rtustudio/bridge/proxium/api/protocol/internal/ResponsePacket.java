@@ -2,6 +2,7 @@ package kr.rtustudio.bridge.proxium.api.protocol.internal;
 
 import kr.rtustudio.bridge.BridgeChannel;
 import kr.rtustudio.bridge.context.ResponseStatus;
+import kr.rtustudio.bridge.proxium.api.ProxiumNode;
 import lombok.Builder;
 
 import java.util.UUID;
@@ -9,9 +10,9 @@ import java.util.UUID;
 @Builder
 public record ResponsePacket(
         UUID requestId,
-        String sender,
-        String target,
+        ProxiumNode sender,
+        ProxiumNode target,
         BridgeChannel channel,
         ResponseStatus status,
-        Object payload)
+        byte[] payload)
         implements TransactionPacket {}

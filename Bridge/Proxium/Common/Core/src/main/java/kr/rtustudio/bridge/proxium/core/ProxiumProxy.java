@@ -8,6 +8,8 @@ import kr.rtustudio.bridge.proxium.api.configuration.ProxiumConfig;
 import kr.rtustudio.bridge.proxium.api.netty.Connection;
 import kr.rtustudio.bridge.proxium.api.protocol.Protocol;
 import kr.rtustudio.bridge.proxium.api.protocol.internal.PlayerList;
+import kr.rtustudio.bridge.proxium.api.protocol.internal.RequestPacket;
+import kr.rtustudio.bridge.proxium.api.protocol.internal.ResponsePacket;
 import kr.rtustudio.bridge.proxium.api.protocol.internal.ServerList;
 import kr.rtustudio.bridge.proxium.api.protocol.internal.TransactionPacket;
 import kr.rtustudio.bridge.proxium.api.proxy.ProxyConnector;
@@ -21,6 +23,7 @@ import java.nio.file.Path;
 import java.time.Duration;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -160,36 +163,95 @@ public abstract class ProxiumProxy extends AbstractProxium {
 
     @Override
     protected void dispatchOutboundPacket(Object packet) {
-        routeBridgePacket(packet);
+        if (packet instanceof TransactionPacket txn) {
+            // Transaction 패킷은 자기 채널로 encode하여 대상 서버에 직접 전송
+            String targetName = txn.target().name();
+            ProxiumNode target = serversByName.get(targetName);
+            if (target != null) {
+                byte[] frame = options.encode(txn.channel(), packet);
+                String targetKey = addressKey(target.getSocketAddress());
+                serverSubscriptions.entrySet().stream()
+                        .filter(e -> addressKey(e.getKey().getRemoteAddress()).equals(targetKey))
+                        .map(Map.Entry::getKey)
+                        .filter(Connection::isOpen)
+                        .findFirst()
+                        .ifPresentOrElse(
+                                conn -> conn.send(frame),
+                                () ->
+                                        log.warn(
+                                                "Dropped Transaction packet for offline target '{}'",
+                                                targetName));
+            } else {
+                log.warn("Dropped Transaction packet for unknown target '{}'", targetName);
+            }
+        } else {
+            // 일반 패킷은 기존대로 INTERNAL 브로드캐스트
+            byte[] frame = options.encode(BridgeChannel.INTERNAL, packet);
+            getConnectedServers().forEach(conn -> conn.send(frame));
+        }
     }
 
-    public void routeBridgePacket(Object packetObj) {
-        if (handleTransaction(packetObj)) return;
+    /**
+     * TransactionPacket에 sender를 채워 넣고 target 서버로 릴레이한다. 프록시는 payload(byte[])를 디코딩하지 않는다.
+     *
+     * @param sourceConnection 패킷을 보낸 서버의 Connection (sender 확인용)
+     * @param txn 디코딩된 TransactionPacket (sender는 null)
+     */
+    public void relayTransactionPacket(Connection sourceConnection, TransactionPacket txn) {
+        String targetName = txn.target().name();
 
-        if (packetObj instanceof TransactionPacket transactionPacket) {
-            String targetId = transactionPacket.target();
-            ProxiumNode target = serversByName.get(targetId);
+        // target이 프록시 자신이면 직접 처리
+        if (Objects.equals(getName(), targetName)) {
+            handleTransaction(txn);
+            return;
+        }
 
-            if (target != null) {
-                String targetKey = addressKey(target.getSocketAddress());
-                Optional<Connection> connOpt =
-                        serverSubscriptions.entrySet().stream()
-                                .filter(
-                                        e ->
-                                                e.getValue().contains(BridgeChannel.INTERNAL)
-                                                        && addressKey(e.getKey().getRemoteAddress())
-                                                                .equals(targetKey))
-                                .map(Map.Entry::getKey)
-                                .filter(Connection::isOpen)
-                                .findFirst();
+        // sender 결정: 패킷을 보낸 Connection의 주소로 ProxiumNode 조회
+        ProxiumNode senderNode = getProxiumNode(sourceConnection.getRemoteAddress()).orElse(null);
 
-                if (connOpt.isPresent()) {
-                    connOpt.get().send(options.encode(BridgeChannel.INTERNAL, packetObj));
-                    return;
-                }
-            }
+        // sender가 채워진 패킷 재구성
+        Object annotatedPacket;
+        if (txn instanceof RequestPacket req) {
+            annotatedPacket =
+                    RequestPacket.builder()
+                            .requestId(req.requestId())
+                            .sender(senderNode)
+                            .target(req.target())
+                            .channel(req.channel())
+                            .payload(req.payload())
+                            .build();
+        } else if (txn instanceof ResponsePacket resp) {
+            annotatedPacket =
+                    ResponsePacket.builder()
+                            .requestId(resp.requestId())
+                            .sender(senderNode)
+                            .target(resp.target())
+                            .channel(resp.channel())
+                            .status(resp.status())
+                            .payload(resp.payload())
+                            .build();
+        } else {
+            return;
+        }
 
-            log.warn("Dropped routable Proxium packet intended for offline target '{}'", targetId);
+        // 재인코딩 후 target 서버로 전달
+        byte[] newFrame = options.encode(txn.channel(), annotatedPacket);
+        ProxiumNode target = serversByName.get(targetName);
+        if (target != null) {
+            String targetKey = addressKey(target.getSocketAddress());
+            serverSubscriptions.entrySet().stream()
+                    .filter(e -> addressKey(e.getKey().getRemoteAddress()).equals(targetKey))
+                    .map(Map.Entry::getKey)
+                    .filter(Connection::isOpen)
+                    .findFirst()
+                    .ifPresentOrElse(
+                            conn -> conn.send(newFrame),
+                            () ->
+                                    log.warn(
+                                            "Dropped Transaction packet for offline target '{}'",
+                                            targetName));
+        } else {
+            log.warn("Dropped Transaction packet for unknown target '{}'", targetName);
         }
     }
 

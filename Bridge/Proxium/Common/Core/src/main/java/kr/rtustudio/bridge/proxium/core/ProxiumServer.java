@@ -6,6 +6,7 @@ import kr.rtustudio.bridge.proxium.api.ProxiumNode;
 import kr.rtustudio.bridge.proxium.api.configuration.ProxiumConfig;
 import kr.rtustudio.bridge.proxium.api.netty.Connection;
 import kr.rtustudio.bridge.proxium.api.protocol.internal.ServerList;
+import kr.rtustudio.bridge.proxium.api.protocol.internal.TransactionPacket;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -76,7 +77,14 @@ public abstract class ProxiumServer extends AbstractProxium {
 
     @Override
     protected void dispatchOutboundPacket(Object packet) {
-        send(packet);
+        if (packet instanceof TransactionPacket txn) {
+            Connection conn = connection;
+            if (conn != null) {
+                conn.send(options.encode(txn.channel(), packet));
+            }
+        } else {
+            send(packet);
+        }
     }
 
     public void handleBridgePacket(Object packetObj) {

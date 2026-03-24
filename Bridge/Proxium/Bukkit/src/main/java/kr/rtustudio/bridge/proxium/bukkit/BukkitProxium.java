@@ -90,8 +90,6 @@ public class BukkitProxium extends ProxiumServer {
         subscribe(BridgeChannel.INTERNAL, PlayerEvent.class, this::handlePlayerEvent);
         subscribe(BridgeChannel.INTERNAL, TeleportRequest.class, this::handleTeleport);
         subscribe(BridgeChannel.INTERNAL, ProxiumNode.class, this::setNode);
-        subscribe(BridgeChannel.INTERNAL, RequestPacket.class, pkt -> handleBridgePacket(pkt));
-        subscribe(BridgeChannel.INTERNAL, ResponsePacket.class, pkt -> handleBridgePacket(pkt));
     }
 
     private void handlePlayerList(PlayerList playerList) {

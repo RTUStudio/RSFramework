@@ -51,9 +51,9 @@ public class ProxiumConfig extends ConfigurationPart
 
     @Comment(
             """
-                    Default timeout in milliseconds for RPC requests
+                    Default timeout in milliseconds for transaction requests
                     Used when no explicit timeout is specified in request() calls
-                    RPC 요청의 기본 타임아웃 (밀리초)
+                    트랜잭션 요청의 기본 타임아웃 (밀리초)
                     request() 호출 시 타임아웃을 명시하지 않으면 이 값이 사용됩니다""")
     private long requestTimeout = 5000;
 

@@ -1,17 +1,18 @@
 package kr.rtustudio.bridge.proxium.api.protocol.internal;
 
 import kr.rtustudio.bridge.BridgeChannel;
+import kr.rtustudio.bridge.proxium.api.ProxiumNode;
 
 import java.util.UUID;
 
 public interface TransactionPacket {
     UUID requestId();
 
-    String sender();
+    ProxiumNode sender();
 
-    String target();
+    ProxiumNode target();
 
     BridgeChannel channel();
 
-    Object payload();
+    byte[] payload();
 }

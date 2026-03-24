@@ -13,7 +13,7 @@ public interface ProxiumConfig {
 
     int getMaxPacketSize();
 
-    /** RPC 요청의 기본 타임아웃 시간을 반환한다. */
+    /** 트랜잭션 요청의 기본 타임아웃 시간을 반환한다. */
     default Duration getRequestTimeout() {
         return Duration.ofSeconds(5);
     }

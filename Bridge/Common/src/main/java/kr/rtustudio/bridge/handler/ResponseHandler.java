@@ -1,5 +1,7 @@
 package kr.rtustudio.bridge.handler;
 
+import kr.rtustudio.bridge.Node;
+
 /**
  * Handler interface for 1:1 request-response processing.
  *
@@ -16,10 +18,10 @@ public interface ResponseHandler<T, R> {
      *
      * <p>요청을 처리하고 응답을 반환한다.
      *
-     * @param sender name of the server that sent the request
+     * @param sender node that sent the request
      * @param request request object
      * @return processed result object
      * @throws Exception if processing fails
      */
-    R handle(String sender, T request) throws Exception;
+    R handle(Node sender, T request) throws Exception;
 }

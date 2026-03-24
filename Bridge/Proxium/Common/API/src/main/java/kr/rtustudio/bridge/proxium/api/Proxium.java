@@ -70,9 +70,9 @@ public interface Proxium extends Broadcast, Transaction {
     @Nullable ProxyPlayer getPlayer(UUID uniqueId);
 
     /**
-     * Sends an RPC request by server name. Internally resolved to {@link ProxiumNode}.
+     * Sends a transaction request by server name. Internally resolved to {@link ProxiumNode}.
      *
-     * <p>대상 서버 이름으로 RPC 요청을 전송한다. 내부적으로 {@link ProxiumNode}로 변환된다.
+     * <p>대상 서버 이름으로 트랜잭션 요청을 전송한다. 내부적으로 {@link ProxiumNode}로 변환된다.
      *
      * @param target target server name
      * @param channel bridge channel
@@ -90,9 +90,9 @@ public interface Proxium extends Broadcast, Transaction {
     }
 
     /**
-     * Sends an RPC request by server name using the default timeout.
+     * Sends a transaction request by server name using the default timeout.
      *
-     * <p>대상 서버 이름으로 기본 타임아웃으로 RPC 요청을 전송한다.
+     * <p>대상 서버 이름으로 기본 타임아웃으로 트랜잭션 요청을 전송한다.
      *
      * @param target target server name
      * @param channel bridge channel
