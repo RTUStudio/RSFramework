@@ -33,6 +33,8 @@ public final class BridgeOptions {
     private final Fory fory;
     private final Map<BridgeChannel, ConcurrentSkipListSet<String>> channelTypes =
             new ConcurrentHashMap<>();
+    /** Fory에 이미 등록된 타입을 추적하여 중복 등록을 방지한다. */
+    private final Set<Class<?>> registeredTypes = ConcurrentHashMap.newKeySet();
 
     public BridgeOptions(ClassLoader classLoader) {
         this.fory =
@@ -71,8 +73,10 @@ public final class BridgeOptions {
                 || type == Object.class
                 || !registered.add(type)
                 || Modifier.isAbstract(type.getModifiers())) return;
-        synchronized (fory) {
-            fory.register(type);
+        if (registeredTypes.add(type)) {
+            synchronized (fory) {
+                fory.register(type);
+            }
         }
         for (java.lang.reflect.Field field : type.getDeclaredFields()) {
             recursiveRegister(field.getType(), registered);

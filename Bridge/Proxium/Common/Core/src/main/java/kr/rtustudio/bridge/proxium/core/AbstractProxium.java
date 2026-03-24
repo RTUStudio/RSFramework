@@ -28,6 +28,7 @@ import java.util.concurrent.CompletionException;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
@@ -230,7 +231,7 @@ public abstract class AbstractProxium implements ProxiumPipeline {
         ResponseHandler<Object, Object> handler = (ResponseHandler<Object, Object>) raw;
 
         try {
-            CompletableFuture.supplyAsync(
+            executeResponseHandler(
                             () -> {
                                 try {
                                     return handler.handle(request.sender(), request.payload());
@@ -311,6 +312,15 @@ public abstract class AbstractProxium implements ProxiumPipeline {
         future.whenComplete((res, err) -> pendingRequests.remove(requestId));
 
         return new RequestContext(future, type -> register(channel, type));
+    }
+
+    /**
+     * 응답 핸들러를 실행하기 위한 CompletableFuture를 생성한다.
+     * 기본 구현은 ForkJoinPool.commonPool에서 실행한다.
+     * 서브클래스에서 오버라이드하여 특정 스레드(메인 스레드 등)에서 실행할 수 있다.
+     */
+    protected <T> CompletableFuture<T> executeResponseHandler(Supplier<T> task) {
+        return CompletableFuture.supplyAsync(task);
     }
 
     protected abstract void dispatchOutboundPacket(Object packet);
