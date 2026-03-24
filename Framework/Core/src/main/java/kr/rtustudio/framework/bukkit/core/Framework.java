@@ -9,7 +9,9 @@ import kr.rtustudio.bridge.BridgeRegistry;
 import kr.rtustudio.bridge.proxium.api.Proxium;
 import kr.rtustudio.bridge.proxium.api.protocol.internal.BroadcastMessage;
 import kr.rtustudio.bridge.proxium.api.protocol.internal.PlayerMessage;
+import kr.rtustudio.bridge.proxium.api.proxy.ProxyLocation;
 import kr.rtustudio.bridge.proxium.api.proxy.ProxyPlayer;
+import kr.rtustudio.bridge.proxium.api.proxy.request.TeleportRequest;
 import kr.rtustudio.bridge.proxium.bukkit.BukkitProxium;
 import kr.rtustudio.bridge.redis.Redis;
 import kr.rtustudio.bridge.redis.RedisBridge;
@@ -25,6 +27,7 @@ import kr.rtustudio.framework.bukkit.api.nms.NMS;
 import kr.rtustudio.framework.bukkit.api.platform.MinecraftVersion;
 import kr.rtustudio.framework.bukkit.api.platform.SystemEnvironment;
 import kr.rtustudio.framework.bukkit.api.player.Notifier;
+import kr.rtustudio.framework.bukkit.api.scheduler.CraftScheduler;
 import kr.rtustudio.framework.bukkit.core.bridge.ProxiumConfig;
 import kr.rtustudio.framework.bukkit.core.bridge.RedisConfig;
 import kr.rtustudio.framework.bukkit.core.command.ReloadCommand;
@@ -44,9 +47,17 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
+import org.bukkit.World;
 import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
+import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.permissions.Permission;
 import org.bukkit.permissions.PermissionDefault;
 import org.jetbrains.annotations.NotNull;
@@ -73,6 +84,7 @@ public class Framework implements kr.rtustudio.framework.bukkit.api.core.Framewo
     @Getter private CommonTranslation commonTranslation;
     @Getter private ModuleFactory moduleFactory;
     @Getter private kr.rtustudio.framework.bukkit.api.core.scheduler.Scheduler scheduler;
+    private final Map<UUID, TeleportRequest> pendingTeleports = new ConcurrentHashMap<>();
 
     public void loadPlugin(RSPlugin plugin) {
         log.info("loading RSPlugin: {}", plugin.getName());
@@ -173,6 +185,12 @@ public class Framework implements kr.rtustudio.framework.bukkit.api.core.Framewo
                         if (player != null)
                             Notifier.of(plugin, player).send(playerMessage.message());
                     });
+            proxium.subscribe(
+                    BridgeChannel.INTERNAL,
+                    TeleportRequest.class,
+                    this::handleTeleport);
+
+            registerTeleportListeners(plugin);
 
             bridgeRegistry.register(Proxium.class, proxium);
         }
@@ -259,5 +277,67 @@ public class Framework implements kr.rtustudio.framework.bukkit.api.core.Framewo
 
     public void registerPermission(String name, PermissionDefault permissionDefault) {
         Bukkit.getPluginManager().addPermission(new Permission(name, permissionDefault));
+    }
+
+    // ── 크로스 서버 텔레포트 ──
+
+    private void handleTeleport(TeleportRequest request) {
+        Player player = Bukkit.getPlayer(request.player().getUniqueId());
+        if (player == null || !player.isOnline()) {
+            pendingTeleports.put(request.player().getUniqueId(), request);
+            return;
+        }
+        executeTeleport(player, request);
+    }
+
+    private void executeTeleport(Player player, TeleportRequest request) {
+        CraftScheduler.sync(player, () -> {
+            Location location = null;
+
+            if (request.targetLocation() != null) {
+                ProxyLocation loc = request.targetLocation();
+                World world = Bukkit.getWorld(loc.world());
+                if (world != null) {
+                    location =
+                            new Location(
+                                    world, loc.x(), loc.y(), loc.z(), loc.yaw(), loc.pitch());
+                }
+            } else if (request.targetPlayer() != null) {
+                Player target = Bukkit.getPlayer(request.targetPlayer().getUniqueId());
+                if (target != null) {
+                    location = target.getLocation();
+                }
+            }
+
+            if (location == null) return;
+
+            if (MinecraftVersion.isPaper()) {
+                player.teleportAsync(location);
+            } else {
+                player.teleport(location);
+            }
+        });
+    }
+
+    private void registerTeleportListeners(RSPlugin plugin) {
+        Bukkit.getPluginManager()
+                .registerEvents(
+                        new Listener() {
+                            @EventHandler
+                            public void onJoin(PlayerJoinEvent event) {
+                                TeleportRequest pending =
+                                        pendingTeleports.remove(
+                                                event.getPlayer().getUniqueId());
+                                if (pending != null) {
+                                    executeTeleport(event.getPlayer(), pending);
+                                }
+                            }
+
+                            @EventHandler
+                            public void onQuit(PlayerQuitEvent event) {
+                                pendingTeleports.remove(event.getPlayer().getUniqueId());
+                            }
+                        },
+                        plugin);
     }
 }

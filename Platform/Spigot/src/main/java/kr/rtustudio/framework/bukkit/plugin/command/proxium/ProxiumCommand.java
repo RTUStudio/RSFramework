@@ -13,6 +13,7 @@ public class ProxiumCommand extends RSCommand<RSFramework> {
         registerCommand(new TitleCommand(plugin));
         registerCommand(new BroadcastCommand(plugin));
         registerCommand(new SendCommand(plugin));
+        registerCommand(new TeleportCommand(plugin));
         registerCommand(new TestCommand(plugin));
     }
 }

@@ -2,7 +2,7 @@
 
 Modular Bukkit/Paper plugin development framework.
 
-> **Version**: 4.5.5 · **Java**: 21 · **Supported Servers**: 1.20.1+ (Spigot/Paper/Folia) · **Proxy**: Velocity · **License**: GPL-3.0
+> **Version**: 4.7.0 · **Java**: 21 · **Supported Servers**: 1.20.1+ (Spigot/Paper/Folia) · **Proxy**: Velocity · **License**: GPL-3.0
 
 ---
 
@@ -69,7 +69,7 @@ repositories {
 }
 
 dependencies {
-    compileOnly("kr.rtustudio:framework-api:4.6.0")
+    compileOnly("kr.rtustudio:framework-api:4.7.0")
 }
 ```
 
@@ -249,6 +249,14 @@ Bridge (isConnected + close)
 └── Proxium extends Broadcast, Transaction
 ```
 
+### Architecture
+
+| 계층 | 역할 |
+|------|------|
+| **Proxium** (Bridge) | 순수 통신 인프라 — 패킷 직렬화, Netty 전송, TLS |
+| **RSFramework Bukkit** | 애플리케이션 로직 — 텔레포트 실행, 메시지 처리 |
+| **RSFramework Velocity** | 텔레포트 라우팅 — 서버 이동 조율 |
+
 ### Pub/Sub
 
 ```java
@@ -334,6 +342,11 @@ Details → [`docs/storage.md`](docs/storage.md)
 ### CraftScheduler (Bukkit/Paper/Folia)
 
 ```java
+// Entity 기반 동기 실행 (Folia Region 완벽 호환)
+CraftScheduler.sync(player, () -> {
+    player.teleport(location);
+});
+
 // 비동기/동기 체이닝
 CraftScheduler.sync(plugin, task -> {
     player.setHealth(20);
@@ -341,7 +354,7 @@ CraftScheduler.sync(plugin, task -> {
     player.setHealth(1);
 }, 20L);
 
-// 안전한 동기 결과 반환 (Folia Region 완벽 호환)
+// 안전한 동기 결과 반환
 CraftScheduler.callSync(location, () -> {
     return location.getBlock().getType();
 }).thenAccept(material -> {

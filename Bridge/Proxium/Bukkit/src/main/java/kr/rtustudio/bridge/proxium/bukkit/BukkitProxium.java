@@ -21,7 +21,6 @@ import java.util.UUID;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
-import org.bukkit.entity.Player;
 
 @Slf4j(topic = "Proxium")
 @Getter
@@ -88,7 +87,6 @@ public class BukkitProxium extends ProxiumServer {
         subscribe(BridgeChannel.INTERNAL, PlayerList.class, this::handlePlayerList);
         subscribe(BridgeChannel.INTERNAL, ServerList.class, this::handleServerList);
         subscribe(BridgeChannel.INTERNAL, PlayerEvent.class, this::handlePlayerEvent);
-        subscribe(BridgeChannel.INTERNAL, TeleportRequest.class, this::handleTeleport);
         subscribe(BridgeChannel.INTERNAL, ProxiumNode.class, this::setNode);
     }
 
@@ -141,32 +139,5 @@ public class BukkitProxium extends ProxiumServer {
             case LEAVE -> players.remove(pp.getUniqueId());
         }
     }
-
-    private void handleTeleport(TeleportRequest request) {
-        Player player = Bukkit.getPlayer(request.player().getUniqueId());
-        if (player == null) return;
-
-        Location location = null;
-
-        if (request.targetLocation() != null) {
-            ProxyLocation loc = request.targetLocation();
-            World world = Bukkit.getWorld(loc.world());
-            if (world != null) {
-                location = new Location(world, loc.x(), loc.y(), loc.z(), loc.yaw(), loc.pitch());
-            }
-        } else if (request.targetPlayer() != null) {
-            Player target = Bukkit.getPlayer(request.targetPlayer().getUniqueId());
-            if (target != null) {
-                location = target.getLocation();
-            }
-        }
-
-        if (location == null) return;
-
-        if (security.isPaper()) {
-            player.teleportAsync(location);
-        } else {
-            player.teleport(location);
-        }
-    }
 }
+

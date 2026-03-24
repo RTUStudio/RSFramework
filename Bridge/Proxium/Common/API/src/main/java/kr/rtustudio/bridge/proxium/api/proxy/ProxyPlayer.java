@@ -55,7 +55,12 @@ public class ProxyPlayer {
      * @return 패킷 전송 성공 여부
      */
     public boolean teleport(ProxyPlayer target) {
-        return proxium.send(new TeleportRequest(this, target));
+        TeleportRequest request = new TeleportRequest(this, target);
+        if (isLocalTeleport(request)) {
+            proxium.publish(BridgeChannel.INTERNAL, request);
+            return true;
+        }
+        return proxium.send(request);
     }
 
     /**
@@ -65,7 +70,25 @@ public class ProxyPlayer {
      * @return 패킷 전송 성공 여부
      */
     public boolean teleport(ProxyLocation location) {
-        return proxium.send(new TeleportRequest(this, location));
+        TeleportRequest request = new TeleportRequest(this, location);
+        if (isLocalTeleport(request)) {
+            proxium.publish(BridgeChannel.INTERNAL, request);
+            return true;
+        }
+        return proxium.send(request);
+    }
+
+    /**
+     * 텔레포트 요청이 로컬 서버에서 처리 가능한지 확인한다.
+     *
+     * <p>플레이어가 현재 서버에 있고, 대상 서버도 현재 서버라면 네트워크를 거치지 않고 로컬에서 처리한다.
+     */
+    private boolean isLocalTeleport(TeleportRequest request) {
+        String localServer = proxium.getName();
+        String targetServer = request.server();
+        return localServer != null
+                && localServer.equals(getServer())
+                && localServer.equals(targetServer);
     }
 
     /** Minimessage 형식의 문자열 메시지를 전송한다. */

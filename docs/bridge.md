@@ -300,7 +300,74 @@ if (node != null) {
 
 ---
 
-## 7. 주의사항
+## 7. 크로스 서버 텔레포트
+
+프록시 네트워크를 통해 다른 서버에 있는 플레이어를 특정 위치 또는 다른 플레이어에게 텔레포트시킬 수 있습니다.
+
+### 라우팅 아키텍처
+
+텔레포트 요청은 상황에 따라 자동으로 최적 경로를 선택합니다:
+
+| 조건 | 처리 방식 |
+|------|-----------|
+| 명령 서버 = 플레이어 서버 = 목표 서버 | 네이티브 `player.teleport()` — Proxium 미사용 |
+| 플레이어 서버 = 목표 서버 (원격 시작) | Velocity → 해당 서버에 패킷 직접 전달 |
+| 플레이어 서버 ≠ 목표 서버 | Velocity → 서버 이동 → 이동 완료 후 패킷 전달 |
+
+```
+Case 1: 로컬 텔레포트
+  Bukkit → ProxyPlayer.teleport() → 로컬 publish → Framework 직접 실행
+
+Case 2: 같은 서버 (원격)
+  Bukkit(요청) → Velocity → Velocity가 이미 같은 서버 확인 → Bukkit(목표) 직접 전달
+
+Case 3: 다른 서버 이동
+  Bukkit(요청) → Velocity → 플레이어 서버 이동 → 이동 완료 → Bukkit(목표) 패킷 전달
+```
+
+### 책임 분리
+
+| 계층 | 역할 |
+|------|------|
+| **Proxium** (Bridge) | 패킷 전송/수신만 담당 (순수 통신) |
+| **RSFramework Velocity** | 텔레포트 라우팅 — 서버 이동 조율, 패킷 전달 |
+| **RSFramework Bukkit** | 텔레포트 실행 — `CraftScheduler.sync(player, ...)` |
+
+### 플레이어 대상 텔레포트
+
+```java
+ProxyPlayer player = proxium.getPlayer(uuid);
+ProxyPlayer target = proxium.getPlayer(targetUuid);
+
+// 자동 라우팅: 같은 서버면 네이티브, 다른 서버면 크로스 서버 이동
+player.teleport(target);
+```
+
+### 좌표 대상 텔레포트
+
+```java
+ProxiumNode node = proxium.getNode("Survival-1");
+ProxyLocation location = new ProxyLocation(node, "world", 100.5, 64, -200.5);
+
+// 플레이어를 Survival-1 서버의 지정된 좌표로 이동
+player.teleport(location);
+```
+
+> [!NOTE]
+> - 목적지 서버에서는 `CraftScheduler.sync(player, ...)` 을 통해 Folia 호환 메인 스레드에서 실행됩니다.
+> - 플레이어 접속 완료 전 패킷이 도착하면 자동으로 대기열에 저장 후 `PlayerJoinEvent` 시 실행됩니다.
+> - Paper 서버에서는 `player.teleportAsync()`를 자동으로 사용합니다.
+
+### 명령어
+
+| 명령어 | 설명 |
+|--------|------|
+| `/proxium teleport player <플레이어> <대상>` | 플레이어를 대상 플레이어에게 텔레포트 |
+| `/proxium teleport location <플레이어> <서버> <월드> <x> <y> <z>` | 플레이어를 특정 서버의 좌표로 텔레포트 |
+
+---
+
+## 8. 주의사항
 
 > [!IMPORTANT]
 > - **비동기 실행** — `.on()`, `.error()` 콜백은 **Netty I/O 스레드**에서 실행됩니다.
@@ -313,7 +380,7 @@ if (node != null) {
 
 ---
 
-## 8. 전체 예제
+## 9. 전체 예제
 
 ### 예제 1: 크로스서버 경제 시스템
 
@@ -458,7 +525,7 @@ proxium.subscribe(statusChannel, ServerStatus.class, status -> {
 
 ---
 
-## 9. 구성 파일
+## 10. 구성 파일
 
 `Config/Bridge/Proxium.yml` — 최초 실행 시 자동 생성됩니다.
 
@@ -482,7 +549,7 @@ request-timeout: 5000      # RPC 기본 타임아웃 (ms)
 
 ---
 
-## 10. API 레퍼런스
+## 11. API 레퍼런스
 
 ### Bridge
 

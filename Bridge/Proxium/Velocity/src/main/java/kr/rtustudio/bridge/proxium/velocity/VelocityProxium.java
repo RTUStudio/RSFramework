@@ -23,9 +23,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
 
 import com.moandjiezana.toml.Toml;
 import com.velocitypowered.api.event.Subscribe;
@@ -47,7 +45,6 @@ public class VelocityProxium extends ProxiumProxy {
     private final Path dir;
     private final Toml config;
 
-    private final Map<UUID, TeleportRequest> teleportRequests = new ConcurrentHashMap<>();
 
     public VelocityProxium(ProxyServer server, Path dir) {
         this(server, dir, ProxiumConfig.load(dir.resolve("plugins/RSFramework")));
@@ -75,7 +72,6 @@ public class VelocityProxium extends ProxiumProxy {
                 ResponsePacket.class,
                 BroadcastMessage.class);
 
-        registerInternalSubscription();
 
         if (isModernProxy()) {
             log.info("Detected modern proxy");
@@ -117,11 +113,6 @@ public class VelocityProxium extends ProxiumProxy {
         return "velocity";
     }
 
-    @Override
-    public void close() {
-        super.close();
-        teleportRequests.clear();
-    }
 
     // ── 이벤트 핸들러 ──
 
@@ -172,55 +163,34 @@ public class VelocityProxium extends ProxiumProxy {
         }
 
         broadcastPlayerEvent(new PlayerEvent(action, proxyPlayer));
-
-        TeleportRequest tpr = teleportRequests.remove(player.getUniqueId());
-        if (tpr != null && serverName.equals(tpr.server())) {
-            Connection connection = getConnection(current.getServerInfo().getAddress());
-            if (connection != null) {
-                connection.send(options.encode(BridgeChannel.INTERNAL, tpr));
-            }
-        }
     }
 
     @Subscribe
     private void onKick(KickedFromServerEvent e) {
         handlePlayerLeave(e.getPlayer().getUniqueId());
-        teleportRequests.remove(e.getPlayer().getUniqueId());
     }
 
     @Subscribe
     private void onQuit(DisconnectEvent e) {
         handlePlayerLeave(e.getPlayer().getUniqueId());
-        teleportRequests.remove(e.getPlayer().getUniqueId());
     }
 
-    // ── 내부 로직 ──
 
-    private void registerInternalSubscription() {
-        subscribe(BridgeChannel.INTERNAL, TeleportRequest.class, this::handleTeleport);
-    }
-
-    private void handleTeleport(TeleportRequest request) {
-        var targetServer = server.getServer(request.server()).orElse(null);
-        if (targetServer == null) return;
-
-        Player player = server.getPlayer(request.player().getUniqueId()).orElse(null);
-        if (player == null) return;
-
-        teleportRequests.put(player.getUniqueId(), request);
-        player.createConnectionRequest(targetServer)
-                .connectWithIndication()
-                .whenComplete(
-                        (result, throwable) -> {
-                            if (throwable != null || !result) {
-                                teleportRequests.remove(player.getUniqueId());
-                                Connection target =
-                                        getConnection(targetServer.getServerInfo().getAddress());
-                                if (target != null) {
-                                    target.send(options.encode(BridgeChannel.INTERNAL, request));
-                                }
-                            }
-                        });
+    /**
+     * 지정된 서버로 내부 채널 패킷을 전송한다.
+     *
+     * @param serverName 대상 서버 이름
+     * @param channel 브릿지 채널
+     * @param packet 전송할 패킷
+     * @return 전송 성공 여부
+     */
+    public boolean sendToServer(String serverName, BridgeChannel channel, Object packet) {
+        var registeredServer = server.getServer(serverName).orElse(null);
+        if (registeredServer == null) return false;
+        Connection connection = getConnection(registeredServer.getServerInfo().getAddress());
+        if (connection == null) return false;
+        connection.send(options.encode(channel, packet));
+        return true;
     }
 
     private void handlePlayerLeave(UUID uniqueId) {
