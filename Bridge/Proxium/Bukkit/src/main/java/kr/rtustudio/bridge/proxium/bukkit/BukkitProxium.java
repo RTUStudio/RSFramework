@@ -122,7 +122,7 @@ public class BukkitProxium extends ProxiumServer {
         switch (event.action()) {
             case JOIN -> {
                 if (local == null) {
-                    local = new ProxyPlayer(this, pp.getUniqueId(), pp.getName(), pp.getNode());
+                    local = new MutableProxyPlayer(this, pp.getUniqueId(), pp.getName(), pp.getNode());
                     players.put(local.getUniqueId(), local);
                 }
             }
@@ -130,7 +130,7 @@ public class BukkitProxium extends ProxiumServer {
                 if (local != null) {
                     ((MutableProxyPlayer) local).setNode(pp.getNode());
                 } else {
-                    local = new ProxyPlayer(this, pp.getUniqueId(), pp.getName(), pp.getNode());
+                    local = new MutableProxyPlayer(this, pp.getUniqueId(), pp.getName(), pp.getNode());
                     players.put(local.getUniqueId(), local);
                 }
             }
