@@ -334,12 +334,22 @@ Details → [`docs/storage.md`](docs/storage.md)
 ### CraftScheduler (Bukkit/Paper/Folia)
 
 ```java
+// 비동기/동기 체이닝
 CraftScheduler.sync(plugin, task -> {
     player.setHealth(20);
 }).delay(task -> {
     player.setHealth(1);
 }, 20L);
+
+// 안전한 동기 결과 반환 (Folia Region 완벽 호환)
+CraftScheduler.callSync(location, () -> {
+    return location.getBlock().getType();
+}).thenAccept(material -> {
+    notifier.announce("해당 위치의 블록은: " + material);
+});
 ```
+
+Details → [`docs/scheduler.md`](docs/scheduler.md)
 
 ### QuartzScheduler (Cron)
 
