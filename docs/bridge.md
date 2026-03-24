@@ -10,15 +10,20 @@
 ### 인터페이스 계층
 
 ```
-Bridge (공통 인터페이스)
-├── Redisson (Redis Pub/Sub 기반)
-└── Proxium (Netty 다이렉트 채널)
+Bridge (isConnected + close)
+├── Broadcast (Pub/Sub: register · subscribe · publish · unsubscribe)
+├── Transaction (RPC: request · respond · getRequestTimeout)
+│
+├── Redis extends Broadcast
+└── Proxium extends Broadcast, Transaction
 ```
 
-| 인터페이스 | 대상 | 핵심 기능 |
-|-----------|------|----------|
-| `Bridge` | 모든 브릿지 공통 | `register` · `subscribe` · `publish` · `unsubscribe` |
-| `Proxium` | 플러그인 개발자 | `request` · `respond` · `getPlayers` · `getServer` |
+| 인터페이스 | 핵심 기능 |
+|-----------|----------|
+| `Bridge` | `isConnected` · `close` |
+| `Broadcast` | `register` · `subscribe` · `publish` · `unsubscribe` |
+| `Transaction` | `request` · `respond` · `getRequestTimeout` |
+| `Proxium` | `getName` · `getNode` · `getPlayers` · `getPlayer` |
 
 ### 인스턴스 얻기
 
@@ -285,7 +290,7 @@ if (player != null) {
 }
 
 // 서버 노드 정보 조회
-ProxiumNode node = proxium.getServer("Survival-1");
+ProxiumNode node = proxium.getNode("Survival-1");
 if (node != null) {
     String name = node.name();
     String host = node.host();
@@ -299,12 +304,12 @@ if (node != null) {
 
 > [!IMPORTANT]
 > - **비동기 실행** — `.on()`, `.error()` 콜백은 **Netty I/O 스레드**에서 실행됩니다.
->   Bukkit API 호출 시 `Bukkit.getScheduler().runTask()`로 메인 스레드에 전환하세요.
+>   Bukkit API 호출 시 `CraftScheduler.sync()`로 메인 스레드에 전환하세요.
 > - **메인 스레드 블로킹 금지** — `asFuture().join()`을 메인 스레드에서 호출하면 서버가 멈출 수 있습니다.
 > - **양방향 등록** — 요청 측과 응답 측 **모두** 동일한 채널을 사용해야 합니다.
 > - **타입 등록 시점** — 가능한 서버 시작 시점(onEnable)에 `subscribe()`, `respond()` 등을 호출하여 타입을 등록하세요.
 > - **RPC 벤치마크 및 JIT Warmup** — Proxium은 내부적으로 Fory 직렬화의 *비동기 JIT 컴파일*을 지원합니다. 첫 RPC 호출은 컴파일 오버헤드로 인해 약 `50ms+`가 소요될 수 있으나, 두 번째 호출부터는 JIT 캐싱으로 인해 **로컬 기준 `2~4ms`**의 초고속(RTT) 성능을 보장합니다.
-> - **Graceful Shutdown** — 서버 종료 시 내부적으로 `Disconnect` 패킷을 전송하여 클러스터 상태를 즉시 동기화합니다. "Lost connection to lobby"와 같은 불필요한 자동 재접속 로그가 출력되지 않으며, 의도치 않은 비정상 종료 시에만 자동 재접속이 시도됩니다.
+> - **자동 재연결** — 서버 연결이 끊기면 (정상/비정상 무관) 프록시가 설정된 주기와 횟수만큼 자동으로 재연결을 시도합니다.
 
 ---
 
@@ -436,7 +441,7 @@ BridgeChannel statusChannel = BridgeChannel.of("myplugin", "status");
 
 Bukkit.getScheduler().runTaskTimerAsync(plugin, () -> {
     proxium.publish(statusChannel, new ServerStatus(
-        proxium.getServer(),
+        proxium.getName(),
         Bukkit.getOnlinePlayers().size(),
         Bukkit.getTPS()[0],
         ManagementFactory.getRuntimeMXBean().getUptime()
@@ -479,7 +484,14 @@ request-timeout: 5000      # RPC 기본 타임아웃 (ms)
 
 ## 10. API 레퍼런스
 
-### Bridge (공통)
+### Bridge
+
+| 메서드 | 설명 |
+|--------|------|
+| `isConnected()` | 네트워크 연결 상태 확인 |
+| `close()` | 브릿지 종료 |
+
+### Broadcast (Pub/Sub)
 
 | 메서드 | 설명 |
 |--------|------|
@@ -487,22 +499,26 @@ request-timeout: 5000      # RPC 기본 타임아웃 (ms)
 | `subscribe(channel, type, handler)` | 채널 구독 (타입별, 자동 등록) |
 | `publish(channel, message)` | 메시지 브로드캐스트 |
 | `unsubscribe(channel)` | 구독 취소 |
-| `isConnected()` | 네트워크 연결 상태 확인 |
-| `close()` | 브릿지 종료 |
 
-### Proxium
+### Transaction (RPC)
+
+| 메서드 | 반환 | 설명 |
+|--------|------|------|
+| `request(target, channel, payload, timeout)` | `RequestContext` | RPC 요청 (명시적 타임아웃) |
+| `respond(channel)` | `ResponseContext` | RPC 응답 핸들러 등록기 |
+| `getRequestTimeout()` | `Duration` | 구성된 기본 타임아웃 |
+
+### Proxium (Broadcast + Transaction)
 
 | 메서드 | 반환 | 설명 |
 |--------|------|------|
 | `isLoaded()` | `boolean` | 프로토콜 로드 여부 |
-| `getServer()` | `String` | 로컬 서버 이름 (미연결 시 `null`) |
-| `getServer(name)` | `ProxiumNode?` | 이름으로 서버 노드 조회 |
+| `getName()` | `String` | 로컬 서버 이름 |
+| `getNode(name)` | `ProxiumNode?` | 이름으로 서버 노드 조회 |
 | `getPlayers()` | `Map<UUID, ProxyPlayer>` | 전체 플레이어 목록 |
 | `getPlayer(uuid)` | `ProxyPlayer?` | UUID로 플레이어 조회 |
-| `request(target, channel, payload, timeout)` | `RequestContext` | RPC 요청 (명시적 타임아웃) |
-| `request(target, channel, payload)` | `RequestContext` | RPC 요청 (기본 타임아웃) |
-| `getRequestTimeout()` | `Duration` | 구성된 기본 타임아웃 |
-| `respond(channel)` | `ResponseContext` | RPC 응답 핸들러 등록기 |
+| `request(target, channel, payload, timeout)` | `RequestContext` | 서버 이름으로 RPC 요청 |
+| `request(target, channel, payload)` | `RequestContext` | 기본 타임아웃 RPC 요청 |
 
 ### RequestContext — `request()` 반환
 

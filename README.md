@@ -2,7 +2,7 @@
 
 Modular Bukkit/Paper plugin development framework.
 
-> **Version**: 4.4.0 · **Java**: 21 · **Supported Servers**: 1.20.1+ (Spigot/Paper/Folia) · **Proxy**: Velocity · **License**: GPL-3.0
+> **Version**: 4.5.0 · **Java**: 21 · **Supported Servers**: 1.20.1+ (Spigot/Paper/Folia) · **Proxy**: Velocity · **License**: GPL-3.0
 
 ---
 
@@ -69,7 +69,7 @@ repositories {
 }
 
 dependencies {
-    compileOnly("kr.rtustudio:framework-api:4.4.3")
+    compileOnly("kr.rtustudio:framework-api:4.5.0")
 }
 ```
 
@@ -239,6 +239,15 @@ Notifier.broadcastAll("<green>새로운 이벤트가 시작되었습니다!");
 ## Bridge Communication
 
 Supports inter-server **Pub/Sub** broadcast and **RPC** request-response.
+
+```
+Bridge (isConnected + close)
+├── Broadcast (register · subscribe · publish · unsubscribe)
+├── Transaction (request · respond · getRequestTimeout)
+│
+├── Redis extends Broadcast
+└── Proxium extends Broadcast, Transaction
+```
 
 ### Pub/Sub
 

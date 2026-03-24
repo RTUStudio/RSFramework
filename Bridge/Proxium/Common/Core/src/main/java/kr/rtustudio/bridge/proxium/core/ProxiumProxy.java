@@ -292,10 +292,6 @@ public abstract class ProxiumProxy extends AbstractProxium {
 
                             if (connected.get()) {
                                 // 연결 후 끊김 → attempt 리셋 후 재시도
-                                log.info(
-                                        "Lost connection to '{}', reconnecting in {}s",
-                                        server.name(),
-                                        retryDelay);
                                 retryScheduler.schedule(
                                         () -> connectToServer(protocol, server, 0),
                                         retryDelay,
