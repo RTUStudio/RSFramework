@@ -1,7 +1,6 @@
-package kr.rtustudio.bridge.proxium.api.context;
+package kr.rtustudio.bridge.context;
 
-import kr.rtustudio.bridge.proxium.api.exception.RequestException;
-import kr.rtustudio.bridge.proxium.api.exception.ResponseStatus;
+import kr.rtustudio.bridge.exception.RequestException;
 
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;

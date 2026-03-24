@@ -41,7 +41,6 @@ public class BukkitProxium extends ProxiumServer {
                     BridgeChannel.class,
                     ProxiumNode.class,
                     PlayerList.class,
-                    Disconnect.class,
                     TeleportRequest.class,
                     PlayerEvent.class,
                     MutableProxyPlayer.class,

@@ -4,7 +4,6 @@ import kr.rtustudio.bridge.BridgeChannel;
 import kr.rtustudio.bridge.proxium.api.ProxiumNode;
 import kr.rtustudio.bridge.proxium.api.handler.ConnectionHandler;
 import kr.rtustudio.bridge.proxium.api.netty.Connection;
-import kr.rtustudio.bridge.proxium.api.protocol.internal.Disconnect;
 import kr.rtustudio.bridge.proxium.core.ProxiumProxy;
 import lombok.extern.slf4j.Slf4j;
 
@@ -44,13 +43,6 @@ public class ProxyConnectionHandler implements ConnectionHandler {
         if (channel == null) return;
 
         Object decoded = proxium.dispatchPacket(frame);
-
-        if (decoded instanceof Disconnect) {
-            // 서버가 정상 종료를 알려옴 — 재연결하지 않도록 마킹
-            String addressKey = ProxiumProxy.addressKey(connection.getRemoteAddress());
-            proxium.markGracefulDisconnect(addressKey);
-            return;
-        }
 
         if (decoded instanceof BridgeChannel subscribedChannel) {
             Set<BridgeChannel> subs = proxium.getServerSubscriptions().get(connection);

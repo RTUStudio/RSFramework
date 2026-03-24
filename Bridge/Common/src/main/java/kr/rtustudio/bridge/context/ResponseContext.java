@@ -1,7 +1,7 @@
-package kr.rtustudio.bridge.proxium.api.context;
+package kr.rtustudio.bridge.context;
 
-import kr.rtustudio.bridge.proxium.api.exception.RequestException;
-import kr.rtustudio.bridge.proxium.api.handler.ResponseHandler;
+import kr.rtustudio.bridge.exception.RequestException;
+import kr.rtustudio.bridge.handler.ResponseHandler;
 
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;

@@ -1,5 +1,7 @@
 package kr.rtustudio.bridge.proxium.api;
 
+import kr.rtustudio.bridge.Node;
+
 import java.net.InetSocketAddress;
 
 import org.jspecify.annotations.NonNull;
@@ -9,7 +11,7 @@ import org.jspecify.annotations.NonNull;
  *
  * <p>Proxium 네트워크에 등록된 서버 정보.
  */
-public record ProxiumNode(@NonNull String name, @NonNull String host, int port) {
+public record ProxiumNode(@NonNull String name, @NonNull String host, int port) implements Node {
 
     /**
      * Returns the address string in {@code "host:port"} format.

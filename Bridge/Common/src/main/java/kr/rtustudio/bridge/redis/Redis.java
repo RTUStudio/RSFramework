@@ -1,6 +1,6 @@
 package kr.rtustudio.bridge.redis;
 
-import kr.rtustudio.bridge.Bridge;
+import kr.rtustudio.bridge.Broadcast;
 
 import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
@@ -12,7 +12,7 @@ import org.jetbrains.annotations.NotNull;
  *
  * <p>Redis 기반 브릿지 인터페이스. Pub/Sub 통신 및 분산 락을 제공한다.
  */
-public interface Redis extends Bridge {
+public interface Redis extends Broadcast {
 
     <T> T withLock(@NotNull String key, @NotNull Supplier<T> action);
 

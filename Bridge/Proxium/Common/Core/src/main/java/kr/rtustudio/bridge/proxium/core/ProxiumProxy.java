@@ -7,7 +7,6 @@ import kr.rtustudio.bridge.proxium.api.ProxiumNode;
 import kr.rtustudio.bridge.proxium.api.configuration.ProxiumConfig;
 import kr.rtustudio.bridge.proxium.api.netty.Connection;
 import kr.rtustudio.bridge.proxium.api.protocol.Protocol;
-import kr.rtustudio.bridge.proxium.api.protocol.internal.Disconnect;
 import kr.rtustudio.bridge.proxium.api.protocol.internal.PlayerList;
 import kr.rtustudio.bridge.proxium.api.protocol.internal.TransactionPacket;
 import kr.rtustudio.bridge.proxium.api.proxy.ProxyConnector;
@@ -45,19 +44,9 @@ public abstract class ProxiumProxy extends AbstractProxium {
     private final Map<Connection, Set<BridgeChannel>> serverSubscriptions =
             new ConcurrentHashMap<>();
     private final AtomicBoolean shuttingDown = new AtomicBoolean(false);
-    private volatile byte[] disconnectFrame;
-    private final Set<String> gracefulDisconnects = ConcurrentHashMap.newKeySet();
 
     public boolean isShuttingDown() {
         return shuttingDown.get();
-    }
-
-    public boolean isGracefulDisconnect(String addressKey) {
-        return gracefulDisconnects.remove(addressKey);
-    }
-
-    public void markGracefulDisconnect(String addressKey) {
-        gracefulDisconnects.add(addressKey);
     }
 
     private final ProxiumConfig settings;
@@ -76,15 +65,6 @@ public abstract class ProxiumProxy extends AbstractProxium {
         this.settings = settings;
         ProxiumAPI.PROTOCOL_LOADED.register(this::startProtocol);
         ProxiumAPI.getLoadedProtocols().forEach(this::startProtocol);
-    }
-
-    private byte[] getDisconnectFrame() {
-        byte[] frame = disconnectFrame;
-        if (frame == null) {
-            frame = options.encode(BridgeChannel.INTERNAL, new Disconnect());
-            disconnectFrame = frame;
-        }
-        return frame;
     }
 
     /** SocketAddress를 정규화된 \"host:port\" 문자열로 변환한다. */
@@ -291,42 +271,37 @@ public abstract class ProxiumProxy extends AbstractProxium {
     }
 
     private void connectToServer(Protocol protocol, ProxiumNode server) {
-        connectToServer(protocol, server, 0, false);
+        connectToServer(protocol, server, 0);
     }
 
-    private void connectToServer(
-            Protocol protocol, ProxiumNode server, long attempt, boolean wasConnected) {
+    private void connectToServer(Protocol protocol, ProxiumNode server, long attempt) {
         ProxyConnector connector =
                 new ProxyConnector(
                         server.getSocketAddress(),
                         dataFolder.resolve("Proxium").toAbsolutePath().toString(),
                         settings.getTls().isEnabled());
-        AtomicBoolean connected = new AtomicBoolean(wasConnected);
+        long maxRetries = settings.getMaxRetries();
+        AtomicBoolean connected = new AtomicBoolean(false);
         connector
                 .onConnectionEstablished(conn -> connected.set(true))
                 .onConnectionLost(
                         conn -> {
                             if (shuttingDown.get()) return;
 
-                            String addrKey = addressKey(server.getSocketAddress());
-                            if (isGracefulDisconnect(addrKey)) {
-                                // 서버가 정상 종료 신호를 보냄 — 재연결하지 않음
-                                return;
-                            }
-
                             long retryDelay = settings.getRetryDelaySeconds();
-                            long maxRetries = settings.getMaxRetries();
 
                             if (connected.get()) {
+                                // 연결 후 끊김 → attempt 리셋 후 재시도
                                 log.info(
                                         "Lost connection to '{}', reconnecting in {}s",
                                         server.name(),
                                         retryDelay);
                                 retryScheduler.schedule(
-                                        () -> connectToServer(protocol, server, 0, true),
+                                        () -> connectToServer(protocol, server, 0),
                                         retryDelay,
                                         TimeUnit.SECONDS);
                             } else if (attempt + 1 < maxRetries) {
+                                // 연결 재시도
                                 log.debug(
                                         "Server '{}' not reachable, retrying in {}s ({}/{})",
                                         server.name(),
@@ -334,7 +309,7 @@ public abstract class ProxiumProxy extends AbstractProxium {
                                         attempt + 2,
                                         maxRetries == Long.MAX_VALUE ? "∞" : maxRetries);
                                 retryScheduler.schedule(
-                                        () -> connectToServer(protocol, server, attempt + 1, false),
+                                        () -> connectToServer(protocol, server, attempt + 1),
                                         retryDelay,
                                         TimeUnit.SECONDS);
                             } else {
@@ -353,13 +328,11 @@ public abstract class ProxiumProxy extends AbstractProxium {
     public void shutdown() {
         shuttingDown.set(true);
         retryScheduler.shutdownNow();
-        byte[] frame = getDisconnectFrame();
         serverSubscriptions
                 .keySet()
                 .forEach(
                         conn -> {
                             if (conn.isOpen()) {
-                                if (frame != null) conn.send(frame);
                                 conn.disconnect();
                             }
                         });

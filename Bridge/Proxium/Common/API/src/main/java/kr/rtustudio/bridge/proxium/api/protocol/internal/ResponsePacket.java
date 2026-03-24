@@ -1,7 +1,7 @@
 package kr.rtustudio.bridge.proxium.api.protocol.internal;
 
 import kr.rtustudio.bridge.BridgeChannel;
-import kr.rtustudio.bridge.proxium.api.exception.ResponseStatus;
+import kr.rtustudio.bridge.context.ResponseStatus;
 import lombok.Builder;
 
 import java.util.UUID;

@@ -5,7 +5,6 @@ import kr.rtustudio.bridge.BridgeOptions;
 import kr.rtustudio.bridge.proxium.api.ProxiumNode;
 import kr.rtustudio.bridge.proxium.api.configuration.ProxiumConfig;
 import kr.rtustudio.bridge.proxium.api.netty.Connection;
-import kr.rtustudio.bridge.proxium.api.protocol.internal.Disconnect;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -38,7 +37,6 @@ public abstract class ProxiumServer extends AbstractProxium {
     @Nullable private ProxiumNode proxy;
 
     @Nullable private Connection connection;
-    private volatile byte[] disconnectFrame;
 
     protected ProxiumServer(BridgeOptions options, ProxiumConfig settings) {
         super(options);
@@ -114,7 +112,6 @@ public abstract class ProxiumServer extends AbstractProxium {
         this.connection = connection;
         InetSocketAddress remoteAddr = connection.getRemoteAddress();
         this.proxy = new ProxiumNode("Proxy", remoteAddr.getHostString(), remoteAddr.getPort());
-        this.disconnectFrame = options.encode(BridgeChannel.INTERNAL, new Disconnect());
         send(BridgeChannel.INTERNAL);
     }
 
@@ -122,8 +119,6 @@ public abstract class ProxiumServer extends AbstractProxium {
     public void close() {
         Connection conn = connection;
         if (conn != null && conn.isOpen()) {
-            byte[] frame = disconnectFrame;
-            if (frame != null) conn.send(frame);
             conn.disconnect();
         }
         channelHandlers.clear();

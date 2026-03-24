@@ -1,4 +1,6 @@
-package kr.rtustudio.bridge.proxium.api.exception;
+package kr.rtustudio.bridge.exception;
+
+import kr.rtustudio.bridge.context.ResponseStatus;
 
 /**
  * Exception thrown during RPC request processing. The failure cause can be diagnosed via {@link

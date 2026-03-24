@@ -1,4 +1,4 @@
-package kr.rtustudio.bridge.proxium.api.handler;
+package kr.rtustudio.bridge.handler;
 
 /**
  * Handler interface for 1:1 request-response processing.

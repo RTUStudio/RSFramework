@@ -67,7 +67,6 @@ public class VelocityProxium extends ProxiumProxy {
                 BridgeChannel.class,
                 ProxiumNode.class,
                 PlayerList.class,
-                Disconnect.class,
                 TeleportRequest.class,
                 PlayerEvent.class,
                 MutableProxyPlayer.class,

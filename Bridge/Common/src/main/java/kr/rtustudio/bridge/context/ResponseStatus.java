@@ -1,4 +1,4 @@
-package kr.rtustudio.bridge.proxium.api.exception;
+package kr.rtustudio.bridge.context;
 
 /**
  * Status codes for RPC response outcomes.

@@ -2,14 +2,14 @@ package kr.rtustudio.bridge.proxium.core;
 
 import kr.rtustudio.bridge.BridgeChannel;
 import kr.rtustudio.bridge.BridgeOptions;
-import kr.rtustudio.bridge.proxium.api.ProxiumNode;
+import kr.rtustudio.bridge.Node;
+import kr.rtustudio.bridge.context.RequestContext;
+import kr.rtustudio.bridge.context.ResponseContext;
+import kr.rtustudio.bridge.context.ResponseStatus;
+import kr.rtustudio.bridge.exception.RequestException;
+import kr.rtustudio.bridge.handler.ResponseHandler;
 import kr.rtustudio.bridge.proxium.api.ProxiumPipeline;
 import kr.rtustudio.bridge.proxium.api.configuration.ProxiumConfig;
-import kr.rtustudio.bridge.proxium.api.context.RequestContext;
-import kr.rtustudio.bridge.proxium.api.context.ResponseContext;
-import kr.rtustudio.bridge.proxium.api.exception.RequestException;
-import kr.rtustudio.bridge.proxium.api.exception.ResponseStatus;
-import kr.rtustudio.bridge.proxium.api.handler.ResponseHandler;
 import kr.rtustudio.bridge.proxium.api.protocol.Protocol;
 import kr.rtustudio.bridge.proxium.api.protocol.internal.RequestPacket;
 import kr.rtustudio.bridge.proxium.api.protocol.internal.ResponsePacket;
@@ -289,7 +289,7 @@ public abstract class AbstractProxium implements ProxiumPipeline {
 
     @Override
     public <T> RequestContext request(
-            ProxiumNode target, BridgeChannel channel, T request, Duration timeout) {
+            Node target, BridgeChannel channel, T request, Duration timeout) {
         register(channel, request.getClass());
         UUID requestId = UUID.randomUUID();
         CompletableFuture<Object[]> future = new CompletableFuture<>();
