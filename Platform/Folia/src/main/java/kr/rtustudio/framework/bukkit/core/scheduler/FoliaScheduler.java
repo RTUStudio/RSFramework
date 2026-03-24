@@ -9,6 +9,8 @@ import kr.rtustudio.framework.bukkit.api.core.scheduler.ScheduledUnit;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
+import java.util.concurrent.Callable;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
@@ -43,6 +45,58 @@ public class FoliaScheduler implements BukkitScheduler {
             if (entity instanceof Projectile projectile) return !projectile.isDead();
         }
         return false;
+    }
+
+    @Override
+    public <T> CompletableFuture<T> callSync(Plugin plugin, Callable<T> task) {
+        CompletableFuture<T> future = new CompletableFuture<>();
+        this.global.run(
+                plugin,
+                scheduledTask -> {
+                    try {
+                        future.complete(task.call());
+                    } catch (Throwable e) {
+                        future.completeExceptionally(e);
+                    }
+                });
+        return future;
+    }
+
+    @Override
+    public <T> CompletableFuture<T> callSync(Plugin plugin, Location location, Callable<T> task) {
+        if (!isValid(location))
+            return CompletableFuture.failedFuture(new IllegalArgumentException("Invalid location"));
+        CompletableFuture<T> future = new CompletableFuture<>();
+        this.region.run(
+                plugin,
+                location,
+                scheduledTask -> {
+                    try {
+                        future.complete(task.call());
+                    } catch (Throwable e) {
+                        future.completeExceptionally(e);
+                    }
+                });
+        return future;
+    }
+
+    @Override
+    public <T> CompletableFuture<T> callSync(Plugin plugin, Entity entity, Callable<T> task) {
+        if (!isValid(entity))
+            return CompletableFuture.failedFuture(new IllegalArgumentException("Invalid entity"));
+        CompletableFuture<T> future = new CompletableFuture<>();
+        entity.getScheduler()
+                .run(
+                        plugin,
+                        scheduledTask -> {
+                            try {
+                                future.complete(task.call());
+                            } catch (Throwable e) {
+                                future.completeExceptionally(e);
+                            }
+                        },
+                        null);
+        return future;
     }
 
     @Override

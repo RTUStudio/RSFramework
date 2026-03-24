@@ -6,6 +6,8 @@ import kr.rtustudio.framework.bukkit.api.core.scheduler.ScheduledUnit;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
+import java.util.concurrent.Callable;
+import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
 
 import org.bukkit.Bukkit;
@@ -38,6 +40,36 @@ public class SpigotScheduler implements BukkitScheduler {
             if (entity instanceof Projectile projectile) return !projectile.isDead();
         }
         return false;
+    }
+
+    @Override
+    public <T> CompletableFuture<T> callSync(Plugin plugin, Callable<T> task) {
+        CompletableFuture<T> future = new CompletableFuture<>();
+        scheduler.callSyncMethod(
+                plugin,
+                () -> {
+                    try {
+                        future.complete(task.call());
+                    } catch (Throwable e) {
+                        future.completeExceptionally(e);
+                    }
+                    return null;
+                });
+        return future;
+    }
+
+    @Override
+    public <T> CompletableFuture<T> callSync(Plugin plugin, Location location, Callable<T> task) {
+        if (!isValid(location))
+            return CompletableFuture.failedFuture(new IllegalArgumentException("Invalid location"));
+        return callSync(plugin, task);
+    }
+
+    @Override
+    public <T> CompletableFuture<T> callSync(Plugin plugin, Entity entity, Callable<T> task) {
+        if (!isValid(entity))
+            return CompletableFuture.failedFuture(new IllegalArgumentException("Invalid entity"));
+        return callSync(plugin, task);
     }
 
     @Override

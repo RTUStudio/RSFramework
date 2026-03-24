@@ -1,9 +1,13 @@
 package kr.rtustudio.framework.bukkit.core.scheduler;
 
 import kr.rtustudio.framework.bukkit.api.RSPlugin;
+import kr.rtustudio.framework.bukkit.api.core.scheduler.BukkitScheduler;
 import kr.rtustudio.framework.bukkit.api.core.scheduler.ScheduledUnit;
+import kr.rtustudio.framework.bukkit.api.platform.MinecraftVersion;
 import lombok.RequiredArgsConstructor;
 
+import java.util.concurrent.Callable;
+import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
 
 import org.bukkit.Location;
@@ -12,6 +16,27 @@ import org.bukkit.entity.Entity;
 @RequiredArgsConstructor
 public final class Scheduler implements kr.rtustudio.framework.bukkit.api.core.scheduler.Scheduler {
     private final RSPlugin plugin;
+
+    private BukkitScheduler getBukkitScheduler() {
+        if (MinecraftVersion.isFolia()) return new FoliaScheduler();
+        else if (MinecraftVersion.isPaper()) return new SpigotScheduler();
+        else return new SpigotScheduler();
+    }
+
+    @Override
+    public <T> CompletableFuture<T> callSync(Callable<T> task) {
+        return getBukkitScheduler().callSync(this.plugin, task);
+    }
+
+    @Override
+    public <T> CompletableFuture<T> callSync(Location location, Callable<T> task) {
+        return getBukkitScheduler().callSync(this.plugin, location, task);
+    }
+
+    @Override
+    public <T> CompletableFuture<T> callSync(Entity entity, Callable<T> task) {
+        return getBukkitScheduler().callSync(this.plugin, entity, task);
+    }
 
     @Override
     public kr.rtustudio.framework.bukkit.api.core.scheduler.ScheduledTask plugin(RSPlugin plugin) {

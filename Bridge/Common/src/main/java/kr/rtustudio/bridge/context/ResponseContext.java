@@ -31,10 +31,10 @@ public class ResponseContext {
     }
 
     /**
-     * Registers a response handler for a specific request type. The request type is automatically
-     * registered on the channel.
+     * Registers a response handler for a specific request type. The request type must be registered
+     * on the channel beforehand.
      *
-     * <p>특정 요청 타입에 대한 응답 핸들러를 등록한다. 요청 타입은 자동으로 채널에 등록된다.
+     * <p>특정 요청 타입에 대한 응답 핸들러를 등록한다. 요청 타입은 사전에 채널에 등록되어 있어야 한다.
      *
      * @param type request type class to receive
      * @param handler callback handler for processing requests

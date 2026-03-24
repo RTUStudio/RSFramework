@@ -157,7 +157,6 @@ public abstract class AbstractProxium implements ProxiumPipeline {
     public ResponseContext respond(BridgeChannel channel) {
         return new ResponseContext(
                 (type, handler) -> {
-                    register(channel, type);
                     responseHandlers
                             .computeIfAbsent(channel, k -> new ConcurrentHashMap<>())
                             .put(type, handler);
@@ -311,13 +310,12 @@ public abstract class AbstractProxium implements ProxiumPipeline {
         }
         future.whenComplete((res, err) -> pendingRequests.remove(requestId));
 
-        return new RequestContext(future, type -> register(channel, type));
+        return new RequestContext(future);
     }
 
     /**
-     * 응답 핸들러를 실행하기 위한 CompletableFuture를 생성한다.
-     * 기본 구현은 ForkJoinPool.commonPool에서 실행한다.
-     * 서브클래스에서 오버라이드하여 특정 스레드(메인 스레드 등)에서 실행할 수 있다.
+     * 응답 핸들러를 실행하기 위한 CompletableFuture를 생성한다. 기본 구현은 ForkJoinPool.commonPool에서 실행한다. 서브클래스에서
+     * 오버라이드하여 특정 스레드(메인 스레드 등)에서 실행할 수 있다.
      */
     protected <T> CompletableFuture<T> executeResponseHandler(Supplier<T> task) {
         return CompletableFuture.supplyAsync(task);

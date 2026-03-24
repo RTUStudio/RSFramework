@@ -9,6 +9,8 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.util.concurrent.Callable;
+import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
 
 import org.bukkit.Location;
@@ -30,6 +32,18 @@ public abstract class CraftScheduler {
     static Framework framework() {
         if (framework == null) framework = LightDI.getBean(Framework.class);
         return framework;
+    }
+
+    public static <T> CompletableFuture<T> callSync(Callable<T> task) {
+        return framework().getScheduler().callSync(task);
+    }
+
+    public static <T> CompletableFuture<T> callSync(Location location, Callable<T> task) {
+        return framework().getScheduler().callSync(location, task);
+    }
+
+    public static <T> CompletableFuture<T> callSync(Entity entity, Callable<T> task) {
+        return framework().getScheduler().callSync(entity, task);
     }
 
     public static ScheduledTask sync(RSPlugin plugin, Consumer<ScheduledUnit> consumer) {

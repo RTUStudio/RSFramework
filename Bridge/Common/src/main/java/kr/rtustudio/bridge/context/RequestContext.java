@@ -22,21 +22,19 @@ import java.util.function.Consumer;
 public class RequestContext {
 
     private final CompletableFuture<Object[]> future;
-    private final Consumer<Class<?>> typeCallback;
 
     /**
      * @param future future completing with [0]=sender(String), [1]=payload(Object)
-     * @param typeCallback function to register response types on the channel
      */
-    public RequestContext(CompletableFuture<Object[]> future, Consumer<Class<?>> typeCallback) {
+    public RequestContext(CompletableFuture<Object[]> future) {
         this.future = future;
-        this.typeCallback = typeCallback;
     }
 
     /**
-     * Registers a handler for a specific response type. The type is automatically registered.
+     * Registers a handler for a specific response type. The type must be registered on the channel
+     * beforehand.
      *
-     * <p>특정 응답 타입에 대한 핸들러를 등록한다. 응답 타입은 자동으로 채널에 등록된다.
+     * <p>특정 응답 타입에 대한 핸들러를 등록한다. 응답 타입은 사전에 채널에 등록되어 있어야 한다.
      *
      * @param type expected response type class
      * @param handler callback for (sender, response)
@@ -44,7 +42,6 @@ public class RequestContext {
      * @return this context for chaining
      */
     public <R> RequestContext on(Class<R> type, BiConsumer<String, R> handler) {
-        typeCallback.accept(type);
         future.thenAccept(
                 result -> {
                     Object payload = result[1];
@@ -84,17 +81,16 @@ public class RequestContext {
     }
 
     /**
-     * Returns the internal CompletableFuture with type filtering applied. The response type is
-     * automatically registered.
+     * Returns the internal CompletableFuture with type filtering applied. The response type must be
+     * registered beforehand.
      *
-     * <p>내부 CompletableFuture를 타입 캐스팅하여 반환한다. 응답 타입은 자동으로 채널에 등록된다.
+     * <p>내부 CompletableFuture를 타입 캐스팅하여 반환한다. 응답 타입은 사전에 채널에 등록되어 있어야 한다.
      *
      * @param type response type class
      * @param <R> response type
      * @return type-filtered CompletableFuture
      */
     public <R> CompletableFuture<R> asFuture(Class<R> type) {
-        typeCallback.accept(type);
         return future.thenApply(result -> type.cast(result[1]));
     }
 }

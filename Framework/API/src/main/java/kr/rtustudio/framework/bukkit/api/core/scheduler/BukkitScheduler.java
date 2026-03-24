@@ -1,5 +1,7 @@
 package kr.rtustudio.framework.bukkit.api.core.scheduler;
 
+import java.util.concurrent.Callable;
+import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
 
 import org.bukkit.Location;
@@ -9,6 +11,8 @@ import org.bukkit.plugin.Plugin;
 public interface BukkitScheduler {
 
     // Global context
+    <T> CompletableFuture<T> callSync(Plugin plugin, Callable<T> task);
+
     ScheduledTask sync(Plugin plugin, Consumer<ScheduledUnit> consumer);
 
     default ScheduledTask sync(Plugin plugin, Runnable runnable) {
@@ -65,6 +69,8 @@ public interface BukkitScheduler {
     }
 
     // Location context
+    <T> CompletableFuture<T> callSync(Plugin plugin, Location location, Callable<T> task);
+
     ScheduledTask sync(Plugin plugin, Location location, Consumer<ScheduledUnit> consumer);
 
     default ScheduledTask sync(Plugin plugin, Location location, Runnable runnable) {
@@ -100,6 +106,8 @@ public interface BukkitScheduler {
     }
 
     // Entity context
+    <T> CompletableFuture<T> callSync(Plugin plugin, Entity entity, Callable<T> task);
+
     ScheduledTask sync(Plugin plugin, Entity entity, Consumer<ScheduledUnit> consumer);
 
     default ScheduledTask sync(Plugin plugin, Entity entity, Runnable runnable) {
