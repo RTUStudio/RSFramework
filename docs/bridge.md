@@ -122,7 +122,7 @@ public record Announcement(String sender, String message, long timestamp) {}
 BridgeChannel channel = BridgeChannel.of("myplugin", "announce");
 
 proxium.subscribe(channel, Announcement.class, announce -> {
-    Bukkit.getScheduler().runTask(plugin, () -> {
+    CraftScheduler.sync(plugin, task -> {
         Bukkit.broadcast(Component.text("[" + announce.sender() + "] " + announce.message()));
     });
 });
@@ -359,7 +359,7 @@ public class LobbyCommands {
     public void onBalanceCommand(Player player) {
         proxium.request("Survival-1", channel, new BalanceRequest(player.getUniqueId()))
             .on(BalanceResponse.class, (sender, res) -> {
-                Bukkit.getScheduler().runTask(plugin, () ->
+                CraftScheduler.sync(plugin, task ->
                     player.sendMessage("잔고: " + res.balance() + "원")
                 );
             })
@@ -371,7 +371,7 @@ public class LobbyCommands {
                 new TransferRequest(player.getUniqueId(), target, amount),
                 Duration.ofSeconds(10))
             .on(TransferResponse.class, (sender, res) -> {
-                Bukkit.getScheduler().runTask(plugin, () ->
+                CraftScheduler.sync(plugin, task ->
                     player.sendMessage(res.success() ? "송금 완료!" : "실패: " + res.message())
                 );
             })
@@ -398,7 +398,7 @@ public class PartyBridge {
         proxium.subscribe(channel, PartyInvite.class, invite -> {
             Player target = Bukkit.getPlayer(invite.target());
             if (target != null) {
-                Bukkit.getScheduler().runTask(plugin, () ->
+                CraftScheduler.sync(plugin, task ->
                     target.sendMessage("파티 초대: " + invite.partyName())
                 );
             }
@@ -422,7 +422,7 @@ public class PartyBridge {
     public void accept(Player player, String partyName) {
         proxium.request("Party-Server", channel, new PartyAccept(player.getUniqueId(), partyName))
             .on(PartyResult.class, (sender, result) -> {
-                Bukkit.getScheduler().runTask(plugin, () ->
+                CraftScheduler.sync(plugin, task ->
                     player.sendMessage(result.message())
                 );
             })
@@ -439,7 +439,7 @@ public record ServerStatus(String serverName, int playerCount, double tps, long 
 // ─── 모든 백엔드 서버: 1분마다 상태 브로드캐스트 ───
 BridgeChannel statusChannel = BridgeChannel.of("myplugin", "status");
 
-Bukkit.getScheduler().runTaskTimerAsync(plugin, () -> {
+CraftScheduler.async(plugin, task -> {
     proxium.publish(statusChannel, new ServerStatus(
         proxium.getName(),
         Bukkit.getOnlinePlayers().size(),

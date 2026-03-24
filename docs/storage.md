@@ -146,7 +146,7 @@ public class PlayerStorage {
 public void showBalance(Player player) {
     storage.get(JSON.of("uuid", player.getUniqueId().toString())).thenAccept(results -> {
         // ⚠️ 비동기 스레드에서 실행됨 — Bukkit API 호출 시 전환 필요
-        Bukkit.getScheduler().runTask(plugin, () -> {
+        CraftScheduler.sync(plugin, task -> {
             if (results.isEmpty()) {
                 player.sendMessage("데이터가 없습니다.");
                 return;
@@ -164,7 +164,7 @@ public void showBalance(Player player) {
 
 > [!IMPORTANT]
 > - **비동기 반환** — `add()`, `set()`, `get()` 모두 `CompletableFuture`를 반환합니다.
->   Bukkit API 호출 시 `Bukkit.getScheduler().runTask()`로 전환하세요.
+>   Bukkit API 호출 시 `CraftScheduler.sync()`로 전환하세요.
 > - **메인 스레드 블로킹 금지** — `.join()` 또는 `.get()`을 메인 스레드에서 호출하면 서버가 멈출 수 있습니다.
 > - **DB 독립적** — 동일한 코드로 JSON, SQLite, MySQL, MongoDB 등 어떤 백엔드든 사용 가능합니다.
 > - **HikariCP 내장** — 관계형 DB 등록 시 커넥션 풀이 자동 생성됩니다.
