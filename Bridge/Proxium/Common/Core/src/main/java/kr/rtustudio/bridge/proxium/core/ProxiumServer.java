@@ -5,6 +5,7 @@ import kr.rtustudio.bridge.BridgeOptions;
 import kr.rtustudio.bridge.proxium.api.ProxiumNode;
 import kr.rtustudio.bridge.proxium.api.configuration.ProxiumConfig;
 import kr.rtustudio.bridge.proxium.api.netty.Connection;
+import kr.rtustudio.bridge.proxium.api.protocol.internal.ServerList;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -65,6 +66,12 @@ public abstract class ProxiumServer extends AbstractProxium {
         if (n != null) return n;
         if (node != null && name.equals(node.name())) return node;
         return null;
+    }
+
+    /** 프록시로부터 전달받은 서버 목록으로 knownServers를 갱신한다. */
+    public void handleServerList(ServerList serverList) {
+        knownServers.clear();
+        knownServers.putAll(serverList.servers());
     }
 
     @Override

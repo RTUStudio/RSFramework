@@ -8,6 +8,7 @@ import kr.rtustudio.bridge.proxium.api.configuration.ProxiumConfig;
 import kr.rtustudio.bridge.proxium.api.netty.Connection;
 import kr.rtustudio.bridge.proxium.api.protocol.Protocol;
 import kr.rtustudio.bridge.proxium.api.protocol.internal.PlayerList;
+import kr.rtustudio.bridge.proxium.api.protocol.internal.ServerList;
 import kr.rtustudio.bridge.proxium.api.protocol.internal.TransactionPacket;
 import kr.rtustudio.bridge.proxium.api.proxy.ProxyConnector;
 import lombok.Getter;
@@ -240,6 +241,8 @@ public abstract class ProxiumProxy extends AbstractProxium {
         if (node == null) return;
 
         connection.send(options.encode(BridgeChannel.INTERNAL, node));
+        connection.send(
+                options.encode(BridgeChannel.INTERNAL, new ServerList(Map.copyOf(serversByName))));
         if (!players.isEmpty()) {
             connection.send(options.encode(BridgeChannel.INTERNAL, new PlayerList(players)));
         }
@@ -339,6 +342,7 @@ public abstract class ProxiumProxy extends AbstractProxium {
     @ApiStatus.Internal
     public void registerServer(ProxiumNode server) {
         if (serversByName.putIfAbsent(server.name(), server) == null) {
+            broadcastServerList();
             for (Protocol protocol : ProxiumAPI.getLoadedProtocols()) {
                 if (protocol.getChannel().equals(BridgeChannel.PROXIUM)) continue;
                 connectToServer(protocol, server);
@@ -350,10 +354,17 @@ public abstract class ProxiumProxy extends AbstractProxium {
     public void unregisterServer(ProxiumNode server) {
         ProxiumNode removed = serversByName.remove(server.name());
         if (removed != null) {
+            broadcastServerList();
             String removedKey = addressKey(removed.getSocketAddress());
             serverSubscriptions.keySet().stream()
                     .filter(c -> addressKey(c.getRemoteAddress()).equals(removedKey) && c.isOpen())
                     .forEach(Connection::disconnect);
         }
+    }
+
+    private void broadcastServerList() {
+        byte[] frame =
+                options.encode(BridgeChannel.INTERNAL, new ServerList(Map.copyOf(serversByName)));
+        getConnectedServers().forEach(conn -> conn.send(frame));
     }
 }

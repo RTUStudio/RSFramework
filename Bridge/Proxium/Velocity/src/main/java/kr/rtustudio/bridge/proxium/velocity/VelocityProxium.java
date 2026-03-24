@@ -67,6 +67,7 @@ public class VelocityProxium extends ProxiumProxy {
                 BridgeChannel.class,
                 ProxiumNode.class,
                 PlayerList.class,
+                ServerList.class,
                 TeleportRequest.class,
                 PlayerEvent.class,
                 MutableProxyPlayer.class,
@@ -161,7 +162,8 @@ public class VelocityProxium extends ProxiumProxy {
 
         if (proxyPlayer == null) {
             proxyPlayer =
-                    new MutableProxyPlayer(this, player.getUniqueId(), player.getUsername(), serverNode);
+                    new MutableProxyPlayer(
+                            this, player.getUniqueId(), player.getUsername(), serverNode);
             players.put(player.getUniqueId(), proxyPlayer);
             action = PlayerEvent.Action.JOIN;
         } else {

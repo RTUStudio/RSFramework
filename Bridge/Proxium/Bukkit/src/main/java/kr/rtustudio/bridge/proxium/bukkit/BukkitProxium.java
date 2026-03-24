@@ -41,6 +41,7 @@ public class BukkitProxium extends ProxiumServer {
                     BridgeChannel.class,
                     ProxiumNode.class,
                     PlayerList.class,
+                    ServerList.class,
                     TeleportRequest.class,
                     PlayerEvent.class,
                     MutableProxyPlayer.class,
@@ -85,6 +86,7 @@ public class BukkitProxium extends ProxiumServer {
 
     private void registerInternalSubscription() {
         subscribe(BridgeChannel.INTERNAL, PlayerList.class, this::handlePlayerList);
+        subscribe(BridgeChannel.INTERNAL, ServerList.class, this::handleServerList);
         subscribe(BridgeChannel.INTERNAL, PlayerEvent.class, this::handlePlayerEvent);
         subscribe(BridgeChannel.INTERNAL, TeleportRequest.class, this::handleTeleport);
         subscribe(BridgeChannel.INTERNAL, ProxiumNode.class, this::setNode);
@@ -122,7 +124,9 @@ public class BukkitProxium extends ProxiumServer {
         switch (event.action()) {
             case JOIN -> {
                 if (local == null) {
-                    local = new MutableProxyPlayer(this, pp.getUniqueId(), pp.getName(), pp.getNode());
+                    local =
+                            new MutableProxyPlayer(
+                                    this, pp.getUniqueId(), pp.getName(), pp.getNode());
                     players.put(local.getUniqueId(), local);
                 }
             }
@@ -130,7 +134,9 @@ public class BukkitProxium extends ProxiumServer {
                 if (local != null) {
                     ((MutableProxyPlayer) local).setNode(pp.getNode());
                 } else {
-                    local = new MutableProxyPlayer(this, pp.getUniqueId(), pp.getName(), pp.getNode());
+                    local =
+                            new MutableProxyPlayer(
+                                    this, pp.getUniqueId(), pp.getName(), pp.getNode());
                     players.put(local.getUniqueId(), local);
                 }
             }
