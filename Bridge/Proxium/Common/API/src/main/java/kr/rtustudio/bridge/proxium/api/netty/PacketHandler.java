@@ -1,7 +1,6 @@
 package kr.rtustudio.bridge.proxium.api.netty;
 
 import io.netty.buffer.ByteBuf;
-import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.ByteToMessageDecoder;
 import kr.rtustudio.bridge.BridgeOptions;
@@ -14,6 +13,7 @@ import lombok.extern.slf4j.Slf4j;
 import java.net.SocketException;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 @Slf4j(topic = "Proxium")
 public class PacketHandler extends ByteToMessageDecoder {
@@ -23,16 +23,13 @@ public class PacketHandler extends ByteToMessageDecoder {
     private final Connection connection;
     @Setter private ConnectionHandler handler;
     private ChannelHandlerContext ctx;
-    private ByteBuf buf = Unpooled.buffer();
+    private final AtomicBoolean initialBytesPending;
 
     public PacketHandler(
             Connection connection, ConcurrentHashMap<String, Integer> connectionCount) {
         this.connection = connection;
         PacketHandler.connectionCount = connectionCount;
-        if (connection.getSide().isProxy()) {
-            buf.writeByte(0); // Fake out minecraft packet len
-            buf.writeByte(ProxiumConstants.PROXIUM_MAGIC_BYTE);
-        }
+        this.initialBytesPending = new AtomicBoolean(connection.getSide().isProxy());
     }
 
     @Override
@@ -92,11 +89,16 @@ public class PacketHandler extends ByteToMessageDecoder {
             if (packetBuf.length == 0)
                 return new Sender(connection, ctx.newSucceededFuture(), false);
 
+            ByteBuf buf = ctx.alloc().buffer();
+            if (initialBytesPending.compareAndSet(true, false)) {
+                buf.writeByte(0); // Fake out minecraft packet len
+                buf.writeByte(ProxiumConstants.PROXIUM_MAGIC_BYTE);
+            }
+
             buf.writeInt(packetBuf.length); // Packet Len
             buf.writeBytes(packetBuf);
 
             Sender sender = new Sender(connection, ctx.writeAndFlush(buf), true);
-            buf = Unpooled.buffer();
             return sender;
 
         } catch (IllegalArgumentException e) {
