@@ -2,7 +2,7 @@
 
 Modular Bukkit/Paper plugin development framework.
 
-> **Version**: 4.7.1 · **Java**: 21 · **Supported Servers**: 1.20.1+ (Spigot/Paper/Folia) · **Proxy**: Velocity · **License**: GPL-3.0
+> **Version**: 4.7.2 · **Java**: 21 · **Supported Servers**: 1.20.1+ (Spigot/Paper/Folia) · **Proxy**: Velocity · **License**: GPL-3.0
 
 ---
 
@@ -69,7 +69,7 @@ repositories {
 }
 
 dependencies {
-    compileOnly("kr.rtustudio:framework-api:4.7.1")
+    compileOnly("kr.rtustudio:framework-api:4.7.2")
 }
 ```
 
