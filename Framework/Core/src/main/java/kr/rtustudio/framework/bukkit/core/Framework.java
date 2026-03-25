@@ -190,7 +190,6 @@ public class Framework implements kr.rtustudio.framework.bukkit.api.core.Framewo
                     TeleportRequest.class,
                     this::handleTeleport);
 
-            registerTeleportListeners(plugin);
 
             bridgeRegistry.register(Proxium.class, proxium);
         }
@@ -204,6 +203,7 @@ public class Framework implements kr.rtustudio.framework.bukkit.api.core.Framewo
     public void enable(RSPlugin plugin) {
         printStartUp(plugin);
         commonTranslation = new CommonTranslation(plugin);
+        registerTeleportListeners(plugin);
         registerInternal(plugin);
     }
 
