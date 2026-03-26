@@ -194,7 +194,11 @@ public abstract class AbstractProxium implements ProxiumPipeline {
                         response.payload() == null
                                 ? null
                                 : options.deserializeRaw(response.payload());
-                future.complete(new Object[] {response.sender() == null ? null : response.sender().name(), decodedPayload});
+                future.complete(
+                        new Object[] {
+                            response.sender() == null ? null : response.sender().name(),
+                            decodedPayload
+                        });
             }
             case NO_HANDLER ->
                     future.completeExceptionally(

@@ -140,4 +140,3 @@ public class BukkitProxium extends ProxiumServer {
         }
     }
 }
-

@@ -45,7 +45,6 @@ public class VelocityProxium extends ProxiumProxy {
     private final Path dir;
     private final Toml config;
 
-
     public VelocityProxium(ProxyServer server, Path dir) {
         this(server, dir, ProxiumConfig.load(dir.resolve("plugins/RSFramework")));
     }
@@ -71,7 +70,6 @@ public class VelocityProxium extends ProxiumProxy {
                 RequestPacket.class,
                 ResponsePacket.class,
                 BroadcastMessage.class);
-
 
         if (isModernProxy()) {
             log.info("Detected modern proxy");
@@ -112,7 +110,6 @@ public class VelocityProxium extends ProxiumProxy {
     public String getName() {
         return "velocity";
     }
-
 
     // ── 이벤트 핸들러 ──
 
@@ -174,7 +171,6 @@ public class VelocityProxium extends ProxiumProxy {
     private void onQuit(DisconnectEvent e) {
         handlePlayerLeave(e.getPlayer().getUniqueId());
     }
-
 
     /**
      * 지정된 서버로 내부 채널 패킷을 전송한다.

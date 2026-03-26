@@ -73,7 +73,9 @@ public class RequestContext {
                         } else if (cause instanceof TimeoutException te) {
                             handler.accept(
                                     new RequestException(
-                                            ResponseStatus.TIMEOUT, "Transaction request timed out", te));
+                                            ResponseStatus.TIMEOUT,
+                                            "Transaction request timed out",
+                                            te));
                         }
                     }
                 });

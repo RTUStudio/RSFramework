@@ -80,10 +80,7 @@ public class RSFramework {
     // ── 크로스 서버 텔레포트 라우팅 ──
 
     private void registerTeleportRouting() {
-        proxium.subscribe(
-                BridgeChannel.INTERNAL,
-                TeleportRequest.class,
-                this::handleTeleport);
+        proxium.subscribe(BridgeChannel.INTERNAL, TeleportRequest.class, this::handleTeleport);
     }
 
     private void handleTeleport(TeleportRequest request) {
@@ -135,4 +132,3 @@ public class RSFramework {
         teleportRequests.remove(e.getPlayer().getUniqueId());
     }
 }
-

@@ -85,8 +85,7 @@ public class TeleportLocationCommand extends RSCommand<RSFramework> {
                         .distinct()
                         .collect(Collectors.toList());
             }
-            case 5 ->
-                    Bukkit.getWorlds().stream().map(World::getName).collect(Collectors.toList());
+            case 5 -> Bukkit.getWorlds().stream().map(World::getName).collect(Collectors.toList());
             case 6 -> List.of("~");
             case 7 -> List.of("~");
             case 8 -> List.of("~");
