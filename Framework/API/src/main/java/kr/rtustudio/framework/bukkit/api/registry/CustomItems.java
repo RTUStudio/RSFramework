@@ -156,6 +156,7 @@ public class CustomItems {
         if (itemMeta.hasCustomModelData()) {
             return "custom:"
                     + itemStack.getType().toString().toLowerCase()
+                    + ":"
                     + itemMeta.getCustomModelData();
         } else return result;
     }
@@ -365,6 +366,10 @@ public class CustomItems {
         String id = CustomItems.to(target);
         ItemStack original = CustomItems.from(id);
 
+        if (original == null) {
+            return NBT.itemStackToNBT(target);
+        }
+
         ReadWriteNBT originNBT = NBT.itemStackToNBT(original);
         ReadWriteNBT targetNBT = NBT.itemStackToNBT(target);
 
@@ -403,9 +408,11 @@ public class CustomItems {
         for (int i = 0; i < items.length; i++) {
             ItemStack item = items[i];
             if (item == null || item.getType().isAir()) continue;
+            ReadWriteNBT nbt = toNBT(item);
+            if (nbt == null) continue;
             NBTListCompound entry = list.addCompound();
             entry.setInteger("Slot", i);
-            entry.mergeCompound(toNBT(item));
+            entry.mergeCompound(nbt);
         }
         return container;
     }
@@ -420,7 +427,8 @@ public class CustomItems {
         for (ReadWriteNBT lcomp : list) {
             if (lcomp instanceof NBTCompound) {
                 int slot = lcomp.getInteger("Slot");
-                rebuild[slot] = fromNBT(lcomp);
+                ItemStack item = fromNBT(lcomp);
+                if (item != null) rebuild[slot] = item;
             }
         }
         return rebuild;

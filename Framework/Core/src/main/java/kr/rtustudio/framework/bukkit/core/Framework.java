@@ -1,8 +1,6 @@
 package kr.rtustudio.framework.bukkit.core;
 
 import de.tr7zw.changeme.nbtapi.NBT;
-import it.unimi.dsi.fastutil.objects.Object2BooleanMap;
-import it.unimi.dsi.fastutil.objects.Object2BooleanOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import kr.rtustudio.bridge.BridgeChannel;
 import kr.rtustudio.bridge.BridgeRegistry;
@@ -58,6 +56,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.event.server.ServerLoadEvent;
 import org.bukkit.permissions.Permission;
 import org.bukkit.permissions.PermissionDefault;
 import org.jetbrains.annotations.NotNull;
@@ -72,7 +71,7 @@ public class Framework implements kr.rtustudio.framework.bukkit.api.core.Framewo
             ComponentFormatter.mini("<gradient:#2979FF:#7C4DFF>RSFramework » </gradient>");
 
     @Getter private final Map<String, RSPlugin> plugins = new Object2ObjectOpenHashMap<>();
-    @Getter private final Object2BooleanMap<String> hooks = new Object2BooleanOpenHashMap<>();
+    @Getter private final Map<String, Boolean> hooks = new Object2ObjectOpenHashMap<>();
     @Getter private final ProviderRegistry providerRegistry = new ProviderRegistry();
     @Getter private final BridgeRegistry bridgeRegistry = new BridgeRegistry();
     private final Map<String, StorageManager> storageConfigs = new Object2ObjectOpenHashMap<>();
@@ -85,6 +84,7 @@ public class Framework implements kr.rtustudio.framework.bukkit.api.core.Framewo
     @Getter private ModuleFactory moduleFactory;
     @Getter private kr.rtustudio.framework.bukkit.api.core.scheduler.Scheduler scheduler;
     private final Map<UUID, TeleportRequest> pendingTeleports = new ConcurrentHashMap<>();
+    private boolean serverLoaded = false;
 
     public void loadPlugin(RSPlugin plugin) {
         log.info("loading RSPlugin: {}", plugin.getName());
@@ -124,11 +124,13 @@ public class Framework implements kr.rtustudio.framework.bukkit.api.core.Framewo
     }
 
     public boolean isEnabledDependency(String dependency) {
-        return hooks.getBoolean(dependency);
+        Boolean hooked = hooks.get(dependency);
+        if (hooked != null) return hooked;
+        return Bukkit.getPluginManager().isPluginEnabled(dependency);
     }
 
     public void hookDependency(String dependency) {
-        hooks.put(dependency, Bukkit.getPluginManager().isPluginEnabled(dependency));
+        hooks.put(dependency, null);
     }
 
     public void load(RSPlugin plugin) {
@@ -208,21 +210,32 @@ public class Framework implements kr.rtustudio.framework.bukkit.api.core.Framewo
     }
 
     private void registerInternal(RSPlugin plugin) {
-        registerInternalRegistry(plugin);
+        Bukkit.getPluginManager()
+                .registerEvents(
+                        new Listener() {
+                            @EventHandler
+                            public void onLoad(ServerLoadEvent event) {
+                                onServerLoad(plugin);
+                            }
+                        },
+                        plugin);
+        registerEvent(new ServerLoaded(plugin));
         registerInternalRunnable(plugin);
         registerInternalListener(plugin);
     }
 
-    private void registerInternalRegistry(RSPlugin plugin) {
-        boolean itemsAdder = isEnabledDependency("ItemsAdder");
-        boolean mmoItems = isEnabledDependency("MMOItems");
-        boolean oraxen = isEnabledDependency("Oraxen");
-        boolean nexo = isEnabledDependency("Nexo");
-        if (itemsAdder) registerEvent(new ItemsAdderLoaded(plugin));
-        if (mmoItems) registerEvent(new MMOItemsLoaded(plugin));
-        if (oraxen) registerEvent(new OraxenLoaded(plugin));
-        if (nexo) registerEvent(new NexoLoaded(plugin));
-        if (!(itemsAdder || mmoItems || oraxen || nexo)) registerEvent(new ServerLoaded(plugin));
+    private void onServerLoad(RSPlugin plugin) {
+        serverLoaded = true;
+        hooks.replaceAll(
+                (name, value) -> {
+                    boolean enabled = Bukkit.getPluginManager().isPluginEnabled(name);
+                    if (enabled) log.info("{} is hooked!", name);
+                    return enabled;
+                });
+        if (isEnabledDependency("ItemsAdder")) registerEvent(new ItemsAdderLoaded(plugin));
+        if (isEnabledDependency("MMOItems")) registerEvent(new MMOItemsLoaded(plugin));
+        if (isEnabledDependency("Oraxen")) registerEvent(new OraxenLoaded(plugin));
+        if (isEnabledDependency("Nexo")) registerEvent(new NexoLoaded(plugin));
     }
 
     private void registerInternalRunnable(RSPlugin plugin) {
