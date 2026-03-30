@@ -145,23 +145,27 @@ public class RSConfiguration {
         Map<String, C> result = new LinkedHashMap<>();
         try {
             if (Files.notExists(configFolder)) Files.createDirectories(configFolder);
+            Set<String> fileNames = new LinkedHashSet<>();
             try (java.util.stream.Stream<Path> stream = Files.list(configFolder)) {
                 stream.filter(p -> p.toString().endsWith(".yml"))
-                        .sorted()
-                        .forEach(
-                                file -> {
-                                    String name = file.getFileName().toString();
-                                    String key = name.replace(".yml", "");
-                                    C instance =
-                                            registerImpl(
-                                                    configuration,
-                                                    folderPath,
-                                                    path.version(),
-                                                    name,
-                                                    extraSerializer);
-                                    result.put(key, instance);
-                                });
+                        .forEach(file -> fileNames.add(file.getFileName().toString()));
             }
+            fileNames.addAll(getJarResourceNames(folderPath));
+
+            fileNames.stream()
+                    .sorted()
+                    .forEach(
+                            name -> {
+                                String key = name.replace(".yml", "");
+                                C instance =
+                                        registerImpl(
+                                                configuration,
+                                                folderPath,
+                                                path.version(),
+                                                name,
+                                                extraSerializer);
+                                result.put(key, instance);
+                            });
         } catch (IOException e) {
             log.warn("Could not scan folder {}", folderPath, e);
         }
@@ -177,15 +181,7 @@ public class RSConfiguration {
             Consumer<TypeSerializerCollection.Builder> extraSerializer) {
         Path configFolder = plugin.getDataFolder().toPath().resolve(folder);
         Path configFile = configFolder.resolve(name);
-        BufferedReader defaultConfig = null;
-        try {
-            InputStream in = plugin.getResource(folder + "/" + name);
-            if (in != null) {
-                defaultConfig =
-                        new BufferedReader(new InputStreamReader(in, StandardCharsets.UTF_8));
-            }
-        } catch (Exception ignored) {
-        }
+        BufferedReader defaultConfig = configFromResource(folder, name);
         PluginConfiguration<C> pluginConfiguration;
         try {
             pluginConfiguration =
@@ -196,11 +192,66 @@ public class RSConfiguration {
                             defaultConfig,
                             version,
                             extraSerializer);
-
         } catch (ConfigurateException e) {
             throw new RuntimeException(e);
         }
         return pluginConfiguration.load();
+    }
+
+    /**
+     * JAR 내부의 리소스에서 지정 폴더 경로에 속하는 {@code .yml} 파일 이름 목록을 수집한다.
+     *
+     * @param folderPath 리소스 폴더 경로
+     * @return {@code .yml} 파일 이름 집합 (직속 파일만, 하위 폴더 제외)
+     */
+    private Set<String> getJarResourceNames(String folderPath) {
+        Set<String> names = new LinkedHashSet<>();
+        try {
+            java.net.URL url =
+                    plugin.getClass().getProtectionDomain().getCodeSource().getLocation();
+            if (url != null) {
+                java.io.File jarFile = new java.io.File(url.toURI());
+                if (jarFile.isFile() && jarFile.getName().endsWith(".jar")) {
+                    try (java.util.jar.JarFile jar = new java.util.jar.JarFile(jarFile)) {
+                        String prefix =
+                                folderPath.isEmpty()
+                                        ? ""
+                                        : folderPath + (folderPath.endsWith("/") ? "" : "/");
+                        java.util.Enumeration<java.util.jar.JarEntry> entries = jar.entries();
+                        while (entries.hasMoreElements()) {
+                            java.util.jar.JarEntry entry = entries.nextElement();
+                            String name = entry.getName();
+                            if (name.startsWith(prefix)
+                                    && name.endsWith(".yml")
+                                    && !entry.isDirectory()) {
+                                String relative = name.substring(prefix.length());
+                                if (!relative.contains("/")) names.add(relative);
+                            }
+                        }
+                    }
+                }
+            }
+        } catch (Exception ignored) {
+        }
+        return names;
+    }
+
+    /**
+     * 플러그인 JAR 내부의 리소스에서 설정 파일을 읽어온다.
+     *
+     * @param folder 리소스 폴더 경로
+     * @param name 파일 이름
+     * @return 리소스가 있으면 {@link BufferedReader}, 없으면 {@code null}
+     */
+    private BufferedReader configFromResource(String folder, String name) {
+        try {
+            InputStream in = plugin.getResource(folder + "/" + name);
+            if (in != null) {
+                return new BufferedReader(new InputStreamReader(in, StandardCharsets.UTF_8));
+            }
+        } catch (Exception ignored) {
+        }
+        return null;
     }
 
     /**
@@ -348,10 +399,10 @@ public class RSConfiguration {
             this.version = version != null ? version : 0;
             try {
                 if (Files.notExists(path)) {
+                    if (path.getParent() != null && Files.notExists(path.getParent())) {
+                        Files.createDirectories(path.getParent());
+                    }
                     if (defaultConfig == null) {
-                        if (path.getParent() != null) {
-                            Files.createDirectories(path.getParent());
-                        }
                         Files.createFile(path);
                         this.config = CommentedConfigurationNode.root(this.loader.defaultOptions());
                     } else this.config = this.loader.load();

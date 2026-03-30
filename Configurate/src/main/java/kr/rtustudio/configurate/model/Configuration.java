@@ -7,6 +7,7 @@ import kr.rtustudio.configurate.model.mapping.MergeMap;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.lang.reflect.Type;
 import java.nio.file.AccessDeniedException;
 import java.nio.file.Files;
@@ -124,6 +125,14 @@ public abstract class Configuration<T extends ConfigurationPart> {
         else loader = builder.source(() -> this.defaultConfig).build();
         final ConfigurationNode node;
         if (Files.notExists(path)) {
+            if (path.getParent() != null && Files.notExists(path.getParent())) {
+                try {
+                    Files.createDirectories(path.getParent());
+                } catch (IOException e) {
+                    throw new ConfigurateException(
+                            "Could not create parent directory: " + path.getParent(), e);
+                }
+            }
             if (this.defaultConfig == null) {
                 node = CommentedConfigurationNode.root(loader.defaultOptions());
             } else node = loader.load();
