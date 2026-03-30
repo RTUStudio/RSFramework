@@ -11,17 +11,22 @@ import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
+import java.util.Enumeration;
 import java.util.function.Consumer;
+import java.util.jar.JarEntry;
+import java.util.jar.JarFile;
 import java.util.logging.Level;
 
 import org.bukkit.Bukkit;
@@ -207,19 +212,18 @@ public class RSConfiguration {
     private Set<String> getJarResourceNames(String folderPath) {
         Set<String> names = new LinkedHashSet<>();
         try {
-            java.net.URL url =
-                    plugin.getClass().getProtectionDomain().getCodeSource().getLocation();
+            URL url = plugin.getClass().getProtectionDomain().getCodeSource().getLocation();
             if (url != null) {
-                java.io.File jarFile = new java.io.File(url.toURI());
+                File jarFile = new File(url.toURI());
                 if (jarFile.isFile() && jarFile.getName().endsWith(".jar")) {
-                    try (java.util.jar.JarFile jar = new java.util.jar.JarFile(jarFile)) {
+                    try (JarFile jar = new JarFile(jarFile)) {
                         String prefix =
                                 folderPath.isEmpty()
                                         ? ""
                                         : folderPath + (folderPath.endsWith("/") ? "" : "/");
-                        java.util.Enumeration<java.util.jar.JarEntry> entries = jar.entries();
+                        Enumeration<JarEntry> entries = jar.entries();
                         while (entries.hasMoreElements()) {
-                            java.util.jar.JarEntry entry = entries.nextElement();
+                            JarEntry entry = entries.nextElement();
                             String name = entry.getName();
                             if (name.startsWith(prefix)
                                     && name.endsWith(".yml")

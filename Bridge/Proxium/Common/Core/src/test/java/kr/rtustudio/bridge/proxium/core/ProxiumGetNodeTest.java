@@ -3,11 +3,13 @@ package kr.rtustudio.bridge.proxium.core;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.mock;
 
+import kr.rtustudio.bridge.BridgeOptions;
 import kr.rtustudio.bridge.proxium.api.ProxiumNode;
 import kr.rtustudio.bridge.proxium.api.ProxiumPipeline;
 import kr.rtustudio.bridge.proxium.api.protocol.internal.ServerList;
 
 import java.util.Map;
+import java.util.UUID;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -29,8 +31,7 @@ class ProxiumGetNodeTest {
         void getNode_returnsConstructorNode() {
             ProxiumNode node = new ProxiumNode("Lobby-1", "127.0.0.1", 25565);
             MutableProxyPlayer player =
-                    new MutableProxyPlayer(
-                            pipeline, java.util.UUID.randomUUID(), "TestPlayer", node);
+                    new MutableProxyPlayer(pipeline, UUID.randomUUID(), "TestPlayer", node);
 
             assertNotNull(player.getNode(), "getNode() should not be null after construction");
             assertEquals("Lobby-1", player.getNode().name());
@@ -41,8 +42,7 @@ class ProxiumGetNodeTest {
         @DisplayName("getNode() returns null when constructed with null node")
         void getNode_returnsNullWhenConstructedWithNull() {
             MutableProxyPlayer player =
-                    new MutableProxyPlayer(
-                            pipeline, java.util.UUID.randomUUID(), "TestPlayer", null);
+                    new MutableProxyPlayer(pipeline, UUID.randomUUID(), "TestPlayer", null);
 
             assertNull(player.getNode());
             assertNull(player.getServer());
@@ -54,8 +54,7 @@ class ProxiumGetNodeTest {
             ProxiumNode initial = new ProxiumNode("Lobby-1", "127.0.0.1", 25565);
             ProxiumNode updated = new ProxiumNode("Survival-1", "127.0.0.1", 25566);
             MutableProxyPlayer player =
-                    new MutableProxyPlayer(
-                            pipeline, java.util.UUID.randomUUID(), "TestPlayer", initial);
+                    new MutableProxyPlayer(pipeline, UUID.randomUUID(), "TestPlayer", initial);
 
             player.setNode(updated);
 
@@ -68,8 +67,7 @@ class ProxiumGetNodeTest {
         void setNode_nullClearsNode() {
             ProxiumNode initial = new ProxiumNode("Lobby-1", "127.0.0.1", 25565);
             MutableProxyPlayer player =
-                    new MutableProxyPlayer(
-                            pipeline, java.util.UUID.randomUUID(), "TestPlayer", initial);
+                    new MutableProxyPlayer(pipeline, UUID.randomUUID(), "TestPlayer", initial);
 
             player.setNode(null);
 
@@ -222,7 +220,7 @@ class ProxiumGetNodeTest {
 
         TestProxiumServer() {
             super(
-                    new kr.rtustudio.bridge.BridgeOptions(TestProxiumServer.class.getClassLoader()),
+                    new BridgeOptions(TestProxiumServer.class.getClassLoader()),
                     new StubProxiumConfig());
         }
 

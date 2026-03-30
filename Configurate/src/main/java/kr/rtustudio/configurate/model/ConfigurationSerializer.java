@@ -4,6 +4,7 @@ import kr.rtustudio.configurate.model.constraint.Constraint;
 import kr.rtustudio.configurate.model.constraint.Constraints;
 import kr.rtustudio.configurate.model.serializer.ComponentSerializer;
 import kr.rtustudio.configurate.model.serializer.EnumValueSerializer;
+import kr.rtustudio.configurate.model.serializer.KeySerializer;
 import kr.rtustudio.configurate.model.serializer.collection.map.FlattenedMapSerializer;
 import kr.rtustudio.configurate.model.serializer.collection.map.MapSerializer;
 import kr.rtustudio.configurate.model.type.BooleanOrDefault;
@@ -26,7 +27,8 @@ import org.spongepowered.configurate.util.MapFactories;
  * 유틸리티.
  *
  * <p>등록되는 직렬화기: {@link kr.rtustudio.configurate.model.serializer.ComponentSerializer
- * ComponentSerializer}, {@link kr.rtustudio.configurate.model.serializer.EnumValueSerializer
+ * ComponentSerializer}, {@link kr.rtustudio.configurate.model.serializer.KeySerializer
+ * KeySerializer}, {@link kr.rtustudio.configurate.model.serializer.EnumValueSerializer
  * EnumValueSerializer}, {@link
  * kr.rtustudio.configurate.model.serializer.collection.map.MapSerializer MapSerializer}, {@link
  * kr.rtustudio.configurate.model.serializer.collection.map.FlattenedMapSerializer
@@ -76,6 +78,7 @@ public final class ConfigurationSerializer {
                 .register(MapSerializer.TYPE, new MapSerializer(false))
                 .register(new EnumValueSerializer())
                 .register(new ComponentSerializer())
+                .register(new KeySerializer())
                 .register(IntOr.Default.SERIALIZER)
                 .register(IntOr.Disabled.SERIALIZER)
                 .register(DoubleOr.Default.SERIALIZER)

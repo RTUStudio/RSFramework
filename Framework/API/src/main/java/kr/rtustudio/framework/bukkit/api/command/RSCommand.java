@@ -37,6 +37,7 @@ public abstract class RSCommand<T extends RSPlugin> extends Command {
 
     @Getter protected final T plugin;
     @Getter protected final Framework framework;
+    private final CommandModule commandModule;
     @Getter protected final MessageTranslation message;
     @Getter protected final CommandTranslation command;
     @Getter protected final Notifier notifier;
@@ -105,6 +106,7 @@ public abstract class RSCommand<T extends RSPlugin> extends Command {
         this.plugin = plugin;
         this.permissionDefault = permission;
         this.framework = LightDI.getBean(Framework.class);
+        this.commandModule = this.framework.getModule(CommandModule.class);
         this.message = plugin.getConfiguration().getMessage();
         this.command = plugin.getConfiguration().getCommand();
         this.notifier = Notifier.of(plugin);
@@ -211,7 +213,7 @@ public abstract class RSCommand<T extends RSPlugin> extends Command {
 
     private boolean checkCooldown(Player player) {
         Map<UUID, Integer> cooldownMap = this.framework.getCommandLimit().getExecuteLimit();
-        int cooldown = this.framework.getModule(CommandModule.class).getExecuteLimit();
+        int cooldown = this.commandModule.getExecuteLimit();
         if (cooldown <= 0) return false;
         if (cooldownMap.containsKey(player.getUniqueId())) {
             announceCommon(MessageTranslation.ERROR_COOLDOWN);
@@ -232,8 +234,20 @@ public abstract class RSCommand<T extends RSPlugin> extends Command {
                     case NO_PERMISSION -> MessageTranslation.NO_PERMISSION;
                     default -> null;
                 };
-        if (result == Result.WRONG_USAGE) showUsage();
-        else if (key != null) announceCommon(key);
+        if (result == Result.SUCCESS) {
+            playSoundFeedback(this.commandModule.getSuccessSounds());
+        } else {
+            playSoundFeedback(this.commandModule.getFailureSounds());
+            if (result == Result.WRONG_USAGE) showUsage();
+            else if (key != null) announceCommon(key);
+        }
+    }
+
+    private void playSoundFeedback(List<? extends CommandModule.CommandSound> sounds) {
+        if (player() == null || sounds == null || sounds.isEmpty()) return;
+        for (CommandModule.CommandSound sound : sounds) {
+            sound.play(this.audience);
+        }
     }
 
     private void showUsage() {
@@ -352,6 +366,9 @@ public abstract class RSCommand<T extends RSPlugin> extends Command {
             if (hasPermissionNode(getPermission())) list.addAll(tabComplete(data));
         } else if (hasPermissionNode(sub.getPermission())) {
             if (data.length() > sub.index) list.addAll(sub.tabComplete(sender, alias, args));
+        }
+        if (this.parent == null) {
+            playSoundFeedback(this.commandModule.getTabCompleteSounds());
         }
         return list;
     }
