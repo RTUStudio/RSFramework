@@ -199,7 +199,7 @@ public abstract class RSCommand<T extends RSPlugin> extends Command {
                 handleResult(Result.NO_PERMISSION);
                 return true;
             }
-            if (sub.getName().equalsIgnoreCase("reload")) sub.reload(data);
+            if (sub.getName().equalsIgnoreCase("reload")) this.reload(data);
             if (!sub.execute(sender, commandLabel, args)) sub.showUsage();
         }
         return true;
