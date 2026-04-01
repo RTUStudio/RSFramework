@@ -57,10 +57,10 @@ public abstract class Configuration<T extends ConfigurationPart> {
         return node -> {
             final T instance = node.require(type);
             if (refreshNode) {
+                node.set(type, instance);
                 if (node instanceof CommentedConfigurationNode commented) {
                     commented.comment(null);
                 }
-                node.set(type, instance);
             }
             return instance;
         };

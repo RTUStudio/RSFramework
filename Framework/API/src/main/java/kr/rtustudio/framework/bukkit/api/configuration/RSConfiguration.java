@@ -324,10 +324,24 @@ public class RSConfiguration {
         if (registry == null) return false;
 
         try {
-            if (registry.isList()) {
-                registerConfigurations(configuration, registry.path(), registry.extraSerializer());
-            } else {
-                registerConfiguration(configuration, registry.path(), registry.extraSerializer());
+            String folder =
+                    registry.isList() ? registry.path().folderPath() : registry.path().folder();
+            for (Map.Entry<String, C> entry : registry.instances().entrySet()) {
+                C existingInstance = entry.getValue();
+                String name = entry.getKey() + ".yml";
+                Path configFolder = plugin.getDataFolder().toPath().resolve(folder);
+                Path configFile = configFolder.resolve(name);
+                BufferedReader defaultConfig = configFromResource(folder, name);
+
+                PluginConfiguration<C> pluginConfiguration =
+                        new PluginConfiguration<>(
+                                plugin,
+                                configuration,
+                                configFile,
+                                defaultConfig,
+                                registry.path().version(),
+                                registry.extraSerializer());
+                pluginConfiguration.reload(existingInstance);
             }
             return true;
         } catch (Exception e) {
@@ -392,11 +406,8 @@ public class RSConfiguration {
                             .path(path)
                             .indent(2)
                             .nodeStyle(NodeStyle.BLOCK)
-                            .headerMode(HeaderMode.PRESERVE)
-                            .defaultOptions(
-                                    co ->
-                                            ConfigurationSerializer.apply(
-                                                    co.header(header).shouldCopyDefaults(true)));
+                            .headerMode(HeaderMode.PRESET)
+                            .defaultOptions(co -> ConfigurationSerializer.apply(co.header(header)));
             final BufferedReader defaultConfig = configFromResource(folder, fileName);
             if (defaultConfig == null || Files.exists(this.path)) this.loader = builder.build();
             else this.loader = builder.source(() -> defaultConfig).build();
@@ -460,6 +471,7 @@ public class RSConfiguration {
         public void reload() {
             loadConfig();
             loadMethod();
+            save();
         }
 
         private void loadConfig() {
@@ -735,11 +747,6 @@ public class RSConfiguration {
         protected void comment(CommentedConfigurationNode node, String... comment) {
             if (comment.length == 0) return;
             node.comment(String.join("\n", comment));
-            try {
-                loader.save(node);
-            } catch (ConfigurateException ex) {
-                throw new RuntimeException(ex);
-            }
         }
 
         @NotNull
