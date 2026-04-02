@@ -96,9 +96,9 @@ reloadConfiguration(MySettings.class);
 
 During configuration reload, Configurate's `ObjectMapper.Mutable.load()` reuses existing collection objects by calling `clear()` → `addAll()` / `putAll()`. Therefore, using **immutable collections** such as `List.of()` or `Map.of()` as default values will cause `UnsupportedOperationException` on reload.
 
-`ConfigurationPart` provides helper methods that create mutable collections to prevent this.
+`ConfigurationPart` provides helper methods that create mutable collections to prevent this. Both helpers also **preserve insertion order** — `listOf()` uses `ArrayList`, and `mapOf()` uses `LinkedHashMap` — so the order in which elements are declared in code is reflected in the generated YAML.
 
-### 3.1. `listOf()` — Mutable List
+### 3.1. `listOf()` — Mutable List (Order-Preserving)
 
 ```java
 // varargs: simple initialization
@@ -111,7 +111,7 @@ private List<String> rewards = listOf(list -> {
 });
 ```
 
-### 3.2. `mapOf()` — Mutable Map
+### 3.2. `mapOf()` — Mutable Map (Order-Preserving)
 
 ```java
 // key-value style (0–5 entries)

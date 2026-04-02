@@ -96,9 +96,9 @@ reloadConfiguration(MySettings.class);
 
 설정 리로드 시 Configurate의 `ObjectMapper.Mutable.load()`는 기존 컬렉션 객체를 재활용하여 `clear()` → `addAll()` / `putAll()`로 내용을 갱신합니다. 따라서 `List.of()`, `Map.of()` 등의 **불변(Immutable) 컬렉션**을 기본값으로 사용하면 리로드 시 `UnsupportedOperationException`이 발생합니다.
 
-`ConfigurationPart`는 이를 방지하기 위해 가변(Mutable) 컬렉션을 생성하는 헬퍼 메서드를 제공합니다.
+`ConfigurationPart`는 이를 방지하기 위해 가변(Mutable) 컬렉션을 생성하는 헬퍼 메서드를 제공합니다. 두 헬퍼 모두 **삽입 순서를 보존**합니다 — `listOf()`는 `ArrayList`를, `mapOf()`는 `LinkedHashMap`을 사용하므로 코드에서 선언한 순서가 생성되는 YAML에 그대로 반영됩니다.
 
-### 3.1. `listOf()` — 가변 리스트
+### 3.1. `listOf()` — 가변 리스트 (순서 보존)
 
 ```java
 // varargs: 간단한 초기화
@@ -111,7 +111,7 @@ private List<String> rewards = listOf(list -> {
 });
 ```
 
-### 3.2. `mapOf()` — 가변 맵
+### 3.2. `mapOf()` — 가변 맵 (순서 보존)
 
 ```java
 // key-value 방식 (0~5개 엔트리)
