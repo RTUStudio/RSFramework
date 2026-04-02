@@ -11,12 +11,20 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class SystemEnvironment {
 
-    /** Returns the OS name. / 운영체제 이름을 반환한다. */
+    /**
+     * Returns the OS name.
+     *
+     * <p>운영체제 이름을 반환한다.
+     */
     public static String getOS() {
         return System.getProperty("os.name");
     }
 
-    /** Returns the JDK version. / JDK 버전을 반환한다. */
+    /**
+     * Returns the JDK version.
+     *
+     * <p>JDK 버전을 반환한다.
+     */
     public static String getJDKVersion() {
         return System.getProperty("java.version");
     }

@@ -126,40 +126,61 @@ public class Protocol {
         private final Protocol protocol;
         private final Set<Class<?>> packets = new HashSet<>();
 
-        /** Sets the BridgeOptions for serialization. / 직렬화에 사용할 BridgeOptions를 설정한다. */
+        /**
+         * Sets the BridgeOptions for serialization.
+         *
+         * <p>직렬화에 사용할 BridgeOptions를 설정한다.
+         */
         public Builder setOptions(@NonNull BridgeOptions options) {
             protocol.options = options;
             return this;
         }
 
-        /** Sets the server-side connection handler factory. / 서버측 커넥션 핸들러 팩토리를 설정한다. */
+        /**
+         * Sets the server-side connection handler factory.
+         *
+         * <p>서버측 커넥션 핸들러 팩토리를 설정한다.
+         */
         public Builder setServerHandler(@NonNull Supplier<? extends ConnectionHandler> factory) {
             protocol.serverHandlerFactory = factory;
             return this;
         }
 
-        /** Sets the proxy-side connection handler factory. / 프록시측 커넥션 핸들러 팩토리를 설정한다. */
+        /**
+         * Sets the proxy-side connection handler factory.
+         *
+         * <p>프록시측 커넥션 핸들러 팩토리를 설정한다.
+         */
         public Builder setProxyHandler(@NonNull Supplier<? extends ConnectionHandler> factory) {
             protocol.proxyHandlerFactory = factory;
             return this;
         }
 
-        /** Sets the server-side auth handler factory. / 서버측 인증 핸들러 팩토리를 설정한다. */
+        /**
+         * Sets the server-side auth handler factory.
+         *
+         * <p>서버측 인증 핸들러 팩토리를 설정한다.
+         */
         public Builder setServerAuthHandler(
                 @NonNull Supplier<? extends ServerAuthHandler> factory) {
             protocol.serverAuthFactory = factory;
             return this;
         }
 
-        /** Sets the proxy-side auth handler factory. / 프록시측 인증 핸들러 팩토리를 설정한다. */
+        /**
+         * Sets the proxy-side auth handler factory.
+         *
+         * <p>프록시측 인증 핸들러 팩토리를 설정한다.
+         */
         public Builder setProxyAuthHandler(@NonNull Supplier<? extends ProxyAuthHandler> factory) {
             protocol.proxyAuthFactory = factory;
             return this;
         }
 
         /**
-         * Registers packet classes for SHA1 hashing. Also registers with BridgeOptions. / 패킷 클래스를
-         * SHA1 해시에 등록한다.
+         * Registers packet classes for SHA1 hashing. Also registers with BridgeOptions.
+         *
+         * <p>패킷 클래스를 SHA1 해시에 등록한다.
          */
         public Builder addPacket(@NonNull Class<?> packet) {
             if (protocol.options != null) {
@@ -172,31 +193,51 @@ public class Protocol {
             return this;
         }
 
-        /** Sets the compression type. Default: {@link CompressionType#NONE}. / 압축 타입을 설정한다. */
+        /**
+         * Sets the compression type. Default: {@link CompressionType#NONE}.
+         *
+         * <p>압축 타입을 설정한다.
+         */
         public Builder setCompression(@NonNull CompressionType type) {
             protocol.compression = type;
             return this;
         }
 
-        /** Sets the compression level. / 압축 레벨을 설정한다. */
+        /**
+         * Sets the compression level.
+         *
+         * <p>압축 레벨을 설정한다.
+         */
         public Builder setCompressionLevel(int level) {
             protocol.compressionLevel = level;
             return this;
         }
 
-        /** Sets the max packet size in bytes. Default: 16384 (16KB). / 최대 패킷 크기를 설정한다. */
+        /**
+         * Sets the max packet size in bytes. Default: 16384 (16KB).
+         *
+         * <p>최대 패킷 크기를 설정한다.
+         */
         public Builder setMaxPacketSize(int maxPacketSize) {
             protocol.maxPacketSize = maxPacketSize;
             return this;
         }
 
-        /** Sets the max concurrent connections. Default: -1 (unlimited). / 최대 동시 접속 수를 설정한다. */
+        /**
+         * Sets the max concurrent connections. Default: -1 (unlimited).
+         *
+         * <p>최대 동시 접속 수를 설정한다.
+         */
         public Builder setMaxConnections(int maxConnections) {
             protocol.maxConnections = maxConnections;
             return this;
         }
 
-        /** Builds the Protocol. / Protocol을 빌드한다. */
+        /**
+         * Builds the Protocol.
+         *
+         * <p>Protocol을 빌드한다.
+         */
         public Protocol build() {
             if (protocol.compression != CompressionType.NONE && protocol.compressionLevel == -37)
                 protocol.compressionLevel = protocol.compression.getDefaultLevel();

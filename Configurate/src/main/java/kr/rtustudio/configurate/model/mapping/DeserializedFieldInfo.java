@@ -8,12 +8,14 @@ import org.jetbrains.annotations.Nullable;
 import org.spongepowered.configurate.serialize.SerializationException;
 
 /**
- * 역직렬화된 필드 정보와 후처리기를 보관하는 레코드입니다.
+ * Record holding deserialized field information and its processor.
  *
- * @param <V> 필드 값 타입
- * @param fieldType 필드의 어노테이션 타입
- * @param deserializedValue 역직렬화된 값
- * @param processor 필드 후처리기 (없으면 {@code null})
+ * <p>역직렬화된 필드 정보와 후처리기를 보관하는 레코드.
+ *
+ * @param <V> field value type
+ * @param fieldType annotated type of the field
+ * @param deserializedValue deserialized value
+ * @param processor field processor (or {@code null} if none)
  */
 public record DeserializedFieldInfo<V>(
         AnnotatedType fieldType, Object deserializedValue, @Nullable FieldProcessor<V> processor) {

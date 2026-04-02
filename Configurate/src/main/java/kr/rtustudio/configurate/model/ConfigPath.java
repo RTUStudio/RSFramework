@@ -1,44 +1,51 @@
 package kr.rtustudio.configurate.model;
 
 /**
- * 설정 파일 또는 폴더의 경로를 나타내는 레코드.
+ * Record representing the path of a configuration file or folder.
+ *
+ * <p>설정 파일 또는 폴더의 경로를 나타내는 레코드.
+ *
+ * <p>Interpretation differs based on singular ({@code registerConfiguration}) vs plural ({@code
+ * registerConfigurations}) registration:
  *
  * <p>단수 등록({@code registerConfiguration})과 복수 등록({@code registerConfigurations})에 따라 해석이 달라진다.
  *
  * <ul>
- *   <li><b>단수</b> — {@link #last()}가 파일명, 나머지가 폴더 경로
- *   <li><b>복수</b> — 전체 경로가 폴더, 해당 폴더 내 모든 {@code .yml} 파일을 로드
+ *   <li><b>Singular</b> — {@link #last()} is the filename, rest is folder path
+ *   <li><b>Plural</b> — Full path is the folder, loads all {@code .yml} files in that folder
  * </ul>
  *
- * <h3>팩토리 메서드</h3>
+ * <h2>Factory Methods</h2>
  *
- * <p>{@link #of(String...)}는 {@code Config/} 접두사를 자동 부여한다:
+ * <p>팩토리 메서드:
+ *
+ * <p>{@link #of(String...)} auto-prepends {@code Config/} prefix:
  *
  * <pre>{@code
  * ConfigPath.of("Setting")          // Config/Setting.yml
  * ConfigPath.of("Storage", "MySQL") // Config/Storage/MySQL.yml
- * ConfigPath.of("Regions")          // (복수) Config/Regions/*.yml
+ * ConfigPath.of("Regions")          // (plural) Config/Regions/*.yml
  * }</pre>
  *
- * <p>{@link #relative(String...)}는 접두사 없이 그대로 사용한다:
+ * <p>{@link #relative(String...)} uses the path as-is without prefix:
  *
  * <pre>{@code
  * ConfigPath.relative("Bridge", "Redis")              // Bridge/Redis.yml
  * ConfigPath.relative("Translation", "Message", "ko") // Translation/Message/ko.yml
  * }</pre>
  *
- * @param path 경로 구성 요소 ({@link #of}로 생성 시 첫 요소가 {@code "Config"})
- * @param version 설정 파일 버전 ({@code null}이면 버전 관리 안 함)
+ * @param path path components ({@code "Config"} is auto-added when using {@link #of})
+ * @param version config file version ({@code null} = no version management)
  */
 public record ConfigPath(String[] path, Integer version) {
 
     /**
-     * {@code Config/} 접두사를 자동으로 붙여 경로를 생성한다.
+     * Creates a path with {@code Config/} prefix auto-prepended.
      *
-     * <p>{@code ConfigPath.of("Storage", "MySQL")} → {@code Config/Storage/MySQL.yml}
+     * <p>{@code Config/} 접두사를 자동으로 붙여 경로를 생성한다.
      *
-     * @param path 경로 구성 요소 (최소 1개, {@code Config}는 자동 추가)
-     * @return 새 {@link ConfigPath}
+     * @param path path components (min 1, {@code Config} auto-prepended)
+     * @return a new {@link ConfigPath}
      */
     public static ConfigPath of(String... path) {
         if (path.length == 0) throw new IllegalArgumentException("path must not be empty");
@@ -49,12 +56,12 @@ public record ConfigPath(String[] path, Integer version) {
     }
 
     /**
-     * 접두사 없이 경로를 그대로 사용한다.
+     * Creates a path without any prefix, used as-is.
      *
-     * <p>{@code ConfigPath.relative("Bridge", "Redis")} → {@code Bridge/Redis.yml}
+     * <p>접두사 없이 경로를 그대로 사용한다.
      *
-     * @param path 경로 구성 요소 (최소 1개)
-     * @return 새 {@link ConfigPath}
+     * @param path path components (min 1)
+     * @return a new {@link ConfigPath}
      */
     public static ConfigPath relative(String... path) {
         if (path.length == 0) throw new IllegalArgumentException("path must not be empty");
@@ -62,41 +69,47 @@ public record ConfigPath(String[] path, Integer version) {
     }
 
     /**
-     * 버전을 지정한 새 {@link ConfigPath}를 반환한다.
+     * Returns a new {@link ConfigPath} with the specified version.
      *
-     * @param v 설정 파일 버전
-     * @return 버전이 지정된 새 인스턴스
+     * <p>버전을 지정한 새 {@link ConfigPath}를 반환한다.
+     *
+     * @param v config file version
+     * @return a new instance with the specified version
      */
     public ConfigPath version(int v) {
         return new ConfigPath(path, v);
     }
 
     /**
-     * 경로의 첫 번째 요소를 반환한다.
+     * Returns the first path component.
      *
-     * @return 첫 번째 경로 요소 (예: {@code "Config"})
+     * <p>경로의 첫 번째 요소를 반환한다.
+     *
+     * @return first path component (e.g. {@code "Config"})
      */
     public String first() {
         return path[0];
     }
 
     /**
-     * 경로의 마지막 요소를 반환한다.
+     * Returns the last path component. Interpreted as filename for singular registration, or folder
+     * name for plural registration.
      *
-     * <p>단수 등록 시 파일명, 복수 등록 시 폴더명으로 해석된다.
+     * <p>경로의 마지막 요소를 반환한다. 단수 등록 시 파일명, 복수 등록 시 폴더명으로 해석된다.
      *
-     * @return 마지막 경로 요소 (예: {@code "MySQL"}, {@code "Regions"})
+     * @return last path component
      */
     public String last() {
         return path[path.length - 1];
     }
 
     /**
-     * {@code .yml} 확장자가 보장된 파일명을 반환한다.
+     * Returns the filename with {@code .yml} extension guaranteed. If {@code last()} already ends
+     * with {@code .yml}, it's returned as-is.
      *
-     * <p>{@code last()}가 이미 {@code .yml}로 끝나면 그대로 반환하고, 아니면 자동으로 붙인다.
+     * <p>{@code .yml} 확장자가 보장된 파일명을 반환한다.
      *
-     * @return 확장자 포함 파일명 (예: {@code "Setting.yml"}, {@code "ko_kr.yml"})
+     * @return filename with extension
      */
     public String fileName() {
         String name = last();
@@ -104,9 +117,11 @@ public record ConfigPath(String[] path, Integer version) {
     }
 
     /**
-     * 단수 등록용: 마지막 요소를 제외한 나머지를 폴더 경로로 결합한다.
+     * For singular registration: joins all but the last element as the folder path.
      *
-     * @return 폴더 경로 (예: {@code "Config/Storage"})
+     * <p>단수 등록용: 마지막 요소를 제외한 나머지를 폴더 경로로 결합한다.
+     *
+     * @return folder path (e.g. {@code "Config/Storage"})
      */
     public String folder() {
         if (path.length == 1) return "";
@@ -119,9 +134,11 @@ public record ConfigPath(String[] path, Integer version) {
     }
 
     /**
-     * 복수 등록용: 전체 요소를 폴더 경로로 결합한다.
+     * For plural registration: joins all elements as the folder path.
      *
-     * @return 폴더 경로 (예: {@code "Config/Regions"})
+     * <p>복수 등록용: 전체 요소를 폴더 경로로 결합한다.
+     *
+     * @return folder path (e.g. {@code "Config/Regions"})
      */
     public String folderPath() {
         return String.join("/", path);

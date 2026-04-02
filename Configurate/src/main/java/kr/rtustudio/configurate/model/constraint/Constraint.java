@@ -5,10 +5,12 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Type;
 
 /**
- * 필드에 커스텀 제약 조건을 적용하는 어노테이션.
+ * Annotation that applies a custom constraint to a field. Specify a {@link
+ * org.spongepowered.configurate.objectmapping.meta.Constraint} implementation in {@code value}, and
+ * it will be automatically validated during deserialization.
  *
- * <p>{@code value}에 {@link org.spongepowered.configurate.objectmapping.meta.Constraint} 구현체를 지정하면,
- * 역직렬화 시 해당 제약이 자동으로 검증된다.
+ * <p>필드에 커스텀 제약 조건을 적용하는 어노테이션. {@code value}에 {@link
+ * org.spongepowered.configurate.objectmapping.meta.Constraint} 구현체를 지정하면 역직렬화 시 해당 제약이 자동으로 검증된다.
  *
  * <pre>{@code
  * @Constraint(Constraints.Positive.class)

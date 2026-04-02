@@ -57,11 +57,13 @@ public class LibraryLoader {
     }
 
     /**
-     * 패키지 재배치(relocation)를 적용하여 의존성을 로드한다.
+     * Loads a dependency with package relocation applied.
      *
-     * @param dependency {@code groupId:artifactId:version[:classifier]} 형식 문자열
-     * @param pattern 원본 패키지 패턴
-     * @param relocatedPattern 재배치 대상 패키지 패턴
+     * <p>패키지 재배치(relocation)를 적용하여 의존성을 로드한다.
+     *
+     * @param dependency {@code groupId:artifactId:version[:classifier]} format string
+     * @param pattern original package pattern
+     * @param relocatedPattern target relocated package pattern
      */
     public void load(
             @NotNull String dependency, @NotNull String pattern, @NotNull String relocatedPattern) {
@@ -69,10 +71,12 @@ public class LibraryLoader {
     }
 
     /**
-     * 의존성 로딩을 세밀하게 제어할 수 있는 빌더를 생성한다.
+     * Creates a builder for fine-grained control over dependency loading.
      *
-     * @param dependency {@code groupId:artifactId:version[:classifier]} 형식 문자열
-     * @return 라이브러리 빌더
+     * <p>의존성 로딩을 세밀하게 제어할 수 있는 빌더를 생성한다.
+     *
+     * @param dependency {@code groupId:artifactId:version[:classifier]} format string
+     * @return library builder
      */
     public LibraryBuilder builder(@NotNull String dependency) {
         return new LibraryBuilder(parseDependency(dependency));
@@ -118,7 +122,11 @@ public class LibraryLoader {
         }
     }
 
-    /** Record holding package relocation info. / 패키지 재배치 정보를 보관하는 레코드. */
+    /**
+     * Record holding package relocation info.
+     *
+     * <p>패키지 재배치 정보를 보관하는 레코드.
+     */
     public record Relocation(String pattern, String relocatedPattern) {
         public Relocation {
             Objects.requireNonNull(pattern, "Pattern cannot be null");
@@ -127,8 +135,9 @@ public class LibraryLoader {
     }
 
     /**
-     * Builder for library loading with relocation and checksum options. / 재배치, 체크섬 설정이 가능한 라이브러리 로딩
-     * 빌더.
+     * Builder for library loading with relocation and checksum options.
+     *
+     * <p>재배치, 체크섬 설정이 가능한 라이브러리 로딩 빌더.
      */
     public class LibraryBuilder {
         private final DependencyInfo info;
@@ -140,11 +149,13 @@ public class LibraryLoader {
         }
 
         /**
-         * 패키지 재배치를 추가한다.
+         * Adds a package relocation rule.
          *
-         * @param pattern 원본 패키지 패턴
-         * @param relocatedPattern 재배치 대상 패키지 패턴
-         * @return 이 빌더
+         * <p>패키지 재배치를 추가한다.
+         *
+         * @param pattern original package pattern
+         * @param relocatedPattern target relocated package pattern
+         * @return this builder
          */
         public LibraryBuilder relocate(@NotNull String pattern, @NotNull String relocatedPattern) {
             this.relocations.add(new Relocation(pattern, relocatedPattern));
@@ -152,17 +163,23 @@ public class LibraryLoader {
         }
 
         /**
-         * SHA-256 체크섬을 설정한다.
+         * Sets the SHA-256 checksum.
          *
-         * @param checksum SHA-256 해시 문자열
-         * @return 이 빌더
+         * <p>SHA-256 체크섬을 설정한다.
+         *
+         * @param checksum SHA-256 hash string
+         * @return this builder
          */
         public LibraryBuilder checksum(@NotNull String checksum) {
             this.checksum = Objects.requireNonNull(checksum, "Checksum cannot be null");
             return this;
         }
 
-        /** Loads the library with configured options. / 설정된 옵션으로 라이브러리를 로드한다. */
+        /**
+         * Loads the library with configured options.
+         *
+         * <p>설정된 옵션으로 라이브러리를 로드한다.
+         */
         public void load() {
             loadLibrary(this);
         }

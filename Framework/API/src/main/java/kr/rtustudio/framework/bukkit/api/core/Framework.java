@@ -26,37 +26,74 @@ import org.jetbrains.annotations.NotNull;
  */
 public interface Framework {
 
-    /** Returns the global framework prefix component. / 프레임워크 전역 접두사 컴포넌트를 반환한다. */
+    /**
+     * Returns the global framework prefix component.
+     *
+     * <p>프레임워크 전역 접두사 컴포넌트를 반환한다.
+     */
     net.kyori.adventure.text.Component getPrefix();
 
-    /** Returns the main framework plugin instance. / 프레임워크 메인 플러그인 인스턴스를 반환한다. */
+    /**
+     * Returns the main framework plugin instance.
+     *
+     * <p>프레임워크 메인 플러그인 인스턴스를 반환한다.
+     */
     RSPlugin getPlugin();
 
     /**
-     * Returns all plugins loaded by the framework. Key is the plugin name. / 프레임워크에 로드된 모든 플러그인 맵을
-     * 반환한다.
+     * Returns all plugins loaded by the framework. Key is the plugin name.
+     *
+     * <p>프레임워크에 로드된 모든 플러그인 맵을 반환한다.
      */
     Map<String, RSPlugin> getPlugins();
 
-    /** Returns the NMS access interface. / NMS 접근 인터페이스를 반환한다. */
+    /**
+     * Returns the NMS access interface.
+     *
+     * <p>NMS 접근 인터페이스를 반환한다.
+     */
     NMS getNMS();
 
-    /** Returns the NMS version string (e.g. {@code "v1_21_R5"}). / 현재 서버의 NMS 버전 문자열을 반환한다. */
+    /**
+     * Returns the NMS version string (e.g. {@code "v1_21_R5"}).
+     *
+     * <p>현재 서버의 NMS 버전 문자열을 반환한다.
+     */
     String getNMSVersion();
 
-    /** Returns the command execution cooldown manager. / 명령어 실행 쿨다운 관리자를 반환한다. */
+    /**
+     * Returns the command execution cooldown manager.
+     *
+     * <p>명령어 실행 쿨다운 관리자를 반환한다.
+     */
     CommandLimit getCommandLimit();
 
-    /** Returns the common translation manager. / 프레임워크 공통 번역 관리자를 반환한다. */
+    /**
+     * Returns the common translation manager.
+     *
+     * <p>프레임워크 공통 번역 관리자를 반환한다.
+     */
     CommonTranslation getCommonTranslation();
 
-    /** Returns the module factory. / 모듈 팩토리를 반환한다. */
+    /**
+     * Returns the module factory.
+     *
+     * <p>모듈 팩토리를 반환한다.
+     */
     ModuleFactory getModuleFactory();
 
-    /** Returns the provider registry. / 프로바이더 레지스트리를 반환한다. */
+    /**
+     * Returns the provider registry.
+     *
+     * <p>프로바이더 레지스트리를 반환한다.
+     */
     ProviderRegistry getProviderRegistry();
 
-    /** Returns the bridge registry. / 브릿지 레지스트리를 반환한다. */
+    /**
+     * Returns the bridge registry.
+     *
+     * <p>브릿지 레지스트리를 반환한다.
+     */
     BridgeRegistry getBridgeRegistry();
 
     /**
@@ -112,7 +149,9 @@ public interface Framework {
     }
 
     /**
-     * Returns the platform-specific scheduler (Spigot/Paper/Folia compatible). / 플랫폼별 스케줄러를 반환한다.
+     * Returns the platform-specific scheduler (Spigot/Paper/Folia compatible).
+     *
+     * <p>플랫폼별 스케줄러를 반환한다.
      */
     Scheduler getScheduler();
 

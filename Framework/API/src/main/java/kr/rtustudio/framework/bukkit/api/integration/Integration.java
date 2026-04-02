@@ -9,16 +9,38 @@ package kr.rtustudio.framework.bukkit.api.integration;
  */
 public interface Integration {
 
-    /** Checks if the target plugin is available. / 연동 대상 플러그인이 사용 가능한지 확인한다. */
+    /**
+     * Checks if the target plugin is available.
+     *
+     * <p>연동 대상 플러그인이 사용 가능한지 확인한다.
+     *
+     * @return {@code true} if available, {@code false} otherwise
+     */
     boolean isAvailable();
 
-    /** Registers the integration. / 연동을 등록한다. */
+    /**
+     * Registers the integration.
+     *
+     * <p>연동을 등록한다.
+     *
+     * @return {@code true} if successful
+     */
     boolean register();
 
-    /** Unregisters the integration. / 연동을 해제한다. */
+    /**
+     * Unregisters the integration.
+     *
+     * <p>연동을 해제한다.
+     *
+     * @return {@code true} if successful
+     */
     boolean unregister();
 
-    /** Wrapper interface for the internal integration implementation. / 연동 내부 구현을 감싸는 래퍼 인터페이스. */
+    /**
+     * Wrapper interface for the internal integration implementation.
+     *
+     * <p>연동 내부 구현을 감싸는 래퍼 인터페이스.
+     */
     interface Wrapper {
 
         boolean register();

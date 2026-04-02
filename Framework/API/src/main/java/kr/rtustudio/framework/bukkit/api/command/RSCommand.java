@@ -380,9 +380,9 @@ public abstract class RSCommand<T extends RSPlugin> extends Command {
      * <p>명령 인자를 파싱한 후 표준화된 {@link Result} 값을 반환한다. 실제 동작은 하위 클래스에서 이 메소드를 오버라이드하여 구현한다.
      *
      * <ul>
-     *   <li>Result.SUCCESS: operation succeeded / 작업 성공
-     *   <li>Result.FAILURE: operation failed / 작업 실패
-     *   <li>Result.ONLY_PLAYER / ONLY_CONSOLE / NOT_FOUND_* / WRONG_USAGE: framework auto-announces
+     *   <li>Result.SUCCESS: operation succeeded
+     *   <li>Result.FAILURE: operation failed
+     *   <li>Result.ONLY_PLAYER, ONLY_CONSOLE, NOT_FOUND_*, WRONG_USAGE: framework auto-announces
      * </ul>
      */
     protected Result execute(CommandArgs data) {

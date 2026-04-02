@@ -10,10 +10,10 @@ import org.spongepowered.configurate.serialize.ScalarSerializer;
 import org.spongepowered.configurate.serialize.SerializationException;
 
 /**
- * {@code true}, {@code false}, 또는 {@code "default"} 값을 표현하는 설정 타입.
+ * Configuration type representing {@code true}, {@code false}, or {@code "default"} string.
  *
- * <p>YAML에서 {@code "default"} 문자열이면 {@link #USE_DEFAULT}로 역직렬화되며, {@link #or(boolean)}로 폴백 값을 지정할 수
- * 있다.
+ * <p>{@code true}, {@code false}, 또는 {@code "default"} 값을 표현하는 설정 타입. YAML에서 {@code "default"}
+ * 문자열이면 {@link #USE_DEFAULT}로 역직렬화되며, {@link #or(boolean)}로 폴백 값을 지정할 수 있다.
  *
  * <pre>{@code
  * public BooleanOrDefault pvpEnabled = BooleanOrDefault.USE_DEFAULT;

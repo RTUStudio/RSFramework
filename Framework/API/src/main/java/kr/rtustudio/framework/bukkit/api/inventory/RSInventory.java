@@ -44,24 +44,67 @@ public abstract class RSInventory<T extends RSPlugin> implements InventoryHolder
         this.notifier = Notifier.of(plugin);
     }
 
+    /**
+     * Creates an inventory with the specified type and title.
+     *
+     * <p>지정한 타입과 제목으로 인벤토리를 생성한다.
+     *
+     * @param type inventory type
+     * @param title inventory title
+     * @return created inventory
+     */
     protected Inventory createInventory(InventoryType type, Component title) {
         if (MinecraftVersion.isPaper()) return Bukkit.createInventory(this, type, title);
         else return Bukkit.createInventory(this, type, ComponentFormatter.legacy(title));
     }
 
+    /**
+     * Creates an inventory with the specified size and title.
+     *
+     * <p>지정한 크기와 제목으로 인벤토리를 생성한다.
+     *
+     * @param size inventory size (must be multiple of 9)
+     * @param component inventory title
+     * @return created inventory
+     */
     protected Inventory createInventory(int size, Component component) {
         if (MinecraftVersion.isPaper()) return Bukkit.createInventory(this, size, component);
         else return Bukkit.createInventory(this, size, ComponentFormatter.legacy(component));
     }
 
+    /**
+     * Called when a player clicks on this inventory.
+     *
+     * <p>플레이어가 이 인벤토리를 클릭했을 때 호출된다.
+     *
+     * @param event inventory click event details
+     * @param click click-specific information (slot, type, etc.)
+     * @return {@code true} to allow action, {@code false} to cancel it
+     */
     public boolean onClick(Event<InventoryClickEvent> event, Click click) {
         return true;
     }
 
+    /**
+     * Called when a player drags items in this inventory.
+     *
+     * <p>플레이어가 이 인벤토리 내에서 아이템을 드래그했을 때 호출된다.
+     *
+     * @param event inventory drag event details
+     * @param drag drag-specific information
+     * @return {@code true} to allow action, {@code false} to cancel it
+     */
     public boolean onDrag(Event<InventoryDragEvent> event, Drag drag) {
         return true;
     }
 
+    /**
+     * Called when a player closes this inventory.
+     *
+     * <p>플레이어가 이 인벤토리를 닫을 때 호출된다.
+     *
+     * @param event inventory close event details
+     */
     public void onClose(Event<InventoryCloseEvent> event) {}
 
     public record Event<T extends InventoryEvent>(

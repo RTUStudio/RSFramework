@@ -92,7 +92,58 @@ reloadConfiguration(MySettings.class);
 
 ---
 
-## 3. 계층 구조 (내부 클래스)
+## 3. 리로드 안전성 (Reload Safety)
+
+설정 리로드 시 Configurate의 `ObjectMapper.Mutable.load()`는 기존 컬렉션 객체를 재활용하여 `clear()` → `addAll()` / `putAll()`로 내용을 갱신합니다. 따라서 `List.of()`, `Map.of()` 등의 **불변(Immutable) 컬렉션**을 기본값으로 사용하면 리로드 시 `UnsupportedOperationException`이 발생합니다.
+
+`ConfigurationPart`는 이를 방지하기 위해 가변(Mutable) 컬렉션을 생성하는 헬퍼 메서드를 제공합니다.
+
+### 3.1. `listOf()` — 가변 리스트
+
+```java
+// varargs: 간단한 초기화
+private List<String> commands = listOf("help", "spawn", "home");
+
+// Consumer: 복잡한 초기화
+private List<String> rewards = listOf(list -> {
+    list.add("diamond:10");
+    list.add("gold_ingot:64");
+});
+```
+
+### 3.2. `mapOf()` — 가변 맵
+
+```java
+// key-value 방식 (0~5개 엔트리)
+private Map<String, Integer> prices = mapOf("diamond", 100, "iron_ingot", 10);
+
+// Consumer 방식: 복잡한 초기화
+private Map<String, List<String>> groups = mapOf(map -> {
+    map.put("default", listOf("help"));
+    map.put("admin", listOf("help", "ban", "kick"));
+});
+
+// 빈 맵
+private Map<String, String> aliases = mapOf();
+```
+
+### 3.3. `make()` — 범용 초기화
+
+임의 객체에 대해 생성 후 초기화 로직을 적용할 수 있습니다.
+
+```java
+private Set<String> blockedWorlds = make(new HashSet<>(), set -> {
+    set.add("lobby");
+    set.add("hub");
+});
+```
+
+> [!WARNING]
+> `List.of()`, `Map.of()`, `Set.of()`, `Collections.unmodifiableList()` 등 불변 컬렉션을 설정 필드 기본값으로 사용하지 마세요. 리로드 시 서버 오류가 발생합니다.
+
+---
+
+## 4. 계층 구조 (내부 클래스)
 
 YAML의 중첩 구조를 자바 내부 클래스로 매핑합니다.
 
@@ -144,7 +195,7 @@ max-packet-size: 67108864
 
 ---
 
-## 4. 제약 조건 어노테이션
+## 5. 제약 조건 어노테이션
 
 범위를 초과하는 값 입력 시 기본값으로 자동 복원됩니다.
 
@@ -167,7 +218,7 @@ private double respawnDelay = 3.0;
 ```java
 // 키 추가 차단, 값만 수정 가능
 @MergeMap(restricted = true)
-private Map<String, Integer> prices = Map.of("diamond", 100, "iron_ingot", 10);
+private Map<String, Integer> prices = mapOf("diamond", 100, "iron_ingot", 10);
 
 // 키 정규화 후 파일에 재기록
 @WriteKeyBack
@@ -180,7 +231,7 @@ private Map<String, RewardItem> rewards = new LinkedHashMap<>();
 
 ---
 
-## 5. 특수 데이터 타입
+## 6. 특수 데이터 타입
 
 | 타입 | 설명 | YAML 예시 |
 |------|------|----------|
@@ -204,14 +255,17 @@ private IntOr.Disabled maxPartySize = IntOr.Disabled.of(4);
 
 | 직렬화기 | 설명 |
 |----------|------|
+| `MapSerializer` | 개별 항목 역직렬화 에러를 무시하고 로깅만 수행 |
 | `ComponentSerializer` | Adventure Component ↔ MiniMessage 문자열 |
+| `KeySerializer` | Adventure Key (네임스페이스) 자동 변환 |
+| `SoundSerializer` | Adventure Sound ↔ 문자열/맵 객체 |
 | `EnumValueSerializer` | 하이픈/공백 → 언더스코어 자동 치환 |
 | `FastutilMapSerializer` | `Int2ObjectMap` 등 원시 타입 맵 |
 | `FlattenedMapSerializer` | 다차원 맵 → 1차원 평탄화 |
 
 ---
 
-## 6. 폴더 스캔 (ConfigList)
+## 7. 폴더 스캔 (ConfigList)
 
 한 폴더에 여러 YAML 파일을 두고, 각각을 독립 설정 인스턴스로 로드합니다.
 
@@ -230,7 +284,7 @@ arenas.forEach((name, config) -> {
 
 ---
 
-## 7. 전체 예제
+## 8. 전체 예제
 
 ```java
 public class MyPlugin extends RSPlugin {
@@ -254,7 +308,7 @@ public class MyPlugin extends RSPlugin {
 
 ---
 
-## 8. API 레퍼런스
+## 9. API 레퍼런스
 
 ### RSPlugin (설정 관련)
 

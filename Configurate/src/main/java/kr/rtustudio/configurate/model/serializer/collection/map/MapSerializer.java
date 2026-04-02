@@ -21,9 +21,11 @@ import org.spongepowered.configurate.serialize.TypeSerializer;
 import org.spongepowered.configurate.serialize.TypeSerializerCollection;
 
 /**
- * 개별 항목 직렬화 실패 시 예외를 던지지 않고 로그만 남기는 {@link Map} 직렬화기입니다.
+ * {@link Map} serializer that catches item serialization exceptions and logs them instead of
+ * bubbling up.
  *
- * <p>{@link ThrowExceptions} 어노테이션이 있으면 기본 직렬화기로 위임합니다.
+ * <p>개별 항목 직렬화 실패 시 예외를 던지지 않고 로그만 남기는 {@link Map} 직렬화기. {@link ThrowExceptions} 어노테이션이 있으면 기본
+ * 직렬화기로 위임한다.
  */
 public class MapSerializer implements TypeSerializer.Annotated<Map<?, ?>> {
 

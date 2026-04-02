@@ -81,12 +81,15 @@ public class RSConfiguration {
     }
 
     /**
-     * 단일 {@code .yml} 설정 파일을 등록한다.
+     * Registers a single {@code .yml} configuration file.
      *
-     * <p>{@link ConfigPath}의 마지막 요소가 파일명, 나머지가 폴더 경로로 해석된다.
+     * <p>The last element of {@link ConfigPath} is interpreted as the filename, and the rest as the
+     * folder path.
      *
-     * @param configuration 로드할 {@link ConfigurationPart} 클래스
-     * @param path 설정 경로 (예: {@code ConfigPath.of("MyConfig")})
+     * <p>단일 {@code .yml} 설정 파일을 등록한다. {@link ConfigPath}의 마지막 요소가 파일명, 나머지가 폴더 경로로 해석된다.
+     *
+     * @param configuration {@link ConfigurationPart} class to load
+     * @param path configuration path (e.g. {@code ConfigPath.of("MyConfig")})
      */
     public <C extends ConfigurationPart> C registerConfiguration(
             Class<C> configuration, ConfigPath path) {
@@ -94,11 +97,13 @@ public class RSConfiguration {
     }
 
     /**
-     * 커스텀 직렬화를 포함하여 단일 {@code .yml} 설정 파일을 등록한다.
+     * Registers a single {@code .yml} configuration file including custom serialization.
      *
-     * @param configuration 로드할 {@link ConfigurationPart} 클래스
-     * @param path 설정 경로
-     * @param extraSerializer 추가 타입 직렬화
+     * <p>커스텀 직렬화를 포함하여 단일 {@code .yml} 설정 파일을 등록한다.
+     *
+     * @param configuration {@link ConfigurationPart} class to load
+     * @param path configuration path
+     * @param extraSerializer additional type serializers
      */
     public <C extends ConfigurationPart> C registerConfiguration(
             Class<C> configuration,
@@ -120,13 +125,15 @@ public class RSConfiguration {
     }
 
     /**
-     * 폴더 내 모든 {@code .yml} 파일을 개별 인스턴스로 등록한다.
+     * Registers all {@code .yml} files in a folder as individual instances.
      *
-     * <p>{@link ConfigPath}의 전체 요소가 폴더 경로로 해석된다.
+     * <p>All elements of {@link ConfigPath} are interpreted as the folder path.
      *
-     * @param configuration 로드할 {@link ConfigurationPart} 클래스
-     * @param path 폴더 경로 (예: {@code ConfigPath.of("Regions")})
-     * @return 파일명(확장자 제외)을 키로 하는 {@link ConfigList}
+     * <p>폴더 내 모든 {@code .yml} 파일을 개별 인스턴스로 등록한다. {@link ConfigPath}의 전체 요소가 폴더 경로로 해석된다.
+     *
+     * @param configuration {@link ConfigurationPart} class to load
+     * @param path folder path (e.g. {@code ConfigPath.of("Regions")})
+     * @return {@link ConfigList} using the filename (excluding extension) as key
      */
     public <C extends ConfigurationPart> ConfigList<C> registerConfigurations(
             Class<C> configuration, ConfigPath path) {
@@ -134,12 +141,14 @@ public class RSConfiguration {
     }
 
     /**
-     * 커스텀 직렬화를 포함하여 폴더 내 모든 {@code .yml} 파일을 등록한다.
+     * Registers all {@code .yml} files in a folder including custom serialization.
      *
-     * @param configuration 로드할 {@link ConfigurationPart} 클래스
-     * @param path 폴더 경로
-     * @param extraSerializer 추가 타입 직렬화
-     * @return 파일명(확장자 제외)을 키로 하는 {@link ConfigList}
+     * <p>커스텀 직렬화를 포함하여 폴더 내 모든 {@code .yml} 파일을 등록한다.
+     *
+     * @param configuration {@link ConfigurationPart} class to load
+     * @param path folder path
+     * @param extraSerializer additional type serializers
+     * @return {@link ConfigList} using the filename (excluding extension) as key
      */
     public <C extends ConfigurationPart> ConfigList<C> registerConfigurations(
             Class<C> configuration,
@@ -204,10 +213,13 @@ public class RSConfiguration {
     }
 
     /**
-     * JAR 내부의 리소스에서 지정 폴더 경로에 속하는 {@code .yml} 파일 이름 목록을 수집한다.
+     * Collects a list of {@code .yml} file names belonging to the specified folder path from
+     * resources within the JAR.
      *
-     * @param folderPath 리소스 폴더 경로
-     * @return {@code .yml} 파일 이름 집합 (직속 파일만, 하위 폴더 제외)
+     * <p>JAR 내부의 리소스에서 지정 폴더 경로에 속하는 {@code .yml} 파일 이름 목록을 수집한다.
+     *
+     * @param folderPath resource folder path
+     * @return set of {@code .yml} file names (direct files only, excluding subfolders)
      */
     private Set<String> getJarResourceNames(String folderPath) {
         Set<String> names = new LinkedHashSet<>();
@@ -241,11 +253,13 @@ public class RSConfiguration {
     }
 
     /**
-     * 플러그인 JAR 내부의 리소스에서 설정 파일을 읽어온다.
+     * Reads a configuration file from resources within the plugin JAR.
      *
-     * @param folder 리소스 폴더 경로
-     * @param name 파일 이름
-     * @return 리소스가 있으면 {@link BufferedReader}, 없으면 {@code null}
+     * <p>플러그인 JAR 내부의 리소스에서 설정 파일을 읽어온다.
+     *
+     * @param folder resource folder path
+     * @param name file name
+     * @return {@link BufferedReader} if resource exists, {@code null} otherwise
      */
     private BufferedReader configFromResource(String folder, String name) {
         try {
@@ -259,11 +273,13 @@ public class RSConfiguration {
     }
 
     /**
-     * 등록된 설정 인스턴스를 타입으로 조회한다.
+     * Looks up a registered configuration instance by type.
      *
-     * @param configuration 조회할 {@link ConfigurationPart} 클래스
-     * @param <C> 설정 타입
-     * @return 등록된 설정 인스턴스, 없으면 {@code null}
+     * <p>등록된 설정 인스턴스를 타입으로 조회한다.
+     *
+     * @param configuration {@link ConfigurationPart} class to lookup
+     * @param <C> configuration type
+     * @return registered configuration instance, or {@code null} if not found
      */
     @SuppressWarnings("unchecked")
     public <C extends ConfigurationPart> C get(Class<C> configuration) {
@@ -273,11 +289,13 @@ public class RSConfiguration {
     }
 
     /**
-     * 등록된 설정 목록 인스턴스를 타입으로 조회한다.
+     * Looks up a registered configuration list instance by type.
      *
-     * @param configuration 조회할 {@link ConfigurationPart} 클래스
-     * @param <C> 설정 타입
-     * @return 등록된 설정 목록 인스턴스, 없으면 {@code null}
+     * <p>등록된 설정 목록 인스턴스를 타입으로 조회한다.
+     *
+     * @param configuration {@link ConfigurationPart} class to lookup
+     * @param <C> configuration type
+     * @return registered configuration list instance, or {@code null} if not found
      */
     @SuppressWarnings("unchecked")
     public <C extends ConfigurationPart> ConfigList<C> getList(Class<C> configuration) {
@@ -287,9 +305,10 @@ public class RSConfiguration {
     }
 
     /**
-     * 내부 설정(Setting, Storage, Message, Command)을 모두 리로드한다.
+     * Reloads all internal configurations (Setting, Storage, Message, Command). If the locale has
+     * changed, new translation objects are created.
      *
-     * <p>로케일이 변경된 경우 번역 객체를 새로 생성한다.
+     * <p>내부 설정(Setting, Storage, Message, Command)을 모두 리로드한다. 로케일이 변경된 경우 번역 객체를 새로 생성한다.
      */
     public void reloadInternal() {
         final String locale = setting.getLocale();
@@ -304,19 +323,27 @@ public class RSConfiguration {
         }
     }
 
-    /** 등록된 모든 커스텀 설정을 파일에서 다시 로드한다. */
+    /**
+     * Reloads all registered custom configurations from files.
+     *
+     * <p>등록된 모든 커스텀 설정을 파일에서 다시 로드한다.
+     */
     public void reloadAll() {
         for (Class<? extends ConfigurationPart> configuration : this.registries.keySet())
             reload(configuration);
     }
 
     /**
-     * 지정한 설정을 파일에서 다시 로드한다. 단일 설정뿐만 아니라 폴더로 등록된 설정 목록도 함께 리로드하며, 폴더의 경우 새로 추가/삭제된 파일까지 모두 반영하여
-     * 갱신합니다.
+     * Reloads the specified configuration from files. This reloads both single configurations and
+     * configuration lists registered as folders. For folders, this also reflects newly added or
+     * deleted files.
      *
-     * @param configuration 리로드할 {@link ConfigurationPart} 클래스
-     * @param <C> 설정 타입
-     * @return 리로드 성공 여부
+     * <p>지정한 설정을 파일에서 다시 로드한다. 단일 설정뿐만 아니라 폴더로 등록된 설정 목록도 함께 리로드하며, 폴더의 경우 새로 추가/삭제된 파일까지 모두 반영하여
+     * 갱신한다.
+     *
+     * @param configuration {@link ConfigurationPart} class to reload
+     * @param <C> configuration type
+     * @return whether the reload logic executed successfully
      */
     @SuppressWarnings("unchecked")
     public <C extends ConfigurationPart> boolean reload(Class<C> configuration) {
@@ -345,6 +372,7 @@ public class RSConfiguration {
             }
             return true;
         } catch (Exception e) {
+            log.error("Failed to reload configuration " + configuration.getSimpleName(), e);
             return false;
         }
     }

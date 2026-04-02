@@ -16,9 +16,12 @@ import org.slf4j.LoggerFactory;
 import com.google.common.collect.Sets;
 
 /**
- * {@link ConfigurationPart} 내부 맵 필드에 사용하여, 기본 키가 사용자에 의해 제거되지 않도록 보호하는 어노테이션입니다.
+ * Annotation for map fields within {@link ConfigurationPart} that protects default keys from being
+ * removed by the user. Note that on configuration reload, maps are re-merged, so care must be taken
+ * to prevent infinite key accumulation.
  *
- * <p>설정 리로드 시 맵이 다시 병합되므로, 키가 무한히 누적되지 않도록 주의해야 합니다.
+ * <p>{@link ConfigurationPart} 내부 맵 필드에 사용하여, 기본 키가 사용자에 의해 제거되지 않도록 보호하는 어노테이션. 설정 리로드 시 맵이 다시
+ * 병합되므로, 키가 무한히 누적되지 않도록 주의해야 한다.
  */
 @Documented
 @Target(ElementType.FIELD)
@@ -30,9 +33,12 @@ public @interface MergeMap {
             new Definition<>(MergeMap.class, MapSerializer.TYPE, new Factory());
 
     /**
-     * {@code true}이면 역직렬화 시 기존 키 외의 새 키 추가를 허용하지 않는다.
+     * If {@code true}, disallows adding new keys beyond the existing defaults during
+     * deserialization.
      *
-     * @return 제한 여부
+     * <p>{@code true}이면 역직렬화 시 기존 키 외의 새 키 추가를 허용하지 않는다.
+     *
+     * @return whether key addition is restricted
      */
     boolean restricted() default true;
 

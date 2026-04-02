@@ -17,11 +17,13 @@ import org.bukkit.Location;
 import org.bukkit.entity.Entity;
 
 /**
- * {@link kr.rtustudio.framework.bukkit.api.core.scheduler.Scheduler}를 정적 메서드로 간편하게 사용할 수 있는 유틸리티
- * 클래스입니다.
+ * Utility class that provides static convenience methods for {@link
+ * kr.rtustudio.framework.bukkit.api.core.scheduler.Scheduler}. Supports sync/async execution,
+ * delayed execution, and repeating tasks, including Folia-compatible {@link
+ * org.bukkit.Location}/{@link org.bukkit.entity.Entity} based region scheduling.
  *
- * <p>동기/비동기 실행, 지연 실행, 반복 실행을 플러그인 지정 여부와 함께 제공하며, Folia 환경의 {@link org.bukkit.Location}/{@link
- * org.bukkit.entity.Entity} 기반 스케줄링도 지원합니다.
+ * <p>{@link kr.rtustudio.framework.bukkit.api.core.scheduler.Scheduler}를 정적 메서드로 간편하게 사용할 수 있는 유틸리티
+ * 클래스. 동기/비동기 실행, 지연 실행, 반복 실행을 제공하며, Folia 환경의 리전 스케줄링도 지원한다.
  */
 @Getter
 @NoArgsConstructor(access = AccessLevel.PRIVATE)

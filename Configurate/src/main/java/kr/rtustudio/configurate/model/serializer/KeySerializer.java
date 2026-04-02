@@ -9,13 +9,13 @@ import org.spongepowered.configurate.serialize.ScalarSerializer;
 import org.spongepowered.configurate.serialize.SerializationException;
 
 /**
- * Kyori Adventure {@link Key}를 리소스 키 문자열(예: {@code "minecraft:block.amethyst_block.place"})로
- * 직렬화/역직렬화하는 Configurate 직렬화기입니다.
+ * Configurate serializer for serializing/deserializing Kyori Adventure {@link Key} to and from
+ * resource key strings (e.g., {@code "minecraft:block.amethyst_block.place"}).
  *
- * <p>역직렬화 시 {@code "minecraft:block.amethyst_block.place"} 또는 {@code "block.amethyst_block.place"}
- * 형식의 문자열을 {@link Key}로 변환합니다. 네임스페이스가 생략되면 {@code "minecraft"}이 기본값으로 사용됩니다.
- *
- * <p>사운드, 아이템 키, 이펙트 키 등 Adventure {@link Key}를 사용하는 모든 설정 필드에 적용됩니다.
+ * <p>Kyori Adventure {@link Key}를 리소스 키 문자열(예: {@code "minecraft:block.amethyst_block.place"})로
+ * 직렬화/역직렬화하는 Configurate 직렬화기. 역직렬화 시 {@code "minecraft:block.amethyst_block.place"} 또는 {@code
+ * "block.amethyst_block.place"} 형식의 문자열을 {@link Key}로 변환하며, 네임스페이스가 생략되면 {@code "minecraft"}가 기본값으로
+ * 사용된다. 사운드, 아이템 키, 이펙트 키 등 Adventure {@link Key}를 사용하는 모든 설정 필드에 적용된다.
  */
 public class KeySerializer extends ScalarSerializer.Annotated<Key> {
 

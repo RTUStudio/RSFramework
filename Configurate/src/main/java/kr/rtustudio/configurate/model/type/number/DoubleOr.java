@@ -10,9 +10,11 @@ import org.spongepowered.configurate.serialize.ScalarSerializer;
 import com.google.common.base.Preconditions;
 
 /**
- * 실수 또는 특수 문자열({@code "default"}, {@code "disabled"})을 표현하는 설정 타입.
+ * Configuration type representing a double or a special string ({@code "default"}, {@code
+ * "disabled"}).
  *
- * <p>{@link Default}는 값이 없으면 폴백을 사용하고, {@link Disabled}는 기능 비활성화를 나타낸다. {@link IntOr}의 실수 버전이다.
+ * <p>실수 또는 특수 문자열({@code "default"}, {@code "disabled"})을 표현하는 설정 타입. {@link Default}는 값이 없으면 폴백을
+ * 사용하고, {@link Disabled}는 기능 비활성화를 나타낸다. {@link IntOr}의 실수 버전이다.
  */
 public interface DoubleOr {
 

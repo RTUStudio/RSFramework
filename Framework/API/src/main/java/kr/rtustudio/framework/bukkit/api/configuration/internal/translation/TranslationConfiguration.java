@@ -17,10 +17,10 @@ import org.jetbrains.annotations.NotNull;
 import com.google.common.io.Files;
 
 /**
- * 플러그인의 다국어 번역을 관리하는 클래스입니다.
+ * Class that manages multilingual translations for a plugin.
  *
- * <p>로케일별 {@link Translation} 인스턴스를 보관하며, {@link CommandSender}, {@link ProxyPlayer} 컨텍스트에 따라 자동으로
- * 로케일을 결정합니다. 프레임워크 공통 번역({@code getCommon}) 조회도 지원합니다.
+ * <p>플러그인의 다국어 번역을 관리하는 클래스. 로케일별 {@link Translation} 인스턴스를 보관하며, {@link CommandSender}, {@link
+ * ProxyPlayer} 컨텍스트에 따라 자동으로 로케일을 결정한다. 프레임워크 공통 번역({@code getCommon}) 조회도 지원한다.
  */
 @Getter
 public class TranslationConfiguration {
@@ -54,10 +54,12 @@ public class TranslationConfiguration {
     }
 
     /**
-     * 기본 로케일로 번역 문자열을 조회한다.
+     * Retrieves a localized string in the default locale.
      *
-     * @param key 번역 키
-     * @return 번역된 문자열, 없으면 빈 문자열
+     * <p>기본 로케일로 번역 문자열을 조회한다.
+     *
+     * @param key translation key
+     * @return translated string, or empty string if not found
      */
     @NotNull
     public String get(String key) {
@@ -67,11 +69,13 @@ public class TranslationConfiguration {
     }
 
     /**
-     * 지정한 로케일로 번역 문자열을 조회한다.
+     * Retrieves a localized string in the specified locale.
      *
-     * @param locale 로케일 코드
-     * @param key 번역 키
-     * @return 번역된 문자열
+     * <p>지정한 로케일로 번역 문자열을 조회한다.
+     *
+     * @param locale locale code
+     * @param key translation key
+     * @return translated string
      */
     @NotNull
     public String get(String locale, String key) {
@@ -81,11 +85,13 @@ public class TranslationConfiguration {
     }
 
     /**
-     * 발신자의 로케일에 맞는 번역 문자열을 조회한다.
+     * Retrieves a localized string matching the sender's locale.
      *
-     * @param sender 명령어 발신자
-     * @param key 번역 키
-     * @return 번역된 문자열
+     * <p>발신자의 로케일에 맞는 번역 문자열을 조회한다.
+     *
+     * @param sender command sender
+     * @param key translation key
+     * @return translated string
      */
     @NotNull
     public String get(CommandSender sender, String key) {
@@ -95,11 +101,13 @@ public class TranslationConfiguration {
     }
 
     /**
-     * 프록시 플레이어의 로케일에 맞는 번역 문자열을 조회한다.
+     * Retrieves a localized string matching the proxy player's locale.
      *
-     * @param player 프록시 플레이어
-     * @param key 번역 키
-     * @return 번역된 문자열
+     * <p>프록시 플레이어의 로케일에 맞는 번역 문자열을 조회한다.
+     *
+     * @param player proxy player
+     * @param key translation key
+     * @return translated string
      */
     @NotNull
     public String get(ProxyPlayer player, String key) {
@@ -109,10 +117,12 @@ public class TranslationConfiguration {
     }
 
     /**
-     * 기본 로케일로 번역 문자열 리스트를 조회한다.
+     * Retrieves a list of localized strings in the default locale.
      *
-     * @param key 번역 키
-     * @return 번역된 문자열 리스트
+     * <p>기본 로케일로 번역 문자열 리스트를 조회한다.
+     *
+     * @param key translation key
+     * @return translated string list
      */
     @NotNull
     public List<String> getList(String key) {
@@ -122,11 +132,13 @@ public class TranslationConfiguration {
     }
 
     /**
-     * 지정한 로케일로 번역 문자열 리스트를 조회한다.
+     * Retrieves a list of localized strings in the specified locale.
      *
-     * @param locale 로케일 코드
-     * @param key 번역 키
-     * @return 번역된 문자열 리스트
+     * <p>지정한 로케일로 번역 문자열 리스트를 조회한다.
+     *
+     * @param locale locale code
+     * @param key translation key
+     * @return translated string list
      */
     @NotNull
     public List<String> getList(String locale, String key) {
@@ -136,11 +148,13 @@ public class TranslationConfiguration {
     }
 
     /**
-     * 발신자의 로케일에 맞는 번역 문자열 리스트를 조회한다.
+     * Retrieves a list of localized strings matching the sender's locale.
      *
-     * @param sender 명령어 발신자
-     * @param key 번역 키
-     * @return 번역된 문자열 리스트
+     * <p>발신자의 로케일에 맞는 번역 문자열 리스트를 조회한다.
+     *
+     * @param sender command sender
+     * @param key translation key
+     * @return translated string list
      */
     @NotNull
     public List<String> getList(CommandSender sender, String key) {
@@ -157,10 +171,12 @@ public class TranslationConfiguration {
     }
 
     /**
-     * 프레임워크 공통 번역 문자열을 조회한다.
+     * Retrieves a framework common translation string.
      *
-     * @param key 번역 키
-     * @return 공통 번역 문자열
+     * <p>프레임워크 공통 번역 문자열을 조회한다.
+     *
+     * @param key translation key
+     * @return common translation string
      */
     @NotNull
     public String getCommon(String key) {
@@ -168,11 +184,13 @@ public class TranslationConfiguration {
     }
 
     /**
-     * 지정한 로케일로 프레임워크 공통 번역 문자열을 조회한다.
+     * Retrieves a framework common translation string in the specified locale.
      *
-     * @param locale 로케일 코드
-     * @param key 번역 키
-     * @return 공통 번역 문자열
+     * <p>지정한 로케일로 프레임워크 공통 번역 문자열을 조회한다.
+     *
+     * @param locale locale code
+     * @param key translation key
+     * @return common translation string
      */
     @NotNull
     public String getCommon(String locale, String key) {
@@ -215,7 +233,11 @@ public class TranslationConfiguration {
         return bukkit != null ? getCommonList(bukkit.getLocale(), key) : getCommonList(key);
     }
 
-    /** 모든 로케일의 번역 파일을 다시 로드한다. */
+    /**
+     * Reloads translation files across all locales.
+     *
+     * <p>모든 로케일의 번역 파일을 다시 로드한다.
+     */
     public void reload() {
         File[] files =
                 FileResource.createFolder(

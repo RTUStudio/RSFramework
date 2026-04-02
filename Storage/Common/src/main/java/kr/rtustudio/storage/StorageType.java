@@ -18,10 +18,12 @@ public enum StorageType {
     }
 
     /**
-     * 문자열을 StorageType으로 변환한다. 대소문자 무시.
+     * Converts a string to a {@link StorageType}, ignoring case.
      *
-     * @param type 변환할 문자열
-     * @return 대응되는 StorageType, 없으면 JSON
+     * <p>문자열을 StorageType으로 변환한다. 대소문자 무시.
+     *
+     * @param type string to convert
+     * @return corresponding StorageType, or JSON if not found
      */
     public static StorageType fromString(String type) {
         try {
@@ -32,7 +34,8 @@ public enum StorageType {
     }
 
     /**
-     * @deprecated {@link #fromString(String)} 사용
+     * @deprecated Use {@link #fromString(String)} instead.
+     *     <p>{@link #fromString(String)} 사용
      */
     @Deprecated(since = "4.3.0", forRemoval = true)
     public static StorageType get(String type) {

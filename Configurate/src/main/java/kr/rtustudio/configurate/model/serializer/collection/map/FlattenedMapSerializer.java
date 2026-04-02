@@ -14,10 +14,11 @@ import org.spongepowered.configurate.serialize.SerializationException;
 import org.spongepowered.configurate.serialize.TypeSerializer;
 
 /**
- * {@code Map<Object[], Object>}를 Configurate 노드로 직렬화/역직렬화하는 직렬화기입니다.
+ * Configurate serializer for serializing/deserializing {@code Map<Object[], Object>} to and from a
+ * Configuration node.
  *
- * <p>중첩된 YAML 구조를 {@code {["a", "b", 1] = "value"}} 형태의 경로 배열로 평탄화하고 복원합니다. {@link LinkedHashMap}을
- * 사용하여 YAML 원본 키 순서를 보존합니다.
+ * <p>{@code Map<Object[], Object>}를 Configurate 노드로 직렬화/역직렬화하는 직렬화기. 중첩된 YAML 구조를 {@code {["a",
+ * "b", 1] = "value"}} 형태의 경로 배열로 평탄화하고 복원한다. {@link LinkedHashMap}을 사용하여 YAML 원본 키 순서를 보존한다.
  */
 public class FlattenedMapSerializer implements TypeSerializer.Annotated<Map<Object[], Object>> {
 

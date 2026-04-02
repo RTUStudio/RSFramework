@@ -12,9 +12,11 @@ import org.spongepowered.configurate.serialize.ScalarSerializer;
 import com.google.common.base.Preconditions;
 
 /**
- * 정수 또는 특수 문자열({@code "default"}, {@code "disabled"})을 표현하는 설정 타입.
+ * Configuration type representing an integer or a special string ({@code "default"}, {@code
+ * "disabled"}).
  *
- * <p>{@link Default}는 값이 없으면 폴백을 사용하고, {@link Disabled}는 기능 비활성화를 나타낸다.
+ * <p>정수 또는 특수 문자열({@code "default"}, {@code "disabled"})을 표현하는 설정 타입. {@link Default}는 값이 없으면 폴백을
+ * 사용하고, {@link Disabled}는 기능 비활성화를 나타낸다.
  *
  * <pre>{@code
  * public IntOr.Default maxRetries = IntOr.Default.USE_DEFAULT;

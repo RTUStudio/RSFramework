@@ -2,34 +2,45 @@
 
 Modular Bukkit/Paper plugin development framework.
 
-> **Version**: 4.7.10 · **Java**: 21 · **Supported Servers**: 1.20.1+ (Spigot/Paper/Folia) · **Proxy**: Velocity · **License**: GPL-3.0
+> **Version**: 4.7.11 · **Java**: 21 · **Supported Servers**: 1.20.1+ (Spigot/Paper/Folia) · **Proxy**: Velocity · **License**: GPL-3.0
+
+**[🇰🇷 한국어 문서](docs/kr/)**
 
 ---
 
 ## Project Structure
 
-```
+```text
 RSFramework/
-├── LightDI/                    Lightweight DI container
-├── Configurate/                YAML object mapping wrapper
-├── Storage/                    Unified storage system
-│   ├── Common/                 Common API
-│   ├── MySQL / MariaDB / PostgreSQL / MongoDB / SQLite / Json
 ├── Bridge/                     Inter-server communication broker
 │   ├── Common/                 Bridge interface, BridgeChannel
-│   ├── Redisson/               Redis implementation
-│   └── Proxium/                Netty-based direct proxy communication
-│       ├── Common/API          Public API
-│       ├── Common/Core         Internal implementation
-│       ├── Bukkit / Velocity
-├── Platform/                   Platform adapters
-│   ├── Spigot / Paper / Folia
-│   └── Velocity
+│   ├── Proxium/                Netty-based direct proxy communication
+│   │   ├── Common/             Public API & Internal implementation
+│   │   ├── Bukkit/             Bukkit-side implementation
+│   │   └── Velocity/           Velocity-side implementation
+│   └── Redisson/               Redis implementation
+├── Configurate/                YAML object mapping wrapper
 ├── Framework/                  Framework core
 │   ├── API/                    RSPlugin, RSCommand, RSListener
 │   ├── Core/                   Internal implementation
 │   └── NMS/                    Version-specific NMS adapters (1.20 R1 ~ 1.21 R7)
+├── LightDI/                    Lightweight DI container
+├── Platform/                   Platform adapters
+│   ├── Folia/
+│   ├── Paper/
+│   ├── Spigot/
+│   └── Velocity/
+├── Storage/                    Unified storage system
+│   ├── Common/                 Common API
+│   ├── Json/
+│   ├── MariaDB/
+│   ├── MongoDB/
+│   ├── MySQL/
+│   ├── PostgreSQL/
+│   └── SQLite/
 └── docs/                       Technical documentation
+    ├── en/                     English documentation
+    └── kr/                     Korean documentation
 ```
 
 **Build output**: `./gradlew shadowJar` → `builds/plugin/RSFramework-{version}.jar`
@@ -69,7 +80,7 @@ repositories {
 }
 
 dependencies {
-    compileOnly("kr.rtustudio:framework-api:4.7.10")
+    compileOnly("kr.rtustudio:framework-api:4.7.11")
 }
 ```
 
@@ -111,7 +122,7 @@ public class JoinListener extends RSListener<MyPlugin> {
 
     @EventHandler
     public void onJoin(PlayerJoinEvent event) {
-        notifier.announce(event.getPlayer(), "<green>서버에 오신 것을 환영합니다!");
+        notifier.announce(event.getPlayer(), "<green>Welcome to the server!");
     }
 }
 ```
@@ -132,7 +143,7 @@ public class MainCommand extends RSCommand<MyPlugin> {
 
     @Override
     protected Result execute(CommandArgs data) {
-        notifier.announce("메인 명령어 실행됨!");
+        notifier.announce("Main command executed!");
         return Result.SUCCESS;
     }
 
@@ -143,7 +154,7 @@ public class MainCommand extends RSCommand<MyPlugin> {
 }
 ```
 
-`registerCommand(cmd, true)` — `/{명령어} reload` 자동 추가.
+`registerCommand(cmd, true)` — automatically adds `/{command} reload`.
 
 ### Execution Results
 
@@ -153,19 +164,19 @@ public class MainCommand extends RSCommand<MyPlugin> {
 | `ONLY_PLAYER` / `ONLY_CONSOLE` | Auto info message |
 | `NO_PERMISSION` | Auto info message |
 | `NOT_FOUND_ONLINE_PLAYER` / `NOT_FOUND_OFFLINE_PLAYER` | Auto info message |
-| `WRONG_USAGE` | Auto-show subcommands | |
+| `WRONG_USAGE` | Auto-show subcommands |
 
 ### i18n Translation
 
-`Translation/Command/{언어}.yml`:
+`Translation/Command/{language}.yml`:
 ```yaml
 test:
-  name: "테스트"
-  description: "테스트 명령어 입니다"
-  usage: "/테스트"
+  name: "test"
+  description: "A test command"
+  usage: "/test"
   commands:
     sub:
-      name: "서브"
+      name: "sub"
 ```
 
 ---
@@ -186,7 +197,7 @@ Configurate-based YAML object mapping.
 public class MyConfig extends ConfigurationPart {
 
     @Comment("Welcome message")
-    private String welcomeMessage = "<green>환영합니다!";
+    private String welcomeMessage = "<green>Welcome!";
 
     @Min(1)
     @Comment("Maximum players")
@@ -202,6 +213,31 @@ public class MyConfig extends ConfigurationPart {
 }
 ```
 
+### Reload-safe Collection Helpers
+
+`ConfigurationPart` provides mutable collection factories that are safe during configuration reload.
+
+> **Note**: Using immutable collections like `List.of()`, `Map.of()` as config defaults will cause `UnsupportedOperationException` on reload. Always use `listOf()`, `mapOf()` helpers.
+
+```java
+public class WhitelistConfig extends ConfigurationPart {
+
+    // varargs style
+    private List<String> commands = listOf("help", "spawn");
+
+    // Consumer style (complex initialization)
+    private Map<String, List<String>> groups = mapOf(map -> {
+        map.put("default", listOf("help"));
+        map.put("worldedit", listOf("/wand", "/copy"));
+    });
+
+    // key-value style
+    private Map<String, String> aliases = mapOf("h", "help", "s", "spawn");
+}
+```
+
+### Registration
+
 ```java
 @Override
 protected void initialize() {
@@ -210,7 +246,7 @@ protected void initialize() {
 }
 ```
 
-Details → [`docs/configuration.md`](docs/configuration.md)
+Details → [`docs/en/configuration.md`](docs/en/configuration.md)
 
 ---
 
@@ -228,10 +264,10 @@ notifier.announce(player, msg);
 MiniMessage format. Supports chat, action bar, title, boss bar, and cross-server broadcast.
 
 ```java
-notifier.announce(player, "<aqua>아이템을 지급받았습니다!");    // 접두사 포함
-notifier.send(player, "<yellow>경고 메시지");                  // 접두사 제외
-notifier.title(player, "<bold><gold>레벨 업!", "<gray>새 스킬 해제");
-Notifier.broadcastAll("<green>새로운 이벤트가 시작되었습니다!");
+notifier.announce(player, "<aqua>Item received!");        // with prefix
+notifier.send(player, "<yellow>Warning message");         // without prefix
+notifier.title(player, "<bold><gold>Level Up!", "<gray>New skill unlocked");
+Notifier.broadcastAll("<green>A new event has started!");
 ```
 
 ---
@@ -251,11 +287,11 @@ Bridge (isConnected + close)
 
 ### Architecture
 
-| 계층 | 역할 |
-|------|------|
-| **Proxium** (Bridge) | 순수 통신 인프라 — 패킷 직렬화, Netty 전송, TLS |
-| **RSFramework Bukkit** | 애플리케이션 로직 — 텔레포트 실행, 메시지 처리 |
-| **RSFramework Velocity** | 텔레포트 라우팅 — 서버 이동 조율 |
+| Layer | Role |
+|-------|------|
+| **Proxium** (Bridge) | Pure communication infrastructure — packet serialization, Netty transport, TLS |
+| **RSFramework Bukkit** | Application logic — teleport execution, message handling |
+| **RSFramework Velocity** | Teleport routing — server transfer coordination |
 
 ### Pub/Sub
 
@@ -263,31 +299,31 @@ Bridge (isConnected + close)
 Proxium proxium = getBridge(Proxium.class);
 BridgeChannel channel = BridgeChannel.of("myplugin", "shop");
 
-// 타입별 구독 (여러 타입 개별 등록 가능)
+// Type-specific subscription (multiple types can be registered individually)
 proxium.subscribe(channel, BuyRequest.class, buy -> {
-    getLogger().info(buy.playerName() + "님이 구매를 요청했습니다.");
+    getLogger().info(buy.playerName() + " requested a purchase.");
 });
 
-// 발행
+// Publish
 proxium.publish(channel, new BuyRequest("ipecter", "DIAMOND", 64));
 ```
 
 ### RPC
 
 ```java
-// 응답 서버 (데이터 보유)
+// Response server (data holder)
 proxium.respond(channel)
     .on(BalanceRequest.class, (sender, req) -> {
         return new BalanceResponse(req.uuid(), getBalance(req.uuid()));
     })
-    .error(e -> log.error("RPC 실패: " + e.getMessage()));
+    .error(e -> log.error("RPC failed: " + e.getMessage()));
 
-// 요청 서버 (데이터 필요)
+// Request server (needs data)
 proxium.request("Survival-1", channel, new BalanceRequest(uuid))
     .on(BalanceResponse.class, (sender, res) -> {
-        player.sendMessage("잔고: " + res.balance());
+        player.sendMessage("Balance: " + res.balance());
     })
-    .error(e -> player.sendMessage("요청 실패: " + e.type()));
+    .error(e -> player.sendMessage("Request failed: " + e.type()));
 ```
 
 ### Network Player Query
@@ -302,10 +338,10 @@ for (ProxyPlayer p : proxium.getPlayers().values()) {
 
 ```java
 Redis redis = getBridge(Redis.class);
-redis.withLock("player-data-save", () -> { /* 안전한 저장 */ });
+redis.withLock("player-data-save", () -> { /* safe save */ });
 ```
 
-Details → [`docs/bridge.md`](docs/bridge.md)
+Details → [`docs/en/bridge.md`](docs/en/bridge.md)
 
 ---
 
@@ -319,21 +355,21 @@ Unified JSON document-based API managing all databases with an identical interfa
 registerStorage("PlayerData", StorageType.MARIADB);
 Storage storage = getStorage("PlayerData");
 
-// 삽입
+// Insert
 storage.add(JSON.of("uuid", uuid.toString()).append("name", "IPECTER").append("coins", 1000));
 
-// 조회
+// Query
 storage.get(JSON.of("uuid", uuid.toString())).thenAccept(results -> {
     if (!results.isEmpty()) {
         int coins = results.get(0).get("coins").getAsInt();
     }
 });
 
-// 수정
+// Update
 storage.set(JSON.of("uuid", uuid.toString()), JSON.of("uuid", uuid.toString()).append("coins", 2000));
 ```
 
-Details → [`docs/storage.md`](docs/storage.md)
+Details → [`docs/en/storage.md`](docs/en/storage.md)
 
 ---
 
@@ -342,27 +378,27 @@ Details → [`docs/storage.md`](docs/storage.md)
 ### CraftScheduler (Bukkit/Paper/Folia)
 
 ```java
-// Entity 기반 동기 실행 (Folia Region 완벽 호환)
+// Entity-based sync execution (Folia Region compatible)
 CraftScheduler.sync(player, () -> {
     player.teleport(location);
 });
 
-// 비동기/동기 체이닝
+// Async/sync chaining
 CraftScheduler.sync(plugin, task -> {
     player.setHealth(20);
 }).delay(task -> {
     player.setHealth(1);
 }, 20L);
 
-// 안전한 동기 결과 반환
+// Safe sync result return
 CraftScheduler.callSync(location, () -> {
     return location.getBlock().getType();
 }).thenAccept(material -> {
-    notifier.announce("해당 위치의 블록은: " + material);
+    notifier.announce("Block at location: " + material);
 });
 ```
 
-Details → [`docs/scheduler.md`](docs/scheduler.md)
+Details → [`docs/en/scheduler.md`](docs/en/scheduler.md)
 
 ### QuartzScheduler (Cron)
 
@@ -382,13 +418,13 @@ public class MyGUI extends RSInventory<MyPlugin> {
     }
 
     public void open(Player player) {
-        Inventory inv = createInventory(27, ComponentFormatter.mini("내 인벤토리"));
+        Inventory inv = createInventory(27, ComponentFormatter.mini("My Inventory"));
         player.openInventory(inv);
     }
 
     @Override
     public boolean onClick(Event<InventoryClickEvent> event, Click click) {
-        notifier.announce(event.player(), "슬롯 " + click.slot() + " 클릭됨!");
+        notifier.announce(event.player(), "Slot " + click.slot() + " clicked!");
         return true;
     }
 }
@@ -411,8 +447,8 @@ CustomBlocks.place(location, "oraxen:custom_ore");
 ## Build
 
 ```bash
-./gradlew shadowJar          # 플러그인 JAR → builds/plugin/
-./gradlew spotlessApply       # 코드 포맷팅
+./gradlew shadowJar          # Plugin JAR → builds/plugin/
+./gradlew spotlessApply       # Code formatting
 ```
 
 **Requirements**: JDK 21+, Gradle 9.3+

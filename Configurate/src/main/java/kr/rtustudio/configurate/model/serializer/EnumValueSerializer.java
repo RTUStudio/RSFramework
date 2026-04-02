@@ -18,9 +18,10 @@ import org.spongepowered.configurate.serialize.SerializationException;
 import org.spongepowered.configurate.util.EnumLookup;
 
 /**
- * Enum 값을 직렬화/역직렬화하는 Configurate 직렬화기입니다.
+ * Configurate serializer for serializing/deserializing Enum values.
  *
- * <p>역직렬화 실패 시 사용 가능한 옵션을 로그에 출력하며, {@code -}를 {@code _}로 치환하여 매칭을 시도합니다.
+ * <p>Enum 값을 직렬화/역직렬화하는 Configurate 직렬화기. 역직렬화 실패 시 사용 가능한 옵션을 로그에 출력하며, {@code -}를 {@code _}로 치환하여
+ * 매칭을 시도한다.
  */
 public class EnumValueSerializer extends ScalarSerializer.Annotated<Enum<?>> {
 
