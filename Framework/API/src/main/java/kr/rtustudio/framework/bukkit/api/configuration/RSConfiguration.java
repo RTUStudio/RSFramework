@@ -434,7 +434,7 @@ public class RSConfiguration {
                             .path(path)
                             .indent(2)
                             .nodeStyle(NodeStyle.BLOCK)
-                            .headerMode(HeaderMode.PRESET)
+                            .headerMode(HeaderMode.PRESERVE)
                             .defaultOptions(co -> ConfigurationSerializer.apply(co.header(header)));
             final BufferedReader defaultConfig = configFromResource(folder, fileName);
             if (defaultConfig == null || Files.exists(this.path)) this.loader = builder.build();
