@@ -104,11 +104,10 @@ public abstract class ConfigurationPart {
     }
 
     /**
-     * Creates an empty mutable map, applies initialization logic, and returns it. Uses
-     * {@link LinkedHashMap} to preserve insertion order.
+     * Creates an empty mutable map, applies initialization logic, and returns it. Uses {@link
+     * LinkedHashMap} to preserve insertion order.
      *
-     * <p>빈 가변 맵을 생성한 뒤 초기화 로직을 적용하여 반환한다. 삽입 순서를 보존하기 위해 {@link LinkedHashMap}을
-     * 사용한다.
+     * <p>빈 가변 맵을 생성한 뒤 초기화 로직을 적용하여 반환한다. 삽입 순서를 보존하기 위해 {@link LinkedHashMap}을 사용한다.
      *
      * @param consumer map initialization logic
      * @param <K> key type
@@ -125,8 +124,7 @@ public abstract class ConfigurationPart {
      * Creates an empty mutable map. Wraps in {@link LinkedHashMap} to ensure safe modification
      * during configuration reload and preserve insertion order.
      *
-     * <p>빈 가변 맵을 생성하여 반환한다. 설정 리로드 시 안전하게 수정할 수 있도록 {@link LinkedHashMap}으로 래핑하며,
-     * 삽입 순서를 보존한다.
+     * <p>빈 가변 맵을 생성하여 반환한다. 설정 리로드 시 안전하게 수정할 수 있도록 {@link LinkedHashMap}으로 래핑하며, 삽입 순서를 보존한다.
      *
      * @param <K> key type
      * @param <V> value type
@@ -151,7 +149,11 @@ public abstract class ConfigurationPart {
      * <p>두 엔트리를 포함하는 가변 맵을 생성하여 반환한다.
      */
     public static <K, V> Map<K, V> mapOf(K k1, V v1, K k2, V v2) {
-        return mapOf(map -> { map.put(k1, v1); map.put(k2, v2); });
+        return mapOf(
+                map -> {
+                    map.put(k1, v1);
+                    map.put(k2, v2);
+                });
     }
 
     /**
@@ -160,7 +162,12 @@ public abstract class ConfigurationPart {
      * <p>세 엔트리를 포함하는 가변 맵을 생성하여 반환한다.
      */
     public static <K, V> Map<K, V> mapOf(K k1, V v1, K k2, V v2, K k3, V v3) {
-        return mapOf(map -> { map.put(k1, v1); map.put(k2, v2); map.put(k3, v3); });
+        return mapOf(
+                map -> {
+                    map.put(k1, v1);
+                    map.put(k2, v2);
+                    map.put(k3, v3);
+                });
     }
 
     /**
@@ -169,7 +176,13 @@ public abstract class ConfigurationPart {
      * <p>네 엔트리를 포함하는 가변 맵을 생성하여 반환한다.
      */
     public static <K, V> Map<K, V> mapOf(K k1, V v1, K k2, V v2, K k3, V v3, K k4, V v4) {
-        return mapOf(map -> { map.put(k1, v1); map.put(k2, v2); map.put(k3, v3); map.put(k4, v4); });
+        return mapOf(
+                map -> {
+                    map.put(k1, v1);
+                    map.put(k2, v2);
+                    map.put(k3, v3);
+                    map.put(k4, v4);
+                });
     }
 
     /**
@@ -179,6 +192,13 @@ public abstract class ConfigurationPart {
      */
     public static <K, V> Map<K, V> mapOf(
             K k1, V v1, K k2, V v2, K k3, V v3, K k4, V v4, K k5, V v5) {
-        return mapOf(map -> { map.put(k1, v1); map.put(k2, v2); map.put(k3, v3); map.put(k4, v4); map.put(k5, v5); });
+        return mapOf(
+                map -> {
+                    map.put(k1, v1);
+                    map.put(k2, v2);
+                    map.put(k3, v3);
+                    map.put(k4, v4);
+                    map.put(k5, v5);
+                });
     }
 }

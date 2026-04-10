@@ -23,14 +23,12 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
-import java.util.Enumeration;
 import java.util.function.Consumer;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
-import java.util.logging.Level;
 
-import org.bukkit.Bukkit;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.slf4j.LoggerFactory;
 import org.spongepowered.configurate.CommentedConfigurationNode;
 import org.spongepowered.configurate.ConfigurateException;
@@ -43,7 +41,6 @@ import org.spongepowered.configurate.yaml.NodeStyle;
 import org.spongepowered.configurate.yaml.YamlConfigurationLoader;
 
 import com.google.common.base.Throwables;
-import com.google.common.collect.ImmutableMap;
 
 /**
  * Centrally manages all configuration files for a plugin. Handles internal configs (Setting,
@@ -158,7 +155,7 @@ public class RSConfiguration {
         Path configFolder = plugin.getDataFolder().toPath().resolve(folderPath);
         Map<String, C> result = new LinkedHashMap<>();
         try {
-            if (Files.notExists(configFolder)) Files.createDirectories(configFolder);
+            Files.createDirectories(configFolder);
             Set<String> fileNames = new LinkedHashSet<>();
             try (java.util.stream.Stream<Path> stream = Files.list(configFolder)) {
                 stream.filter(p -> p.toString().endsWith(".yml"))
@@ -193,23 +190,20 @@ public class RSConfiguration {
             Integer version,
             String name,
             Consumer<TypeSerializerCollection.Builder> extraSerializer) {
-        Path configFolder = plugin.getDataFolder().toPath().resolve(folder);
-        Path configFile = configFolder.resolve(name);
+        Path configFile = plugin.getDataFolder().toPath().resolve(folder).resolve(name);
         BufferedReader defaultConfig = configFromResource(folder, name);
-        PluginConfiguration<C> pluginConfiguration;
         try {
-            pluginConfiguration =
-                    new PluginConfiguration<>(
+            return new PluginConfiguration<>(
                             plugin,
                             configuration,
                             configFile,
                             defaultConfig,
                             version,
-                            extraSerializer);
+                            extraSerializer)
+                    .load();
         } catch (ConfigurateException e) {
             throw new RuntimeException(e);
         }
-        return pluginConfiguration.load();
     }
 
     /**
@@ -261,6 +255,7 @@ public class RSConfiguration {
      * @param name file name
      * @return {@link BufferedReader} if resource exists, {@code null} otherwise
      */
+    @Nullable
     private BufferedReader configFromResource(String folder, String name) {
         try {
             InputStream in = plugin.getResource(folder + "/" + name);
@@ -281,6 +276,7 @@ public class RSConfiguration {
      * @param <C> configuration type
      * @return registered configuration instance, or {@code null} if not found
      */
+    @Nullable
     @SuppressWarnings("unchecked")
     public <C extends ConfigurationPart> C get(Class<C> configuration) {
         Registry<C> registry = (Registry<C>) this.registries.get(configuration);
@@ -297,6 +293,7 @@ public class RSConfiguration {
      * @param <C> configuration type
      * @return registered configuration list instance, or {@code null} if not found
      */
+    @Nullable
     @SuppressWarnings("unchecked")
     public <C extends ConfigurationPart> ConfigList<C> getList(Class<C> configuration) {
         Registry<C> registry = (Registry<C>) this.registries.get(configuration);
@@ -354,25 +351,22 @@ public class RSConfiguration {
             String folder =
                     registry.isList() ? registry.path().folderPath() : registry.path().folder();
             for (Map.Entry<String, C> entry : registry.instances().entrySet()) {
-                C existingInstance = entry.getValue();
                 String name = entry.getKey() + ".yml";
-                Path configFolder = plugin.getDataFolder().toPath().resolve(folder);
-                Path configFile = configFolder.resolve(name);
+                Path configFile = plugin.getDataFolder().toPath().resolve(folder).resolve(name);
                 BufferedReader defaultConfig = configFromResource(folder, name);
 
-                PluginConfiguration<C> pluginConfiguration =
-                        new PluginConfiguration<>(
+                new PluginConfiguration<>(
                                 plugin,
                                 configuration,
                                 configFile,
                                 defaultConfig,
                                 registry.path().version(),
-                                registry.extraSerializer());
-                pluginConfiguration.reload(existingInstance);
+                                registry.extraSerializer())
+                        .reload(entry.getValue());
             }
             return true;
         } catch (Exception e) {
-            log.error("Failed to reload configuration " + configuration.getSimpleName(), e);
+            log.error("Failed to reload configuration {}", configuration.getSimpleName(), e);
             return false;
         }
     }
@@ -441,14 +435,14 @@ public class RSConfiguration {
             else this.loader = builder.source(() -> defaultConfig).build();
             this.version = version != null ? version : 0;
             try {
+                if (path.getParent() != null) {
+                    Files.createDirectories(path.getParent());
+                }
                 if (Files.notExists(path)) {
-                    if (path.getParent() != null && Files.notExists(path.getParent())) {
-                        Files.createDirectories(path.getParent());
-                    }
-                    if (defaultConfig == null) {
-                        Files.createFile(path);
-                        this.config = CommentedConfigurationNode.root(this.loader.defaultOptions());
-                    } else this.config = this.loader.load();
+                    this.config =
+                            defaultConfig != null
+                                    ? this.loader.load()
+                                    : CommentedConfigurationNode.root(this.loader.defaultOptions());
                     if (this.version > 0)
                         this.config.node(Configuration.VERSION_FIELD).raw(version);
                 } else {
@@ -468,32 +462,33 @@ public class RSConfiguration {
             }
         }
 
+        @Nullable
         private BufferedReader configFromResource(String folder, String name) {
-            BufferedReader result = null;
             try {
                 InputStream in = plugin.getResource(folder + "/" + name);
                 if (in != null)
-                    result = new BufferedReader(new InputStreamReader(in, StandardCharsets.UTF_8));
+                    return new BufferedReader(new InputStreamReader(in, StandardCharsets.UTF_8));
             } catch (Exception ignored) {
             }
-            return result;
+            return null;
         }
 
+        @NotNull
         protected Map<Object, Object> toMap(@NotNull ConfigurationNode node) {
-            ImmutableMap.Builder<Object, Object> builder = ImmutableMap.builder();
+            Map<Object, Object> map = new LinkedHashMap<>();
             for (Map.Entry<Object, ? extends ConfigurationNode> entry :
                     node.childrenMap().entrySet()) {
                 ConfigurationNode value = entry.getValue();
                 if (value == null) continue;
-                builder.put(entry.getKey(), value.isMap() ? toMap(value) : value);
+                map.put(entry.getKey(), value.isMap() ? toMap(value) : value);
             }
-            return builder.build();
+            return Collections.unmodifiableMap(map);
         }
 
         public void setup(Wrapper<T> instance) {
             this.instance = instance;
             loadMethod();
-            save();
+            saveFile();
         }
 
         public void reload() {
@@ -507,9 +502,9 @@ public class RSConfiguration {
             try {
                 final String previous = config.copy().getString();
                 config = loader.load();
-                if (previous == null) return;
-                String dump = config.copy().getString();
-                if (!previous.isEmpty()) if (!previous.equalsIgnoreCase(dump)) changed = true;
+                if (previous != null && !previous.isEmpty()) {
+                    changed = !previous.equalsIgnoreCase(config.copy().getString());
+                }
             } catch (IOException ex) {
                 log.warn("IOException {}", path.getFileName(), ex);
             } catch (Exception ex) {
@@ -522,24 +517,22 @@ public class RSConfiguration {
 
         private void loadMethod() {
             for (Method method : getClass().getDeclaredMethods()) {
-                if (Modifier.isPrivate(method.getModifiers())) {
-                    if (method.getParameterTypes().length == 0
-                            && method.getReturnType() == Void.TYPE) {
-                        try {
-                            method.setAccessible(true);
-                            method.invoke(instance);
-                        } catch (InvocationTargetException ex) {
-                            Throwables.throwIfUnchecked(ex.getCause());
-                        } catch (Exception ex) {
-                            Bukkit.getLogger().log(Level.SEVERE, "Error invoking " + method, ex);
-                        }
-                    }
+                if (!Modifier.isPrivate(method.getModifiers())) continue;
+                if (method.getParameterCount() != 0 || method.getReturnType() != Void.TYPE)
+                    continue;
+                try {
+                    method.setAccessible(true);
+                    method.invoke(instance);
+                } catch (InvocationTargetException ex) {
+                    Throwables.throwIfUnchecked(ex.getCause());
+                } catch (Exception ex) {
+                    log.error("Error invoking {}", method, ex);
                 }
             }
         }
 
         public void save() {
-            if (plugin.isEnabled()) CraftScheduler.async(plugin, scheduledTask -> saveFile());
+            if (plugin.isEnabled()) CraftScheduler.async(plugin, this::saveFile);
             else saveFile();
         }
 
@@ -552,68 +545,68 @@ public class RSConfiguration {
         }
 
         protected void set(String path, Object val) {
-            set(path, val, "");
+            set(path, val, new String[0]);
         }
 
         @NotNull
         protected String getString(String path, String def) {
-            return getString(path, def, new String[] {});
+            return getString(path, def, new String[0]);
         }
 
         protected boolean getBoolean(String path, boolean def) {
-            return getBoolean(path, def, new String[] {});
+            return getBoolean(path, def, new String[0]);
         }
 
         protected double getDouble(String path, double def) {
-            return getDouble(path, def, new String[] {});
+            return getDouble(path, def, new String[0]);
         }
 
         protected int getInt(String path, int def) {
-            return getInt(path, def, new String[] {});
+            return getInt(path, def, new String[0]);
         }
 
         protected long getLong(String path, long def) {
-            return getLong(path, def, new String[] {});
+            return getLong(path, def, new String[0]);
         }
 
         @NotNull
         protected <E> List<E> getList(String path, Class<E> type, List<E> def) {
-            return getList(path, type, def, new String[] {});
+            return getList(path, type, def, new String[0]);
         }
 
         @NotNull
         protected List<String> getStringList(String path, List<String> def) {
-            return getStringList(path, def, new String[] {});
+            return getStringList(path, def, new String[0]);
         }
 
         @NotNull
         protected List<Boolean> getBooleanList(String path, List<Boolean> def) {
-            return getBooleanList(path, def, new String[] {});
+            return getBooleanList(path, def, new String[0]);
         }
 
         @NotNull
         protected List<Float> getFloatList(String path, List<Float> def) {
-            return getFloatList(path, def, new String[] {});
+            return getFloatList(path, def, new String[0]);
         }
 
         @NotNull
         protected List<Double> getDoubleList(String path, List<Double> def) {
-            return getDoubleList(path, def, new String[] {});
+            return getDoubleList(path, def, new String[0]);
         }
 
         @NotNull
         protected List<Integer> getIntegerList(String path, List<Integer> def) {
-            return getIntegerList(path, def, new String[] {});
+            return getIntegerList(path, def, new String[0]);
         }
 
         @NotNull
         protected List<Long> getLongList(String path, List<Long> def) {
-            return getLongList(path, def, new String[] {});
+            return getLongList(path, def, new String[0]);
         }
 
         @NotNull
         protected Map<Object, Object> getMap(String path, Map<Object, Object> def) {
-            return getMap(path, def, new String[] {});
+            return getMap(path, def, new String[0]);
         }
 
         protected CommentedConfigurationNode set(String path, Object val, String... comment) {
@@ -622,7 +615,7 @@ public class RSConfiguration {
                 node.set(val);
                 comment(node, comment);
             } catch (SerializationException ex) {
-                Bukkit.getLogger().log(Level.SEVERE, "Could not set " + path, ex);
+                log.error("Could not set {}", path, ex);
             }
             return node;
         }
@@ -634,7 +627,7 @@ public class RSConfiguration {
                 try {
                     node.set(val);
                 } catch (SerializationException ex) {
-                    Bukkit.getLogger().log(Level.SEVERE, "Could not set " + path, ex);
+                    log.error("Could not set {}", path, ex);
                 }
             }
             comment(node, comment);
@@ -716,19 +709,15 @@ public class RSConfiguration {
         }
 
         protected boolean isList(String path) {
-            CommentedConfigurationNode node = pathToNode(path);
-            return node.isList();
+            return pathToNode(path).isList();
         }
 
         protected boolean isMap(String path) {
-            CommentedConfigurationNode node = pathToNode(path);
-            return node.isMap();
+            return pathToNode(path).isMap();
         }
 
         protected boolean isNull(String path) {
-            CommentedConfigurationNode node = pathToNode(path);
-            if (node == null) return true;
-            return node.isNull();
+            return pathToNode(path).isNull();
         }
 
         @NotNull
@@ -756,7 +745,7 @@ public class RSConfiguration {
         private void collectKeys(ConfigurationNode node, String prefix, Set<String> out) {
             if (node == null || node.virtual()) return;
             Map<Object, ? extends ConfigurationNode> children = node.childrenMap();
-            if (children == null || children.isEmpty()) {
+            if (children.isEmpty()) {
                 if (!prefix.isEmpty()) out.add(prefix);
                 return;
             }
@@ -768,8 +757,7 @@ public class RSConfiguration {
         }
 
         protected void comment(String path, String... comment) {
-            CommentedConfigurationNode node = pathToNode(path);
-            comment(node, comment);
+            comment(pathToNode(path), comment);
         }
 
         protected void comment(CommentedConfigurationNode node, String... comment) {
@@ -789,14 +777,6 @@ public class RSConfiguration {
                 }
             }
             return config.node(nodes);
-        }
-
-        private Long parseLong(String s) {
-            try {
-                return Long.parseLong(s);
-            } catch (NumberFormatException ex) {
-                return null;
-            }
         }
     }
 }
