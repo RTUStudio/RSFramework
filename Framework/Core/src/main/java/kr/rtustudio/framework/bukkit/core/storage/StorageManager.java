@@ -148,7 +148,12 @@ public class StorageManager {
                         yield new kr.rtustudio.storage.postgresql.PostgreSQL(conn, cfg, name);
                     }
                 };
-        plugin.console("Storage [" + name + "]: " + type.getName());
+        plugin.console(
+                "<gray>Registered <white>"
+                        + name
+                        + "</white> storage as <aqua>"
+                        + type.getName()
+                        + "</aqua></gray>");
         return storage;
     }
 }
