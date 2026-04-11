@@ -537,10 +537,16 @@ public class RSConfiguration {
         }
 
         private void saveFile() {
-            try {
-                loader.save(config);
-            } catch (IOException ex) {
-                log.warn("Could not save {}", path.getFileName(), ex);
+            String lock = path.toAbsolutePath().toString().intern();
+            synchronized (lock) {
+                try {
+                    if (path.getParent() != null && Files.notExists(path.getParent())) {
+                        Files.createDirectories(path.getParent());
+                    }
+                    loader.save(config);
+                } catch (IOException ex) {
+                    log.warn("Could not save {}", path.getFileName(), ex);
+                }
             }
         }
 
