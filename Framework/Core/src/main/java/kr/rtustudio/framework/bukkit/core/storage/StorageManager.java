@@ -149,9 +149,9 @@ public class StorageManager {
                     }
                 };
         plugin.console(
-                "<gray>Registered <white>"
+                "<gray>Storage <white>"
                         + name
-                        + "</white> storage as <aqua>"
+                        + "</white> is registered with <aqua>"
                         + type.getName()
                         + "</aqua></gray>");
         return storage;
