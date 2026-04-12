@@ -1,12 +1,25 @@
+<div align="center">
+
 # RSFramework
+
+Modular Bukkit/Paper plugin development framework.<br/>
+<br/>
+
+![Version](https://img.shields.io/badge/version-4.7.17-blue?style=for-the-badge)
+![Java](https://img.shields.io/badge/Java-21+-orange?style=for-the-badge)
+![Bukkit](https://img.shields.io/badge/Bukkit-1.20.1+-green?style=for-the-badge)
+![Velocity](https://img.shields.io/badge/Velocity-3.4.0+-blueviolet?style=for-the-badge)
+![License](https://img.shields.io/badge/License-GPLv3-red?style=for-the-badge)
+
+<br/>
 
 [![Download](https://img.shields.io/badge/Download-4.7.17-26A5E4?style=for-the-badge&logo=github)](https://ci.codemc.io/job/RTUStudio/job/RSFramework/lastSuccessfulBuild/artifact/builds/plugin/RSFramework-4.7.17.jar)
 
-Modular Bukkit/Paper plugin development framework.
+<br/><br/>
 
-> **Version**: 4.7.17 · **Java**: 21 · **Supported Servers**: 1.20.1+ (Spigot/Paper/Folia) · **Proxy**: Velocity · **License**: GPL-3.0
+**[🇰🇷 한국어 문서](docs/kr/)** &nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp; **[🇬🇧 English Docs](docs/en/)**
 
-**[🇰🇷 한국어 문서](docs/kr/)**
+</div>
 
 ---
 
