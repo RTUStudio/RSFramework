@@ -1,8 +1,10 @@
 # RSFramework
 
+[![Download](https://img.shields.io/badge/Download-4.7.17-26A5E4?style=for-the-badge&logo=github)](https://ci.codemc.io/job/RTUStudio/job/RSFramework/lastSuccessfulBuild/artifact/builds/plugin/RSFramework-4.7.17.jar)
+
 Modular Bukkit/Paper plugin development framework.
 
-> **Version**: 4.7.16 · **Java**: 21 · **Supported Servers**: 1.20.1+ (Spigot/Paper/Folia) · **Proxy**: Velocity · **License**: GPL-3.0
+> **Version**: 4.7.17 · **Java**: 21 · **Supported Servers**: 1.20.1+ (Spigot/Paper/Folia) · **Proxy**: Velocity · **License**: GPL-3.0
 
 **[🇰🇷 한국어 문서](docs/kr/)**
 
@@ -80,7 +82,7 @@ repositories {
 }
 
 dependencies {
-    compileOnly("kr.rtustudio:framework-api:4.7.16")
+    compileOnly("kr.rtustudio:framework-api:4.7.17")
 }
 ```
 
